@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="13E28" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="HttpRequestOperationEntity" representedClassName="HttpRequestOperationEntity" syncable="YES">
+        <attribute name="httpMethodNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="nextRetryTimeStamp" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES"/>
+        <attribute name="parameters" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="retryAttemptsCount" optional="YES" attributeType="Integer 16" defaultValueString="5" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="HttpRequestOperationEntity" positionX="-63" positionY="-18" width="128" height="30"/>
+    </elements>
+</model>
