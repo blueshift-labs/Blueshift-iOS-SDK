@@ -2,8 +2,7 @@
 //  BlueShiftRequestQueue.h
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 04/03/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -18,9 +17,11 @@
 #import "BlueShiftRequestQueueStatus.h"
 #import "BlueShiftNetworkReachabilityManager.h"
 #import "NSDate+BlueShiftDateHelpers.h"
+#import "BlueShiftBatchRequestOperation.h"
 
 
 @class BlueShiftRequestOperation;
+@class BlueShiftBatchRequestOperation;
 
 // Defines the maximum number of requests that can be retried ...
 #define kRequestTryMaximumLimit                 3
@@ -42,7 +43,9 @@
 
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation;
 
+// Method to add Batch Request Operation to Queue ....
 
++ (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation;
 
 // Method to set the request queue status explicity ...
 

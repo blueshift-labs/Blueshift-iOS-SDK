@@ -2,8 +2,7 @@
 //  BlueShiftConfig.m
 //  BlueShiftiOSSDK
 //
-//  Created by Arjun K P on 19/02/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftConfig.h"

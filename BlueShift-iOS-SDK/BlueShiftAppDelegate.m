@@ -2,8 +2,7 @@
 //  BlueShiftAppDelegate.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 19/02/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftAppDelegate.h"
@@ -410,7 +409,7 @@
     }
     
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters];
+    [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }
 
 - (void)trackPushViewed {
@@ -425,7 +424,7 @@
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventPushView andParameters:parameters];
+    [[BlueShift sharedInstance] trackEventForEventName:kEventPushView andParameters:parameters canBatchThisEvent:YES];
     
 }
 
@@ -441,7 +440,7 @@
     }
     
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventPushClicked andParameters:parameters];
+    [[BlueShift sharedInstance] trackEventForEventName:kEventPushClicked andParameters:parameters canBatchThisEvent:YES];
 }
 
 - (BOOL)trackOpenURLWithCampaignURLString:(NSString *)campaignURLString andParameters:(NSDictionary *)parameters {

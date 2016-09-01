@@ -2,8 +2,7 @@
 //  BlueShiftRequestQueue.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 04/03/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftRequestQueue.h"
@@ -32,15 +31,33 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     NSDictionary *parameters = requestOperation.parameters;
     NSInteger nextRetryTimeStamp = requestOperation.nextRetryTimeStamp;
     NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
+    BOOL isBatchEvent = requestOperation.isBatchEvent;
     
-    HttpRequestOperationEntity *httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:appDelegate.managedObjectContext];
-    
-    [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount];
-    
-    [BlueShiftRequestQueue processRequestsInQueue];
+    if (_requestQueueStatus == BlueShiftRequestQueueStatusBusy || [BlueShiftNetworkReachabilityManager networkConnected] == NO)  {
+        isBatchEvent = YES;
+    }
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
+    dispatch_async(queue, ^{
+        HttpRequestOperationEntity *httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:appDelegate.managedObjectContext];
+        
+        [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
+        
+        if(!isBatchEvent) {
+            [BlueShiftRequestQueue processRequestsInQueue];
+        }
+    });
 }
 
-
++ (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation {
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:appDelegate.managedObjectContext];
+    NSArray *paramsArray = requestOperation.paramsArray;
+    NSInteger nextRetryTimeStamp = requestOperation.nextRetryTimeStamp;
+    NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
+    
+    BatchEventEntity *batchEventEntity = [[BatchEventEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:appDelegate.managedObjectContext];
+    [batchEventEntity insertEntryParametersList:paramsArray andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount];
+}
 
 // Method to add Request Operation to the Queue ...
 
@@ -114,7 +131,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 + (void)processRequestsInQueue {
     
-    
     @synchronized(self) {
         // Will execute the code when the requestQueue is free / available and internet is connected ...
         
@@ -162,13 +178,10 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             BOOL deletedStatus = [context save:&saveError];
                             
                             if (deletedStatus == YES) {
-                                
-                                
                                 // request record is removed successfully from core data ...
                                 
                                 _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                                [BlueShiftRequestQueue processRequestsInQueue];
-                                
+                                //[BlueShiftRequestQueue processRequestsInQueue];
                             } else {
                                 
                                 
@@ -183,6 +196,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
                             requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
                             requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
+                            requestOperation.isBatchEvent = YES;
                             
                             [context deleteObject:operationEntityToBeExecuted];
                             NSError *saveError = nil;

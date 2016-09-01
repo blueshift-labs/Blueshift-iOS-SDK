@@ -2,8 +2,7 @@
 //  HttpRequestOperationEntity.h
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 02/03/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -26,7 +25,8 @@
 
 @property (nonatomic, retain) NSData * parameters;
 
-
+// Batch event or real time event
+@property BOOL isBatchEvent;
 
 // property to hold the request url ...
 
@@ -38,7 +38,7 @@
 
 // Method to insert Entry for a particular request operation in core data ...
 
-- (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount;
+- (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount andIsBatchEvent:(BOOL) isBatchEvent;
 
 
 
@@ -49,4 +49,6 @@
 // Method to return the first record from Core Data ...
 + (HttpRequestOperationEntity *)fetchFirstRecordFromCoreData;
 
+// Method to return the batch records from Core Data ...
++ (NSArray *)fetchBatchWiseRecordFromCoreData;
 @end

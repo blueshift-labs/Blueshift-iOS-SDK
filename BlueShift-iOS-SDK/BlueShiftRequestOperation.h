@@ -2,10 +2,8 @@
 //  BlueShiftRequestOperation.h
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 02/03/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
-
 #import "AFHTTPRequestOperation.h"
 #import "BlueShiftHTTPMethod.h"
 #import "HttpRequestOperationEntity.h"
@@ -37,9 +35,12 @@
 // property to hold the timestamp for which next request to be send ...
 @property NSInteger nextRetryTimeStamp;
 
+// property to check batch event or real time event
+@property BOOL isBatchEvent;
+
 // initialize BlueShiftRequestOperation instance with url and other request based details...
 
-- (id)initWithRequestURL:(NSString *)url andHttpMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp;
+- (id)initWithRequestURL:(NSString *)url andHttpMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andIsBatchEvent:(BOOL)isBatchEvent;
 
 
 

@@ -2,10 +2,8 @@
 //  BlueShiftDeviceData.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 20/02/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
-
 #import "BlueShiftDeviceData.h"
 
 
@@ -22,7 +20,8 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (NSString *)deviceUUID {
-    return @"";
+    NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    return idfvString;
 }
 
 - (NSString *)deviceIDFA {
@@ -62,7 +61,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *deviceMutableDictionary = [NSMutableDictionary dictionary];
     if (self.deviceUUID) {
-        [deviceMutableDictionary setObject:self.deviceUUID forKey:@"device_identifier"];
+        [deviceMutableDictionary setObject:self.deviceUUID forKey:@"device_id"];
     }
     
     if (self.deviceType) {
