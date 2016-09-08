@@ -1,9 +1,8 @@
 //
 //  BlueShiftBatchUploadConfig.h
-//  Pods
+//  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 27/08/16.
-//
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

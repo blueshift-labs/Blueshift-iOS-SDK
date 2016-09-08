@@ -15,6 +15,6 @@
 #define kNotificationCategoryViewCartIdentifier                         @"view_cart"
 #define kNotificationActionOpenCartIdentifier                           @"open_cart"
 
-#define kNotificationCategoryOfferIdentifier                            @"offer"
+#define kNotificationCategoryOfferIdentifier                            @"promotion"
 
 #endif

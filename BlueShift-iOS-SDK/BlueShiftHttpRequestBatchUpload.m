@@ -2,8 +2,7 @@
 //  BlueShiftHttpRequestBatchUpload.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 25/08/16.
-//  Copyright © 2016 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftHttpRequestBatchUpload.h"
@@ -27,6 +26,8 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 + (void)batchEventsUploadInBackground {
     [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
 }
+
+
 
 // Method to create and upload batches
 + (void)createAndUploadBatches {

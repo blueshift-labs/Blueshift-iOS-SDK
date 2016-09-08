@@ -8,6 +8,7 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftAlertView.h"
+#import "BlueShiftHttpRequestBatchUpload.h"
 
 @implementation BlueShiftAppDelegate
 
@@ -98,6 +99,7 @@
     return YES;
 }
 
+
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
 {
     NSString *deviceTokenString = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
@@ -120,9 +122,11 @@
     handler(UIBackgroundFetchResultNewData);
 }
 
+
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
     // Way to handle push notification in three states
@@ -271,7 +275,8 @@
     // Handles the scenario when a push message action is selected ...
     // Differentiation is done on the basis of identifier of the push notification ...
     
-    NSDictionary *pushAlertDictionary = [[notification objectForKey:@"aps"] objectForKey:@"alert"];
+    //NSDictionary *pushAlertDictionary = [[notification objectForKey:@"aps"] objectForKey:@"alert"];
+    NSDictionary *pushAlertDictionary = [notification objectForKey:@"aps"];
     NSDictionary *pushDetailsDictionary = nil;
     if ([pushAlertDictionary isKindOfClass:[NSDictionary class]]) {
         pushDetailsDictionary = pushAlertDictionary;
@@ -321,12 +326,10 @@
     // Will have to handled by SDK .....
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    [self.oldDelegate applicationDidEnterBackground:application];
-}
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [self.oldDelegate applicationWillEnterForeground:application];
+    
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -336,12 +339,32 @@
             [self.oldDelegate applicationDidBecomeActive:application];
         }
     }
-    
+    // Uploading previous Batch events if anything exists
+    //To make the code block asynchronous
+    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+
     // Will have to handled by SDK .....
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application {
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    
     [self.oldDelegate applicationWillTerminate:application];
+    
+    if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)])
+    {
+        __block UIBackgroundTaskIdentifier background_task;
+        background_task = [application beginBackgroundTaskWithExpirationHandler:^ {
+            
+            //Clean up code. Tell the system that we are done.
+            [application endBackgroundTask: background_task];
+            background_task = UIBackgroundTaskInvalid;
+        }];
+        
+        // Uploading Batch events
+        //To make the code block asynchronous
+        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    }
 }
 
 - (void) forwardInvocation:(NSInvocation *)anInvocation {
@@ -385,7 +408,8 @@
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
+    //NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
+    NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushMessageID = [pushAlertDictionary objectForKey:@"id"];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
@@ -407,7 +431,6 @@
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
-    
     
     [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }

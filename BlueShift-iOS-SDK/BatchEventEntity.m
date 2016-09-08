@@ -1,9 +1,8 @@
 //
 //  BatchEventEntity.m
-//  Pods
+//  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 31/08/16.
-//
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BatchEventEntity.h"

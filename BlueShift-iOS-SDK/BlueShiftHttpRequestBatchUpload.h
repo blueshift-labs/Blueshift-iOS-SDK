@@ -2,8 +2,7 @@
 //  BlueShiftHttpRequestBatchUpload.h
 //  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 25/08/16.
-//  Copyright © 2016 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -24,5 +23,7 @@
 
 // Method to start batch uploading
 + (void)startBatchUpload;
+
++ (void)batchEventsUploadInBackground;
 
 @end
