@@ -4,13 +4,13 @@
 //
 //  Copyright (c) Blueshift. All rights reserved.
 //
-#import "AFHTTPRequestOperation.h"
+
 #import "BlueShiftHTTPMethod.h"
 #import "HttpRequestOperationEntity.h"
 
 @class HttpRequestOperationEntity;
 
-@interface BlueShiftRequestOperation : AFHTTPRequestOperation
+@interface BlueShiftRequestOperation : NSObject
 
 
 

@@ -72,59 +72,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     
     // perform executions based on the request operation http method ...
     
-    if (httpMethod == BlueShiftHTTPMethodGET) {
-        
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] addBasicAuthenticationRequestHeaderForUsername:[BlueShiftConfig config].apiKey andPassword:nil];
-        
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] GET:url parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            
-            BOOL status = NO;
-            
-            
-            // If server responds with status code ...
-            
-            if (operation.response.statusCode == kStatusCodeSuccessfullResponse) {
-                status = YES;
-            }
-            
-            
-            // Performs the corresponding handler function ...
-            
-            handler(status);
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            
-            
-            // Performs the corresponding handler function ...
-            
-            handler(NO);
-        }];
-    } else if (httpMethod == BlueShiftHTTPMethodPOST) {
-        
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:nil];
-        
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] POST:url parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            
-            BOOL status = NO;
-            
-            
-            // If server responds with status code ...
-            
-            if (operation.response.statusCode == kStatusCodeSuccessfullResponse) {
-                status = YES;
-            }
-            
-            
-            // Performs the corresponding handler function ...
-            
-            handler(status);
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            
-            
-            // Performs the corresponding handler function ...
-            
-            handler(NO);
-        }];
-    }
+    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
+        handler(status);
+    }];
 }
 
 // Method to trigger request executions from the Queue ...

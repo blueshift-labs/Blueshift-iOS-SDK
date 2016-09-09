@@ -5,13 +5,12 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 
-#import "AFHTTPRequestOperation.h"
 #import "BlueShiftHTTPMethod.h"
 #import "BatchEventEntity.h""
 
 @class BatchEventEntity;
 
-@interface BlueShiftBatchRequestOperation : AFHTTPRequestOperation
+@interface BlueShiftBatchRequestOperation : NSObject
 
 // property to hold the request operation parameters list ...
 @property NSArray *paramsArray;

@@ -18,11 +18,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _sharedRequestOperationManager = [BlueShiftRequestOperationManager manager];
+        _sharedRequestOperationManager = [[BlueShiftRequestOperationManager alloc]init];
     });
     return _sharedRequestOperationManager;
 }
-
 
 
 // Method to add Basic authentication request Header ...
@@ -43,9 +42,49 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
     NSString *requestValue = [NSString stringWithFormat:@"Basic %@",credentialsBase64String];
     
-    self.requestSerializer = [AFJSONRequestSerializer serializer];
-    [self.requestSerializer setValue:requestValue forHTTPHeaderField:@"Authorization"];
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+    defaultConfigObject.HTTPAdditionalHeaders = @{
+                                                  @"Authorization":credentialsBase64String,
+                                                  @"Content-Type":@"application/json"
+                                                  };
+    self.sessionConfiguraion = defaultConfigObject;
     
 }
+
+- (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL))handler{
+    [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    
+    NSURL * url = [NSURL URLWithString:urlString];
+    NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
+    //NSString * params =@"user[name]=shahas&user[email]=sha@z.z&user[encrypted_password]=askfdsfkdk";
+    
+    NSDictionary *paramsDictionary = params;
+    [urlRequest setHTTPMethod:@"POST"];
+    NSData *JSONData = [NSJSONSerialization dataWithJSONObject:paramsDictionary
+                                                       options:0
+                                                         error:nil];
+    [urlRequest setHTTPBody:JSONData];
+    
+    NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
+                                                       completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                           if(error == nil)
+                                                           {
+                                                               NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+                                                               
+                                                               if (statusCode == kStatusCodeSuccessfullResponse) {
+                                                                   handler(true);
+                                                               } else {
+                                                                   handler(false);
+                                                               }
+                                                           } else {
+                                                               handler(false);
+                                                           }
+                                                           
+                                                       }];
+    [dataTask resume];
+    
+}
+
 
 @end

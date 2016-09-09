@@ -4,11 +4,11 @@
 //
 //  Copyright (c) Blueshift. All rights reserved.
 //
-#import "AFNetworkReachabilityManager.h"
+
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftRequestQueue.h"
 
-@interface BlueShiftNetworkReachabilityManager : AFNetworkReachabilityManager
+@interface BlueShiftNetworkReachabilityManager : NSObject
 
 
 
