@@ -21,7 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		1F0B9037AD751886034A0665 /* libPods-BlueShift-iOS-SDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F87290F272894ADA86BB8C2A /* libPods-BlueShift-iOS-SDK.a */; };
+		1F0B9037AD751886034A0665 /* libPods-BlueShift-iOS-SDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F87290F272894ADA86BB8C2A /* libPods-BlueShift-iOS-SDK.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		550274751D7820BF00BC832D /* BlueShiftSDKDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 550274561D7820BF00BC832D /* BlueShiftSDKDataModel.xcdatamodeld */; };
 		553EE1761D82AD6F0050DA5F /* BatchEventEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 553EE1451D82AD6F0050DA5F /* BatchEventEntity.m */; };
 		553EE1771D82AD6F0050DA5F /* BlueShift.m in Sources */ = {isa = PBXBuildFile; fileRef = 553EE1471D82AD6F0050DA5F /* BlueShift.m */; };
@@ -299,11 +299,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E0D6B92A1A92513F008485D8 /* Build configuration list for PBXNativeTarget "BlueShift-iOS-SDK" */;
 			buildPhases = (
-				5EF0ACF402D6A458EDC3772A /* Check Pods Manifest.lock */,
 				E0D6B9121A92513E008485D8 /* Sources */,
 				E0D6B9131A92513E008485D8 /* Frameworks */,
 				E0D6B9141A92513E008485D8 /* Copy Files */,
-				F674D4F0BC7DC01C1E4EE592 /* Copy Pods Resources */,
 				DCA620211AA4EFEB001EC26B /* Resources */,
 			);
 			buildRules = (
@@ -373,21 +371,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5EF0ACF402D6A458EDC3772A /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
 		DC4ECE1D1A9B54390078CCB0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -400,21 +383,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# define output folder environment variable\nUNIVERSAL_OUTPUTFOLDER=${BUILD_DIR}/${CONFIGURATION}-universal\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -target ImageFilters ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\nxcodebuild -target ImageFilters -configuration ${CONFIGURATION} -sdk iphonesimulator -arch i386 BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\n# make sure the output directory exists\nmkdir -p \"${UNIVERSAL_OUTPUTFOLDER}\"\n\n# Step 2. Create universal binary file using lipo\nlipo -create -output \"${UNIVERSAL_OUTPUTFOLDER}/lib${PROJECT_NAME}.a\" \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/lib${PROJECT_NAME}.a\" \"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/lib${PROJECT_NAME}.a\"\n\n# Last touch. copy the header files. Just for convenience\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/include\" \"${UNIVERSAL_OUTPUTFOLDER}/\"";
-		};
-		F674D4F0BC7DC01C1E4EE592 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BlueShift-iOS-SDK/Pods-BlueShift-iOS-SDK-resources.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -585,16 +553,9 @@
 			baseConfigurationReference = 9A09163D6DFCFEE31B4B799F /* Pods-BlueShift-iOS-SDK.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/Headers/Public\"",
-					"\"${PODS_ROOT}/Headers/Public/AFNetworking\"",
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"$(inherited)",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "BlueShift-iOS-SDK";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s";
@@ -606,16 +567,9 @@
 			baseConfigurationReference = 99CE5242ED9870A5D4A5BADE /* Pods-BlueShift-iOS-SDK.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/Headers/Public\"",
-					"\"${PODS_ROOT}/Headers/Public/AFNetworking\"",
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"$(inherited)",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "BlueShift-iOS-SDK";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s";
