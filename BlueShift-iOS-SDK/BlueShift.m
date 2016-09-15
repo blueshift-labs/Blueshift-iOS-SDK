@@ -2,8 +2,7 @@
 //  BlueShift.m
 //  BlueShift
 //
-//  Created by Asif on 2/16/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShift.h"
@@ -23,6 +22,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 + (void) initWithConfiguration:(BlueShiftConfig *)config {
     [[BlueShift sharedInstance] performSelectorInBackground:@selector(setupWithConfiguration:) withObject:config];
+    
+    // Start periodic batch upload timer
+    [BlueShiftHttpRequestBatchUpload startBatchUpload];
 }
 
 - (void) setupWithConfiguration:(BlueShiftConfig *)config {
@@ -98,11 +100,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 
-- (void)identifyUserWithDetails:(NSDictionary *)details {
-    [self identifyUserWithEmail:[BlueShiftUserInfo sharedUserInfo].email andDetails:details];
+- (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
+    [self identifyUserWithEmail:[BlueShiftUserInfo sharedUserInfo].email andDetails:details canBatchThisEvent:isBatchEvent];
 }
 
-- (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary *)details {
+- (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     if (email) {
         [parameterMutableDictionary setObject:email forKey:@"email"];
@@ -111,15 +113,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (details) {
         [parameterMutableDictionary addEntriesFromDictionary:details];
     }
-    [self trackEventForEventName:kEventIdentify andParameters:details];
+    [self trackEventForEventName:kEventIdentify andParameters:details canBatchThisEvent:isBatchEvent];
 }
 
-- (void)trackScreenViewedForViewController:(UIViewController *)viewController {
-    [self trackScreenViewedForViewController:viewController withParameters:nil];
+- (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackScreenViewedForViewController:viewController withParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary *)parameters {
+- (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSString *viewControllerString = @"";
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
@@ -132,16 +134,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventPageLoad andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventPageLoad andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID {
-    [self trackProductViewedWithSKU:sku andCategoryID:categoryID withParameter:nil];
+- (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackProductViewedWithSKU:sku andCategoryID:categoryID withParameter:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID withParameter:(NSDictionary *)parameters {
+- (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID withParameter:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent {
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
@@ -157,16 +159,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventProductViewed andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventProductViewed andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackAddToCartWithSKU:(NSString *)sku andQuantity:(NSInteger)quantity {
-    [self trackAddToCartWithSKU:sku andQuantity:quantity andParameters:nil];
+- (void)trackAddToCartWithSKU:(NSString *)sku andQuantity:(NSInteger)quantity canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackAddToCartWithSKU:sku andQuantity:quantity andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackAddToCartWithSKU:(NSString *)sku andQuantity:(NSInteger)quantity andParameters:(NSDictionary *)parameters {
+- (void)trackAddToCartWithSKU:(NSString *)sku andQuantity:(NSInteger)quantity andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
@@ -182,17 +184,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventAddToCart andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventAddToCart andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackCheckOutCartWithProducts:(NSArray *)products andRevenue:(float)revenue andDiscount:(float)discount andCoupon:(NSString *)coupon {
-    [self trackCheckOutCartWithProducts:products andRevenue:revenue andDiscount:discount andCoupon:coupon andParameters:nil];
+- (void)trackCheckOutCartWithProducts:(NSArray *)products andRevenue:(float)revenue andDiscount:(float)discount andCoupon:(NSString *)coupon canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackCheckOutCartWithProducts:products andRevenue:revenue andDiscount:discount andCoupon:coupon andParameters:nil canBatchThisEvent:isBatchEvent];
     
 }
 
 
-- (void)trackCheckOutCartWithProducts:(NSArray *)products andRevenue:(float)revenue andDiscount:(float)discount andCoupon:(NSString *)coupon andParameters:(NSDictionary *)parameters {
+- (void)trackCheckOutCartWithProducts:(NSArray *)products andRevenue:(float)revenue andDiscount:(float)discount andCoupon:(NSString *)coupon andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
@@ -218,25 +220,24 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     
     
-    [self trackEventForEventName:kEventCheckout andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventCheckout andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackProductsPurchased:(NSArray *)products withOrderID:(NSString *)orderID andRevenue:(float)revenue andShippingCost:(float)shippingCost andDiscount:(float)discount andCoupon:(NSString *)coupon {
+- (void)trackProductsPurchased:(NSArray *)products withOrderID:(NSString *)orderID andRevenue:(float)revenue andShippingCost:(float)shippingCost andDiscount:(float)discount andCoupon:(NSString *)coupon canBatchThisEvent:(BOOL)isBatchEvent{
     
-    [self trackProductsPurchased:products withOrderID:orderID andRevenue:revenue andShippingCost:shippingCost andDiscount:discount andCoupon:coupon andParameters:nil];
+    [self trackProductsPurchased:products withOrderID:orderID andRevenue:revenue andShippingCost:shippingCost andDiscount:discount andCoupon:coupon andParameters:nil canBatchThisEvent:isBatchEvent];
     
 }
 
 
-- (void)trackProductsPurchased:(NSArray *)products withOrderID:(NSString *)orderID andRevenue:(float)revenue andShippingCost:(float)shippingCost andDiscount:(float)discount andCoupon:(NSString *)coupon andParameters:(NSDictionary *)parameters {
+- (void)trackProductsPurchased:(NSArray *)products withOrderID:(NSString *)orderID andRevenue:(float)revenue andShippingCost:(float)shippingCost andDiscount:(float)discount andCoupon:(NSString *)coupon andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (products!=nil && products.count > 0) {
         NSMutableArray *productDictionaryMutableArray = [BlueShiftProduct productsDictionaryMutableArrayForProductsArray:products];
         [parameterMutableDictionary setObject:productDictionaryMutableArray forKey:@"products"];
-        
     }
     
     if (orderID) {
@@ -259,17 +260,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventPurchase andParameters:[parameterMutableDictionary copy]];
-    
+    [self trackEventForEventName:kEventPurchase andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
+}
+
+- (void)trackPurchaseCancelForOrderID:(NSString *)orderID canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackPurchaseCancelForOrderID:orderID andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackPurchaseCancelForOrderID:(NSString *)orderID {
-    [self trackPurchaseCancelForOrderID:orderID andParameters:nil];
-}
-
-
-- (void)trackPurchaseCancelForOrderID:(NSString *)orderID andParameters:(NSDictionary *)parameters {
+- (void)trackPurchaseCancelForOrderID:(NSString *)orderID andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (orderID) {
@@ -280,17 +279,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventCancel andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventCancel andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
     
 }
 
 
-- (void)trackPurchaseReturnForOrderID:(NSString *)orderID andProducts:(NSArray *)products {
-    [self trackPurchaseReturnForOrderID:orderID andProducts:products andParameters:nil];
+- (void)trackPurchaseReturnForOrderID:(NSString *)orderID andProducts:(NSArray *)products canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackPurchaseReturnForOrderID:orderID andProducts:products andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackPurchaseReturnForOrderID:(NSString *)orderID andProducts:(NSArray *)products andParameters:(NSDictionary *)parameters {
+- (void)trackPurchaseReturnForOrderID:(NSString *)orderID andProducts:(NSArray *)products andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (products!=nil && products.count > 0) {
@@ -306,21 +305,21 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventReturn andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventReturn andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackProductSearchWithSkuArray:(NSArray *)skuArray andNumberOfResults:(NSInteger)numberOfResults andPageNumber:(NSInteger)pageNumber andQuery:(NSString *)query andFilters:(NSDictionary *)filters {
-    [self trackProductSearchWithSkuArray:skuArray andNumberOfResults:numberOfResults andPageNumber:pageNumber andQuery:query andFilters:filters andParameters:nil];
+- (void)trackProductSearchWithSkuArray:(NSArray *)skuArray andNumberOfResults:(NSInteger)numberOfResults andPageNumber:(NSInteger)pageNumber andQuery:(NSString *)query andFilters:(NSDictionary *)filters canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackProductSearchWithSkuArray:skuArray andNumberOfResults:numberOfResults andPageNumber:pageNumber andQuery:query andFilters:filters andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackProductSearchWithSkuArray:(NSArray *)skuArray andNumberOfResults:(NSInteger)numberOfResults andPageNumber:(NSInteger)pageNumber andQuery:(NSString *)query andParameters:(NSDictionary *)parameters {
-    [self trackProductSearchWithSkuArray:skuArray andNumberOfResults:numberOfResults andPageNumber:pageNumber andQuery:query andFilters:nil andParameters:parameters];
+- (void)trackProductSearchWithSkuArray:(NSArray *)skuArray andNumberOfResults:(NSInteger)numberOfResults andPageNumber:(NSInteger)pageNumber andQuery:(NSString *)query andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackProductSearchWithSkuArray:skuArray andNumberOfResults:numberOfResults andPageNumber:pageNumber andQuery:query andFilters:nil andParameters:parameters canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackProductSearchWithSkuArray:(NSArray *)skuArray andNumberOfResults:(NSInteger)numberOfResults andPageNumber:(NSInteger)pageNumber andQuery:(NSString *)query andFilters:(NSDictionary *)filters andParameters:(NSDictionary *)parameters {
+- (void)trackProductSearchWithSkuArray:(NSArray *)skuArray andNumberOfResults:(NSInteger)numberOfResults andPageNumber:(NSInteger)pageNumber andQuery:(NSString *)query andFilters:(NSDictionary *)filters andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
@@ -349,17 +348,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventSearch andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventSearch andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
     
 }
 
 
-- (void)trackEmailListSubscriptionForEmail:(NSString *)email {
-    [self trackEmailListSubscriptionForEmail:email andParameters:nil];
+- (void)trackEmailListSubscriptionForEmail:(NSString *)email canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackEmailListSubscriptionForEmail:email andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackEmailListSubscriptionForEmail:(NSString *)email andParameters:(NSDictionary *)parameters {
+- (void)trackEmailListSubscriptionForEmail:(NSString *)email andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (email) {
@@ -370,16 +369,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventSubscribeMailing andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventSubscribeMailing andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackEmailListUnsubscriptionForEmail:(NSString *)email {
-    [self trackEmailListUnsubscriptionForEmail:email andParameters:nil];
+- (void)trackEmailListUnsubscriptionForEmail:(NSString *)email canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackEmailListUnsubscriptionForEmail:email andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackEmailListUnsubscriptionForEmail:(NSString *)email andParameters:(NSDictionary *)parameters {
+- (void)trackEmailListUnsubscriptionForEmail:(NSString *)email andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (email) {
@@ -390,17 +389,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventUnSubscribeMailing andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventUnSubscribeMailing andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionInitializationForSubscriptionState:(BlueShiftSubscriptionState)subscriptionState andCycleType:(NSString *)cycleType andCycleLength:(NSInteger)cycleLength andSubscriptionType:(NSString *)subscriptionType andPrice:(float)price andStartDate:(NSTimeInterval)startDate {
+- (void)trackSubscriptionInitializationForSubscriptionState:(BlueShiftSubscriptionState)subscriptionState andCycleType:(NSString *)cycleType andCycleLength:(NSInteger)cycleLength andSubscriptionType:(NSString *)subscriptionType andPrice:(float)price andStartDate:(NSTimeInterval)startDate canBatchThisEvent:(BOOL)isBatchEvent{
     
-    [self trackSubscriptionInitializationForSubscriptionState:subscriptionState andCycleType:cycleType andCycleLength:cycleLength andSubscriptionType:subscriptionType andPrice:price andStartDate:startDate andParameters:nil];
+    [self trackSubscriptionInitializationForSubscriptionState:subscriptionState andCycleType:cycleType andCycleLength:cycleLength andSubscriptionType:subscriptionType andPrice:price andStartDate:startDate andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionInitializationForSubscriptionState:(BlueShiftSubscriptionState)subscriptionState andCycleType:(NSString *)cycleType andCycleLength:(NSInteger)cycleLength andSubscriptionType:(NSString *)subscriptionType andPrice:(float)price andStartDate:(NSTimeInterval)startDate andParameters:(NSDictionary *)parameters {
+- (void)trackSubscriptionInitializationForSubscriptionState:(BlueShiftSubscriptionState)subscriptionState andCycleType:(NSString *)cycleType andCycleLength:(NSInteger)cycleLength andSubscriptionType:(NSString *)subscriptionType andPrice:(float)price andStartDate:(NSTimeInterval)startDate andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     NSString *subscriptionEventName;
@@ -420,17 +419,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:subscriptionEventName andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:subscriptionEventName andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
     
 }
 
 
-- (void)trackSubscriptionPause {
-    [self trackSubscriptionPauseWithParameters:nil];
+- (void)trackSubscriptionPauseWithBatchThisEvent:(BOOL)isBatchEvent {
+    [self trackSubscriptionPauseWithParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionPauseWithParameters:(NSDictionary *)parameters {
+- (void)trackSubscriptionPauseWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent {
     BlueShiftSubscription *subscription = [BlueShiftSubscription currentSubscription];
     
     if (subscription==nil) {
@@ -448,16 +447,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventSubscriptionDowngrade andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventSubscriptionDowngrade andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionUnpause {
-    [self trackSubscriptionUnpauseWithParameters:nil];
+- (void)trackSubscriptionUnpauseWithBatchThisEvent:(BOOL)isBatchEvent {
+    [self trackSubscriptionUnpauseWithParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionUnpauseWithParameters:(NSDictionary *)parameters {
+- (void)trackSubscriptionUnpauseWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     BlueShiftSubscription *subscription = [BlueShiftSubscription currentSubscription];
     
     if (subscription==nil) {
@@ -474,16 +473,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventSubscriptionUpgrade andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventSubscriptionUpgrade andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionCancel {
-    [self trackSubscriptionCancelWithParamters:nil];
+- (void)trackSubscriptionCancelWithBatchThisEvent:(BOOL)isBatchEvent {
+    [self trackSubscriptionCancelWithParamters:nil canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackSubscriptionCancelWithParamters:(NSDictionary *)parameters {
+- (void)trackSubscriptionCancelWithParamters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     BlueShiftSubscription *subscription = [BlueShiftSubscription currentSubscription];
     
     if (subscription==nil) {
@@ -500,15 +499,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self trackEventForEventName:kEventSubscriptionCancel andParameters:[parameterMutableDictionary copy]];
+    [self trackEventForEventName:kEventSubscriptionCancel andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
 
-- (void)trackEventForEventName:(NSString *)eventName {
-    [self trackEventForEventName:eventName andParameters:nil];
+- (void)trackEventForEventName:(NSString *)eventName canBatchThisEvent:(BOOL)isBatchEvent{
+    [self trackEventForEventName:eventName andParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
-- (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters {
+- (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
     
@@ -516,11 +515,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [self performRequestWithRequestParameters:[parameterMutableDictionary copy]];
+    [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
-- (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters {
-    NSString *url = kBaseURL;
+- (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
+    NSString *url = [[NSString alloc]init];
+    if(isBatchEvent) {
+        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
+    } else {
+        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
+    }
     
     NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
@@ -542,10 +546,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     
     
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0];
+    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
     [BlueShiftRequestQueue addRequestOperation:requestOperation];
-    
-    
 }
 
 @end

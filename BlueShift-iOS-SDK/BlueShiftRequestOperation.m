@@ -2,8 +2,7 @@
 //  BlueShiftRequestOperation.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 02/03/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftRequestOperation.h"
@@ -13,7 +12,7 @@
 
 // initialize BlueShiftRequestOperation instance with url and other request based details...
 
-- (id)initWithRequestURL:(NSString *)url andHttpMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp {
+- (id)initWithRequestURL:(NSString *)url andHttpMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andIsBatchEvent:(BOOL)isBatchEvent {
     self = [super init];
     if (self) {
         self.url = url;
@@ -21,6 +20,7 @@
         self.parameters = parameters;
         self.retryAttemptsCount = retryAttemptsCount;
         self.nextRetryTimeStamp = nextRetryTimeStamp;
+        self.isBatchEvent = isBatchEvent;
     }
     
     return self;
@@ -41,6 +41,7 @@
         }
         self.nextRetryTimeStamp = [httpRequestionOperationEntity.nextRetryTimeStamp integerValue];
         self.retryAttemptsCount = [httpRequestionOperationEntity.retryAttemptsCount integerValue];
+        self.isBatchEvent = httpRequestionOperationEntity.isBatchEvent;
     }
     
     return self;

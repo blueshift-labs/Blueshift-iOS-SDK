@@ -2,13 +2,13 @@
 //  BlueShiftAppDelegate.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 19/02/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftAlertView.h"
+#import "BlueShiftHttpRequestBatchUpload.h"
 
 @implementation BlueShiftAppDelegate
 
@@ -99,6 +99,7 @@
     return YES;
 }
 
+
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
 {
     NSString *deviceTokenString = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
@@ -121,13 +122,31 @@
     handler(UIBackgroundFetchResultNewData);
 }
 
-- (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(nonnull UILocalNotification *)notification {
+    self.userInfo = notification.userInfo;
+    [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
+}
+
+- (void)scheduleLocalNotification:(NSDictionary *)userInfo {
+    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:60];
+    localNotification.alertBody = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    localNotification.timeZone = [NSTimeZone defaultTimeZone];
+    localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    localNotification.soundName = [[userInfo objectForKey:@"aps"] objectForKey:@"sound"];
+    localNotification.userInfo = userInfo;
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+}
+
+- (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
+        
         
         // Track notification view when app is open ...
         [self trackPushViewedWithParameters:pushTrackParameterDictionary];
@@ -138,6 +157,67 @@
         
         if (pushAlertView) {
             [pushAlertView show];
+        }
+    } else {
+        
+        // Track notification when app is in background and when we click the push notification from tray..
+        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+        
+        // Handle push notification when the app is in inactive or background state ...
+        if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+            [self.deepLinkToProductPage performDeepLinking];
+            
+            self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+            }
+        } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+            [self.deepLinkToCartPage performDeepLinking];
+            
+            self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+            }
+        } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+            
+            // Handling this as a separate function since push this category does not have an action ...
+            [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
+            
+        }
+    }
+}
+
+- (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+    
+    // Way to handle push notification in three states
+    if (applicationState == UIApplicationStateActive) {
+        
+
+        if([[self.pushAlertDictionary objectForKey:@"notification_type"] isEqualToString:@"alert_box"]) {
+            // Track notification view when app is open ...
+            [self trackPushViewedWithParameters:pushTrackParameterDictionary];
+            
+            
+            // Handle push notification when the app is in active state...
+            BlueShiftAlertView *pushAlertView = [BlueShiftAlertView alertViewWithPushDetailsDictionary:userInfo andDelegate:self];
+            
+            if (pushAlertView) {
+                [pushAlertView show];
+            }
+        } else {
+            [self scheduleLocalNotification:userInfo];
         }
     } else {
         
@@ -272,7 +352,8 @@
     // Handles the scenario when a push message action is selected ...
     // Differentiation is done on the basis of identifier of the push notification ...
     
-    NSDictionary *pushAlertDictionary = [[notification objectForKey:@"aps"] objectForKey:@"alert"];
+    //NSDictionary *pushAlertDictionary = [[notification objectForKey:@"aps"] objectForKey:@"alert"];
+    NSDictionary *pushAlertDictionary = [notification objectForKey:@"aps"];
     NSDictionary *pushDetailsDictionary = nil;
     if ([pushAlertDictionary isKindOfClass:[NSDictionary class]]) {
         pushDetailsDictionary = pushAlertDictionary;
@@ -322,12 +403,10 @@
     // Will have to handled by SDK .....
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    [self.oldDelegate applicationDidEnterBackground:application];
-}
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [self.oldDelegate applicationWillEnterForeground:application];
+    
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -337,12 +416,32 @@
             [self.oldDelegate applicationDidBecomeActive:application];
         }
     }
-    
+    // Uploading previous Batch events if anything exists
+    //To make the code block asynchronous
+    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+
     // Will have to handled by SDK .....
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application {
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    
     [self.oldDelegate applicationWillTerminate:application];
+    
+    if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)])
+    {
+        __block UIBackgroundTaskIdentifier background_task;
+        background_task = [application beginBackgroundTaskWithExpirationHandler:^ {
+            
+            //Clean up code. Tell the system that we are done.
+            [application endBackgroundTask: background_task];
+            background_task = UIBackgroundTaskInvalid;
+        }];
+        
+        // Uploading Batch events
+        //To make the code block asynchronous
+        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    }
 }
 
 - (void) forwardInvocation:(NSInvocation *)anInvocation {
@@ -386,7 +485,8 @@
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
+    //NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
+    NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushMessageID = [pushAlertDictionary objectForKey:@"id"];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
@@ -409,8 +509,7 @@
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    
-    [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters];
+    [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }
 
 - (void)trackPushViewed {
@@ -425,7 +524,7 @@
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventPushView andParameters:parameters];
+    [[BlueShift sharedInstance] trackEventForEventName:kEventPushView andParameters:parameters canBatchThisEvent:YES];
     
 }
 
@@ -441,7 +540,7 @@
     }
     
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventPushClicked andParameters:parameters];
+    [[BlueShift sharedInstance] trackEventForEventName:kEventPushClicked andParameters:parameters canBatchThisEvent:YES];
 }
 
 - (BOOL)trackOpenURLWithCampaignURLString:(NSString *)campaignURLString andParameters:(NSDictionary *)parameters {

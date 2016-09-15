@@ -2,8 +2,7 @@
 //  BlueShiftUserInfo.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 05/03/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftUserInfo.h"
@@ -143,7 +142,11 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:@"education"];
         blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:@"facebook_id"];
         blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:@"gender"];
-        blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:@"unsubscribed"] boolValue];
+        if([currentUserInfoDictionary objectForKey:@"unsubscribed"] == nil) {
+            blueShiftUserInfo.unsubscribed = false;
+        } else {
+            blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:@"unsubscribed"] boolValue];
+        }
         NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:@"joined_at"] doubleValue];
         
         if (joinedAtTimeStamp) {

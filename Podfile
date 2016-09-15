@@ -6,5 +6,5 @@ source 'https://github.com/CocoaPods/Specs.git'
 workspace 'BlueShift-iOS-SDK.xcworkspace'
 
 target 'BlueShift-iOS-SDK' do
- pod 'AFNetworking'
+ 
 end

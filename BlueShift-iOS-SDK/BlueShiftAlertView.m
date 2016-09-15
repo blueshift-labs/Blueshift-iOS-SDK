@@ -2,8 +2,7 @@
 //  BlueShiftAlertView.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Arjun K P on 26/02/15.
-//  Copyright (c) 2015 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #import "BlueShiftAlertView.h"
@@ -15,9 +14,11 @@
     // Differentiation is done on the basis of the category of the push payload dictionary ...
     
     BlueShiftAlertView *blueShiftAlertView = nil;
-    NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
+    //NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
+    NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushCategory = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"category"];
-    NSString *pushMessage = [pushAlertDictionary objectForKey:@"body"];
+    //NSString *pushMessage = [pushAlertDictionary objectForKey:@"body"];
+    NSString *pushMessage = [pushAlertDictionary objectForKey:@"alert"];
     
     if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
         blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"View",@"Buy", nil];
@@ -28,6 +29,8 @@
     } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
         blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Show", nil];
         blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationCategoryOffer;
+    } else {
+        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
     }
     
     return blueShiftAlertView;
