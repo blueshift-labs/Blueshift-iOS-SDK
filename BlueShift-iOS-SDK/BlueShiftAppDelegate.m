@@ -122,8 +122,23 @@
     handler(UIBackgroundFetchResultNewData);
 }
 
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(nonnull UILocalNotification *)notification {
+    self.userInfo = notification.userInfo;
+    [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
+}
 
-- (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+- (void)scheduleLocalNotification:(NSDictionary *)userInfo {
+    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:60];
+    localNotification.alertBody = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    localNotification.timeZone = [NSTimeZone defaultTimeZone];
+    localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    localNotification.soundName = [[userInfo objectForKey:@"aps"] objectForKey:@"sound"];
+    localNotification.userInfo = userInfo;
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+}
+
+- (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
@@ -131,6 +146,7 @@
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
+        
         
         // Track notification view when app is open ...
         [self trackPushViewedWithParameters:pushTrackParameterDictionary];
@@ -141,6 +157,67 @@
         
         if (pushAlertView) {
             [pushAlertView show];
+        }
+    } else {
+        
+        // Track notification when app is in background and when we click the push notification from tray..
+        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+        
+        // Handle push notification when the app is in inactive or background state ...
+        if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+            [self.deepLinkToProductPage performDeepLinking];
+            
+            self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+            }
+        } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+            [self.deepLinkToCartPage performDeepLinking];
+            
+            self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+            }
+        } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+            
+            // Handling this as a separate function since push this category does not have an action ...
+            [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
+            
+        }
+    }
+}
+
+- (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+    
+    // Way to handle push notification in three states
+    if (applicationState == UIApplicationStateActive) {
+        
+
+        if([[self.pushAlertDictionary objectForKey:@"notification_type"] isEqualToString:@"alert_box"]) {
+            // Track notification view when app is open ...
+            [self trackPushViewedWithParameters:pushTrackParameterDictionary];
+            
+            
+            // Handle push notification when the app is in active state...
+            BlueShiftAlertView *pushAlertView = [BlueShiftAlertView alertViewWithPushDetailsDictionary:userInfo andDelegate:self];
+            
+            if (pushAlertView) {
+                [pushAlertView show];
+            }
+        } else {
+            [self scheduleLocalNotification:userInfo];
         }
     } else {
         
