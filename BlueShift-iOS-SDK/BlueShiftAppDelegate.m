@@ -129,7 +129,7 @@
 
 - (void)scheduleLocalNotification:(NSDictionary *)userInfo {
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:60];
+    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:600];
     localNotification.alertBody = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     localNotification.timeZone = [NSTimeZone defaultTimeZone];
     localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
