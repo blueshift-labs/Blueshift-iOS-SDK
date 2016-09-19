@@ -8,12 +8,6 @@
 
 #import "BlueShiftPushNotification.h"
 
-@interface BlueShiftPushNotification ()
-
-@property (nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
-@property (nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
-
-@end
 
 static BlueShiftPushNotification *_sharedInstance = nil;
 
@@ -28,12 +22,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 
-- (void)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
-    self.contentHandler = contentHandler;
-    self.bestAttemptContent = [request.content mutableCopy];
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     
-    // Modify the notification content here...
-    //self.bestAttemptContent.title = [NSString stringWithFormat:@"%@ [modified]", @"shahas"];
     NSURL *url = [NSURL URLWithString:[request.content.userInfo objectForKey:@"media-attachment"]];
     NSString *type = [NSString stringWithFormat:@"%@", [request.content.userInfo objectForKey:@"attachment-type"]];
     NSData *data = [[NSData alloc] initWithContentsOfURL: url];
@@ -52,8 +42,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         
         UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
         NSLog(@"%@", error3);
-        self.bestAttemptContent.attachments = @[attachment];
-        self.contentHandler(self.bestAttemptContent);
+        NSArray *attachments = [[NSArray alloc] initWithObjects:attachment, nil];
+        return attachments;
     }
 }
 

@@ -49,7 +49,7 @@
         buyCategory = [[UIMutableUserNotificationCategory alloc] init];
         [buyCategory setIdentifier:kNotificationCategoryBuyIdentifier];
         [buyCategory setActions:@[buyAction, viewAction]
-                     forContext:UIUserNotificationActionContextDefault];
+                        forContext:UIUserNotificationActionContextDefault];
         
         
         UIMutableUserNotificationAction *openCartAction;
@@ -64,7 +64,7 @@
         viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
         [viewCartCategory setIdentifier:kNotificationCategoryViewCartIdentifier];
         [viewCartCategory setActions:@[openCartAction]
-                          forContext:UIUserNotificationActionContextDefault];
+                     forContext:UIUserNotificationActionContextDefault];
         
         
         
@@ -79,8 +79,8 @@
         [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
         [[UIApplication sharedApplication] registerForRemoteNotifications];
     } else {
-        
-        // Ignore the warning for now.
+     
+     // Ignore the warning for now.
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
     }
     
@@ -250,7 +250,7 @@
             
             // Handling this as a separate function since push this category does not have an action ...
             [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
-            
+    
         }
     }
 }
@@ -283,7 +283,7 @@
         [self.blueShiftPushDelegate buyPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Buy Action in SDK ...
-        
+            
         [self.deepLinkToCartPage performDeepLinking];
         self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
         
@@ -418,7 +418,7 @@
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
     [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-    
+
     // Will have to handled by SDK .....
 }
 
