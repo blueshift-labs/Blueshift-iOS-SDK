@@ -32,6 +32,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
     
+    // Modify the notification content here...
+    //self.bestAttemptContent.title = [NSString stringWithFormat:@"%@ [modified]", @"shahas"];
     NSURL *url = [NSURL URLWithString:[request.content.userInfo objectForKey:@"media-attachment"]];
     NSString *type = [NSString stringWithFormat:@"%@", [request.content.userInfo objectForKey:@"attachment-type"]];
     NSData *data = [[NSData alloc] initWithContentsOfURL: url];

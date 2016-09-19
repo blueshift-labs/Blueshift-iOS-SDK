@@ -147,8 +147,10 @@
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
+        
         // Track notification view when app is open ...
         [self trackPushViewedWithParameters:pushTrackParameterDictionary];
+        
         
         // Handle push notification when the app is in active state...
         BlueShiftAlertView *pushAlertView = [BlueShiftAlertView alertViewWithPushDetailsDictionary:userInfo andDelegate:self];
@@ -459,7 +461,6 @@
                 break;
                 
             default:
-                [self trackAlertDismiss];
                 break;
         }
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryCart) {
@@ -469,7 +470,6 @@
                 break;
                 
             default:
-                [self trackAlertDismiss];
                 break;
         }
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryOffer) {
@@ -479,14 +479,9 @@
                 break;
                 
             default:
-                [self trackAlertDismiss];
                 break;
         }
     }
-}
-
-- (void)trackAlertDismiss {
-    [[BlueShift sharedInstance] trackEventForEventName:kEventAlertDismiss andParameters:nil canBatchThisEvent:YES];
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
