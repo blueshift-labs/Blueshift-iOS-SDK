@@ -29,6 +29,12 @@
     } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
         blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Show", nil];
         blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationCategoryOffer;
+    } else if ([pushCategory isEqualToString:kNotificationTwoButtonAlertIdentifier]) {
+        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Show", nil];
+        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationTwoButtonAlert;
+    } else if ([pushCategory isEqualToString:kNotificationOneButtonAlertIdentifier]) {
+        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
+        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationOneButtonAlert;
     } else {
         blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
     }

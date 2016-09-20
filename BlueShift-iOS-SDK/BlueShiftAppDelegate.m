@@ -65,10 +65,21 @@
         [viewCartCategory setIdentifier:kNotificationCategoryViewCartIdentifier];
         [viewCartCategory setActions:@[openCartAction]
                      forContext:UIUserNotificationActionContextDefault];
+
+        UIMutableUserNotificationCategory *oneButtonAlertCategory;
+        viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
+        [viewCartCategory setIdentifier:kNotificationOneButtonAlertIdentifier];
+        [viewCartCategory setActions:@[]
+                          forContext:UIUserNotificationActionContextDefault];
         
         
+        UIMutableUserNotificationCategory *twoButtonAlertCategory;
+        viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
+        [viewCartCategory setIdentifier:kNotificationTwoButtonAlertIdentifier];
+        [viewCartCategory setActions:@[viewAction]
+                          forContext:UIUserNotificationActionContextDefault];
         
-        NSSet *categories = [NSSet setWithObjects:buyCategory,viewCartCategory, nil];
+        NSSet *categories = [NSSet setWithObjects:buyCategory, viewCartCategory, oneButtonAlertCategory, twoButtonAlertCategory, nil];
         
         UIUserNotificationType types = (UIUserNotificationTypeAlert|
                                         UIUserNotificationTypeSound|
@@ -190,7 +201,6 @@
             
             // Handling this as a separate function since push this category does not have an action ...
             [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
-            
         }
     }
 }
@@ -250,7 +260,6 @@
             
             // Handling this as a separate function since push this category does not have an action ...
             [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
-    
         }
     }
 }
@@ -479,6 +488,21 @@
                 [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
                 break;
                 
+            default:
+                [self trackAlertDismiss];
+                break;
+        }
+    } else if (alertViewContext == BlueShiftAlertViewContextNotificationTwoButtonAlert) {
+        switch (buttonIndex) {
+            case 1:
+                break;
+                
+            default:
+                [self trackAlertDismiss];
+                break;
+        }
+    } else if (alertViewContext == BlueShiftAlertViewContextNotificationOneButtonAlert) {
+        switch (buttonIndex) {
             default:
                 [self trackAlertDismiss];
                 break;
