@@ -89,11 +89,22 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "BlueShift-iOS-SDK", "BlueShift-iOS-SDK/**/*.{h,m}"
+  #s.source_files  = "BlueShift-iOS-SDK", "BlueShift-iOS-SDK/**/*.{h,m}"
   s.exclude_files = "Classes/Exclude"
 
   s.public_header_files = "BlueShift-iOS-SDK/**/*.h"
 
+  s.subspec 'Core' do |ss|
+    ss.source_files  = "BlueShift-iOS-SDK/**/*.{h,m}"
+    ss.exclude_files = "Classes/Exclude", "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}"
+  end
+
+  s.subspec 'AppExtension' do |ss|
+    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}"
+    ss.exclude_files = "Classes/Exclude"
+  end
+
+  s.default_subspecs = 'Core'
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

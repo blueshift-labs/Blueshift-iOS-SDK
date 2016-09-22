@@ -29,5 +29,6 @@
 #define kEventAppOpen                                  @"app_open"
 #define kEventPushView                                 @"push_view"
 #define kEventPushClicked                              @"push_click"
+#define kEventDismissAlert                             @"dismiss_alert"
 
 #endif

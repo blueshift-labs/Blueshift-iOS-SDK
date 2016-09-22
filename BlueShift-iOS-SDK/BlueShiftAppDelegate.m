@@ -65,10 +65,21 @@
         [viewCartCategory setIdentifier:kNotificationCategoryViewCartIdentifier];
         [viewCartCategory setActions:@[openCartAction]
                      forContext:UIUserNotificationActionContextDefault];
+
+        UIMutableUserNotificationCategory *oneButtonAlertCategory;
+        viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
+        [viewCartCategory setIdentifier:kNotificationOneButtonAlertIdentifier];
+        [viewCartCategory setActions:@[]
+                          forContext:UIUserNotificationActionContextDefault];
         
         
+        UIMutableUserNotificationCategory *twoButtonAlertCategory;
+        viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
+        [viewCartCategory setIdentifier:kNotificationTwoButtonAlertIdentifier];
+        [viewCartCategory setActions:@[viewAction]
+                          forContext:UIUserNotificationActionContextDefault];
         
-        NSSet *categories = [NSSet setWithObjects:buyCategory,viewCartCategory, nil];
+        NSSet *categories = [NSSet setWithObjects:buyCategory, viewCartCategory, oneButtonAlertCategory, twoButtonAlertCategory, nil];
         
         UIUserNotificationType types = (UIUserNotificationTypeAlert|
                                         UIUserNotificationTypeSound|
@@ -190,7 +201,6 @@
             
             // Handling this as a separate function since push this category does not have an action ...
             [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
-            
         }
     }
 }
@@ -204,8 +214,7 @@
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
-
-        if([[self.pushAlertDictionary objectForKey:@"notification_type"] isEqualToString:@"alert_box"]) {
+        if([[self.pushAlertDictionary objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
             // Track notification view when app is open ...
             [self trackPushViewedWithParameters:pushTrackParameterDictionary];
             
@@ -251,7 +260,6 @@
             
             // Handling this as a separate function since push this category does not have an action ...
             [self handleCategoryForOfferUsingPushDetailsDictionary:self.pushAlertDictionary];
-    
         }
     }
 }
@@ -461,6 +469,7 @@
                 break;
                 
             default:
+                [self trackAlertDismiss];
                 break;
         }
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryCart) {
@@ -470,6 +479,7 @@
                 break;
                 
             default:
+                [self trackAlertDismiss];
                 break;
         }
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryOffer) {
@@ -479,9 +489,29 @@
                 break;
                 
             default:
+                [self trackAlertDismiss];
+                break;
+        }
+    } else if (alertViewContext == BlueShiftAlertViewContextNotificationTwoButtonAlert) {
+        switch (buttonIndex) {
+            case 1:
+                break;
+                
+            default:
+                [self trackAlertDismiss];
+                break;
+        }
+    } else if (alertViewContext == BlueShiftAlertViewContextNotificationOneButtonAlert) {
+        switch (buttonIndex) {
+            default:
+                [self trackAlertDismiss];
                 break;
         }
     }
+}
+
+- (void)trackAlertDismiss {
+    [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {

@@ -17,4 +17,7 @@
 
 #define kNotificationCategoryOfferIdentifier                            @"promotion"
 
+#define kNotificationOneButtonAlertIdentifier                           @"alert_box_1_button"
+#define kNotificationTwoButtonAlertIdentifier                           @"alert_box"
+
 #endif

@@ -10,7 +10,9 @@
 typedef enum {
     BlueShiftAlertViewContextNotificationCategoryCart,
     BlueShiftAlertViewContextNotificationCategoryBuy,
-    BlueShiftAlertViewContextNotificationCategoryOffer
+    BlueShiftAlertViewContextNotificationCategoryOffer,
+    BlueShiftAlertViewContextNotificationOneButtonAlert,
+    BlueShiftAlertViewContextNotificationTwoButtonAlert
 } BlueShiftAlertViewContext;
 
 @interface BlueShiftAlertView : UIAlertView<UIAlertViewDelegate>
