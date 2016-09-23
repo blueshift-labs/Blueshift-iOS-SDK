@@ -96,7 +96,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |ss|
     ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
-    ss.exclude_files = "Classes/Exclude", "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}"
+    ss.exclude_files = "Classes/Exclude", "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
   end
 
   s.subspec 'AppExtension' do |ss|
@@ -105,7 +105,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'AppExtension2' do |ss|
-    #ss.source_files  = "BlueShift-iOS-SDK/BlueShiftInterface.storyboard"
+    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
     ss.resources = "BlueShift-iOS-SDK/BlueShiftInterface.storyboard"
     ss.exclude_files = "Classes/Exclude"
   end

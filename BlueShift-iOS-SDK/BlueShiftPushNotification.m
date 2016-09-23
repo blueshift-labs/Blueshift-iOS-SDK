@@ -24,6 +24,48 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     
+    if ([request.content.categoryIdentifier isEqualToString: @"carousel"]) {
+        return [self carouselAttachmentsDownload:request];
+    } else {
+        return [self mediaAttachmentDownlaod:request];
+    }
+}
+
+- (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
+    NSArray *images = [[NSArray alloc]init];
+    images = [request.content.userInfo objectForKey:@"carousel_images"];
+    NSMutableArray *attachments = [[NSMutableArray alloc]init];
+    
+    [images enumerateObjectsUsingBlock:
+     ^(NSDictionary *image, NSUInteger index, BOOL *stop)
+     {
+         NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
+         NSData *imageData = nil;
+         if(imageURL != nil) {
+             imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
+             if(imageData) {
+                 NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                 NSString  *documentsDirectory = [paths objectAtIndex:0];
+                 
+                 NSString *attachmentName = [NSString stringWithFormat:@"image_%d.jpg", index];
+                 NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
+                 NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
+                 NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
+                 [imageData writeToFile:filePathToWrite atomically:YES];
+                 
+                 NSError *error3;
+                 UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
+                 NSLog(@"%@", error3);
+                 if(attachment != nil) {
+                     [attachments addObject:attachment];
+                 }
+             }
+         }
+     }];
+    return attachments;
+}
+
+- (NSArray *)mediaAttachmentDownlaod:(UNNotificationRequest *)request {
     NSURL *imageURL = [NSURL URLWithString:[request.content.userInfo objectForKey:@"image_url"]];
     NSURL *videoURL = [NSURL URLWithString:[request.content.userInfo objectForKey:@"video_url"]];
     NSURL *audioURL = [NSURL URLWithString:[request.content.userInfo objectForKey:@"audio_url"]];
