@@ -145,7 +145,12 @@
     localNotification.timeZone = [NSTimeZone defaultTimeZone];
     localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     localNotification.soundName = [[userInfo objectForKey:@"aps"] objectForKey:@"sound"];
-    localNotification.userInfo = userInfo;
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
+    dictionary = [userInfo mutableCopy];
+    if([dictionary objectForKey:@"bsft_message_uuid"] == (id)[NSNull null]) {
+        [dictionary removeObjectForKey:@"bsft_message_uuid"];
+    }
+    localNotification.userInfo = dictionary;
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
 
