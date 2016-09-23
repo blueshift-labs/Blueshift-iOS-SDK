@@ -67,16 +67,16 @@
                      forContext:UIUserNotificationActionContextDefault];
 
         UIMutableUserNotificationCategory *oneButtonAlertCategory;
-        viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
-        [viewCartCategory setIdentifier:kNotificationOneButtonAlertIdentifier];
-        [viewCartCategory setActions:@[]
+        oneButtonAlertCategory = [[UIMutableUserNotificationCategory alloc] init];
+        [oneButtonAlertCategory setIdentifier:kNotificationOneButtonAlertIdentifier];
+        [oneButtonAlertCategory setActions:@[]
                           forContext:UIUserNotificationActionContextDefault];
         
         
         UIMutableUserNotificationCategory *twoButtonAlertCategory;
-        viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
-        [viewCartCategory setIdentifier:kNotificationTwoButtonAlertIdentifier];
-        [viewCartCategory setActions:@[viewAction]
+        twoButtonAlertCategory = [[UIMutableUserNotificationCategory alloc] init];
+        [twoButtonAlertCategory setIdentifier:kNotificationTwoButtonAlertIdentifier];
+        [twoButtonAlertCategory setActions:@[viewAction]
                           forContext:UIUserNotificationActionContextDefault];
         
         NSSet *categories = [NSSet setWithObjects:buyCategory, viewCartCategory, oneButtonAlertCategory, twoButtonAlertCategory, nil];
