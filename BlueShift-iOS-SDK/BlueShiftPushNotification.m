@@ -24,7 +24,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     
-    if ([request.content.categoryIdentifier isEqualToString: @"carousel"]) {
+    if ([request.content.categoryIdentifier isEqualToString: @"carousel"] || [request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
         return [self carouselAttachmentsDownload:request];
     } else {
         return [self mediaAttachmentDownlaod:request];

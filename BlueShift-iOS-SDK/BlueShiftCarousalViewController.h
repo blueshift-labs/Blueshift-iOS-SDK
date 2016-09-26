@@ -18,5 +18,6 @@
 @property UIPageControl *pageControl;
 
 - (void)showCarouselForNotfication:(UNNotification *)notification;
+- (void)setCarouselActionsForResponse:(UNNotificationResponse *)response completionHandler:(void (^)(UNNotificationContentExtensionResponseOption))completion;
 
 @end
