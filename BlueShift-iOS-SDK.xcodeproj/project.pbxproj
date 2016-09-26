@@ -44,7 +44,6 @@
 		55BD2C051D9172F300422869 /* HttpRequestOperationEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 55BD2BEE1D9172F300422869 /* HttpRequestOperationEntity.m */; };
 		55BD2C061D9172F300422869 /* NSDate+BlueShiftDateHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 55BD2BF01D9172F300422869 /* NSDate+BlueShiftDateHelpers.m */; };
 		55BD2C071D9172F300422869 /* NSNumber+BlueShiftHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 55BD2BF21D9172F300422869 /* NSNumber+BlueShiftHelpers.m */; };
-		55BD2C301D92EEDC00422869 /* BlueShiftInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55BD2C2F1D92EEDC00422869 /* BlueShiftInterface.storyboard */; };
 		55F56AC51D93CE1B00EEFD84 /* BlueShiftCarousalViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55F56AC41D93CE1B00EEFD84 /* BlueShiftCarousalViewController.m */; };
 		55F56AC81D942C4A00EEFD84 /* iCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = 55F56AC71D942C4A00EEFD84 /* iCarousel.m */; };
 		DC7125C71AA76ABB00D6C30E /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC7125C61AA76ABB00D6C30E /* CoreTelephony.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -119,7 +118,6 @@
 		55BD2BF01D9172F300422869 /* NSDate+BlueShiftDateHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+BlueShiftDateHelpers.m"; sourceTree = "<group>"; };
 		55BD2BF11D9172F300422869 /* NSNumber+BlueShiftHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNumber+BlueShiftHelpers.h"; sourceTree = "<group>"; };
 		55BD2BF21D9172F300422869 /* NSNumber+BlueShiftHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+BlueShiftHelpers.m"; sourceTree = "<group>"; };
-		55BD2C2F1D92EEDC00422869 /* BlueShiftInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = BlueShiftInterface.storyboard; sourceTree = "<group>"; };
 		55F56AC31D93CE1B00EEFD84 /* BlueShiftCarousalViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShiftCarousalViewController.h; sourceTree = "<group>"; };
 		55F56AC41D93CE1B00EEFD84 /* BlueShiftCarousalViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueShiftCarousalViewController.m; sourceTree = "<group>"; };
 		55F56AC61D942C4A00EEFD84 /* iCarousel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCarousel.h; sourceTree = "<group>"; };
@@ -248,7 +246,6 @@
 				55BD2BF11D9172F300422869 /* NSNumber+BlueShiftHelpers.h */,
 				55BD2BF21D9172F300422869 /* NSNumber+BlueShiftHelpers.m */,
 				550274561D7820BF00BC832D /* BlueShiftSDKDataModel.xcdatamodeld */,
-				55BD2C2F1D92EEDC00422869 /* BlueShiftInterface.storyboard */,
 				55F56AC31D93CE1B00EEFD84 /* BlueShiftCarousalViewController.h */,
 				55F56AC41D93CE1B00EEFD84 /* BlueShiftCarousalViewController.m */,
 				55F56AC61D942C4A00EEFD84 /* iCarousel.h */,
@@ -340,7 +337,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCA620301AA4F4D6001EC26B /* BlueShiftModelBundle.bundle in Resources */,
-				55BD2C301D92EEDC00422869 /* BlueShiftInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
