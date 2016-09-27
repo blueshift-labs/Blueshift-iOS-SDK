@@ -12,7 +12,8 @@
 typedef enum {
     BlueShiftDeepLinkRouteProductPage,
     BlueShiftDeepLinkRouteCartPage,
-    BlueShiftDeepLinkRouteOfferPage
+    BlueShiftDeepLinkRouteOfferPage,
+    BlueShiftDeepLinkCustomePage
 } BlueShiftDeepLinkRoute;
 
 
@@ -25,6 +26,7 @@ typedef enum {
 
 - (id)initWithLinkRoute:(BlueShiftDeepLinkRoute)linkRoute andNSURL:(NSURL *)pathURL;
 - (BOOL)performDeepLinking;
+- (BOOL)performCustomDeepLinking:(NSURL *)url;
 - (UIViewController *)lastViewController;
 - (UIViewController *)firstViewController;
 

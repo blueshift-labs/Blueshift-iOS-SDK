@@ -391,6 +391,37 @@
     }
 }
 
+- (void)handleActionForCustomPageForIdentifier:(NSString *)identifier UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
+    // method to handle the scenario when go to app action is selected for push message of buy category ...
+    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+    
+    if ([self.oldDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
+        // User already implemented the viewPushActionWithDetails in App Delegate...
+        
+        self.blueShiftPushDelegate = self.oldDelegate;
+        [self.blueShiftPushDelegate handlePushActionForIdentifier:identifier withDetails:pushDetailsDictionary];
+    } else {
+        // Handle the View Action in SDK ...
+        
+        NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
+        NSURL *url = [NSURL URLWithString:urlString];
+        
+        if(url != nil) {
+            [self.deepLinkToProductPage performCustomDeepLinking:url];
+            self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            }
+        }
+    }
+}
+
+
 - (void)handleActionForOpenCartUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when open cart action is selected for push message of cart category ...
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
@@ -434,6 +465,8 @@
         [self handleActionForViewUsingPushDetailsDictionary:pushDetailsDictionary];
     } else if([identifier isEqualToString:kNotificationActionOpenCartIdentifier]) {
         [self handleActionForOpenCartUsingPushDetailsDictionary:pushDetailsDictionary];
+    } else if([identifier isEqualToString:kNotificationCarouselGotoappIdentifier]) {
+        [self handleActionForCustomPageForIdentifier:kNotificationCarouselGotoappIdentifier UsingPushDetailsDictionary:pushDetailsDictionary];
     }
     else {
         // If any action other than the predefined action is selected ...

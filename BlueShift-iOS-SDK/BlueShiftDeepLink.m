@@ -68,6 +68,25 @@ static NSDictionary *_deepLinkList = nil;
     return YES;
 }
 
+- (BOOL)performCustomDeepLinking:(NSURL *)url {
+    NSMutableArray *schemes = [NSMutableArray array];
+    
+    // Schemes are obtained from mainBundle ...
+    // Need to be set by the developer in the host app in plist Of URLTypes...
+    NSArray *bundleURLTypes = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleURLTypes"];
+    [bundleURLTypes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [schemes addObjectsFromArray:[bundleURLTypes[idx] objectForKey:@"CFBundleURLSchemes"]];
+    }];
+    
+    if (![schemes containsObject:[url scheme]]) {
+        return NO;
+    }
+    
+    [self deepLinkToPath:[url pathComponents]];
+    
+    return YES;
+}
+
 
 - (void)deepLinkToPath:(NSArray *)path {
     // Method to perform deeplink using the path components array ...

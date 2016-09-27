@@ -31,6 +31,7 @@
 @property BlueShiftDeepLink *deepLinkToProductPage;
 @property BlueShiftDeepLink *deepLinkToCartPage;
 @property BlueShiftDeepLink *deepLinkToOfferPage;
+@property BlueShiftDeepLink *deepLinkToCustomPage;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
