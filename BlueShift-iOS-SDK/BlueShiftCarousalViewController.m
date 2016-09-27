@@ -22,13 +22,17 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor blackColor];
+    
     // Do any additional setup after loading the view.
+    [self setBackgroundColor];
+}
+
+- (void)setBackgroundColor {
+    self.view.backgroundColor = [UIColor blackColor];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    //[self createImageView];
     
     [self createAndConfigCarousel];
 }
@@ -128,8 +132,31 @@
 
 
 - (void)getImages:(UNNotification *)notification {
-    NSArray *attachments = notification.request.content.attachments;
+    NSArray <UNNotificationAttachment *> *attachments = notification.request.content.attachments;
     [self fetchAttachmentsToImageArray:attachments];
+    NSArray *carouselImages = [notification.request.content.userInfo objectForKey:@"carousel_images"];
+    if(self.items.count < carouselImages.count) {
+        NSMutableArray *images = [[NSMutableArray alloc]init];
+        images = [self.items mutableCopy];
+        NSMutableArray *attachmentIDs = [[NSMutableArray alloc]init];
+        for(UNNotificationAttachment *attachment in attachments) {
+            [attachmentIDs addObject:attachment.identifier];
+        }
+        [carouselImages enumerateObjectsUsingBlock:
+         ^(NSDictionary *image, NSUInteger index, BOOL *stop) {
+             if(attachmentIDs.count < index + 1 || ![[attachmentIDs objectAtIndex:index] isEqualToString:[NSString stringWithFormat:@"image_%d.jpg", index]]) {
+                 NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
+                 NSData *imageData = nil;
+                 if(imageURL != nil) {
+                     imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
+                     UIImage *image = [UIImage imageWithData:imageData];
+                     [images insertObject:image atIndex:index];
+                     [attachmentIDs insertObject:[NSString stringWithFormat:@"image_%d.jpg", index] atIndex:index];
+                 }
+             }
+         }];
+        self.items = images;
+    }
 }
 
 

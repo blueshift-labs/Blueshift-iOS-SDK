@@ -97,18 +97,19 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |ss|
     ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
     ss.exclude_files = "Classes/Exclude", "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
+    ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
   end
 
   s.subspec 'AppExtension' do |ss|
-    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}"
+    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
     ss.exclude_files = "Classes/Exclude"
   end
 
-  s.subspec 'AppExtension2' do |ss|
-    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
-    ss.resources = "BlueShift-iOS-SDK/BlueShiftInterface.storyboard"
-    ss.exclude_files = "Classes/Exclude"
-  end
+  #s.subspec 'AppExtension2' do |ss|
+  #  ss.source_files  = "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
+  #  ss.resources = "BlueShift-iOS-SDK/BlueShiftInterface.storyboard"
+  #  ss.exclude_files = "Classes/Exclude"
+  #end
 
   s.default_subspecs = 'Core'
 
@@ -121,7 +122,7 @@ Pod::Spec.new do |s|
   #
 
   # s.resource  = "icon.png"
-  s.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
+  #s.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
   
   # s.preserve_paths = "FilesToSave", "MoreFilesToSave"
 

@@ -35,7 +35,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     NSArray *images = [[NSArray alloc]init];
     images = [request.content.userInfo objectForKey:@"carousel_images"];
     NSMutableArray *attachments = [[NSMutableArray alloc]init];
-    
+    self.attachments = attachments;
     [images enumerateObjectsUsingBlock:
      ^(NSDictionary *image, NSUInteger index, BOOL *stop)
      {
@@ -58,6 +58,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                  NSLog(@"%@", error3);
                  if(attachment != nil) {
                      [attachments addObject:attachment];
+                     self.attachments = attachments;
                  }
              }
          }
