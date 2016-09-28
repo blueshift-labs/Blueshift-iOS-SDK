@@ -28,7 +28,7 @@
 }
 
 - (void)setBackgroundColor {
-    self.view.backgroundColor = [UIColor blackColor];
+    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -63,7 +63,7 @@
     pageControl.numberOfPages = numberOfPages;
     pageControl.currentPage = 0;
     pageControl.pageIndicatorTintColor = [UIColor whiteColor];
-    pageControl.currentPageIndicatorTintColor = [UIColor blueColor];
+    pageControl.currentPageIndicatorTintColor = [UIColor blackColor];
     [self.view addSubview:pageControl];
 }
 

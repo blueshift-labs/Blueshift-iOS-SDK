@@ -15,4 +15,9 @@
 - (void) openCartPushActionWithDetails:(NSDictionary *)details;
 - (void) handlePushActionForIdentifier:(NSString *)identifier withDetails:(NSDictionary *)details;
 
+- (void) buyCategoryPushClickedWithDetails:(NSDictionary *)details;
+- (void) cartViewCategoryPushClickedWithDetails:(NSDictionary *)details;
+- (void) promotionCategoryPushClickedWithDetails:(NSDictionary *)details;
+- (void) handleCustomCategory:(NSString *)categroyName clickedWithDetails:(NSDictionary *)details;
+
 @end 
