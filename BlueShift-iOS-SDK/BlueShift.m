@@ -101,7 +101,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 
 - (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
-    [self identifyUserWithEmail:[BlueShiftUserInfo sharedUserInfo].email andDetails:details canBatchThisEvent:isBatchEvent];
+    [self identifyUserWithEmail:[BlueShiftUserInfo sharedInstance].email andDetails:details canBatchThisEvent:isBatchEvent];
 }
 
 - (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
@@ -529,12 +529,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
 
-    if ([BlueShiftUserInfo sharedUserInfo]==nil) {
+    if ([BlueShiftUserInfo sharedInstance]==nil) {
         NSLog(@"\n\n BlueShift Warning: Please set BlueShiftUserInfo for sending retailer customer ID, email and so on.");
     }
     else {
         NSString *email = [requestMutableParameters objectForKey:@"email"];
-        NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedUserInfo].toDictionary mutableCopy];
+        NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy];
         
         if (email) {
             if ([blueShiftUserInfoMutableDictionary objectForKey:@"email"]) {

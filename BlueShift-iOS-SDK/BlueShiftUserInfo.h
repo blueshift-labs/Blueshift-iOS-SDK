@@ -26,7 +26,7 @@
 
 - (void)save;
 + (void)removeCurrentUserInfo;
-+ (instancetype) sharedUserInfo;
++ (instancetype) sharedInstance;
 - (NSDictionary *)toDictionary;
 
 @end

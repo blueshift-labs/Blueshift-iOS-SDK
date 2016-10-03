@@ -23,9 +23,13 @@
 }
 
 - (void) registerForNotification {
-    NSLog(@"\n\n Attempting to register for notification \n\n");
-    
     // register for remote notifications
+    
+//    if (#available(iOS 10.0, *)){
+//        
+//    } else {
+//        
+//    }
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         
@@ -637,6 +641,7 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     BlueShiftAlertView *blueShiftAlertView = (BlueShiftAlertView *)alertView;
     BlueShiftAlertViewContext alertViewContext = blueShiftAlertView.alertViewContext;
+    NSString *categoryName = [[self.userInfo objectForKey:@"aps"] objectForKey:@"category"];
     if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryBuy) {
         switch (buttonIndex) {
             case 1:
@@ -673,6 +678,9 @@
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationTwoButtonAlert) {
         switch (buttonIndex) {
             case 1:
+                if(categoryName != nil && ![categoryName isEqualToString:@""]) {
+                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:self.userInfo];
+                }
                 break;
                 
             default:
@@ -833,7 +841,18 @@
         return _managedObjectModel;
     }
     
-    NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
+    //NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/BlueShiftBundle.bundle",[[NSBundle mainBundle] resourcePath]]];
+    //NSBundle *dataBundle = [NSBundle bundleWithURL:url];
+    
+    NSString *bundlePath = [[NSBundle bundleForClass:self.class] pathForResource:@"BlueShiftBundle" ofType:@"bundle"];
+    
+    NSBundle *dataBundle = [NSBundle bundleWithPath:bundlePath];
+    
+    
+    //NSManagedObjectModel *managedObjectModel = [NSManagedObjectModel mergedModelFromBundles:@[dataBundle]];
+    
+    //NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
+    NSURL *modelURL = [dataBundle URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;
 }
