@@ -97,16 +97,13 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |ss|
     ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
     ss.public_header_files = "BlueShift-iOS-SDK/**/*.h"
-    ss.exclude_files = "Classes/Exclude", "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
-    
-
-    #ss.exclude_headers = "BlueShift-iOS-SDK/BlueShiftPushNotification.h", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.h", "BlueShift-iOS-SDK/iCarousel.h"
+    ss.exclude_files = "Classes/Exclude", "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}", "BlueShift-iOS-SDK/BlueShiftAppExtension.h" 
     ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
     ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}' }
   end
 
   s.subspec 'AppExtension' do |ss|
-    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
+    ss.source_files  = "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}", "BlueShift-iOS-SDK/BlueShiftAppExtension.h"
     ss.exclude_files = "Classes/Exclude"
   end
 
