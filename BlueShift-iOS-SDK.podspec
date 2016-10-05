@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "BlueShift-iOS-SDK"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "A short description of BlueShift-iOS-SDK."
 
   s.description  = <<-DESC
@@ -78,7 +78,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "0.0.1" }
+  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "0.0.2" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -106,12 +106,6 @@ Pod::Spec.new do |s|
     ss.source_files  = "BlueShift-iOS-SDK/BlueShiftPushNotification.{h,m}", "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}", "BlueShift-iOS-SDK/BlueShiftAppExtension.h"
     ss.exclude_files = "Classes/Exclude"
   end
-
-  #s.subspec 'AppExtension2' do |ss|
-  #  ss.source_files  = "BlueShift-iOS-SDK/BlueShiftCarousalViewController.{h,m}", "BlueShift-iOS-SDK/iCarousel.{h,m}"
-  #  ss.resources = "BlueShift-iOS-SDK/BlueShiftInterface.storyboard"
-  #  ss.exclude_files = "Classes/Exclude"
-  #end
 
   s.default_subspecs = 'Core'
 
