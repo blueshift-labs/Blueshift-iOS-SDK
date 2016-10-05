@@ -23,7 +23,6 @@
 #import "BlueShiftSubscription.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
 #include "BlueShiftBatchUploadConfig.h"
-#include "BlueShiftPushNotification.h"
 
 @class BlueShiftDeviceData;
 //@protocol BlueShiftPushDelegate;

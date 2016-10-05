@@ -11,7 +11,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 
 @implementation BlueShiftUserInfo
 
-+ (instancetype) sharedUserInfo {
++ (instancetype) sharedInstance {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         

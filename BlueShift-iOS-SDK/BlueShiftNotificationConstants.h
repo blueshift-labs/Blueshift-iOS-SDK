@@ -20,4 +20,10 @@
 #define kNotificationOneButtonAlertIdentifier                           @"alert_box_1_button"
 #define kNotificationTwoButtonAlertIdentifier                           @"alert_box"
 
+#define kNotificationCarouselIdentifier                                 @"carousel"
+#define kNotificationCarouselAnimationIdentifier                        @"carousel_animation"
+#define kNotificationCarouselNextIdentifier                             @"next"
+#define kNotificationCarouselPreviousIdentifier                         @"previous"
+#define kNotificationCarouselGotoappIdentifier                          @"go_to_app"
+
 #endif
