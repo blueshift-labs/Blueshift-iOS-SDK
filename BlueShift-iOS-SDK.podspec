@@ -55,8 +55,8 @@ Pod::Spec.new do |s|
 
   s.author             = { "Shahas K P" => "shahas@bullfin.ch" }
   # Or just: s.author    = "Shahas KP"
-  # s.authors            = { "Arjun K P" => "arjunthedragon@gmail.com" }
-  # s.social_media_url   = "http://twitter.com/Arjun K P"
+  # s.authors            = { "Shahas K P" => "shahas@bullfin.ch" }
+  # s.social_media_url   = ""
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -78,7 +78,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "0.0.2" }
+  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "0.0.3" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
