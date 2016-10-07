@@ -45,7 +45,7 @@
 
 + (NSArray *)fetchBatchesFromCoreData {
     @synchronized(self) {
-        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         NSManagedObjectContext *context = appDelegate.managedObjectContext;
         
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -53,7 +53,6 @@
         NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
         NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
         [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-        //[fetchRequest setFetchLimit:10];
         NSError *error;
         NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
         

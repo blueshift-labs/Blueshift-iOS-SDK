@@ -2,8 +2,7 @@
 //  BlueShiftAppExtension.h
 //  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 03/10/16.
-//  Copyright © 2016 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
 
 #ifndef BlueShiftAppExtension_h
