@@ -24,7 +24,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 // Method to trigger request executions from the Queue ...
 
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation {
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:appDelegate.managedObjectContext];
     NSString *url = requestOperation.url;
     BlueShiftHTTPMethod httpMethod = requestOperation.httpMethod;
@@ -49,7 +49,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation {
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:appDelegate.managedObjectContext];
     NSArray *paramsArray = requestOperation.paramsArray;
     NSInteger nextRetryTimeStamp = requestOperation.nextRetryTimeStamp;
@@ -89,8 +89,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
             
             
             // Gets the current NSManagedObjectContext via appDelegate ...
-            
-            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
             
             

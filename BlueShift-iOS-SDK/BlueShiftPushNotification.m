@@ -1,10 +1,10 @@
 //
 //  BlueShiftPushNotification.m
-//  Pods
+//  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 18/09/16.
+//  Copyright (c) Blueshift. All rights reserved.
 //
-//
+
 
 #import "BlueShiftPushNotification.h"
 

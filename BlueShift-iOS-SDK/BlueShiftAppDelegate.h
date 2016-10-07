@@ -17,7 +17,6 @@
 #import <CoreData/CoreData.h>
 #import "BlueShiftTrackEvents.h"
 
-//@protocol BlueShiftPushDelegate;
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, UIAlertViewDelegate, CLLocationManagerDelegate>
 
@@ -43,6 +42,16 @@
 - (void) registerForNotification;
 - (BOOL) handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions;
 - (void)registerLocationService;
+
+- (void) registerForRemoteNotification:(NSData *)deviceToken;
+- (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error;
+- (void) handleRemoteNotification:(NSDictionary *)userInfo forApplication:(UIApplication *)application fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler;
+- (void) application:(UIApplication *)application handleRemoteNotification:(NSDictionary *)userInfo;
+- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UILocalNotification *)notification;
+- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)()) completionHandler;
+
+- (void)appDidEnterBackground:(UIApplication *)application;
+- (void)appDidBecomeActive:(UIApplication *)application;
 
 @end
 #endif

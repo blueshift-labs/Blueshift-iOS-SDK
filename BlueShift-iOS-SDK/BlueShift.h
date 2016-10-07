@@ -25,8 +25,7 @@
 #include "BlueShiftBatchUploadConfig.h"
 
 @class BlueShiftDeviceData;
-//@protocol BlueShiftPushDelegate;
-
+@class BlueShiftAppDelegate;
 @interface BlueShift : NSObject
 
 @property (nonatomic, strong) BlueShiftConfig *config;
@@ -36,9 +35,11 @@
 
 + (instancetype)sharedInstance;
 + (void) initWithConfiguration:(BlueShiftConfig *)config;
++ (void) autoIntegration;
 - (void) setPushDelegate: (id) obj;
 - (void) setPushParamDelegate: (id) obj;
 - (NSString *) getDeviceToken;
+@property BlueShiftAppDelegate *appDelegate;
 
 
 // track events functions ...

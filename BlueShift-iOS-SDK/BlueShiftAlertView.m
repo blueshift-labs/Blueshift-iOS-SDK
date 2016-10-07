@@ -14,10 +14,8 @@
     // Differentiation is done on the basis of the category of the push payload dictionary ...
     
     BlueShiftAlertView *blueShiftAlertView = nil;
-    //NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
     NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushCategory = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"category"];
-    //NSString *pushMessage = [pushAlertDictionary objectForKey:@"body"];
     NSString *pushMessage = [pushAlertDictionary objectForKey:@"alert"];
     
     if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {

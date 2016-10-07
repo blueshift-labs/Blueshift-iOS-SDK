@@ -66,7 +66,7 @@
 + (HttpRequestOperationEntity *)fetchFirstRecordFromCoreData {
     
     @synchronized(self) {
-        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         NSManagedObjectContext *context = appDelegate.managedObjectContext;
         
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -86,7 +86,7 @@
 
 + (NSArray *)fetchBatchWiseRecordFromCoreData {
     @synchronized(self) {
-        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         NSManagedObjectContext *context = appDelegate.managedObjectContext;
         
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];

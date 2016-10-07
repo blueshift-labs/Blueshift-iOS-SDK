@@ -2,9 +2,9 @@
 //  BlueShiftCarousalViewController.m
 //  BlueShift-iOS-SDK
 //
-//  Created by Shahas on 22/09/16.
-//  Copyright © 2016 Bullfinch Software. All rights reserved.
+//  Copyright (c) Blueshift. All rights reserved.
 //
+
 
 #import "BlueShiftCarousalViewController.h"
 

@@ -21,15 +21,20 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 + (void) initWithConfiguration:(BlueShiftConfig *)config {
-    [[BlueShift sharedInstance] performSelectorInBackground:@selector(setupWithConfiguration:) withObject:config];
-    
+    [[BlueShift sharedInstance] setupWithConfiguration:config];
     // Start periodic batch upload timer
     [BlueShiftHttpRequestBatchUpload startBatchUpload];
 }
 
++ (void) autoIntegration {
+    [[BlueShift sharedInstance] performSelectorInBackground:@selector(setAppDelegate) withObject:nil];
+}
+
+- (void)setAppDelegate {
+    [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
+}
+
 - (void) setupWithConfiguration:(BlueShiftConfig *)config {
-    NSLog(@"\n\n Intializing BlueShift library \n\n");
-    
     // validating the configuration details set by the user ...
     BOOL configurationSetCorrectly = [config validateConfigDetails];
 
@@ -51,7 +56,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     _newDelegate = [[BlueShiftAppDelegate alloc] init];
     
     // assigning the current application delegate with the app delegate we are going to use in the SDK ...
-    [UIApplication sharedApplication].delegate = _newDelegate;
+    _sharedBlueShiftInstance.appDelegate = _newDelegate;
+    
+//    [UIApplication sharedApplication].delegate = _newDelegate;
     
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
@@ -59,11 +66,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     [blueShiftAppDelegate registerForNotification]; 
     [blueShiftAppDelegate registerLocationService];
-    //blueShiftAppDelegate.blueShiftPushDelegate = oldDelegate;
     [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
-    NSLog(@"\n\n BlueShift initialization completed successfully \n\n");
 }
 
 - (void)initDeepLinks {

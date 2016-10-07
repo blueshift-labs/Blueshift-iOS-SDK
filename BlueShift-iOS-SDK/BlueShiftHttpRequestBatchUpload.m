@@ -38,7 +38,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 // Method to create batches
 + (void)createBatches {
     NSArray *operationEntitiesToBeExecuted = [HttpRequestOperationEntity fetchBatchWiseRecordFromCoreData];
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *context = appDelegate.managedObjectContext;
     while (operationEntitiesToBeExecuted.count >0) {
         NSMutableArray *paramsArray = [[NSMutableArray alloc]init];
@@ -89,7 +89,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
             
             // Gets the current NSManagedObjectContext via appDelegate ...
             
-            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[UIApplication sharedApplication].delegate;
+            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
             
             // Only handles when the fetched record is not nil ...

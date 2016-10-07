@@ -23,13 +23,6 @@
 }
 
 - (void) registerForNotification {
-    // register for remote notifications
-    
-//    if (#available(iOS 10.0, *)){
-//        
-//    } else {
-//        
-//    }
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         
@@ -170,37 +163,54 @@
     return YES;
 }
 
-
-- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
-{
+- (void) registerForRemoteNotification:(NSData *)deviceToken {
     NSString *deviceTokenString = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShift sharedInstance].deviceToken = deviceTokenString;
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
-    NSLog(@"\n\n Push Token Generated is: %@ \n\n", deviceTokenString);
+    //NSLog(@"\n\n Push Token Generated is: %@ \n\n", deviceTokenString);
 }
 
-- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
-{
+- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
+    [self registerForRemoteNotification:deviceToken];
+}
+
+- (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
     NSLog(@"\n\n Failed to get push token, error: %@ \n\n", error);
 }
 
-// Handle silent push notifications when id is sent from backend
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
+- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error {
+    [self failedToRegisterForRemoteNotificationWithError:error];
+}
+
+- (void) handleRemoteNotification:(NSDictionary *)userInfo forApplication:(UIApplication *)application fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
     self.userInfo = userInfo;
-    
     [self handleRemoteNotification:userInfo forApplicationState:application.applicationState];
     handler(UIBackgroundFetchResultNewData);
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+// Handle silent push notifications when id is sent from backend
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
+    [self handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:handler];
+}
+
+- (void) application:(UIApplication *)application handleRemoteNotification:(NSDictionary *)userInfo {
     self.userInfo = userInfo;
     [self handleRemoteNotification:userInfo forApplicationState:application.applicationState];
 }
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(nonnull UILocalNotification *)notification {
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+    [self application:application handleRemoteNotification:userInfo];
+}
+
+- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UILocalNotification *)notification {
     self.userInfo = notification.userInfo;
     [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(nonnull UILocalNotification *)notification {
+    [self application:application handleLocalNotification:notification];
 }
 
 - (void)scheduleLocalNotification:(NSDictionary *)userInfo {
@@ -534,8 +544,7 @@
     }
 }
 
-- (void)application:(UIApplication *) application handleActionWithIdentifier: (NSString *) identifier forRemoteNotification: (NSDictionary *) notification
-  completionHandler: (void (^)()) completionHandler {
+- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)()) completionHandler {
     // Handles the scenario when a push message action is selected ...
     // Differentiation is done on the basis of identifier of the push notification ...
     
@@ -543,7 +552,7 @@
     NSDictionary *pushAlertDictionary = [notification objectForKey:@"aps"];
     NSDictionary *pushDetailsDictionary = nil;
     //if ([pushAlertDictionary isKindOfClass:[NSDictionary class]]) {
-      //  pushDetailsDictionary = pushAlertDictionary;
+    //  pushDetailsDictionary = pushAlertDictionary;
     //}
     pushDetailsDictionary = notification;
     
@@ -570,6 +579,12 @@
     
     // Must be called when finished
     completionHandler();
+}
+
+- (void)application:(UIApplication *) application handleActionWithIdentifier: (NSString *) identifier forRemoteNotification: (NSDictionary *) notification
+  completionHandler: (void (^)()) completionHandler {
+    
+    [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
@@ -599,23 +614,25 @@
     
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
+- (void)appDidBecomeActive:(UIApplication *)application {
     [self trackAppOpen];
+    // Uploading previous Batch events if anything exists
+    //To make the code block asynchronous
+    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    
+    // Will have to handled by SDK .....
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
     if (self.oldDelegate) {
         if ([self.oldDelegate respondsToSelector:@selector(applicationDidBecomeActive:)]) {
             [self.oldDelegate applicationDidBecomeActive:application];
         }
     }
-    // Uploading previous Batch events if anything exists
-    //To make the code block asynchronous
-    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-
-    // Will have to handled by SDK .....
+    [self appDidBecomeActive:application];
 }
 
-
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    
+- (void)appDidEnterBackground:(UIApplication *)application {
     [self.oldDelegate applicationWillTerminate:application];
     
     if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)])
@@ -632,6 +649,11 @@
         //To make the code block asynchronous
         [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
     }
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    [self appDidEnterBackground:application];
 }
 
 - (void) forwardInvocation:(NSInvocation *)anInvocation {
@@ -701,7 +723,6 @@
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    //NSDictionary *pushAlertDictionary = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"alert"];
     NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushMessageID = [pushAlertDictionary objectForKey:@"id"];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
