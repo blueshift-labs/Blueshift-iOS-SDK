@@ -281,7 +281,7 @@
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
-        if([[self.pushAlertDictionary objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
+        if([[userInfo objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
             // Track notification view when app is open ...
             [self trackPushViewedWithParameters:pushTrackParameterDictionary];
             

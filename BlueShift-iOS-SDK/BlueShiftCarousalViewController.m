@@ -116,7 +116,7 @@
 - (void)showCarouselForNotfication:(UNNotification *)notification {
     [self getImages:notification];
     [self createPageIndicator:self.items.count];
-    [self setCarouselTheme:[[notification.request.content.userInfo objectForKey:@"aps"] objectForKey:@"carousel_theme"]];
+    [self setCarouselTheme:[notification.request.content.userInfo  objectForKey:@"carousel_theme"]];
     if([notification.request.content.categoryIdentifier isEqualToString:@"carousel"]) {
         self.carousel.autoscroll = 0;
     } else if([notification.request.content.categoryIdentifier isEqualToString:@"carousel_animation"]) {
