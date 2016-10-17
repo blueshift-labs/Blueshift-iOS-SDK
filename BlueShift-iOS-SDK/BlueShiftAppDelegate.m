@@ -405,41 +405,44 @@
     // method to handle the scenario when go to app action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-    NSString *bundleIdentifier = @"group.blueshift.app";
-    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
-                                  initWithSuiteName:bundleIdentifier];
-    NSString *urlString = [myDefaults objectForKey:@"url"];
-    NSURL *url = [NSURL URLWithString:urlString];
-    if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory:clickedWithDetails:andDeepLinkURL:)]) {
-        // User already implemented the viewPushActionWithDetails in App Delegate...
-        
-        self.blueShiftPushDelegate = self.oldDelegate;
-        [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithDetails:pushDetailsDictionary andDeepLinkURL:urlString];
-    } else {
-        // Handle the View Action in SDK ...
-        
-        //NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
-        //NSURL *url = [NSURL URLWithString:urlString];
-        
-        
-        if(url != nil) {
-            // map newly allocated deeplink instance to product page route ...
-            BlueShiftDeepLink *deepLink;
-            deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkCustomePage andNSURL:url];
-            [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
-            self.deepLinkToCustomPage = deepLink;
-            self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
-            [self.deepLinkToCustomPage performCustomDeepLinking:url];
-            self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+    NSString *bundleIdentifier = [BlueShift sharedInstance].config.appGroupID;
+    if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
+        NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
+                                      initWithSuiteName:bundleIdentifier];
+        NSString *urlString = [myDefaults objectForKey:@"url"];
+        NSURL *url = [NSURL URLWithString:urlString];
+        if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory:clickedWithDetails:andDeepLinkURL:)]) {
+            // User already implemented the viewPushActionWithDetails in App Delegate...
             
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            self.blueShiftPushDelegate = self.oldDelegate;
+            [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithDetails:pushDetailsDictionary andDeepLinkURL:urlString];
+        } else {
+            // Handle the View Action in SDK ...
             
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            //NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
+            //NSURL *url = [NSURL URLWithString:urlString];
+            
+            
+            if(url != nil) {
+                // map newly allocated deeplink instance to product page route ...
+                BlueShiftDeepLink *deepLink;
+                deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkCustomePage andNSURL:url];
+                [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
+                self.deepLinkToCustomPage = deepLink;
+                self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
+                [self.deepLinkToCustomPage performCustomDeepLinking:url];
+                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
             }
         }
     }
+    
 }
 
 - (void)handleCustomCategory:(NSString *)categoryName UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {

@@ -163,11 +163,7 @@
 }
 
 - (void)fetchDeepLinkURLs:(NSArray *)carouselImages {
-    NSMutableArray *deepLinks = [[NSMutableArray alloc]init];
-    for(NSDictionary *item in carouselImages) {
-        [deepLinks addObject:[item objectForKey:@"url"]];
-    }
-    self.deepLinkURLs = deepLinks;
+    self.deepLinkURLs = carouselImages;
 }
 
 
@@ -253,12 +249,21 @@
 
 - (void)carouselCurrentItemIndexDidChange:(iCarousel *)carousel {
     pageControl.currentPage = carousel.currentItemIndex;
-    NSString *bundleIdentifier = @"group.blueshift.app";
+    
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
-                                  initWithSuiteName:bundleIdentifier];
-    NSString *url = [self.deepLinkURLs objectAtIndex:carousel.currentItemIndex];
-    [myDefaults setObject:url forKey:@"url"];
-    [myDefaults synchronize];
+                                  initWithSuiteName:self.appGroupID];
+    if(myDefaults != (id)[NSNull null]) {
+        
+        NSDictionary *item = [self.deepLinkURLs objectAtIndex:carousel.currentItemIndex];
+            if([item objectForKey:@"url"] != nil && [item objectForKey:@"url"] != (id)[NSNull null] && ![[item objectForKey:@"url"] isEqualToString:@""]) {
+                NSString *url = [item objectForKey:@"url"];
+                [myDefaults setObject:url forKey:@"url"];
+                [myDefaults synchronize];
+            } else {
+                [myDefaults setObject:nil forKey:@"url"];
+                [myDefaults synchronize];
+            }
+    }
 }
 
 
