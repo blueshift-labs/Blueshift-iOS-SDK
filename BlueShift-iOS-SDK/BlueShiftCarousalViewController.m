@@ -11,6 +11,7 @@
 @interface BlueShiftCarousalViewController ()
 
 @property (strong, nonatomic) NSMutableArray *items;
+@property NSMutableArray *deepLinkURLs;
 
 @end
 
@@ -19,6 +20,7 @@
 @synthesize carousel;
 @synthesize items;
 @synthesize pageControl;
+@synthesize deepLinkURLs;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -135,6 +137,7 @@
     NSArray <UNNotificationAttachment *> *attachments = notification.request.content.attachments;
     [self fetchAttachmentsToImageArray:attachments];
     NSArray *carouselImages = [notification.request.content.userInfo objectForKey:@"carousel_images"];
+    [self fetchDeepLinkURLs:carouselImages];
     if(self.items.count < carouselImages.count) {
         NSMutableArray *images = [[NSMutableArray alloc]init];
         images = [self.items mutableCopy];
@@ -159,6 +162,13 @@
     }
 }
 
+- (void)fetchDeepLinkURLs:(NSArray *)carouselImages {
+    NSMutableArray *deepLinks = [[NSMutableArray alloc]init];
+    for(NSDictionary *item in carouselImages) {
+        [deepLinks addObject:[item objectForKey:@"url"]];
+    }
+    self.deepLinkURLs = deepLinks;
+}
 
 
 - (void)fetchAttachmentsToImageArray:(NSArray *)attachments {
@@ -243,6 +253,12 @@
 
 - (void)carouselCurrentItemIndexDidChange:(iCarousel *)carousel {
     pageControl.currentPage = carousel.currentItemIndex;
+    NSString *bundleIdentifier = @"group.blueshift.app";
+    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
+                                  initWithSuiteName:bundleIdentifier];
+    NSString *url = [self.deepLinkURLs objectAtIndex:carousel.currentItemIndex];
+    [myDefaults setObject:url forKey:@"url"];
+    [myDefaults synchronize];
 }
 
 
