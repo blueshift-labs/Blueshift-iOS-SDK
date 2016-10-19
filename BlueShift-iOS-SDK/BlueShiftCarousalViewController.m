@@ -246,7 +246,6 @@
 }
 
 
-
 - (void)carouselCurrentItemIndexDidChange:(iCarousel *)carousel {
     pageControl.currentPage = carousel.currentItemIndex;
     
@@ -255,17 +254,16 @@
     if(myDefaults != (id)[NSNull null]) {
         
         NSDictionary *item = [self.deepLinkURLs objectAtIndex:carousel.currentItemIndex];
-            if([item objectForKey:@"url"] != nil && [item objectForKey:@"url"] != (id)[NSNull null] && ![[item objectForKey:@"url"] isEqualToString:@""]) {
-                NSString *url = [item objectForKey:@"url"];
-                [myDefaults setObject:url forKey:@"url"];
+            if([item objectForKey:@"deep_link_url"] != nil && [item objectForKey:@"deep_link_url"] != (id)[NSNull null] && ![[item objectForKey:@"deep_link_url"] isEqualToString:@""]) {
+                NSString *url = [item objectForKey:@"deep_link_url"];
+                [myDefaults setObject:url forKey:@"deep_link_url"];
                 [myDefaults synchronize];
             } else {
-                [myDefaults setObject:nil forKey:@"url"];
+                [myDefaults setObject:nil forKey:@"deep_link_url"];
                 [myDefaults synchronize];
             }
     }
 }
-
 
 
 - (iCarouselType)fetchCarouselThemeEnum:(NSString *)themeName {
