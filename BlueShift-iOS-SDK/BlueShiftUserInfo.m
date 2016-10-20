@@ -25,7 +25,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 }
 
 - (void)setDefaultValues {
-    self.unsubscribed = YES;
+    self.unsubscribed = NO;
 }
 
 - (NSDictionary *)toDictionary {

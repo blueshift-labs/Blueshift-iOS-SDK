@@ -11,6 +11,7 @@
 @interface BlueShiftCarousalViewController ()
 
 @property (strong, nonatomic) NSMutableArray *items;
+@property NSMutableArray *deepLinkURLs;
 
 @end
 
@@ -19,6 +20,7 @@
 @synthesize carousel;
 @synthesize items;
 @synthesize pageControl;
+@synthesize deepLinkURLs;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -116,7 +118,7 @@
 - (void)showCarouselForNotfication:(UNNotification *)notification {
     [self getImages:notification];
     [self createPageIndicator:self.items.count];
-    [self setCarouselTheme:[[notification.request.content.userInfo objectForKey:@"aps"] objectForKey:@"carousel_theme"]];
+    [self setCarouselTheme:[notification.request.content.userInfo  objectForKey:@"carousel_theme"]];
     if([notification.request.content.categoryIdentifier isEqualToString:@"carousel"]) {
         self.carousel.autoscroll = 0;
     } else if([notification.request.content.categoryIdentifier isEqualToString:@"carousel_animation"]) {
@@ -135,6 +137,7 @@
     NSArray <UNNotificationAttachment *> *attachments = notification.request.content.attachments;
     [self fetchAttachmentsToImageArray:attachments];
     NSArray *carouselImages = [notification.request.content.userInfo objectForKey:@"carousel_images"];
+    [self fetchDeepLinkURLs:carouselImages];
     if(self.items.count < carouselImages.count) {
         NSMutableArray *images = [[NSMutableArray alloc]init];
         images = [self.items mutableCopy];
@@ -159,6 +162,9 @@
     }
 }
 
+- (void)fetchDeepLinkURLs:(NSArray *)carouselImages {
+    self.deepLinkURLs = carouselImages;
+}
 
 
 - (void)fetchAttachmentsToImageArray:(NSArray *)attachments {
@@ -240,11 +246,24 @@
 }
 
 
-
 - (void)carouselCurrentItemIndexDidChange:(iCarousel *)carousel {
     pageControl.currentPage = carousel.currentItemIndex;
+    
+    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
+                                  initWithSuiteName:self.appGroupID];
+    if(myDefaults != (id)[NSNull null]) {
+        
+        NSDictionary *item = [self.deepLinkURLs objectAtIndex:carousel.currentItemIndex];
+            if([item objectForKey:@"deep_link_url"] != nil && [item objectForKey:@"deep_link_url"] != (id)[NSNull null] && ![[item objectForKey:@"deep_link_url"] isEqualToString:@""]) {
+                NSString *url = [item objectForKey:@"deep_link_url"];
+                [myDefaults setObject:url forKey:@"deep_link_url"];
+                [myDefaults synchronize];
+            } else {
+                [myDefaults setObject:nil forKey:@"deep_link_url"];
+                [myDefaults synchronize];
+            }
+    }
 }
-
 
 
 - (iCarouselType)fetchCarouselThemeEnum:(NSString *)themeName {

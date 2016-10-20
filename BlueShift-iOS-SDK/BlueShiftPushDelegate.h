@@ -19,5 +19,6 @@
 - (void) cartViewCategoryPushClickedWithDetails:(NSDictionary *)details;
 - (void) promotionCategoryPushClickedWithDetails:(NSDictionary *)details;
 - (void) handleCustomCategory:(NSString *)categroyName clickedWithDetails:(NSDictionary *)details;
+- (void) handleCarouselPushForCategory:(NSString *)categoryName clickedWithDetails:(NSDictionary *)detalis andDeepLinkURL:(NSString *)url;
 
 @end 

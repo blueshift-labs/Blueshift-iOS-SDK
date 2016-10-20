@@ -16,6 +16,8 @@
 @property iCarousel *carousel;
 @property UIPageControl *pageControl;
 
+@property NSString *appGroupID;
+
 - (void)showCarouselForNotfication:(UNNotification *)notification;
 - (void)setCarouselActionsForResponse:(UNNotificationResponse *)response completionHandler:(void (^)(UNNotificationContentExtensionResponseOption))completion;
 

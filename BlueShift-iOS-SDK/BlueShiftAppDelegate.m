@@ -147,7 +147,6 @@
      // Ignore the warning for now.
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
     }
-    
 }
 
 // Handles the push notification payload when the app is killed and lauched from push notification tray ...
@@ -232,7 +231,6 @@
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
@@ -265,7 +263,11 @@
         else {
             NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
             if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                    [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+                } else {
+                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                }
             }
         }
     }
@@ -274,14 +276,13 @@
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    //self.pushAlertDictionary = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
-        if([[self.pushAlertDictionary objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
+        if([[userInfo objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
             // Track notification view when app is open ...
             [self trackPushViewedWithParameters:pushTrackParameterDictionary];
             
@@ -311,10 +312,44 @@
         else {
             NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
             if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                    [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+                } else {
+                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                }
             }
         }
     }
+}
+
+- (BOOL)customDeepLinkToPrimitiveCategory {
+    
+    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+
+    
+    NSString *urlString = [self.userInfo objectForKey:@"deep_link_url"];
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    if(url != nil) {
+        // map newly allocated deeplink instance to product page route ...
+        BlueShiftDeepLink *deepLink;
+        deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkCustomePage andNSURL:url];
+        [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
+        self.deepLinkToCustomPage = deepLink;
+        self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
+        [self.deepLinkToCustomPage performCustomDeepLinking:url];
+        self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+        
+        // Track notification when the page is deeplinked ...
+        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+        
+        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+            [self.blueShiftPushParamDelegate handlePushDictionary:self.userInfo];
+        }
+        return true;
+    }
+    return false;
 }
 
 - (void)handleCategoryForBuyUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
@@ -329,15 +364,16 @@
         [self.blueShiftPushDelegate buyCategoryPushClickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
-        
-        [self.deepLinkToProductPage performDeepLinking];
-        self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
-        
-        // Track notification when the page is deeplinked ...
-        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+        if(![self customDeepLinkToPrimitiveCategory]) {
+            [self.deepLinkToProductPage performDeepLinking];
+            self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            }
         }
     }
 }
@@ -355,18 +391,18 @@
         [self.blueShiftPushDelegate cartViewCategoryPushClickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Open Cart Action in SDK ...
-        
-        [self.deepLinkToCartPage performDeepLinking];
-        self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
-        
-        // Track notification when the page is deeplinked ...
-        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+        if(![self customDeepLinkToPrimitiveCategory]) {
+            [self.deepLinkToCartPage performDeepLinking];
+            self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            }
         }
     }
-
 }
 
 - (void)handleCategoryForPromotionUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
@@ -381,20 +417,63 @@
         [self.blueShiftPushDelegate promotionCategoryPushClickedWithDetails:pushDetailsDictionary];
         
     } else {
-        [self.deepLinkToOfferPage performDeepLinking];
-        
-        self.blueShiftPushParamDelegate = [self.deepLinkToOfferPage lastViewController];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+        if(![self customDeepLinkToPrimitiveCategory]) {
+            [self.deepLinkToOfferPage performDeepLinking];
+            
+            self.blueShiftPushParamDelegate = [self.deepLinkToOfferPage lastViewController];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+            }
+        }
+    }
+}
+
+- (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
+    // method to handle the scenario when go to app action is selected for push message of buy category ...
+    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+    NSString *bundleIdentifier = [BlueShift sharedInstance].config.appGroupID;
+    if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
+        NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
+                                      initWithSuiteName:bundleIdentifier];
+        NSString *urlString = [myDefaults objectForKey:@"deep_link_url"];
+        NSURL *url = [NSURL URLWithString:urlString];
+        if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory:clickedWithDetails:andDeepLinkURL:)]) {
+            // User already implemented the viewPushActionWithDetails in App Delegate...
+            
+            self.blueShiftPushDelegate = self.oldDelegate;
+            [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithDetails:pushDetailsDictionary andDeepLinkURL:urlString];
+        } else {
+            // Handle the View Action in SDK ...
+            
+            //NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
+            //NSURL *url = [NSURL URLWithString:urlString];
+            
+            
+            if(url != nil) {
+                // map newly allocated deeplink instance to product page route ...
+                BlueShiftDeepLink *deepLink;
+                deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkCustomePage andNSURL:url];
+                [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
+                self.deepLinkToCustomPage = deepLink;
+                self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
+                [self.deepLinkToCustomPage performCustomDeepLinking:url];
+                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            }
         }
     }
     
-    
 }
 
-
-- (void)handleCustomCategory:(NSString *)categroyName UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
+- (void)handleCustomCategory:(NSString *)categoryName UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
@@ -403,11 +482,11 @@
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
         self.blueShiftPushDelegate = self.oldDelegate;
-        [self.blueShiftPushDelegate handleCustomCategory:categroyName clickedWithDetails:pushDetailsDictionary];
+        [self.blueShiftPushDelegate handleCustomCategory:categoryName clickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
         
-        NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
+        NSString *urlString = [pushDetailsDictionary objectForKey:@"deep_link_url"];
         NSURL *url = [NSURL URLWithString:urlString];
         
         if(url != nil) {
@@ -443,15 +522,16 @@
         [self.blueShiftPushDelegate buyPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Buy Action in SDK ...
+        if(![self customDeepLinkToPrimitiveCategory]) {
+            [self.deepLinkToCartPage performDeepLinking];
+            self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
             
-        [self.deepLinkToCartPage performDeepLinking];
-        self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
-        
-        // Track notification when the page is deeplinked ...
-        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            }
         }
     }
 }
@@ -469,15 +549,16 @@
         [self.blueShiftPushDelegate viewPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
-        
-        [self.deepLinkToProductPage performDeepLinking];
-        self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
-        
-        // Track notification when the page is deeplinked ...
-        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+        if(![self customDeepLinkToPrimitiveCategory]) {
+            [self.deepLinkToProductPage performDeepLinking];
+            self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            }
         }
     }
 }
@@ -496,7 +577,7 @@
     } else {
         // Handle the View Action in SDK ...
         
-        NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
+        NSString *urlString = [pushDetailsDictionary objectForKey:@"deep_link_url"];
         NSURL *url = [NSURL URLWithString:urlString];
         
         if(url != nil) {
@@ -548,7 +629,6 @@
     // Handles the scenario when a push message action is selected ...
     // Differentiation is done on the basis of identifier of the push notification ...
     
-    //NSDictionary *pushAlertDictionary = [[notification objectForKey:@"aps"] objectForKey:@"alert"];
     NSDictionary *pushAlertDictionary = [notification objectForKey:@"aps"];
     NSDictionary *pushDetailsDictionary = nil;
     //if ([pushAlertDictionary isKindOfClass:[NSDictionary class]]) {

@@ -18,6 +18,8 @@
 @property NSURL *cartPageURL;
 @property NSURL *offerPageURL;
 
+@property NSString *appGroupID;
+
 - (BOOL)validateConfigDetails;
 
 + (BlueShiftConfig *)config;
