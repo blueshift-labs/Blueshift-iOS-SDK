@@ -841,13 +841,16 @@
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
-    NSString *pushMessageID = [pushAlertDictionary objectForKey:@"id"];
+
+    NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
+    NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (pushMessageID) {
-        [pushTrackParametersMutableDictionary setObject:pushMessageID forKey:@"notification_id"];
-        [pushTrackParametersMutableDictionary setObject:timeStamp forKey:@"timestamp"];
+    if (bsft_user_uuid) {
+        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"bsft_user_uuid"];
+    }
+    if(bsft_experiment_uuid) {
+        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"bsft_experiment_uuid"];
     }
     
     return [pushTrackParametersMutableDictionary copy];
