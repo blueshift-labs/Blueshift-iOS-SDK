@@ -45,7 +45,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         for(HttpRequestOperationEntity *operationEntityToBeExecuted in operationEntitiesToBeExecuted) {
             if ([operationEntityToBeExecuted.nextRetryTimeStamp floatValue] < [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]) {
                 BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithHttpRequestOperationEntity:operationEntityToBeExecuted];
-                [paramsArray addObject:requestOperation.parameters];
+                if(requestOperation.parameters != nil) {
+                    [paramsArray addObject:requestOperation.parameters];
+                }
                 [context deleteObject:operationEntityToBeExecuted];
                 NSError *saveError = nil;
                 BOOL deletedStatus = [context save:&saveError];
