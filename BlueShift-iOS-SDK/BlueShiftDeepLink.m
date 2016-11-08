@@ -59,6 +59,10 @@ static NSDictionary *_deepLinkList = nil;
         [schemes addObjectsFromArray:[bundleURLTypes[idx] objectForKey:@"CFBundleURLSchemes"]];
     }];
     
+    if(self.pathURL == nil) {
+        return NO;
+    }
+    
     if (![schemes containsObject:[self.pathURL scheme]]) {
         return NO;
     }

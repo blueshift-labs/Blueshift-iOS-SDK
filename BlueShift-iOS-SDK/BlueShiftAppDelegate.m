@@ -200,6 +200,7 @@
 
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+    self.userInfo = userInfo;
     [self application:application handleRemoteNotification:userInfo];
 }
 
@@ -232,6 +233,7 @@
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    self.userInfo = userInfo;
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
     // Way to handle push notification in three states
@@ -277,6 +279,7 @@
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    self.userInfo = userInfo;
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
     // Way to handle push notification in three states
@@ -338,16 +341,18 @@
         [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
         self.deepLinkToCustomPage = deepLink;
         self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
-        [self.deepLinkToCustomPage performCustomDeepLinking:url];
-        self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
-        
-        // Track notification when the page is deeplinked ...
-        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:self.userInfo];
+        BOOL status = [self.deepLinkToCustomPage performCustomDeepLinking:url];
+        if(status) {
+            self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+            
+            // Track notification when the page is deeplinked ...
+            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+            
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                [self.blueShiftPushParamDelegate handlePushDictionary:self.userInfo];
+            }
+            return true;
         }
-        return true;
     }
     return false;
 }
@@ -365,15 +370,20 @@
     } else {
         // Handle the View Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
-            [self.deepLinkToProductPage performDeepLinking];
-            self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
-            
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            BOOL status = [self.deepLinkToProductPage performDeepLinking];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
+            
         }
     }
 }
@@ -392,14 +402,18 @@
     } else {
         // Handle the Open Cart Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
-            [self.deepLinkToCartPage performDeepLinking];
-            self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
-            
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            BOOL status = [self.deepLinkToCartPage performDeepLinking];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -418,12 +432,15 @@
         
     } else {
         if(![self customDeepLinkToPrimitiveCategory]) {
-            [self.deepLinkToOfferPage performDeepLinking];
-            
-            self.blueShiftPushParamDelegate = [self.deepLinkToOfferPage lastViewController];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+            BOOL status = [self.deepLinkToOfferPage performDeepLinking];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToOfferPage lastViewController];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -496,14 +513,18 @@
             [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
             self.deepLinkToCustomPage = deepLink;
             self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
-            [self.deepLinkToCustomPage performCustomDeepLinking:url];
-            self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
-            
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            BOOL status = [self.deepLinkToCustomPage performCustomDeepLinking:url];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -523,14 +544,18 @@
     } else {
         // Handle the Buy Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
-            [self.deepLinkToCartPage performDeepLinking];
-            self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
-            
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            BOOL status = [self.deepLinkToCartPage performDeepLinking];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -550,14 +575,18 @@
     } else {
         // Handle the View Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
-            [self.deepLinkToProductPage performDeepLinking];
-            self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
-            
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            BOOL status = [self.deepLinkToProductPage performDeepLinking];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -586,14 +615,18 @@
             [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
             self.deepLinkToCustomPage = deepLink;
             self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
-            [self.deepLinkToCustomPage performCustomDeepLinking:url];
-            self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
-            
-            // Track notification when the page is deeplinked ...
-            [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-            
-            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+            BOOL status = [self.deepLinkToCustomPage performCustomDeepLinking:url];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -612,15 +645,20 @@
         [self.blueShiftPushDelegate openCartPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Open Cart Action in SDK ...
-        
-        [self.deepLinkToCartPage performDeepLinking];
-        self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
-        
-        // Track notification when the page is deeplinked ...
-        [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-        
-        if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-            [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+        if(![self customDeepLinkToPrimitiveCategory]) {
+            BOOL status = [self.deepLinkToCartPage performDeepLinking];
+            if(status) {
+                self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+                
+                // Track notification when the page is deeplinked ...
+                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
+                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+            } else {
+                NSLog(@"Deep link URL not found / Something wrong with URL");
+            }
         }
     }
 }
@@ -635,7 +673,7 @@
     //  pushDetailsDictionary = pushAlertDictionary;
     //}
     pushDetailsDictionary = notification;
-    
+    self.userInfo = notification;
     if ([identifier isEqualToString: kNotificationActionBuyIdentifier]) {
         [self handleActionForBuyUsingPushDetailsDictionary:pushDetailsDictionary];
     } else if ([identifier isEqualToString: kNotificationActionViewIdentifier]) {
@@ -803,13 +841,16 @@
 }
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
-    NSString *pushMessageID = [pushAlertDictionary objectForKey:@"id"];
+
+    NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
+    NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (pushMessageID) {
-        [pushTrackParametersMutableDictionary setObject:pushMessageID forKey:@"notification_id"];
-        [pushTrackParametersMutableDictionary setObject:timeStamp forKey:@"timestamp"];
+    if (bsft_user_uuid) {
+        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"bsft_user_uuid"];
+    }
+    if(bsft_experiment_uuid) {
+        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"bsft_experiment_uuid"];
     }
     
     return [pushTrackParametersMutableDictionary copy];
