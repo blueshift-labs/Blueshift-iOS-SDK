@@ -240,7 +240,7 @@
     if (applicationState == UIApplicationStateActive) {
         
         // Track notification view when app is open ...
-        [self trackPushViewedWithParameters:pushTrackParameterDictionary];
+        //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
         
         
         // Handle push notification when the app is in active state...
@@ -250,9 +250,6 @@
             [pushAlertView show];
         }
     } else {
-        
-        // Track notification when app is in background and when we click the push notification from tray..
-        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
         
         // Handle push notification when the app is in inactive or background state ...
         if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
@@ -270,6 +267,9 @@
                 } else {
                     [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
                 }
+            } else {
+                // Track notification when app is in background and when we click the push notification from tray..
+                [self trackPushClickedWithParameters:pushTrackParameterDictionary];
             }
         }
     }
@@ -285,10 +285,10 @@
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
+        // Track notification view when app is open ...
+        [self trackPushViewedWithParameters:pushTrackParameterDictionary];
+        
         if([[userInfo objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
-            // Track notification view when app is open ...
-            [self trackPushViewedWithParameters:pushTrackParameterDictionary];
-            
             
             // Handle push notification when the app is in active state...
             BlueShiftAlertView *pushAlertView = [BlueShiftAlertView alertViewWithPushDetailsDictionary:userInfo andDelegate:self];
@@ -300,9 +300,6 @@
             [self scheduleLocalNotification:userInfo];
         }
     } else {
-        
-        // Track notification when app is in background and when we click the push notification from tray..
-        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
         
         // Handle push notification when the app is in inactive or background state ...
         if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
@@ -320,6 +317,9 @@
                 } else {
                     [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
                 }
+            } else {
+                // Track notification when app is in background and when we click the push notification from tray..
+                [self trackPushClickedWithParameters:pushTrackParameterDictionary];
             }
         }
     }
