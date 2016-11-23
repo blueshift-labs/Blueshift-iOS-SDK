@@ -45,17 +45,22 @@
 
 + (NSArray *)fetchBatchesFromCoreData {
     @synchronized(self) {
+        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        NSManagedObjectContext *context = appDelegate.managedObjectContext;
-        
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
-        NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-        NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
-        [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-        NSError *error;
-        NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
-        
+        if(appDelegate != nil) {
+            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+            if(context != nil) {
+                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+                [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
+                if(fetchRequest.entity != nil) {
+                    NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
+                    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
+                    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+                    NSError *error;
+                    results = [context executeFetchRequest:fetchRequest error:&error];
+                }
+            }
+        }
         return results;
     }
 }

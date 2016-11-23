@@ -67,18 +67,26 @@
     
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        NSManagedObjectContext *context = appDelegate.managedObjectContext;
-        
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
-        NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
-        NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
-        [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-        [fetchRequest setFetchLimit:1];
-        NSError *error;
-        NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
-        HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
-        return operationEntityToBeExecuted;
+        if(appDelegate != nil) {
+            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+            if(context != nil) {
+                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+                [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
+                if(fetchRequest.entity != nil) {
+                    NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
+                    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
+                    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+                    [fetchRequest setFetchLimit:1];
+                    NSError *error;
+                    NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
+                    if(results.count > 0) {
+                        HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
+                        return operationEntityToBeExecuted;
+                    }
+                }
+            }
+        }
+        return nil;
     }
 }
 
@@ -86,18 +94,23 @@
 
 + (NSArray *)fetchBatchWiseRecordFromCoreData {
     @synchronized(self) {
+        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        NSManagedObjectContext *context = appDelegate.managedObjectContext;
-        
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
-        NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-        NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
-        [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-        [fetchRequest setFetchLimit:kBatchSize];
-        NSError *error;
-        NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
-        
+        if(appDelegate != nil) {
+            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+            if(context != nil) {
+                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+                [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
+                if(fetchRequest.entity != nil) {
+                    NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
+                    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
+                    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+                    [fetchRequest setFetchLimit:kBatchSize];
+                    NSError *error;
+                    results = [context executeFetchRequest:fetchRequest error:&error];
+                }
+            }
+        }
         return results;
     }
 }
