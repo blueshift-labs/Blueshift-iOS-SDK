@@ -380,10 +380,7 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
-            
         }
     }
 }
