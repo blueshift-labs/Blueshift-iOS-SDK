@@ -67,7 +67,7 @@
     
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil) {
+        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -96,7 +96,7 @@
     @synchronized(self) {
         NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil) {
+        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -107,7 +107,13 @@
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
                     [fetchRequest setFetchLimit:kBatchSize];
                     NSError *error;
-                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    
+                    @try {
+                        results = [context executeFetchRequest:fetchRequest error:&error];
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
                 }
             }
         }

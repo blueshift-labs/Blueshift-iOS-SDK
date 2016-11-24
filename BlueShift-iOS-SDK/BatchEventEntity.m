@@ -47,7 +47,7 @@
     @synchronized(self) {
         NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil) {
+        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -57,7 +57,12 @@
                     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
                     NSError *error;
-                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    @try {
+                        results = [context executeFetchRequest:fetchRequest error:&error];
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
                 }
             }
         }

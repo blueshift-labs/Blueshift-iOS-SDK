@@ -26,7 +26,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation {
     if(requestOperation != nil) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil) {
+        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSEntityDescription *entity = [NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:appDelegate.managedObjectContext];
             if(entity != nil) {
                 NSString *url = requestOperation.url;
@@ -57,7 +57,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    if(appDelegate != nil) {
+    if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:appDelegate.managedObjectContext];
         if(entity != nil) {
             NSArray *paramsArray = requestOperation.paramsArray;
@@ -103,7 +103,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
             
             // Gets the current NSManagedObjectContext via appDelegate ...
             BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            if(appDelegate != nil) {
+            if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
                 NSManagedObjectContext *context = appDelegate.managedObjectContext;
                 if(context != nil) {
                     // Fetches the first record from the Core Data ...
