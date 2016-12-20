@@ -52,7 +52,12 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         }
                         [context deleteObject:operationEntityToBeExecuted];
                         NSError *saveError = nil;
-                        BOOL deletedStatus = [context save:&saveError];
+                        @try {
+                            BOOL deletedStatus = [context save:&saveError];
+                        }
+                        @catch (NSException *exception) {
+                            NSLog(@"Caught exception %@", exception);
+                        }
                     }
                 }
                 [self createBatch:paramsArray];

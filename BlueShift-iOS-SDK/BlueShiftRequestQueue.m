@@ -85,9 +85,16 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     
     // perform executions based on the request operation http method ...
     
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
-        handler(status);
-    }];
+    if (httpMethod == BlueShiftHTTPMethodGET) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
+            handler(status);
+        }];
+
+    } else if (httpMethod == BlueShiftHTTPMethodPOST) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
+            handler(status);
+        }];
+    }
 }
 
 // Method to trigger request executions from the Queue ...

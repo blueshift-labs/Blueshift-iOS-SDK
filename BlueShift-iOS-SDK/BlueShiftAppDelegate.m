@@ -167,7 +167,6 @@
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShift sharedInstance].deviceToken = deviceTokenString;
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
-    //NSLog(@"\n\n Push Token Generated is: %@ \n\n", deviceTokenString);
 }
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
@@ -228,7 +227,6 @@
     localNotification.userInfo = dictionary;
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
-
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
@@ -892,7 +890,7 @@
         [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
     }
     
-    [self trackPushEventForEventName:kEventPushView andParameters:parameterMutableDictionary canBatchThisEvent:NO];
+    [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
 }
 
 - (void)trackPushClicked {
@@ -907,12 +905,11 @@
         [parameterMutableDictionary setObject:@"click" forKey:@"a"];
     }
     
-    [self trackPushEventForEventName:kEventPushClicked andParameters:parameterMutableDictionary canBatchThisEvent:NO];
+    [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
 }
 
-- (void)trackPushEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+- (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
     
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];

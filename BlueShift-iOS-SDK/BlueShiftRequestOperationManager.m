@@ -57,7 +57,11 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
     NSString *paramsString = [[NSString alloc] init];
     for(id key in params) {
-        paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [params objectForKey:key]];
+        if(paramsString.length > 0) {
+            paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [params objectForKey:key]];
+        } else {
+            paramsString = [NSString stringWithFormat:@"%@=%@", key, [params objectForKey:key]];
+        }
     }
     
     NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, paramsString];
