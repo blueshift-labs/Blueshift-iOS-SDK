@@ -523,7 +523,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
-
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSString *url = [[NSString alloc]init];
     if(isBatchEvent) {
