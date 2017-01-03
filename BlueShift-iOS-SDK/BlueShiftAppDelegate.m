@@ -167,7 +167,6 @@
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShift sharedInstance].deviceToken = deviceTokenString;
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
-    //NSLog(@"\n\n Push Token Generated is: %@ \n\n", deviceTokenString);
 }
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
@@ -228,7 +227,6 @@
     localNotification.userInfo = dictionary;
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
-
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
@@ -837,19 +835,31 @@
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
+
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
 
     NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
     NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
+    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"message_uuid"];
+    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"transactional_uuid"];
+    NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"bsft_user_uuid"];
+        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
     }
     if(bsft_experiment_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"bsft_experiment_uuid"];
+        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"eid"];
     }
-    
+    if (message_uuid) {
+        [pushTrackParametersMutableDictionary setObject:message_uuid forKey:@"mid"];
+    }
+    if (transactional_uuid) {
+        [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey:@"txnid"];
+    }
+    if (sdkVersion) {
+        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"sdk_version"];
+    }
     return [pushTrackParametersMutableDictionary copy];
 }
 
@@ -877,10 +887,10 @@
     
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
+        [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
     }
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventPushView andParameters:parameters canBatchThisEvent:YES];
-    
+    [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
 }
 
 - (void)trackPushClicked {
@@ -892,10 +902,27 @@
     
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
+        [parameterMutableDictionary setObject:@"click" forKey:@"a"];
     }
     
+    [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
+}
+
+- (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
-    [[BlueShift sharedInstance] trackEventForEventName:kEventPushClicked andParameters:parameters canBatchThisEvent:YES];
+    if (parameters) {
+        [parameterMutableDictionary addEntriesFromDictionary:parameters];
+    }
+    
+    [self performPushEventsRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
+}
+
+- (void) performPushEventsRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent {
+    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+    NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
+    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+    [BlueShiftRequestQueue addRequestOperation:requestOperation];
 }
 
 - (BOOL)trackOpenURLWithCampaignURLString:(NSString *)campaignURLString andParameters:(NSDictionary *)parameters {

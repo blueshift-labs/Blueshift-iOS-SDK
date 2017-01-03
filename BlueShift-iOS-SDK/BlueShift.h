@@ -23,6 +23,8 @@
 #import "BlueShiftSubscription.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
 #include "BlueShiftBatchUploadConfig.h"
+#include "BlueShiftAppData.h"
+#include "SDKVersion.h"
 
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
@@ -30,6 +32,7 @@
 
 @property (nonatomic, strong) BlueShiftConfig *config;
 @property BlueShiftDeviceData *deviceData;
+@property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
 @property NSString *deviceToken;
 

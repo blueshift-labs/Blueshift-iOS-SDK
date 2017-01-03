@@ -42,7 +42,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     }
     
     if (self.retailerCustomerID) {
-        [sharedUserInfoMutableDictionary setObject:self.retailerCustomerID forKey:@"retailer_customer_id"];
+        [sharedUserInfoMutableDictionary setObject:self.retailerCustomerID forKey:@"customer_id"];
     } else {
         NSLog(@"\n\n BlueShiftWarning: Retailer Customer ID not set for BlueShiftUserInfo \n");
     }
@@ -160,7 +160,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         }
         
         blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:@"additional_user_info"];
-        blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:@"retailer_customer_id"];
+        blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:@"customer_id"];
     }
     return blueShiftUserInfo;
 }

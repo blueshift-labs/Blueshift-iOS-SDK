@@ -66,6 +66,7 @@
 + (HttpRequestOperationEntity *)fetchFirstRecordFromCoreData {
     
     @synchronized(self) {
+        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
@@ -78,7 +79,12 @@
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
                     [fetchRequest setFetchLimit:1];
                     NSError *error;
-                    NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
+                    @try {
+                        results = [context executeFetchRequest:fetchRequest error:&error];
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
                     if(results.count > 0) {
                         HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
                         return operationEntityToBeExecuted;

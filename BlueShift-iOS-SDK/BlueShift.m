@@ -45,7 +45,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // setting config ...
     _sharedBlueShiftInstance.config = config;
     _sharedBlueShiftInstance.deviceData = [[BlueShiftDeviceData alloc] init];
-    
+    _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
     // Initialize deeplinks ...
     [self initDeepLinks];
     
@@ -518,11 +518,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
+        [parameterMutableDictionary setObject:kSDKVersionNumber forKey:@"sdk_version"];
     }
     
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
-
 
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSString *url = [[NSString alloc]init];
@@ -534,7 +534,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
-
+    [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
     if ([BlueShiftUserInfo sharedInstance]==nil) {
         NSLog(@"\n\n BlueShift Warning: Please set BlueShiftUserInfo for sending retailer customer ID, email and so on.");
     }

@@ -85,9 +85,16 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     
     // perform executions based on the request operation http method ...
     
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
-        handler(status);
-    }];
+    if (httpMethod == BlueShiftHTTPMethodGET) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
+            handler(status);
+        }];
+
+    } else if (httpMethod == BlueShiftHTTPMethodPOST) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status) {
+            handler(status);
+        }];
+    }
 }
 
 // Method to trigger request executions from the Queue ...
@@ -137,7 +144,14 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     
                                     [context deleteObject:operationEntityToBeExecuted];
                                     NSError *saveError = nil;
-                                    BOOL deletedStatus = [context save:&saveError];
+                                    BOOL deletedStatus;
+                                    
+                                    @try {
+                                        deletedStatus = [context save:&saveError];
+                                    }
+                                    @catch (NSException *exception) {
+                                        NSLog(@"Caught exception %@", exception);
+                                    }
                                     
                                     if (deletedStatus == YES) {
                                         // request record is removed successfully from core data ...
@@ -162,7 +176,14 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     
                                     [context deleteObject:operationEntityToBeExecuted];
                                     NSError *saveError = nil;
-                                    BOOL deletedStatus = [context save:&saveError];
+                                    BOOL deletedStatus;
+                                    
+                                    @try {
+                                        deletedStatus = [context save:&saveError];
+                                    }
+                                    @catch (NSException *exception) {
+                                        NSLog(@"Caught exception %@", exception);
+                                    }
                                     
                                     if (deletedStatus == YES) {
                                         
@@ -190,7 +211,14 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             
                             [context deleteObject:operationEntityToBeExecuted];
                             NSError *saveError = nil;
-                            BOOL deletedStatus = [context save:&saveError];
+                            BOOL deletedStatus;
+                            
+                            @try {
+                                deletedStatus = [context save:&saveError];
+                            }
+                            @catch (NSException *exception) {
+                                NSLog(@"Caught exception %@", exception);
+                            }
                             
                             if (deletedStatus == YES) {
                                 _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;

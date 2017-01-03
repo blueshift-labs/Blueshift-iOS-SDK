@@ -51,6 +51,47 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
 }
 
+- (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL))handler{
+    [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    
+    NSString *paramsString = [[NSString alloc] init];
+    for(id key in params) {
+        if(paramsString.length > 0) {
+            paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [params objectForKey:key]];
+        } else {
+            paramsString = [NSString stringWithFormat:@"%@=%@", key, [params objectForKey:key]];
+        }
+    }
+    
+    NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, paramsString];
+    
+    NSURL * url = [NSURL URLWithString:urlWithParams];
+    NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
+    //NSString * params =@"user[name]=shahas&user[email]=sha@z.z&user[encrypted_password]=askfdsfkdk";
+    
+    NSDictionary *paramsDictionary = params;
+    [urlRequest setHTTPMethod:@"GET"];
+    
+    NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
+                                                       completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                           if(error == nil)
+                                                           {
+                                                               NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+                                                               
+                                                               if (statusCode == kStatusCodeSuccessfullResponse) {
+                                                                   handler(true);
+                                                               } else {
+                                                                   handler(false);
+                                                               }
+                                                           } else {
+                                                               handler(false);
+                                                           }
+                                                           
+                                                       }];
+    [dataTask resume];
+}
+
 - (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
