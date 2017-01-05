@@ -858,7 +858,7 @@
         [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey:@"txnid"];
     }
     if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"sdk_version"];
+        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
     }
     return [pushTrackParametersMutableDictionary copy];
 }
