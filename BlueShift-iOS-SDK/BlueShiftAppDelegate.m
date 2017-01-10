@@ -840,8 +840,8 @@
 
     NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
     NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"message_uuid"];
-    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"transactional_uuid"];
+    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"bsft_message_uuid"];
+    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"bsft_transactional_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
