@@ -251,18 +251,9 @@
     
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                   initWithSuiteName:self.appGroupID];
-    if(myDefaults != (id)[NSNull null]) {
-        
-        NSDictionary *item = [self.deepLinkURLs objectAtIndex:carousel.currentItemIndex];
-            if([item objectForKey:@"deep_link_url"] != nil && [item objectForKey:@"deep_link_url"] != (id)[NSNull null] && ![[item objectForKey:@"deep_link_url"] isEqualToString:@""]) {
-                NSString *url = [item objectForKey:@"deep_link_url"];
-                [myDefaults setObject:url forKey:@"deep_link_url"];
-                [myDefaults synchronize];
-            } else {
-                [myDefaults setObject:nil forKey:@"deep_link_url"];
-                [myDefaults synchronize];
-            }
-    }
+    NSNumber *index = [NSNumber numberWithInteger:carousel.currentItemIndex];
+    [myDefaults setObject:index forKey:@"selected_index"];
+    [myDefaults synchronize];
 }
 
 
