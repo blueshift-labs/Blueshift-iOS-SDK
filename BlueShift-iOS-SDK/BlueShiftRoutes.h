@@ -13,6 +13,6 @@
 #define kRealTimeUploadURL      @"api/v1/event"
 #define kBatchUploadURL         @"api/v1/bulkevents"
 #define kPushEventsUploadURL    @"track"
-#define kLiveContent            @""
+#define kLiveContent            @"live"
 
 #endif

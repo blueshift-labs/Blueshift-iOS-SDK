@@ -10,6 +10,6 @@
 
 @interface BlueShiftLiveContent : NSObject
 
-+ (void) fetchLiveContent:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
++ (void) fetchLiveContent:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
 
 @end

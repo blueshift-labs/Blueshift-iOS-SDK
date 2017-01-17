@@ -11,16 +11,22 @@
 
 @implementation BlueShiftLiveContent
 
-+ (void) fetchLiveContent:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContent:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
-    NSDictionary *parameters = [[NSDictionary alloc] init];
+    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
+    NSString *slot = campaignName;
+    NSString *email = [BlueShiftUserInfo sharedInstance].email;
+    NSDictionary *parameters = @{
+                                 @"x":apiKey,
+                                 @"slot":campaignName,
+                                 @"email":email
+                                 };
     [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
         if(status) {
             success(data);
         } else {
             failure(error);
         }
-        
     }];
 }
 
