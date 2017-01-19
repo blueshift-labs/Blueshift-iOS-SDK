@@ -16,18 +16,24 @@
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *slot = campaignName;
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
-    NSDictionary *parameters = @{
-                                 @"x":apiKey,
-                                 @"slot":campaignName,
-                                 @"email":email
-                                 };
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
-        if(status) {
-            success(data);
-        } else {
-            failure(error);
-        }
-    }];
+    if(email) {
+        NSDictionary *parameters = @{
+                                     @"x":apiKey,
+                                     @"slot":campaignName,
+                                     @"email":email
+                                     };
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+            if(status) {
+                success(data);
+            } else {
+                failure(error);
+            }
+        }];
+    } else {
+        NSLog(@"Email is not set");
+        NSError *error = @"Email ID not set";
+        failure(error);
+    }
 }
 
 + (void) fetchLiveContentByCustomerID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
@@ -35,18 +41,24 @@
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *slot = campaignName;
     NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
-    NSDictionary *parameters = @{
-                                 @"x":apiKey,
-                                 @"slot":campaignName,
-                                 @"customer_id":customerID
-                                 };
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
-        if(status) {
-            success(data);
-        } else {
-            failure(error);
-        }
-    }];
+    if(customerID) {
+        NSDictionary *parameters = @{
+                                     @"x":apiKey,
+                                     @"slot":campaignName,
+                                     @"customer_id":customerID
+                                     };
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+            if(status) {
+                success(data);
+            } else {
+                failure(error);
+            }
+        }];
+    } else {
+        NSLog(@"Customer ID is not set");
+        NSError *error = @"Customer ID not set";
+        failure(error);
+    }
 }
 
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
@@ -54,18 +66,24 @@
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *slot = campaignName;
     NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
-    NSDictionary *parameters = @{
-                                 @"x":apiKey,
-                                 @"slot":campaignName,
-                                 @"device_id":deviceID
-                                 };
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
-        if(status) {
-            success(data);
-        } else {
-            failure(error);
-        }
-    }];
+    if(deviceID) {
+        NSDictionary *parameters = @{
+                                     @"x":apiKey,
+                                     @"slot":campaignName,
+                                     @"device_id":deviceID
+                                     };
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+            if(status) {
+                success(data);
+            } else {
+                failure(error);
+            }
+        }];
+    } else {
+        NSLog(@"Device ID is not there");
+        NSError *error = @"Device ID not set";
+        failure(error);
+    }
 }
 
 @end
