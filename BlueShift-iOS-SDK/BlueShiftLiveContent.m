@@ -11,7 +11,7 @@
 
 @implementation BlueShiftLiveContent
 
-+ (void) fetchLiveContent:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByEmail:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *slot = campaignName;
@@ -20,6 +20,44 @@
                                  @"x":apiKey,
                                  @"slot":campaignName,
                                  @"email":email
+                                 };
+    [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+        if(status) {
+            success(data);
+        } else {
+            failure(error);
+        }
+    }];
+}
+
++ (void) fetchLiveContentByCustomerID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
+    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
+    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
+    NSString *slot = campaignName;
+    NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
+    NSDictionary *parameters = @{
+                                 @"x":apiKey,
+                                 @"slot":campaignName,
+                                 @"customer_id":customerID
+                                 };
+    [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+        if(status) {
+            success(data);
+        } else {
+            failure(error);
+        }
+    }];
+}
+
++ (void) fetchLiveContentByDeviceID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
+    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
+    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
+    NSString *slot = campaignName;
+    NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
+    NSDictionary *parameters = @{
+                                 @"x":apiKey,
+                                 @"slot":campaignName,
+                                 @"device_id":deviceID
                                  };
     [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
         if(status) {
