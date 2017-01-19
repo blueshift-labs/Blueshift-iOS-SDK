@@ -449,13 +449,17 @@
     if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
         NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                       initWithSuiteName:bundleIdentifier];
-        NSString *urlString = [myDefaults objectForKey:@"deep_link_url"];
+        NSNumber *selectedIndex = [myDefaults objectForKey:@"selected_index"];
+        NSInteger index = [selectedIndex integerValue];
+        NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_images"];
+        NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
+        NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
         NSURL *url = [NSURL URLWithString:urlString];
-        if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory:clickedWithDetails:andDeepLinkURL:)]) {
+        if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
             // User already implemented the viewPushActionWithDetails in App Delegate...
             
             self.blueShiftPushDelegate = self.oldDelegate;
-            [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithDetails:pushDetailsDictionary andDeepLinkURL:urlString];
+            [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithIndex:index withDetails:pushDetailsDictionary];
         } else {
             // Handle the View Action in SDK ...
             
@@ -476,8 +480,8 @@
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
                 
-                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
-                    [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handleCarouselPushDictionary: withSelectedIndex:)]) {
+                    [self.blueShiftPushParamDelegate handleCarouselPushDictionary:pushDetailsDictionary withSelectedIndex:index];
                 }
             }
         }
@@ -840,8 +844,8 @@
 
     NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
     NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"message_uuid"];
-    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"transactional_uuid"];
+    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"bsft_message_uuid"];
+    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"bsft_transactional_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
     NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
@@ -858,7 +862,7 @@
         [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey:@"txnid"];
     }
     if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"sdk_version"];
+        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
     }
     return [pushTrackParametersMutableDictionary copy];
 }

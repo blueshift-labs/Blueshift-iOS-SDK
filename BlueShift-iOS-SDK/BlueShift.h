@@ -22,9 +22,10 @@
 #import "BlueShiftProduct.h"
 #import "BlueShiftSubscription.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
-#include "BlueShiftBatchUploadConfig.h"
-#include "BlueShiftAppData.h"
-#include "SDKVersion.h"
+#import "BlueShiftBatchUploadConfig.h"
+#import "BlueShiftAppData.h"
+#import "SDKVersion.h"
+#import "BlueShiftLiveContent.h"
 
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
