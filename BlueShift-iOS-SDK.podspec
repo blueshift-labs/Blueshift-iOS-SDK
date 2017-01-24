@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "BlueShift-iOS-SDK"
-  s.version      = "0.0.8"
+  s.version      = "0.0.9"
   s.summary      = "A short description of BlueShift-iOS-SDK."
 
   s.description  = <<-DESC
@@ -53,7 +53,7 @@ Pod::Spec.new do |s|
   #  profile URL.
   #
 
-  s.author             = { "Shahas K P" => "shahas@bullfin.ch" }
+  s.author             = { "Blueshift" => "success@getblueshift.com" }
   # Or just: s.author    = "Shahas KP"
   # s.authors            = { "Shahas K P" => "shahas@bullfin.ch" }
   # s.social_media_url   = ""
