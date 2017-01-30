@@ -11,6 +11,7 @@
 
 @optional
 - (void)handlePushDictionary:(NSDictionary *)pushDictionary;
+- (void)fetchProductID:(NSString *)productID;
 - (void)handleCarouselPushDictionary:(NSDictionary *)pushDictionary withSelectedIndex:(NSInteger)index;
 
 @end

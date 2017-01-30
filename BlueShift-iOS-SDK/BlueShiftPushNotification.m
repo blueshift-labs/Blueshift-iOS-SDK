@@ -33,7 +33,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 
 - (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
     NSArray *images = [[NSArray alloc]init];
-    images = [request.content.userInfo objectForKey:@"carousel_images"];
+    images = [request.content.userInfo objectForKey:@"carousel_elements"];
     NSMutableArray *attachments = [[NSMutableArray alloc]init];
     self.attachments = attachments;
     [images enumerateObjectsUsingBlock:

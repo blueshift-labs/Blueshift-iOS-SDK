@@ -349,6 +349,10 @@
             if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                 [self.blueShiftPushParamDelegate handlePushDictionary:self.userInfo];
             }
+            if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(fetchProductID:)]) {
+                NSString *productID = [self.userInfo objectForKey:@"product_id"];
+                [self.blueShiftPushParamDelegate fetchProductID:productID];
+            }
             return true;
         }
     }
@@ -377,6 +381,10 @@
                 
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(fetchProductID:)]) {
+                    NSString *productID = [pushDetailsDictionary objectForKey:@"product_id"];
+                    [self.blueShiftPushParamDelegate fetchProductID:productID];
                 }
             }
         }
@@ -451,7 +459,7 @@
                                       initWithSuiteName:bundleIdentifier];
         NSNumber *selectedIndex = [myDefaults objectForKey:@"selected_index"];
         NSInteger index = [selectedIndex integerValue];
-        NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_images"];
+        NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_elements"];
         NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
         NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
         NSURL *url = [NSURL URLWithString:urlString];
@@ -552,6 +560,10 @@
                 
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
+                }
+                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(fetchProductID:)]) {
+                    NSString *productID = [pushDetailsDictionary objectForKey:@"product_id"];
+                    [self.blueShiftPushParamDelegate fetchProductID:productID];
                 }
             } else {
                 NSLog(@"Deep link URL not found / Something wrong with URL");
