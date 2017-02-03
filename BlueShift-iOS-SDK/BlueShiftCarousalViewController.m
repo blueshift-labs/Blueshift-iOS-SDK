@@ -136,7 +136,7 @@
 - (void)getImages:(UNNotification *)notification {
     NSArray <UNNotificationAttachment *> *attachments = notification.request.content.attachments;
     [self fetchAttachmentsToImageArray:attachments];
-    NSArray *carouselImages = [notification.request.content.userInfo objectForKey:@"carousel_images"];
+    NSArray *carouselImages = [notification.request.content.userInfo objectForKey:@"carousel_elements"];
     [self fetchDeepLinkURLs:carouselImages];
     if(self.items.count < carouselImages.count) {
         NSMutableArray *images = [[NSMutableArray alloc]init];
