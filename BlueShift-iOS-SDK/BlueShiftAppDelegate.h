@@ -20,38 +20,38 @@
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, UIAlertViewDelegate, CLLocationManagerDelegate>
 
-@property NSDictionary *userInfo;
-@property NSDictionary *pushAlertDictionary;
+@property NSDictionary * _Nullable userInfo;
+@property NSDictionary * _Nullable pushAlertDictionary;
 
-@property NSObject<UIApplicationDelegate> *oldDelegate;
-@property (nonatomic, retain) id<BlueShiftPushDelegate> blueShiftPushDelegate;
-@property (nonatomic, retain) id<BlueShiftPushParamDelegate> blueShiftPushParamDelegate;
+@property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
+@property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
+@property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
 
-@property BlueShiftDeepLink *deepLinkToProductPage;
-@property BlueShiftDeepLink *deepLinkToCartPage;
-@property BlueShiftDeepLink *deepLinkToOfferPage;
-@property BlueShiftDeepLink *deepLinkToCustomPage;
+@property BlueShiftDeepLink * _Nullable deepLinkToProductPage;
+@property BlueShiftDeepLink * _Nullable deepLinkToCartPage;
+@property BlueShiftDeepLink * _Nullable deepLinkToOfferPage;
+@property BlueShiftDeepLink * _Nullable deepLinkToCustomPage;
 
-@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable managedObjectContext;
+@property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
+@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
 
 - (void)saveContext;
-- (NSURL *)applicationDocumentsDirectory;
+- (NSURL *_Nullable)applicationDocumentsDirectory;
 
 - (void) registerForNotification;
-- (BOOL) handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions;
+- (BOOL) handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *_Nullable)launchOptions;
 - (void)registerLocationService;
 
-- (void) registerForRemoteNotification:(NSData *)deviceToken;
-- (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error;
-- (void) handleRemoteNotification:(NSDictionary *)userInfo forApplication:(UIApplication *)application fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler;
-- (void) application:(UIApplication *)application handleRemoteNotification:(NSDictionary *)userInfo;
-- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UILocalNotification *)notification;
-- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)()) completionHandler;
+- (void) registerForRemoteNotification:(NSData *_Nullable)deviceToken;
+- (void) failedToRegisterForRemoteNotificationWithError:(NSError *_Nonnull)error;
+- (void) handleRemoteNotification:(NSDictionary *_Nonnull)userInfo forApplication:(UIApplication *_Nonnull)application fetchCompletionHandler:(void (^_Nonnull)(UIBackgroundFetchResult result))handler;
+- (void) application:(UIApplication *_Nonnull)application handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
+- (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UILocalNotification *)notification;
+- (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)()) completionHandler;
 
-- (void)appDidEnterBackground:(UIApplication *)application;
-- (void)appDidBecomeActive:(UIApplication *)application;
+- (void)appDidEnterBackground:(UIApplication *_Nonnull)application;
+- (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
 
 @end
 #endif

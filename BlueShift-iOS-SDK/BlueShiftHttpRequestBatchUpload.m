@@ -54,7 +54,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             [context deleteObject:operationEntityToBeExecuted];
                             NSError *saveError = nil;
                             @try {
-                                BOOL deletedStatus = [context save:&saveError];
+                                [context save:&saveError];
                             }
                             @catch (NSException *exception) {
                                 NSLog(@"Caught exception %@", exception);
@@ -199,9 +199,8 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     
     // get the request operation details ...
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
-    BlueShiftHTTPMethod httpMethod = BlueShiftHTTPMethodPOST;
     
-    NSMutableArray *parametersArray = requestOperation.paramsArray;
+    NSMutableArray *parametersArray = (NSMutableArray*)requestOperation.paramsArray;
     
     NSDictionary *paramsDictionary = @{@"events": parametersArray};
     // perform executions based on the request operation http method ...

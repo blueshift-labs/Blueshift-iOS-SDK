@@ -14,7 +14,6 @@
 + (void) fetchLiveContentByEmail:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *slot = campaignName;
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
     if(email) {
         NSDictionary *parameters = @{
@@ -31,7 +30,7 @@
         }];
     } else {
         NSLog(@"Email is not set");
-        NSError *error = @"Email ID not set";
+        NSError *error = (NSError*)@"Email ID not set";
         failure(error);
     }
 }
@@ -39,7 +38,6 @@
 + (void) fetchLiveContentByCustomerID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *slot = campaignName;
     NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
     if(customerID) {
         NSDictionary *parameters = @{
@@ -56,7 +54,7 @@
         }];
     } else {
         NSLog(@"Customer ID is not set");
-        NSError *error = @"Customer ID not set";
+        NSError *error = (NSError*)@"Customer ID not set";
         failure(error);
     }
 }
@@ -64,7 +62,6 @@
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *slot = campaignName;
     NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
     if(deviceID) {
         NSDictionary *parameters = @{
@@ -81,7 +78,7 @@
         }];
     } else {
         NSLog(@"Device ID is not there");
-        NSError *error = @"Device ID not set";
+        NSError *error = (NSError*)@"Device ID not set";
         failure(error);
     }
 }
