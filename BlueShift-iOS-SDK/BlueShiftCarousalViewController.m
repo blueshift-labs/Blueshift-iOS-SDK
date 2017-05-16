@@ -147,14 +147,14 @@
         }
         [carouselImages enumerateObjectsUsingBlock:
          ^(NSDictionary *image, NSUInteger index, BOOL *stop) {
-             if(attachmentIDs.count < index + 1 || ![[attachmentIDs objectAtIndex:index] isEqualToString:[NSString stringWithFormat:@"image_%d.jpg", index]]) {
+             if(attachmentIDs.count < index + 1 || ![[attachmentIDs objectAtIndex:index] isEqualToString:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index]]) {
                  NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
                  NSData *imageData = nil;
                  if(imageURL != nil) {
                      imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
                      UIImage *image = [UIImage imageWithData:imageData];
                      [images insertObject:image atIndex:index];
-                     [attachmentIDs insertObject:[NSString stringWithFormat:@"image_%d.jpg", index] atIndex:index];
+                     [attachmentIDs insertObject:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index] atIndex:index];
                  }
              }
          }];
@@ -163,7 +163,7 @@
 }
 
 - (void)fetchDeepLinkURLs:(NSArray *)carouselImages {
-    self.deepLinkURLs = carouselImages;
+    self.deepLinkURLs = (NSMutableArray *)carouselImages;
 }
 
 
@@ -201,7 +201,7 @@
 
 
 
-- (CGFloat)carousel:(__unused iCarousel *)carousel valueForOption:(iCarouselOption)option withDefault:(CGFloat)value {
+- (CGFloat)carousel:(__unused iCarousel *)icarousel valueForOption:(iCarouselOption)option withDefault:(CGFloat)value {
     //customize carousel display
     switch (option)
     {
@@ -213,7 +213,7 @@
         case iCarouselOptionSpacing:
         {
             //add a bit of spacing between the item views
-            if(carousel.type == iCarouselTypeLinear) {
+            if(icarousel.type == iCarouselTypeLinear) {
                 return value * 1.1f;
             } else {
                 return value * 1.2f;
@@ -246,12 +246,12 @@
 }
 
 
-- (void)carouselCurrentItemIndexDidChange:(iCarousel *)carousel {
-    pageControl.currentPage = carousel.currentItemIndex;
+- (void)carouselCurrentItemIndexDidChange:(iCarousel *)icarousel {
+    pageControl.currentPage = icarousel.currentItemIndex;
     
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                   initWithSuiteName:self.appGroupID];
-    NSNumber *index = [NSNumber numberWithInteger:carousel.currentItemIndex];
+    NSNumber *index = [NSNumber numberWithInteger:icarousel.currentItemIndex];
     [myDefaults setObject:index forKey:@"selected_index"];
     [myDefaults synchronize];
 }

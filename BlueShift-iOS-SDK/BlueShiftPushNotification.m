@@ -47,7 +47,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                  NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
                  NSString  *documentsDirectory = [paths objectAtIndex:0];
                  
-                 NSString *attachmentName = [NSString stringWithFormat:@"image_%d.jpg", index];
+                 NSString *attachmentName = [NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index];
                  NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
                  NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
                  NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];

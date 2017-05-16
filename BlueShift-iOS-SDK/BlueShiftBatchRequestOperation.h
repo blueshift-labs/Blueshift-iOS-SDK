@@ -6,7 +6,7 @@
 //
 
 #import "BlueShiftHTTPMethod.h"
-#import "BatchEventEntity.h""
+#import "BatchEventEntity.h"
 
 @class BatchEventEntity;
 

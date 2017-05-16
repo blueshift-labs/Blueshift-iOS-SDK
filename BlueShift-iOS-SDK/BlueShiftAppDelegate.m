@@ -341,7 +341,7 @@
         self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
         BOOL status = [self.deepLinkToCustomPage performCustomDeepLinking:url];
         if(status) {
-            self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+            self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
             
             // Track notification when the page is deeplinked ...
             [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -367,14 +367,14 @@
     if ([self.oldDelegate respondsToSelector:@selector(buyCategoryPushClickedWithDetails:)]) {
         // User already implemented the buyCategoryPushClickedWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate buyCategoryPushClickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
             BOOL status = [self.deepLinkToProductPage performDeepLinking];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToProductPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -400,14 +400,14 @@
     if ([self.oldDelegate respondsToSelector:@selector(cartViewCategoryPushClickedWithDetails:)]) {
         // User already implemented the cartViewCategoryPushClickedWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate cartViewCategoryPushClickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Open Cart Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
             BOOL status = [self.deepLinkToCartPage performDeepLinking];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCartPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -430,14 +430,14 @@
     if ([self.oldDelegate respondsToSelector:@selector(promotionCategoryPushClickedWithDetails:)]) {
         // User already implemented the promotionCategoryPushClickedWithDetails: in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate promotionCategoryPushClickedWithDetails:pushDetailsDictionary];
         
     } else {
         if(![self customDeepLinkToPrimitiveCategory]) {
             BOOL status = [self.deepLinkToOfferPage performDeepLinking];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToOfferPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToOfferPage lastViewController];
                 
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
@@ -466,7 +466,7 @@
         if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
             // User already implemented the viewPushActionWithDetails in App Delegate...
             
-            self.blueShiftPushDelegate = self.oldDelegate;
+            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
             [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithIndex:index withDetails:pushDetailsDictionary];
         } else {
             // Handle the View Action in SDK ...
@@ -483,7 +483,7 @@
                 self.deepLinkToCustomPage = deepLink;
                 self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
                 [self.deepLinkToCustomPage performCustomDeepLinking:url];
-                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -505,7 +505,7 @@
     if ([self.oldDelegate respondsToSelector:@selector(handleCustomCategory:clickedWithDetails:)]) {
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate handleCustomCategory:categoryName clickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
@@ -522,7 +522,7 @@
             self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
             BOOL status = [self.deepLinkToCustomPage performCustomDeepLinking:url];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -546,14 +546,14 @@
     if ([self.oldDelegate respondsToSelector:@selector(buyPushActionWithDetails:)]) {
         // User already implemented the buyPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate buyPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Buy Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
             BOOL status = [self.deepLinkToCartPage performDeepLinking];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCartPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -581,14 +581,14 @@
     if ([self.oldDelegate respondsToSelector:@selector(viewPushActionWithDetails:)]) {
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate viewPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
             BOOL status = [self.deepLinkToProductPage performDeepLinking];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToProductPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToProductPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -612,7 +612,7 @@
     if ([self.oldDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate handlePushActionForIdentifier:identifier withDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
@@ -628,7 +628,7 @@
             self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
             BOOL status = [self.deepLinkToCustomPage performCustomDeepLinking:url];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToCustomPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -652,14 +652,14 @@
     if ([self.oldDelegate respondsToSelector:@selector(openCartPushActionWithDetails:)]) {
         // User already implemented the buyPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
         [self.blueShiftPushDelegate openCartPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Open Cart Action in SDK ...
         if(![self customDeepLinkToPrimitiveCategory]) {
             BOOL status = [self.deepLinkToCartPage performDeepLinking];
             if(status) {
-                self.blueShiftPushParamDelegate = [self.deepLinkToCartPage lastViewController];
+                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCartPage lastViewController];
                 
                 // Track notification when the page is deeplinked ...
                 [self trackAppOpenWithParameters:pushTrackParameterDictionary];
@@ -701,7 +701,7 @@
         if ([self.oldDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
             // User needs to implemented if he needs to perform other actions other than the predefined one in App Delegate...
             
-            self.blueShiftPushDelegate = self.oldDelegate;
+            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
             [self.blueShiftPushDelegate handlePushActionForIdentifier:identifier withDetails:pushAlertDictionary];
         }
     }
@@ -859,7 +859,7 @@
     NSString *message_uuid = [pushDetailsDictionary objectForKey:@"bsft_message_uuid"];
     NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"bsft_transactional_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSNumber *timeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];

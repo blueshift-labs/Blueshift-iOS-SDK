@@ -40,7 +40,6 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
     NSData *credentialsData = [credentials dataUsingEncoding:NSUTF8StringEncoding];
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
-    NSString *requestValue = [NSString stringWithFormat:@"Basic %@",credentialsBase64String];
     
     NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
     defaultConfigObject.HTTPAdditionalHeaders = @{
@@ -68,9 +67,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
     NSURL * url = [NSURL URLWithString:urlWithParams];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
-    //NSString * params =@"user[name]=shahas&user[email]=sha@z.z&user[encrypted_password]=askfdsfkdk";
     
-    NSDictionary *paramsDictionary = params;
     [urlRequest setHTTPMethod:@"GET"];
     
     NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
