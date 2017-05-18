@@ -17,13 +17,8 @@ Pod::Spec.new do |s|
 
   s.name         = "BlueShift-iOS-Extension-SDK"
   s.version      = "0.1.3"
-  s.summary      = "A short description of BlueShift-iOS-Extension-SDK.podspec."
+  s.summary      = "A short description of BlueShift-iOS-Extension-SDK"
 
-  # This description is used to generate tags and improve search results.
-  #   * Think: What does it do? Why did you write it? What is the focus?
-  #   * Try to keep it short, snappy and to the point.
-  #   * Write the description between the DESC delimiters below.
-  #   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description  = <<-DESC
                    A longer description of BlueShift-iOS-SDK in Markdown format.
 
