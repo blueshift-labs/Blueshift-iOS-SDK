@@ -48,7 +48,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     }
     
     if (self.firstName) {
-        [sharedUserInfoMutableDictionary setObject:self.firstName forKey:self.retailerCustomerID];
+        [sharedUserInfoMutableDictionary setObject:self.firstName forKey:@"firstname"];
     }
     
     if (self.lastName) {
