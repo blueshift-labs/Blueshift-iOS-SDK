@@ -102,6 +102,12 @@ Pod::Spec.new do |s|
     ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}' }
   end
 
+  s.subspec 'AppExtension' do |ss|
+    ss.source_files  = "BlueShift-iOS-Extension-SDK", "BlueShift-iOS-Extension-SDK/**/*.{h,m}"
+    ss.exclude_files = "Classes/Exclude"
+    ss.public_header_files = "BlueShift-iOS-Extension-SDK/**/*.h"
+  end
+
   s.default_subspecs = 'Core'
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
