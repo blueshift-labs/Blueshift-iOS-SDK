@@ -51,11 +51,11 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             if(requestOperation.parameters != nil) {
                                 [paramsArray addObject:requestOperation.parameters];
                             }
-                            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                [context deleteObject:operationEntityToBeExecuted];
-                            }
                             NSError *saveError = nil;
                             @try {
+                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [context deleteObject:operationEntityToBeExecuted];
+                                }
                                 if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                                     [context save:&saveError];
                                 }
