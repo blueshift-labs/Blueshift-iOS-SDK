@@ -58,7 +58,9 @@
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
                     NSError *error;
                     @try {
-                        results = [context executeFetchRequest:fetchRequest error:&error];
+                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                            results = [context executeFetchRequest:fetchRequest error:&error];
+                        }
                     }
                     @catch (NSException *exception) {
                         NSLog(@"Caught exception %@", exception);
