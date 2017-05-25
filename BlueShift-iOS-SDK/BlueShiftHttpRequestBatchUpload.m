@@ -51,10 +51,14 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             if(requestOperation.parameters != nil) {
                                 [paramsArray addObject:requestOperation.parameters];
                             }
-                            [context deleteObject:operationEntityToBeExecuted];
                             NSError *saveError = nil;
                             @try {
-                                [context save:&saveError];
+                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [context deleteObject:operationEntityToBeExecuted];
+                                }
+                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [context save:&saveError];
+                                }
                             }
                             @catch (NSException *exception) {
                                 NSLog(@"Caught exception %@", exception);
@@ -88,7 +92,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     if(index == batches.count) {
         return;
     } else {
-            BatchEventEntity *batchEvent = [batches objectAtIndex:index];
+        BatchEventEntity *batchEvent = [batches objectAtIndex:index];
         [self processRequestsInQueue:batchEvent completetionHandler:^(BOOL status) {
             [self uploadBatchAtIndex:index+1 fromBatches:batches];
         }];
@@ -128,7 +132,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                 BOOL deletedStatus;
                                 
                                 @try {
-                                    deletedStatus = [context save:&saveError];
+                                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                        deletedStatus = [context save:&saveError];
+                                    }
                                 }
                                 @catch (NSException *exception) {
                                     NSLog(@"Caught exception %@", exception);
@@ -149,7 +155,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                 BOOL deletedStatus;
                                 
                                 @try {
-                                    deletedStatus = [context save:&saveError];
+                                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                        deletedStatus = [context save:&saveError];
+                                    }
                                 }
                                 @catch (NSException *exception) {
                                     NSLog(@"Caught exception %@", exception);
@@ -201,7 +209,10 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
     
     NSMutableArray *parametersArray = (NSMutableArray*)requestOperation.paramsArray;
-    
+    if ((!parametersArray) || (parametersArray.count == 0)){
+        handler(YES);
+        return;
+    }
     NSDictionary *paramsDictionary = @{@"events": parametersArray};
     // perform executions based on the request operation http method ...
     

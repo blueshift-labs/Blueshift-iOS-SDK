@@ -147,7 +147,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     BOOL deletedStatus;
                                     
                                     @try {
-                                        deletedStatus = [context save:&saveError];
+                                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                            deletedStatus = [context save:&saveError];
+                                        }
                                     }
                                     @catch (NSException *exception) {
                                         NSLog(@"Caught exception %@", exception);
@@ -179,7 +181,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     BOOL deletedStatus;
                                     
                                     @try {
-                                        deletedStatus = [context save:&saveError];
+                                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                            deletedStatus = [context save:&saveError];
+                                        }
                                     }
                                     @catch (NSException *exception) {
                                         NSLog(@"Caught exception %@", exception);
@@ -214,7 +218,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             BOOL deletedStatus;
                             
                             @try {
-                                deletedStatus = [context save:&saveError];
+                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                    deletedStatus = [context save:&saveError];
+                                }
                             }
                             @catch (NSException *exception) {
                                 NSLog(@"Caught exception %@", exception);

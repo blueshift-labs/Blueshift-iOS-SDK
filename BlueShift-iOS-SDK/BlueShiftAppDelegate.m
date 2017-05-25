@@ -762,8 +762,6 @@
 }
 
 - (void)appDidEnterBackground:(UIApplication *)application {
-    [self.oldDelegate applicationWillTerminate:application];
-    
     if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)])
     {
         __block UIBackgroundTaskIdentifier background_task;
@@ -782,6 +780,11 @@
 
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
+    if (self.oldDelegate) {
+        if([self.oldDelegate respondsToSelector:@selector(applicationDidEnterBackground:)]) {
+            [self.oldDelegate applicationDidEnterBackground:application];
+        }
+    }
     [self appDidEnterBackground:application];
 }
 
