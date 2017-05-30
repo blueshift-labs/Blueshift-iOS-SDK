@@ -18,6 +18,10 @@
 @property NSURL *cartPageURL;
 @property NSURL *offerPageURL;
 
+@property BOOL disablePushNotification;
+@property BOOL disableLocationAccess;
+@property BOOL disableAnalytics;
+
 @property NSString *appGroupID;
 
 - (BOOL)validateConfigDetails;
