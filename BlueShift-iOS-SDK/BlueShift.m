@@ -22,8 +22,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 + (void) initWithConfiguration:(BlueShiftConfig *)config {
     [[BlueShift sharedInstance] setupWithConfiguration:config];
-    // Start periodic batch upload timer
-    [BlueShiftHttpRequestBatchUpload startBatchUpload];
 }
 
 + (void) autoIntegration {
@@ -63,10 +61,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;
-    
-    [blueShiftAppDelegate registerForNotification]; 
-    [blueShiftAppDelegate registerLocationService];
-    [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
+    if (config.enableAnalytics == YES) {
+        // Start periodic batch upload timer
+        [BlueShiftHttpRequestBatchUpload startBatchUpload];
+    }
+    if (config.enablePushNotification == YES) {
+        [blueShiftAppDelegate registerForNotification];
+    }
+    if (config.enableLocationAccess == YES) {
+        [blueShiftAppDelegate registerLocationService];
+        [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
+    }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
 }
