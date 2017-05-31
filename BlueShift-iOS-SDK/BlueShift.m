@@ -61,14 +61,14 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;
-    if (config.disableAnalytics == NO) {
+    if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
         [BlueShiftHttpRequestBatchUpload startBatchUpload];
     }
-    if (config.disablePushNotification == NO) {
+    if (config.enablePushNotification == YES) {
         [blueShiftAppDelegate registerForNotification];
     }
-    if (config.disableLocationAccess == NO) {
+    if (config.enableLocationAccess == YES) {
         [blueShiftAppDelegate registerLocationService];
         [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     }

@@ -12,9 +12,9 @@
 - (id)init {
     self = [super init];
     if (self) {
-        self.disablePushNotification = NO;
-        self.disableLocationAccess = NO;
-        self.disableAnalytics = NO;
+        self.enablePushNotification = YES;
+        self.enableLocationAccess = YES;
+        self.enableAnalytics = YES;
     }
     return self;
 }
