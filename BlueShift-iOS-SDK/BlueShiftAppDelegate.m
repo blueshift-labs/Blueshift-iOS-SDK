@@ -747,8 +747,9 @@
     [self trackAppOpen];
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
-    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-    
+    if ([BlueShift sharedInstance].config.enableAnalytics) {
+        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    }
     // Will have to handled by SDK .....
 }
 
@@ -774,7 +775,9 @@
         
         // Uploading Batch events
         //To make the code block asynchronous
-        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+        if ([BlueShift sharedInstance].config.enableAnalytics) {
+            [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+        }
     }
 }
 
