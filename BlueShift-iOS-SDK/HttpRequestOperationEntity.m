@@ -107,15 +107,6 @@
     }
 }
     
-+ (void)fetchResultsFromContex:(NSManagedObjectContext *)context withFetchRequest:(NSFetchRequest *)fetchRequest completetionHandler:(void (^)(BOOL, NSArray *))handler {
-    [context performBlock:^{
-        NSArray *results = [[NSArray alloc]init];
-        NSError *error;
-        results = [context executeFetchRequest:fetchRequest error:&error];
-        handler(YES, results);
-    }];
-    
-}
 
 // Method to return the batch records from Core Data ....
 + (NSArray *)fetchBatchWiseRecordFromCoreData {
