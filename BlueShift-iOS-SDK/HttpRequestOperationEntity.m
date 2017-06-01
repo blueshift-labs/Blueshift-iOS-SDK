@@ -21,34 +21,42 @@
 // Method to insert Entry for a particular request operation in core data ...
 
 - (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount andIsBatchEvent:(BOOL) isBatchEvent {
-    //NSManagedObjectContext *context = [self managedObjectContext];
-    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    // return if context is unavailable ...
-    
-    if (context == nil) {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    if (appDelegate != nil && appDelegate.managedObjectContext != nil) {
+        NSManagedObjectContext *masterContext = appDelegate.managedObjectContext;
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        context.parentContext = masterContext;
+        // return if context is unavailable ...
+        if (context == nil || masterContext == nil) {
+            return ;
+        }
+        // gets the httpMethodNumber type for the enum ...
+        
+        self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
+        
+        
+        // will only archive parameters if they are present to prevent crash ...
+        
+        if (parameters) {
+            self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
+        }
+        
+        self.url = url;
+        self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
+        self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
+        self.isBatchEvent = isBatchEvent;
+        
+        [context performBlock:^{
+            NSError *error = nil;
+            [context save:&error];
+            [masterContext performBlockAndWait:^{
+                NSError *error = nil;
+                [masterContext save:&error];
+            }];
+        }];
+    } else {
         return ;
     }
-    
-    
-    // gets the httpMethodNumber type for the enum ...
-    
-    self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
-    
-    
-    // will only archive parameters if they are present to prevent crash ...
-    
-    if (parameters) {
-        self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
-    }
-    
-    self.url = url;
-    self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
-    self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
-    self.isBatchEvent = isBatchEvent;
-    
-    NSError *error;
-    [context save:&error];
 }
 
 
@@ -59,14 +67,11 @@
     return [self.httpMethodNumber blueShiftHTTPMethodValue];
 }
 
-
-
+    
 // Method to return the first record from Core Data ...
 
-+ (HttpRequestOperationEntity *)fetchFirstRecordFromCoreData {
-    
++ (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler {
     @synchronized(self) {
-        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
@@ -78,28 +83,41 @@
                     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
                     [fetchRequest setFetchLimit:1];
-                    NSError *error;
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            results = [context executeFetchRequest:fetchRequest error:&error];
+                            [context performBlock:^{
+                                NSArray *results = [[NSArray alloc]init];
+                                NSError *error;
+                                results = [context executeFetchRequest:fetchRequest error:&error];
+                                if(results.count > 0) {
+                                    HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
+                                    handler(YES, operationEntityToBeExecuted);
+                                }
+                                handler(NO, nil);
+                            }];
                         }
                     }
                     @catch (NSException *exception) {
                         NSLog(@"Caught exception %@", exception);
                     }
-                    if(results.count > 0) {
-                        HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
-                        return operationEntityToBeExecuted;
-                    }
                 }
             }
         }
-        return nil;
+        handler(NO, nil);
     }
+}
+    
++ (void)fetchResultsFromContex:(NSManagedObjectContext *)context withFetchRequest:(NSFetchRequest *)fetchRequest completetionHandler:(void (^)(BOOL, NSArray *))handler {
+    [context performBlock:^{
+        NSArray *results = [[NSArray alloc]init];
+        NSError *error;
+        results = [context executeFetchRequest:fetchRequest error:&error];
+        handler(YES, results);
+    }];
+    
 }
 
 // Method to return the batch records from Core Data ....
-
 + (NSArray *)fetchBatchWiseRecordFromCoreData {
     @synchronized(self) {
         NSArray *results = [[NSArray alloc]init];

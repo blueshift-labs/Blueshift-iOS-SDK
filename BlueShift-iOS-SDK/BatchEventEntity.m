@@ -16,28 +16,38 @@
 // Method to insert Entry for a particular request operation in core data ...
 
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
-    //NSManagedObjectContext *context = [self managedObjectContext];
-    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    // return if context is unavailable ...
-    
-    if (context == nil) {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    if (appDelegate != nil && appDelegate.managedObjectContext != nil) {
+        NSManagedObjectContext *masterContext = appDelegate.managedObjectContext;
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        context.parentContext = masterContext;
+        // return if context is unavailable ...
+        if (context == nil || masterContext == nil) {
+            return ;
+        }
+        // will only archive parameters list if they are present to prevent crash ...
+        if (parametersArray) {
+            self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
+        }
+        self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
+        self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
+        [context performBlock:^{
+            NSError *error = nil;
+            if (![context save:&error]) {
+                NSLog(@"Error saving context: %@\n%@", [error localizedDescription], [error userInfo]);
+                //abort();
+            }
+            [masterContext performBlockAndWait:^{
+                NSError *error = nil;
+                if (![masterContext save:&error]) {
+                    NSLog(@"Error saving context: %@\n%@", [error localizedDescription], [error userInfo]);
+                    //abort();
+                }
+            }];
+        }];
+    } else {
         return ;
     }
-    
-    
-    
-    // will only archive parameters list if they are present to prevent crash ...
-    
-    if (parametersArray) {
-        self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
-    }
-    
-    self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
-    self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
-    
-    NSError *error;
-    [context save:&error];
 }
 
 

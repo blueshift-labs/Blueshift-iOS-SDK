@@ -138,109 +138,74 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             
                             [BlueShiftRequestQueue performRequestOperation:requestOperation  completetionHandler:^(BOOL status) {
                                 if (status == YES) {
-                                    
-                                    
                                     // delete record for the request operation if it is successfully executed ...
-                                    
-                                    [context deleteObject:operationEntityToBeExecuted];
-                                    NSError *saveError = nil;
-                                    BOOL deletedStatus;
-                                    
                                     @try {
                                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                            deletedStatus = [context save:&saveError];
+                                            [context performBlock:^{
+                                                [context deleteObject:operationEntityToBeExecuted];
+                                                [context performBlock:^{
+                                                    NSError *saveError = nil;
+                                                    [context save:&saveError];
+                                                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                                                }];
+                                            }];
+                                            
                                         }
                                     }
                                     @catch (NSException *exception) {
                                         NSLog(@"Caught exception %@", exception);
                                     }
-                                    
-                                    if (deletedStatus == YES) {
-                                        // request record is removed successfully from core data ...
-                                        
-                                        _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                                        //[BlueShiftRequestQueue processRequestsInQueue];
-                                    } else {
-                                        
-                                        
-                                        // To be handled if request executed is not deleted from core data...
-                                        
-                                    }
-                                    
                                 } else {
-                                    
                                     // Request is not executed due to some reasons ...
-                                    
                                     NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
                                     requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
                                     requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
                                     requestOperation.isBatchEvent = YES;
                                     
-                                    [context deleteObject:operationEntityToBeExecuted];
-                                    NSError *saveError = nil;
-                                    BOOL deletedStatus;
-                                    
                                     @try {
                                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                            deletedStatus = [context save:&saveError];
+                                            [context performBlock:^{
+                                                [context deleteObject:operationEntityToBeExecuted];
+                                                [context performBlock:^{
+                                                    NSError *saveError = nil;
+                                                    [context save:&saveError];
+                                                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                                                    
+                                                    // request record is removed successfully from core data ...
+                                                    if (requestOperation.retryAttemptsCount > 0) {
+                                                        [BlueShiftRequestQueue addRequestOperation:requestOperation];
+                                                    }
+                                                }];
+                                            }];
                                         }
                                     }
                                     @catch (NSException *exception) {
                                         NSLog(@"Caught exception %@", exception);
                                     }
-                                    
-                                    if (deletedStatus == YES) {
-                                        
-                                        _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                                        
-                                        // request record is removed successfully from core data ...
-                                        if (requestOperation.retryAttemptsCount > 0) {
-                                            [BlueShiftRequestQueue addRequestOperation:requestOperation];
-                                        }
-                                        //[BlueShiftRequestQueue processRequestsInQueue];
-                                        
-                                    } else {
-                                        
-                                        // To be handled if request executed is not deleted from core data...
-                                        
-                                    }
-                                    
                                 }
                                 
                             }];
                         }
                         else {
-                            
                             BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithHttpRequestOperationEntity:operationEntityToBeExecuted];
-                            
-                            [context deleteObject:operationEntityToBeExecuted];
-                            NSError *saveError = nil;
-                            BOOL deletedStatus;
-                            
                             @try {
                                 if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                    deletedStatus = [context save:&saveError];
+                                    [context performBlock:^{
+                                        [context deleteObject:operationEntityToBeExecuted];
+                                        [context performBlock:^{
+                                            NSError *saveError = nil;
+                                            [context save:&saveError];
+                                            _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                                            // request record is removed successfully from core data ...
+                                            [BlueShiftRequestQueue addRequestOperation:requestOperation]; //- done to prevent crash ...
+                                        }];
+                                    }];
+
                                 }
                             }
                             @catch (NSException *exception) {
                                 NSLog(@"Caught exception %@", exception);
                             }
-                            
-                            if (deletedStatus == YES) {
-                                _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                                
-                                // request record is removed successfully from core data ...
-                                [BlueShiftRequestQueue addRequestOperation:requestOperation]; //- done to prevent crash ...
-                                
-                                //[BlueShiftRequestQueue processRequestsInQueue];
-                                
-                            } else {
-                                
-                                
-                                // To be handled if request executed is not deleted from core data...
-                                
-                            }
-                            
                         }
                         
                     }
