@@ -1,5 +1,5 @@
 #
-#  Be sure to run `pod spec lint BlueShift-iOS-SDK.podspec' to ensure this is a
+#  Be sure to run `pod spec lint BlueShift-iOS-Extension-SDK.podspec.podspec' to ensure this is a
 #  valid spec and to remove all comments including this before submitting the spec.
 #
 #  To learn more about Podspec attributes see http://docs.cocoapods.org/specification.html
@@ -15,9 +15,9 @@ Pod::Spec.new do |s|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  s.name         = "BlueShift-iOS-SDK"
+  s.name         = "BlueShift-iOS-Extension-SDK"
   s.version      = "0.1.6"
-  s.summary      = "iOS SDK for integrating push notification and analytics"
+  s.summary      = "iOS SDK for push notification content extension and service extension for integrating media and carousel push notifications"
 
   s.description  = <<-DESC
                    A longer description of BlueShift-iOS-SDK in Markdown format.
@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
   #  Popular ones are 'MIT', 'BSD' and 'Apache License, Version 2.0'.
   #
 
-  # s.license      = "MIT (example)"
+  #s.license      = "MIT (example)"
   s.license      = { :type => "MIT", :file => "LICENSE.md" }
 
 
@@ -54,9 +54,9 @@ Pod::Spec.new do |s|
   #
 
   s.author             = { "Blueshift" => "success@getblueshift.com" }
-  # Or just: s.author    = "Shahas KP"
-  # s.authors            = { "Shahas K P" => "shahas@bullfin.ch" }
-  # s.social_media_url   = ""
+  # Or just: s.author    = "shahas"
+  # s.authors            = { "shahas" => "shahas@bullfin.ch" }
+  # s.social_media_url   = "http://twitter.com/shahas"
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -65,11 +65,13 @@ Pod::Spec.new do |s|
   #
 
   # s.platform     = :ios
-  s.platform     = :ios, "7.0"
+   s.platform     = :ios, "8.0"
 
   #  When using multiple platforms
   # s.ios.deployment_target = "5.0"
   # s.osx.deployment_target = "10.7"
+  # s.watchos.deployment_target = "2.0"
+  # s.tvos.deployment_target = "9.0"
 
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -84,31 +86,16 @@ Pod::Spec.new do |s|
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
   #  CocoaPods is smart about how it includes source code. For source files
-  #  giving a folder will include any h, m, mm, c & cpp files. For header
-  #  files it will include any header in the folder.
+  #  giving a folder will include any swift, h, m, mm, c & cpp files.
+  #  For header files it will include any header in the folder.
   #  Not including the public_header_files will make all headers public.
   #
 
-  #s.source_files  = "BlueShift-iOS-SDK", "BlueShift-iOS-SDK/**/*.{h,m}"
+  s.source_files  = "BlueShift-iOS-Extension-SDK", "BlueShift-iOS-Extension-SDK/**/*.{h,m}"
   s.exclude_files = "Classes/Exclude"
 
-  #s.public_header_files = "BlueShift-iOS-SDK/**/*.h"
+  s.public_header_files = "BlueShift-iOS-Extension-SDK/**/*.h"
 
-  s.subspec 'Core' do |ss|
-    ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
-    ss.public_header_files = "BlueShift-iOS-SDK/**/*.h"
-    ss.exclude_files = "Classes/Exclude"
-    ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
-    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}' }
-  end
-
-  s.subspec 'AppExtension' do |ss|
-    ss.source_files  = "BlueShift-iOS-Extension-SDK", "BlueShift-iOS-Extension-SDK/**/*.{h,m}"
-    ss.exclude_files = "Classes/Exclude"
-    ss.public_header_files = "BlueShift-iOS-Extension-SDK/**/*.h"
-  end
-
-  s.default_subspecs = 'Core'
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -119,8 +106,8 @@ Pod::Spec.new do |s|
   #
 
   # s.resource  = "icon.png"
-  #s.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
-  
+  # s.resources = "Resources/*.png"
+
   # s.preserve_paths = "FilesToSave", "MoreFilesToSave"
 
 
@@ -130,7 +117,7 @@ Pod::Spec.new do |s|
   #  the lib prefix of their name.
   #
 
-  s.framework  = "CoreData"
+  # s.framework  = "SomeFramework"
   # s.frameworks = "SomeFramework", "AnotherFramework"
 
   # s.library   = "iconv"
@@ -143,9 +130,9 @@ Pod::Spec.new do |s|
   #  where they will only apply to your library. If you depend on other Podspecs
   #  you can include multiple dependencies to ensure it works.
 
-  s.requires_arc = true
+  # s.requires_arc = true
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  #s.dependency
-  # s.ios.resource_bundle = { 'Assets' => ['BlueShiftSDKDataModel.xcdatamodeld'] }
+  # s.dependency "JSONKit", "~> 1.4"
+
 end
