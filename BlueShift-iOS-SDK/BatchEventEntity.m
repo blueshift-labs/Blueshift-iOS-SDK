@@ -33,16 +33,10 @@
         self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
         [context performBlock:^{
             NSError *error = nil;
-            if (![context save:&error]) {
-                NSLog(@"Error saving context: %@\n%@", [error localizedDescription], [error userInfo]);
-                //abort();
-            }
+            [context save:&error];
             [masterContext performBlockAndWait:^{
                 NSError *error = nil;
-                if (![masterContext save:&error]) {
-                    NSLog(@"Error saving context: %@\n%@", [error localizedDescription], [error userInfo]);
-                    //abort();
-                }
+                [masterContext save:&error];
             }];
         }];
     } else {
@@ -53,9 +47,8 @@
 
 // Method to return the failed batch records from Core Data ....
 
-+ (NSArray *)fetchBatchesFromCoreData {
++ (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
-        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
@@ -66,19 +59,32 @@
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
                     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-                    NSError *error;
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            results = [context executeFetchRequest:fetchRequest error:&error];
+                            [context performBlock:^{
+                                NSError *error;
+                                NSArray *results = [[NSArray alloc]init];
+                                results = [context executeFetchRequest:fetchRequest error:&error];
+                                if (results && results.count > 0) {
+                                    handler(YES, results);
+                                } else {
+                                    handler(NO, nil);
+                                }
+                            }];
+                        } else {
+                            handler(NO, nil);
                         }
                     }
                     @catch (NSException *exception) {
                         NSLog(@"Caught exception %@", exception);
                     }
+                } else {
+                    handler(NO, nil);
                 }
             }
+        } else {
+            handler(NO, nil);
         }
-        return results;
     }
 }
 

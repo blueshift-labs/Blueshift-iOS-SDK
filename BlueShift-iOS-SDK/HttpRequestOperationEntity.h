@@ -50,5 +50,5 @@
 + (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler;
 
 // Method to return the batch records from Core Data ...
-+ (NSArray *)fetchBatchWiseRecordFromCoreData;
++ (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
 @end

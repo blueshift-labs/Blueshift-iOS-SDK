@@ -7,8 +7,6 @@
 
 #import "HttpRequestOperationEntity.h"
 
-#define kBatchSize  100
-
 @implementation HttpRequestOperationEntity
 
 @dynamic httpMethodNumber;
@@ -92,9 +90,12 @@
                                 if(results.count > 0) {
                                     HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
                                     handler(YES, operationEntityToBeExecuted);
+                                } else {
+                                    handler(NO, nil);
                                 }
-                                handler(NO, nil);
                             }];
+                        } else {
+                            handler(NO, nil);
                         }
                     }
                     @catch (NSException *exception) {
@@ -102,16 +103,16 @@
                     }
                 }
             }
+        } else {
+            handler(NO, nil);
         }
-        handler(NO, nil);
     }
 }
     
 
 // Method to return the batch records from Core Data ....
-+ (NSArray *)fetchBatchWiseRecordFromCoreData {
++ (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
-        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.managedObjectContext;
@@ -122,21 +123,32 @@
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
                     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-                    [fetchRequest setFetchLimit:kBatchSize];
-                    NSError *error;
-                    
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            results = [context executeFetchRequest:fetchRequest error:&error];
+                            [context performBlock:^{
+                                NSError *error;
+                                NSArray *results = [[NSArray alloc]init];
+                                results = [context executeFetchRequest:fetchRequest error:&error];
+                                if (results && results.count > 0) {
+                                    handler(YES, results);
+                                } else {
+                                    handler(NO, nil);
+                                }
+                            }];
                         }
                     }
                     @catch (NSException *exception) {
                         NSLog(@"Caught exception %@", exception);
                     }
+                } else {
+                    handler(NO, nil);
                 }
+            } else {
+                handler(NO, nil);
             }
+        } else {
+            handler(NO, nil);
         }
-        return results;
     }
 }
 
