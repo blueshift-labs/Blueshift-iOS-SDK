@@ -32,7 +32,6 @@
         
         self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
         
-        
         // will only archive parameters if they are present to prevent crash ...
         
         if (parameters) {
@@ -71,8 +70,8 @@
 + (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
-            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+        if(appDelegate != nil && appDelegate.realEventManagedObjectContext != nil) {
+            NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
@@ -114,8 +113,8 @@
 + (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
-            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+        if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
+            NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];

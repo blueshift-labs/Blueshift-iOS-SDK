@@ -33,6 +33,8 @@
 @property BlueShiftDeepLink * _Nullable deepLinkToCustomPage;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable managedObjectContext;
+@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable realEventManagedObjectContext;
+@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
 

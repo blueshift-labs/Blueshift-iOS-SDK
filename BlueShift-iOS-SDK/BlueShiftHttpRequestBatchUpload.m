@@ -42,7 +42,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     @synchronized(self) {
         [HttpRequestOperationEntity fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *results) {
             if(status) {
-                NSMutableArray *bachList = [[NSMutableArray alloc] init];
+                NSMutableArray *batchList = [[NSMutableArray alloc] init];
                 NSUInteger batchLength = results.count/kBatchSize;
                 if (results.count % kBatchSize != 0) {
                     batchLength = batchLength + 1;
@@ -57,15 +57,15 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         range.length = kBatchSize;
                     }
                     operationEntitiesToBeExecuted = [results subarrayWithRange:range];
-                    [bachList addObject:operationEntitiesToBeExecuted];
+                    [batchList addObject:operationEntitiesToBeExecuted];
                 }
                 BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-                if(appDelegate && appDelegate.managedObjectContext) {
+                if(appDelegate && appDelegate.batchEventManagedObjectContext) {
                     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                    NSManagedObjectContext *masterContext = appDelegate.managedObjectContext;
+                    NSManagedObjectContext *masterContext = appDelegate.batchEventManagedObjectContext;
                     context.parentContext = masterContext;
                     if(context) {
-                        for (NSArray *operationEntitiesToBeExecuted in bachList) {
+                        for (NSArray *operationEntitiesToBeExecuted in batchList) {
                             NSMutableArray *paramsArray = [[NSMutableArray alloc]init];
                             for(HttpRequestOperationEntity *operationEntityToBeExecuted in operationEntitiesToBeExecuted) {
                                 if ([operationEntityToBeExecuted.nextRetryTimeStamp floatValue] < [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]) {
@@ -78,10 +78,10 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                                             [context performBlock:^{
                                                 if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                                    [appDelegate.managedObjectContext deleteObject:operationEntityToBeExecuted];
+                                                    [masterContext deleteObject:operationEntityToBeExecuted];
                                                     NSError *saveError = nil;
                                                     [context save:&saveError];
-                                                    [appDelegate.managedObjectContext performBlock:^{
+                                                    [masterContext performBlock:^{
                                                         NSError *saveError = nil;
                                                         if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
                                                             [masterContext save:&saveError];
@@ -141,8 +141,8 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
             // Gets the current NSManagedObjectContext via appDelegate ...
             BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
-                NSManagedObjectContext *context = appDelegate.managedObjectContext;
+            if(appDelegate && appDelegate.batchEventManagedObjectContext) {
+                NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
                 
                 if(context != nil) {
                     // Only handles when the fetched record is not nil ...

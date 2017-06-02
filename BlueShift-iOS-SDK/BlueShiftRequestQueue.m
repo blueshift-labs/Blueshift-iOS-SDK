@@ -41,7 +41,13 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 }
                 dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
                 dispatch_async(queue, ^{
-                    HttpRequestOperationEntity *httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:appDelegate.managedObjectContext];
+                    NSManagedObjectContext *context;
+                    if (isBatchEvent) {
+                        context = appDelegate.batchEventManagedObjectContext;
+                    } else {
+                        context = appDelegate.realEventManagedObjectContext;
+                    }
+                    HttpRequestOperationEntity *httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
                     if(httpRequestOperationEntity != nil) {
                         [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
                         
@@ -57,14 +63,14 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:appDelegate.managedObjectContext];
+    if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:appDelegate.batchEventManagedObjectContext];
         if(entity != nil) {
             NSArray *paramsArray = requestOperation.paramsArray;
             NSInteger nextRetryTimeStamp = requestOperation.nextRetryTimeStamp;
             NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
             
-            BatchEventEntity *batchEventEntity = [[BatchEventEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:appDelegate.managedObjectContext];
+            BatchEventEntity *batchEventEntity = [[BatchEventEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:appDelegate.batchEventManagedObjectContext];
             if(batchEventEntity != nil) {
                 [batchEventEntity insertEntryParametersList:paramsArray andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount];
             }
@@ -104,11 +110,11 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
             // Gets the current NSManagedObjectContext via appDelegate ...
             BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
+            if(appDelegate != nil && appDelegate.realEventManagedObjectContext != nil) {
                 // Fetches the first record from the Core Data ...
                 [HttpRequestOperationEntity fetchFirstRecordFromCoreDataWithCompletetionHandler:^(BOOL status, HttpRequestOperationEntity *operationEntityToBeExecuted) {
                     if (status) {
-                        NSManagedObjectContext *context = appDelegate.managedObjectContext;
+                        NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
                         if(context != nil) {
                             // Only handles when the fetched record is not nil ...
                             if (operationEntityToBeExecuted!=nil) {
