@@ -75,19 +75,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     }
                                     
                                     @try {
-                                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                            [context performBlock:^{
-                                                if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                                    [masterContext deleteObject:operationEntityToBeExecuted];
-                                                    NSError *saveError = nil;
-                                                    [context save:&saveError];
-                                                    [masterContext performBlock:^{
-                                                        NSError *saveError = nil;
-                                                        if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                                            [masterContext save:&saveError];
-                                                        }
-                                                    }];
-                                                }
+                                        if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                            [masterContext performBlockAndWait:^{
+                                                [masterContext deleteObject:operationEntityToBeExecuted];
                                             }];
                                         }
                                     }
@@ -98,6 +88,18 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             }
                             [self createBatch:paramsArray];
                         }
+                    }
+                    if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                        [context performBlock:^{
+                            NSError *saveError = nil;
+                            [context save:&saveError];
+                            [masterContext performBlock:^{
+                                NSError *saveError = nil;
+                                if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [masterContext save:&saveError];
+                                }
+                            }];
+                        }];
                     }
                 }
             }

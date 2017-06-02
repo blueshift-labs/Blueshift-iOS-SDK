@@ -34,7 +34,7 @@
         [context performBlock:^{
             NSError *error = nil;
             [context save:&error];
-            [masterContext performBlockAndWait:^{
+            [masterContext performBlock:^{
                 NSError *error = nil;
                 [masterContext save:&error];
             }];
