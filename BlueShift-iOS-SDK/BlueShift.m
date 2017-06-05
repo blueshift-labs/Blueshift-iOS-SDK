@@ -56,8 +56,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // assigning the current application delegate with the app delegate we are going to use in the SDK ...
     _sharedBlueShiftInstance.appDelegate = _newDelegate;
     
-//    [UIApplication sharedApplication].delegate = _newDelegate;
-    
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;

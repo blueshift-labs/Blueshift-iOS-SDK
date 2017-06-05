@@ -29,6 +29,6 @@
 
 
 // Method to return the batch records from Core Data ...
-+ (NSArray *)fetchBatchesFromCoreData;
++ (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
 
 @end

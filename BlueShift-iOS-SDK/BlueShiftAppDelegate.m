@@ -747,8 +747,9 @@
     [self trackAppOpen];
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
-    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-    
+    if ([BlueShift sharedInstance].config.enableAnalytics) {
+        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    }
     // Will have to handled by SDK .....
 }
 
@@ -774,7 +775,9 @@
         
         // Uploading Batch events
         //To make the code block asynchronous
-        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+        if ([BlueShift sharedInstance].config.enableAnalytics) {
+            [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+        }
     }
 }
 
@@ -1012,6 +1015,8 @@
 #pragma mark - Core Data stack
 
 @synthesize managedObjectContext = _managedObjectContext;
+@synthesize realEventManagedObjectContext = _realEventManagedObjectContext;
+@synthesize batchEventManagedObjectContext = _batchEventManagedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
@@ -1081,9 +1086,39 @@
     if (!coordinator) {
         return nil;
     }
-    _managedObjectContext = [[NSManagedObjectContext alloc] init];
+    _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     [_managedObjectContext setPersistentStoreCoordinator:coordinator];
     return _managedObjectContext;
+}
+
+- (NSManagedObjectContext *)realEventManagedObjectContext {
+    // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
+    if (_realEventManagedObjectContext != nil) {
+        return _realEventManagedObjectContext;
+    }
+    
+    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
+    if (!coordinator) {
+        return nil;
+    }
+    _realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    [_realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
+    return _realEventManagedObjectContext;
+}
+
+- (NSManagedObjectContext *)batchEventManagedObjectContext {
+    // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
+    if (_batchEventManagedObjectContext != nil) {
+        return _batchEventManagedObjectContext;
+    }
+    
+    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
+    if (!coordinator) {
+        return nil;
+    }
+    _batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    [_batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
+    return _batchEventManagedObjectContext;
 }
 
 #pragma mark - Core Data Saving support

@@ -16,39 +16,42 @@
 // Method to insert Entry for a particular request operation in core data ...
 
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
-    //NSManagedObjectContext *context = [self managedObjectContext];
-    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    // return if context is unavailable ...
-    
-    if (context == nil) {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    if (appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
+        NSManagedObjectContext *masterContext = appDelegate.batchEventManagedObjectContext;
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        context.parentContext = masterContext;
+        // return if context is unavailable ...
+        if (context == nil || masterContext == nil) {
+            return ;
+        }
+        // will only archive parameters list if they are present to prevent crash ...
+        if (parametersArray) {
+            self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
+        }
+        self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
+        self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
+        [context performBlock:^{
+            NSError *error = nil;
+            [context save:&error];
+            [masterContext performBlock:^{
+                NSError *error = nil;
+                [masterContext save:&error];
+            }];
+        }];
+    } else {
         return ;
     }
-    
-    
-    
-    // will only archive parameters list if they are present to prevent crash ...
-    
-    if (parametersArray) {
-        self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
-    }
-    
-    self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
-    self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
-    
-    NSError *error;
-    [context save:&error];
 }
 
 
 // Method to return the failed batch records from Core Data ....
 
-+ (NSArray *)fetchBatchesFromCoreData {
++ (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
-        NSArray *results = [[NSArray alloc]init];
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil && appDelegate.managedObjectContext != nil) {
-            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+        if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
+            NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
@@ -56,19 +59,32 @@
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
                     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-                    NSError *error;
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            results = [context executeFetchRequest:fetchRequest error:&error];
+                            [context performBlock:^{
+                                NSError *error;
+                                NSArray *results = [[NSArray alloc]init];
+                                results = [context executeFetchRequest:fetchRequest error:&error];
+                                if (results && results.count > 0) {
+                                    handler(YES, results);
+                                } else {
+                                    handler(NO, nil);
+                                }
+                            }];
+                        } else {
+                            handler(NO, nil);
                         }
                     }
                     @catch (NSException *exception) {
                         NSLog(@"Caught exception %@", exception);
                     }
+                } else {
+                    handler(NO, nil);
                 }
             }
+        } else {
+            handler(NO, nil);
         }
-        return results;
     }
 }
 
