@@ -54,7 +54,12 @@
             NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-                [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
+                @try {
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Caught exception %@", exception);
+                }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
                     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
