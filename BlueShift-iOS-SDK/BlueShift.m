@@ -65,10 +65,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     if (config.enablePushNotification == YES) {
         [blueShiftAppDelegate registerForNotification];
+        [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     }
     if (config.enableLocationAccess == YES) {
         [blueShiftAppDelegate registerLocationService];
-        [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
