@@ -156,7 +156,7 @@
     if (userInfo) {
         // Handling the push notification if we get the userInfo from launchOptions ...
         // It's the only way to track notification payload while app is on launch (i.e after the app is killed) ...
-        [self handleRemoteNotification:userInfo forApplicationState:[UIApplication sharedApplication].applicationState];
+        [self handleRemoteNotification:userInfo];
     }
     
     return YES;
@@ -269,6 +269,34 @@
                 // Track notification when app is in background and when we click the push notification from tray..
                 [self trackPushClickedWithParameters:pushTrackParameterDictionary];
             }
+        }
+    }
+}
+
+- (void)handleRemoteNotification:(NSDictionary *)userInfo {
+    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    self.userInfo = userInfo;
+    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+    
+    if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+        [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
+    } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+        [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
+    } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+        [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
+    }
+    else {
+        NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+        if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
+            if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+            } else {
+                [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+            }
+        } else {
+            // Track notification when app is in background and when we click the push notification from tray..
+            [self trackPushClickedWithParameters:pushTrackParameterDictionary];
         }
     }
 }
