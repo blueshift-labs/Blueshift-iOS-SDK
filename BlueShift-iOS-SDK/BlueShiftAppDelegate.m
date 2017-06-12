@@ -156,7 +156,7 @@
     if (userInfo) {
         // Handling the push notification if we get the userInfo from launchOptions ...
         // It's the only way to track notification payload while app is on launch (i.e after the app is killed) ...
-        //[self handleRemoteNotification:userInfo forApplicationState:[UIApplication sharedApplication].applicationState];
+        [self handleRemoteNotification:userInfo forApplicationState:[UIApplication sharedApplication].applicationState];
     }
     
     return YES;
