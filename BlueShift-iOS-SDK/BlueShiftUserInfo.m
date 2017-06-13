@@ -106,6 +106,8 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         [defaults removeObjectForKey:@"savedBlueShiftUserInfoDictionary"];
         if ([defaults synchronize]==YES) {
             _sharedUserInfo = nil;
+            _sharedUserInfo = [[BlueShiftUserInfo alloc] init];
+            [_sharedUserInfo setDefaultValues];
         }
     }
 }

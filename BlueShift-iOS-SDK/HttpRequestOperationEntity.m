@@ -43,14 +43,23 @@
         self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
         self.isBatchEvent = isBatchEvent;
         
-        [context performBlock:^{
-            NSError *error = nil;
-            [context save:&error];
-            [masterContext performBlock:^{
-                NSError *error = nil;
-                [masterContext save:&error];
-            }];
-        }];
+        @try {
+            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                [context performBlock:^{
+                    NSError *error = nil;
+                    [context save:&error];
+                    if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                        [masterContext performBlock:^{
+                            NSError *error = nil;
+                            [masterContext save:&error];
+                        }];
+                    }
+                }];
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
     } else {
         return ;
     }
