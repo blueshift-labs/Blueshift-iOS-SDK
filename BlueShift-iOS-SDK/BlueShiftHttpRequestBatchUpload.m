@@ -166,7 +166,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                             [context deleteObject:batchEvent];
                                             [context performBlock:^{
                                                 NSError *saveError = nil;
-                                                [context save:&saveError];
+                                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                                    [context save:&saveError];
+                                                }
                                                 _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
                                             }];
                                         }];
@@ -184,15 +186,17 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                             [context deleteObject:batchEvent];
                                             [context performBlock:^{
                                                 NSError *saveError = nil;
-                                                [context save:&saveError];
-                                                NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
-                                                requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
-                                                requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
-                                                
-                                                // request record is removed successfully from core data ...
-                                                if (requestOperation.retryAttemptsCount > 0) {
-                                                    [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
-                                                    [self retryBatchUpload];
+                                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                                    [context save:&saveError];
+                                                    NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
+                                                    requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
+                                                    requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
+                                                    
+                                                    // request record is removed successfully from core data ...
+                                                    if (requestOperation.retryAttemptsCount > 0) {
+                                                        [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
+                                                        [self retryBatchUpload];
+                                                    }
                                                 }
                                                 _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
                                             }];
@@ -241,7 +245,8 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     
     [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:paramsDictionary completetionHandler:^(BOOL status) {
         handler(status);
-    }];}
+    }];
+}
 
 
 @end

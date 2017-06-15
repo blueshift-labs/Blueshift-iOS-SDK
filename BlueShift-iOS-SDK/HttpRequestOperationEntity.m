@@ -20,8 +20,16 @@
 
 - (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount andIsBatchEvent:(BOOL) isBatchEvent {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    if (appDelegate != nil && appDelegate.managedObjectContext != nil) {
-        NSManagedObjectContext *masterContext = appDelegate.managedObjectContext;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    if (masterContext) {
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         context.parentContext = masterContext;
         // return if context is unavailable ...
