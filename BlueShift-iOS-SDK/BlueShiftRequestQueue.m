@@ -81,10 +81,19 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
+        NSManagedObjectContext *context;
+        if(appDelegate) {
+            @try {
+                context = appDelegate.batchEventManagedObjectContext;
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
+        }
+        if(context) {
             NSEntityDescription *entity;
             @try {
-                entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:appDelegate.batchEventManagedObjectContext];
+                entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context];
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception %@", exception);
