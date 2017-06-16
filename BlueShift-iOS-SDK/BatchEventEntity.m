@@ -17,8 +17,16 @@
 
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    if (appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
-        NSManagedObjectContext *masterContext = appDelegate.batchEventManagedObjectContext;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.batchEventManagedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    if (masterContext) {
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         context.parentContext = masterContext;
         // return if context is unavailable ...
@@ -39,7 +47,9 @@
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
                         [masterContext performBlock:^{
                             NSError *error = nil;
-                            [masterContext save:&error];
+                            if (masterContext) {
+                                [masterContext save:&error];
+                            }
                         }];
                     }
                 }];
@@ -59,9 +69,15 @@
 + (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
-            NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
-            if(context != nil) {
+        NSManagedObjectContext *context;
+        if (appDelegate) {
+            @try {
+                context = appDelegate.batchEventManagedObjectContext;
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
+            if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
