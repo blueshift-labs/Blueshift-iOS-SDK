@@ -135,12 +135,18 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
             // Gets the current NSManagedObjectContext via appDelegate ...
             BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            if(appDelegate != nil && appDelegate.realEventManagedObjectContext != nil) {
+            if(appDelegate) {
                 // Fetches the first record from the Core Data ...
                 [HttpRequestOperationEntity fetchFirstRecordFromCoreDataWithCompletetionHandler:^(BOOL status, HttpRequestOperationEntity *operationEntityToBeExecuted) {
                     if (status) {
-                        NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
-                        if(context != nil) {
+                        NSManagedObjectContext *context;
+                        @try {
+                            context = appDelegate.realEventManagedObjectContext;
+                        }
+                        @catch (NSException *exception) {
+                            NSLog(@"Caught exception %@", exception);
+                        }
+                        if(context) {
                             // Only handles when the fetched record is not nil ...
                             if (operationEntityToBeExecuted!=nil) {
                                 if ([operationEntityToBeExecuted.nextRetryTimeStamp floatValue] < [[NSDate date] timeIntervalSince1970]) {

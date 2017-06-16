@@ -60,9 +60,17 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     [batchList addObject:operationEntitiesToBeExecuted];
                 }
                 BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-                if(appDelegate && appDelegate.batchEventManagedObjectContext) {
+                NSManagedObjectContext *masterContext;
+                if (appDelegate) {
+                    @try {
+                        masterContext = appDelegate.batchEventManagedObjectContext;
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
+                }
+                if(masterContext) {
                     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                    NSManagedObjectContext *masterContext = appDelegate.batchEventManagedObjectContext;
                     context.parentContext = masterContext;
                     if(context) {
                         for (NSArray *operationEntitiesToBeExecuted in batchList) {
@@ -73,7 +81,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     if(requestOperation.parameters != nil) {
                                         [paramsArray addObject:requestOperation.parameters];
                                     }
-                                    
                                     @try {
                                         if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
                                             [masterContext performBlockAndWait:^{
@@ -89,17 +96,22 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             [self createBatch:paramsArray];
                         }
                     }
-                    if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                        [context performBlock:^{
-                            NSError *saveError = nil;
-                            [context save:&saveError];
-                            [masterContext performBlock:^{
+                    @try {
+                        if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                            [context performBlock:^{
                                 NSError *saveError = nil;
-                                if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                    [masterContext save:&saveError];
-                                }
+                                [context save:&saveError];
+                                [masterContext performBlock:^{
+                                    NSError *saveError = nil;
+                                    if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                        [masterContext save:&saveError];
+                                    }
+                                }];
                             }];
-                        }];
+                        }
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
                     }
                 }
             }
@@ -143,9 +155,14 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
             // Gets the current NSManagedObjectContext via appDelegate ...
             BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            if(appDelegate && appDelegate.batchEventManagedObjectContext) {
-                NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
-                
+            if(appDelegate) {
+                NSManagedObjectContext *context;
+                @try {
+                    context = appDelegate.batchEventManagedObjectContext;
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Caught exception %@", exception);
+                }
                 if(context != nil) {
                     // Only handles when the fetched record is not nil ...
                     
