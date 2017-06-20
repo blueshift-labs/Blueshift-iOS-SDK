@@ -830,10 +830,10 @@
     if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryBuy) {
         switch (buttonIndex) {
             case 1:
-                [self handleActionForViewUsingPushDetailsDictionary:self.pushAlertDictionary];
+                [self handleActionForViewUsingPushDetailsDictionary:self.userInfo];
                 break;
             case 2:
-                [self handleActionForBuyUsingPushDetailsDictionary:self.pushAlertDictionary];
+                [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
                 break;
                 
             default:
@@ -843,7 +843,7 @@
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryCart) {
         switch (buttonIndex) {
             case 1:
-                [self handleActionForOpenCartUsingPushDetailsDictionary:self.pushAlertDictionary];
+                [self handleActionForOpenCartUsingPushDetailsDictionary:self.userInfo];
                 break;
                 
             default:
@@ -853,7 +853,7 @@
     } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryOffer) {
         switch (buttonIndex) {
             case 1:
-                [self handleCategoryForPromotionUsingPushDetailsDictionary:self.pushAlertDictionary];
+                [self handleCategoryForPromotionUsingPushDetailsDictionary:self.userInfo];
                 break;
                 
             default:
