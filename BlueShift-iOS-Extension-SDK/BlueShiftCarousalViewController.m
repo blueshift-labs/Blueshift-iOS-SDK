@@ -101,15 +101,11 @@
 
 - (UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view {
     //create new view if no view is available for recycling
-    if (view == nil)
-    {
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(30, 10, self.view.frame.size.width - 60, self.view.frame.size.height - 40)];
-        imageView.image = [items objectAtIndex:index];
-        view = imageView;
-        view.layer.cornerRadius = 12.0;
-        view.layer.masksToBounds = YES;
-    }
-    
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(30, 10, self.view.frame.size.width - 60, self.view.frame.size.height - 40)];
+    imageView.image = [items objectAtIndex:index];
+    view = imageView;
+    view.layer.cornerRadius = 12.0;
+    view.layer.masksToBounds = YES;
     return view;
 }
 
