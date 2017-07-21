@@ -521,8 +521,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
-        [parameterMutableDictionary setObject:kSDKVersionNumber forKey:@"bsft_sdk_version"];
     }
+    [parameterMutableDictionary setObject:kSDKVersionNumber forKey:@"bsft_sdk_version"];
     
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
