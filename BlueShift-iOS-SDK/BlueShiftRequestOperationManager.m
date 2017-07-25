@@ -96,7 +96,6 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
     NSURL * url = [NSURL URLWithString:urlString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
-    //NSString * params =@"user[name]=shahas&user[email]=sha@z.z&user[encrypted_password]=askfdsfkdk";
     
     NSDictionary *paramsDictionary = params;
     [urlRequest setHTTPMethod:@"POST"];
