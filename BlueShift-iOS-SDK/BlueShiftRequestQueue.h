@@ -35,7 +35,7 @@
 
 // Method to trigger request executions from the Queue ...
 
-+ (void)processRequestsInQueue;
++ (void)processRequestsInQueue:(BlueShiftRequestOperation *)requestOperation;
 
 
 
