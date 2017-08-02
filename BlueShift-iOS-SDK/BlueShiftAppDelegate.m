@@ -344,8 +344,14 @@
                     [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
                 }
             } else {
-                // Track notification when app is in background and when we click the push notification from tray..
-                [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+                NSString *urlString = [self.userInfo objectForKey:@"deep_link_url"];
+                NSURL *url = [NSURL URLWithString:urlString];
+                if(url) {
+                    [self handleCustomCategory:@"" UsingPushDetailsDictionary:userInfo];
+                } else {
+                    // Track notification when app is in background and when we click the push notification from tray..
+                    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+                }
             }
         }
     }
@@ -1158,7 +1164,6 @@
             // Replace this implementation with code to handle the error appropriately.
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-            abort();
         }
     }
 }
