@@ -96,7 +96,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
     NSURL * url = [NSURL URLWithString:urlString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
-    
+
     NSDictionary *paramsDictionary = params;
     [urlRequest setHTTPMethod:@"POST"];
     NSData *JSONData = [NSJSONSerialization dataWithJSONObject:paramsDictionary
