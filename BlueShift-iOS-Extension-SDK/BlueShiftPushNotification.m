@@ -41,7 +41,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
      {
          NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
          NSData *imageData = nil;
-         if(imageURL != nil) {
+         if(imageURL != nil && imageURL.absoluteString.length != 0) {
              imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
              if(imageData) {
                  NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);

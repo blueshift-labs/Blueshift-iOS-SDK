@@ -120,6 +120,9 @@
     } else if([notification.request.content.categoryIdentifier isEqualToString:@"carousel_animation"]) {
         self.carousel.autoscroll = -0.1;
     }
+    if(self.items.count == 1) {
+        self.carousel.autoscroll = 0;
+    }
     [self.carousel reloadData];
 }
 
@@ -146,7 +149,7 @@
              if(attachmentIDs.count < index + 1 || ![[attachmentIDs objectAtIndex:index] isEqualToString:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index]]) {
                  NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
                  NSData *imageData = nil;
-                 if(imageURL != nil) {
+                 if(imageURL != nil && imageURL.absoluteString.length != 0) {
                      imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
                      UIImage *image = [UIImage imageWithData:imageData];
                      [images insertObject:image atIndex:index];
