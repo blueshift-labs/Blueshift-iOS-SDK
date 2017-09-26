@@ -103,7 +103,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+- (void)setDeviceToken {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:@"deviceToken"];
+    [defaults synchronize];
+}
+
 - (NSString *) getDeviceToken {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    _deviceToken = (NSString *)[defaults objectForKey:@"deviceToken"];
     return _deviceToken;
 }
 

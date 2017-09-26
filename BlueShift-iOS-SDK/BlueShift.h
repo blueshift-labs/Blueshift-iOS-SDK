@@ -43,6 +43,7 @@
 - (void) setPushDelegate: (id) obj;
 - (void) setPushParamDelegate: (id) obj;
 - (NSString *) getDeviceToken;
+- (void) setDeviceToken;
 @property BlueShiftAppDelegate *appDelegate;
 
 
