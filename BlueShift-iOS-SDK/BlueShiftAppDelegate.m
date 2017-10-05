@@ -165,8 +165,25 @@
 - (void) registerForRemoteNotification:(NSData *)deviceToken {
     NSString *deviceTokenString = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
-    [BlueShift sharedInstance].deviceToken = deviceTokenString;
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
+    NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    if (previousDeviceToken && deviceTokenString) {
+        if(![previousDeviceToken isEqualToString:deviceTokenString]) {
+            [self fireIdentifyCall];
+        }
+    } else if (deviceTokenString) {
+        [self fireIdentifyCall];
+    }
+}
+
+- (void)fireIdentifyCall {
+    [[BlueShift sharedInstance] setDeviceToken];
+    NSString *email = [BlueShiftUserInfo sharedInstance].email;
+    if (email && ![email isEqualToString:@""]) {
+        [[BlueShift sharedInstance] identifyUserWithEmail:email andDetails:nil canBatchThisEvent:NO];
+    } else {
+        [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+    }
 }
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
