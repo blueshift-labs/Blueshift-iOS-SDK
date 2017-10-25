@@ -51,7 +51,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 
 - (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
     NSDictionary *userInfo = request.content.userInfo;
-    if(userInfo) {
+    if(userInfo && [[BlueShiftPushNotification sharedInstance] apiKey] && ![[[BlueShiftPushNotification sharedInstance] apiKey] isEqualToString:@""]) {
         [BlueShiftPushAnalytics sendPushAnalytics:@"delivered" withParams:userInfo];
     }
 }
