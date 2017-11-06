@@ -44,6 +44,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification {
+    if ([notification.request.content.categoryIdentifier isEqualToString: @"carousel"] || [notification.request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 - (void)createAndConfigCarousel {
     // Initialize and configure the carousel

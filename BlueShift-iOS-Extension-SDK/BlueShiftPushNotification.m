@@ -21,6 +21,13 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     return _sharedInstance;
 }
 
+- (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request {
+    if([request.content.userInfo objectForKey:@"image_url"] || [request.content.userInfo objectForKey:@"carousel_elements"] || [request.content.userInfo objectForKey:@"bsft_message_uuid"]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     
