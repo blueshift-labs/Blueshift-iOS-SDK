@@ -16,5 +16,6 @@
 + (instancetype) sharedInstance;
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request;
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
+- (BOOL)hasBlueShiftAttachments;
 
 @end

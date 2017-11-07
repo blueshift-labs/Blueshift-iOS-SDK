@@ -29,6 +29,14 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
+- (BOOL)hasBlueShiftAttachments {
+    if([BlueShiftPushNotification sharedInstance].attachments && [BlueShiftPushNotification sharedInstance].attachments.count > 0) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     
     if ([request.content.categoryIdentifier isEqualToString: @"carousel"] || [request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {

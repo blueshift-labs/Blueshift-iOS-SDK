@@ -52,6 +52,14 @@
     }
 }
 
+- (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response {
+    if(response.actionIdentifier && ([response.actionIdentifier isEqualToString:@"next"] || [response.actionIdentifier isEqualToString:@"previous"] || [response.actionIdentifier isEqualToString:@"go_to_app"])) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 - (void)createAndConfigCarousel {
     // Initialize and configure the carousel
     carousel = [[iCarousel alloc] initWithFrame:CGRectMake(30, 10, self.view.frame.size.width - 60, self.view.frame.size.height - 40)];
