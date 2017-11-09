@@ -22,7 +22,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request {
-    if([request.content.userInfo objectForKey:@"image_url"] || [request.content.userInfo objectForKey:@"carousel_elements"] || [request.content.userInfo objectForKey:@"bsft_message_uuid"]) {
+    if([request.content.userInfo objectForKey:@"image_url"] || [request.content.userInfo objectForKey:@"gif_url"] || [request.content.userInfo objectForKey:@"audio_url"] || [request.content.userInfo objectForKey:@"video_url"] || [request.content.userInfo objectForKey:@"carousel_elements"] || [request.content.userInfo objectForKey:@"bsft_message_uuid"]) {
         return YES;
     } else {
         return NO;
