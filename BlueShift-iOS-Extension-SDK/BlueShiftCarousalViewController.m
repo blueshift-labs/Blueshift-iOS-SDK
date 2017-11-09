@@ -44,6 +44,21 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification {
+    if ([notification.request.content.categoryIdentifier isEqualToString: @"carousel"] || [notification.request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response {
+    if(response.actionIdentifier && ([response.actionIdentifier isEqualToString:@"next"] || [response.actionIdentifier isEqualToString:@"previous"] || [response.actionIdentifier isEqualToString:@"go_to_app"])) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 - (void)createAndConfigCarousel {
     // Initialize and configure the carousel

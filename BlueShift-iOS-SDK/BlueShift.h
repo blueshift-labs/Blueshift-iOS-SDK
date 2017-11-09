@@ -26,6 +26,7 @@
 #import "BlueShiftAppData.h"
 #import "SDKVersion.h"
 #import "BlueShiftLiveContent.h"
+#import "BlueShiftPushNotificationSettings.h"
 
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
@@ -35,6 +36,7 @@
 @property BlueShiftDeviceData *deviceData;
 @property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
+@property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification;
 @property NSString *deviceToken;
 
 + (instancetype)sharedInstance;

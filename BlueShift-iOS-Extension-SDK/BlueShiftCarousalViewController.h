@@ -18,6 +18,8 @@
 
 @property NSString *appGroupID;
 
+- (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification;
+- (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response;
 - (void)showCarouselForNotfication:(UNNotification *)notification;
 - (void)setCarouselActionsForResponse:(UNNotificationResponse *)response completionHandler:(void (^)(UNNotificationContentExtensionResponseOption))completion;
 

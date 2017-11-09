@@ -44,6 +44,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     _sharedBlueShiftInstance.config = config;
     _sharedBlueShiftInstance.deviceData = [[BlueShiftDeviceData alloc] init];
     _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
+    _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
     // Initialize deeplinks ...
     [self initDeepLinks];
     
