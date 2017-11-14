@@ -18,14 +18,9 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         _sharedUserInfo = [BlueShiftUserInfo currentUserInfo];
         if (_sharedUserInfo==nil) {
             _sharedUserInfo = [[BlueShiftUserInfo alloc] init];
-            [_sharedUserInfo setDefaultValues];
         }
     });
     return _sharedUserInfo;
-}
-
-- (void)setDefaultValues {
-    self.unsubscribed = NO;
 }
 
 - (NSDictionary *)toDictionary {
@@ -72,8 +67,9 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         [sharedUserInfoMutableDictionary setObject:self.education forKey:@"education"];
     }
     
-    [sharedUserInfoMutableDictionary setObject:[NSNumber numberWithBool:self.unsubscribed] forKey:@"unsubscribed"];
-    
+    if (self.unsubscribed) {
+        [sharedUserInfoMutableDictionary setObject:[NSNumber numberWithBool:self.unsubscribed] forKey:@"unsubscribed"];
+    }
     
     if (self.additionalUserInfo) {
         [sharedUserInfoMutableDictionary setObject:self.additionalUserInfo forKey:@"additional_user_info"];
@@ -107,7 +103,6 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         if ([defaults synchronize]==YES) {
             _sharedUserInfo = nil;
             _sharedUserInfo = [[BlueShiftUserInfo alloc] init];
-            [_sharedUserInfo setDefaultValues];
         }
     }
 }
@@ -144,9 +139,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:@"education"];
         blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:@"facebook_id"];
         blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:@"gender"];
-        if([currentUserInfoDictionary objectForKey:@"unsubscribed"] == nil) {
-            blueShiftUserInfo.unsubscribed = false;
-        } else {
+        if([currentUserInfoDictionary objectForKey:@"unsubscribed"] && [[currentUserInfoDictionary objectForKey:@"unsubscribed"] boolValue]) {
             blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:@"unsubscribed"] boolValue];
         }
         NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:@"joined_at"] doubleValue];
