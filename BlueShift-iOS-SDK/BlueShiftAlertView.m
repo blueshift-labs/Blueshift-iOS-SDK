@@ -9,35 +9,52 @@
 
 @implementation BlueShiftAlertView
 
-+ (instancetype)alertViewWithPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary andDelegate:(id)delegate {
-    // Get a alertView instance for a particular type of push Notification Dictionary ...
-    // Differentiation is done on the basis of the category of the push payload dictionary ...
+- (UIAlertController *)alertViewWithPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     
-    BlueShiftAlertView *blueShiftAlertView = nil;
     NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushCategory = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"category"];
     NSString *pushMessage = [pushAlertDictionary objectForKey:@"alert"];
-    
+    UIAlertController *blueShiftAlertController = [UIAlertController alertControllerWithTitle:kAlertTitle message:pushMessage preferredStyle:UIAlertControllerStyleAlert];
     if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
-        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"View",@"Buy", nil];
-        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationCategoryBuy;
+        UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleCancel handler:nil];
+        UIAlertAction *viewAction = [UIAlertAction actionWithTitle:kViewButton style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self.alertControllerDelegate handleAlertActionButtonForCategoryBuyWithActionName:action.title];
+        }];
+        UIAlertAction *buyAction = [UIAlertAction actionWithTitle:kBuyButton style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self.alertControllerDelegate handleAlertActionButtonForCategoryBuyWithActionName:action.title];
+        }];
+        [blueShiftAlertController addAction:dismissAction];
+        [blueShiftAlertController addAction:buyAction];
+        [blueShiftAlertController addAction:viewAction];
     } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
-        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Open Cart", nil];
-        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationCategoryCart;
+        UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleCancel handler:nil];
+        UIAlertAction *openAction = [UIAlertAction actionWithTitle:kOpenButton style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self.alertControllerDelegate handleAlertActionButtonForCategoryCartWithActionName:action.title];
+        }];
+        [blueShiftAlertController addAction:dismissAction];
+        [blueShiftAlertController addAction:openAction];
     } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
-        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Show", nil];
-        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationCategoryOffer;
+        UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleCancel handler:nil];
+        UIAlertAction *showAction = [UIAlertAction actionWithTitle:kShowButton style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self.alertControllerDelegate handleAlertActionButtonForCategoryPromotionWithActionName:action.title];
+        }];
+        [blueShiftAlertController addAction:dismissAction];
+        [blueShiftAlertController addAction:showAction];
     } else if ([pushCategory isEqualToString:kNotificationTwoButtonAlertIdentifier]) {
-        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Show", nil];
-        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationTwoButtonAlert;
+        UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleCancel handler:nil];
+        UIAlertAction *showAction = [UIAlertAction actionWithTitle:kShowButton style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self.alertControllerDelegate handleAlertActionButtonForCategoryTwoButtonAlertWithActionName:action.title];
+        }];
+        [blueShiftAlertController addAction:dismissAction];
+        [blueShiftAlertController addAction:showAction];
     } else if ([pushCategory isEqualToString:kNotificationOneButtonAlertIdentifier]) {
-        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
-        blueShiftAlertView.alertViewContext = BlueShiftAlertViewContextNotificationOneButtonAlert;
+        UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleCancel handler:nil];
+        [blueShiftAlertController addAction:dismissAction];
     } else {
-        blueShiftAlertView = [[BlueShiftAlertView alloc] initWithTitle:@"Notification Alert" message:pushMessage delegate:delegate cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
+        UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleDefault handler:nil];
+        [blueShiftAlertController addAction:dismissAction];
     }
-    
-    return blueShiftAlertView;
+    return blueShiftAlertController;
 }
 
 

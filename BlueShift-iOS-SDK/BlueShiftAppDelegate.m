@@ -7,7 +7,6 @@
 
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
-#import "BlueShiftAlertView.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
 
 @implementation BlueShiftAppDelegate
@@ -143,13 +142,12 @@
         // Track notification view when app is open ...
         //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
         
-        
         // Handle push notification when the app is in active state...
-        BlueShiftAlertView *pushAlertView = [BlueShiftAlertView alertViewWithPushDetailsDictionary:userInfo andDelegate:self];
-        
-        if (pushAlertView) {
-            [pushAlertView show];
-        }
+        UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+        BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
+        pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
+        UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+        [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
     } else {
         
         // Handle push notification when the app is in inactive or background state ...
@@ -204,6 +202,25 @@
     }
 }
 
+- (UIViewController *)topViewController{
+    return [self topViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+}
+
+- (UIViewController *)topViewController:(UIViewController *)rootViewController
+{
+    if (rootViewController.presentedViewController == nil) {
+        return rootViewController;
+    }
+    
+    if ([rootViewController.presentedViewController isKindOfClass:[UINavigationController class]]) {
+        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
+        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
+        return [self topViewController:lastViewController];
+    }
+    
+    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
+    return [self topViewController:presentedViewController];
+}
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
@@ -220,11 +237,11 @@
         if([[userInfo objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
             
             // Handle push notification when the app is in active state...
-            BlueShiftAlertView *pushAlertView = [BlueShiftAlertView alertViewWithPushDetailsDictionary:userInfo andDelegate:self];
-            
-            if (pushAlertView) {
-                [pushAlertView show];
-            }
+            UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+            BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
+            pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
+            UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+            [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
         } else {
             [self scheduleLocalNotification:userInfo];
         }
@@ -732,61 +749,30 @@
     [anInvocation invokeWithTarget:[self oldDelegate]];
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    BlueShiftAlertView *blueShiftAlertView = (BlueShiftAlertView *)alertView;
-    BlueShiftAlertViewContext alertViewContext = blueShiftAlertView.alertViewContext;
-    NSString *categoryName = [[self.userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryBuy) {
-        switch (buttonIndex) {
-            case 1:
-                [self handleActionForViewUsingPushDetailsDictionary:self.userInfo];
-                break;
-            case 2:
-                [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
-                break;
-                
-            default:
-                [self trackAlertDismiss];
-                break;
-        }
-    } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryCart) {
-        switch (buttonIndex) {
-            case 1:
-                [self handleActionForOpenCartUsingPushDetailsDictionary:self.userInfo];
-                break;
-                
-            default:
-                [self trackAlertDismiss];
-                break;
-        }
-    } else if (alertViewContext == BlueShiftAlertViewContextNotificationCategoryOffer) {
-        switch (buttonIndex) {
-            case 1:
-                [self handleCategoryForPromotionUsingPushDetailsDictionary:self.userInfo];
-                break;
-                
-            default:
-                [self trackAlertDismiss];
-                break;
-        }
-    } else if (alertViewContext == BlueShiftAlertViewContextNotificationTwoButtonAlert) {
-        switch (buttonIndex) {
-            case 1:
-                if(categoryName != nil && ![categoryName isEqualToString:@""]) {
-                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:self.userInfo];
-                }
-                break;
-                
-            default:
-                [self trackAlertDismiss];
-                break;
-        }
-    } else if (alertViewContext == BlueShiftAlertViewContextNotificationOneButtonAlert) {
-        switch (buttonIndex) {
-            default:
-                [self trackAlertDismiss];
-                break;
-        }
+- (void)handleAlertActionButtonForCategoryBuyWithActionName:(NSString *)name {
+    if([name  isEqual: kBuyButton]) {
+        [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
+    }
+    if([name isEqual: kViewButton]) {
+        [self handleActionForViewUsingPushDetailsDictionary:self.userInfo];
+    }
+}
+
+- (void)handleAlertActionButtonForCategoryCartWithActionName:(NSString *)name {
+    if([name isEqual: kOpenButton]) {
+        [self handleActionForOpenCartUsingPushDetailsDictionary:self.userInfo];
+    }
+}
+
+- (void)handleAlertActionButtonForCategoryPromotionWithActionName:(NSString *)name {
+    if([name isEqual: kShowButton]) {
+        [self handleCategoryForPromotionUsingPushDetailsDictionary:self.userInfo];
+    }
+}
+
+- (void)handleAlertActionButtonForCategoryTwoButtonAlertWithActionName:(NSString *)name {
+    if([name isEqual: kShowButton]) {
+        [self handleCustomCategory:kNotificationTwoButtonAlertIdentifier UsingPushDetailsDictionary:self.userInfo];
     }
 }
 
