@@ -4,21 +4,30 @@
 //
 //  Copyright (c) Blueshift. All rights reserved.
 //
+
+#define kAlertTitle     @"Notification Alert"
+#define kDismissButton  @"Dismiss"
+#define kViewButton     @"View"
+#define kBuyButton      @"Buy"
+#define kOpenButton     @"Open"
+#define kShowButton     @"Show"
+
 #import <UIKit/UIKit.h>
 #import "BlueShiftNotificationConstants.h"
 
-typedef enum {
-    BlueShiftAlertViewContextNotificationCategoryCart,
-    BlueShiftAlertViewContextNotificationCategoryBuy,
-    BlueShiftAlertViewContextNotificationCategoryOffer,
-    BlueShiftAlertViewContextNotificationOneButtonAlert,
-    BlueShiftAlertViewContextNotificationTwoButtonAlert
-} BlueShiftAlertViewContext;
+@protocol BlueShiftAlertControllerDelegate <NSObject>
 
-@interface BlueShiftAlertView : UIAlertView<UIAlertViewDelegate>
+@optional
+- (void)handleAlertActionButtonForCategoryCartWithActionName:(NSString *_Nullable)name;
+- (void)handleAlertActionButtonForCategoryBuyWithActionName:(NSString *_Nullable)name;
+- (void)handleAlertActionButtonForCategoryPromotionWithActionName:(NSString *_Nullable)name;
+- (void)handleAlertActionButtonForCategoryTwoButtonAlertWithActionName:(NSString *_Nullable)name;
+@end
 
-@property BlueShiftAlertViewContext alertViewContext;
+@interface BlueShiftAlertView : NSObject
 
-+ (instancetype)alertViewWithPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary andDelegate:(id)delegate;
+@property (nonatomic, weak) id<BlueShiftAlertControllerDelegate> _Nullable alertControllerDelegate;
+
+- (UIAlertController *_Nonnull)alertViewWithPushDetailsDictionary:(NSDictionary *_Nonnull)pushDetailsDictionary;
 
 @end

@@ -16,9 +16,9 @@
 #import "BlueShiftPushParamDelegate.h"
 #import <CoreData/CoreData.h>
 #import "BlueShiftTrackEvents.h"
+#import "BlueShiftAlertView.h"
 
-
-@interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, UIAlertViewDelegate, CLLocationManagerDelegate>
+@interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, CLLocationManagerDelegate, BlueShiftAlertControllerDelegate>
 
 @property NSDictionary * _Nullable userInfo;
 @property NSDictionary * _Nullable pushAlertDictionary;
