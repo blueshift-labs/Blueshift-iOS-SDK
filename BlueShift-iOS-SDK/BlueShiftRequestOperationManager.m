@@ -103,7 +103,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                                                        options:0
                                                          error:nil];
     [urlRequest setHTTPBody:JSONData];
-    
+    [urlRequest setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                            if(error == nil)
