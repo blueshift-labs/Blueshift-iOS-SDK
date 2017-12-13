@@ -21,6 +21,7 @@
 @property BOOL enablePushNotification;
 @property BOOL enableLocationAccess;
 @property BOOL enableAnalytics;
+@property BOOL enableIDFAFetch;
 
 @property NSString *appGroupID;
 
