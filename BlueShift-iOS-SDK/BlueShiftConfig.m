@@ -15,6 +15,7 @@
         self.enablePushNotification = YES;
         self.enableLocationAccess = YES;
         self.enableAnalytics = YES;
+        self.enableIDFAFetch = YES;
     }
     return self;
 }

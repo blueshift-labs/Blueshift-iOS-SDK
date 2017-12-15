@@ -5,6 +5,7 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 #import "BlueShiftDeviceData.h"
+#import "BlueShift.h"
 
 
 static BlueShiftDeviceData *_currentDeviceData = nil;
@@ -25,7 +26,10 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (NSString *)deviceIDFA {
-    NSString *idfaString = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+    NSString *idfaString;
+    if([[BlueShift sharedInstance].config enableIDFAFetch] == YES) {
+        idfaString = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+    }
     return idfaString;
 }
 
