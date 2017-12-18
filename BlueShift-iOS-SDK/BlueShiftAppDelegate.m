@@ -227,7 +227,7 @@
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     self.userInfo = userInfo;
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
-    
+    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
@@ -379,8 +379,7 @@
 - (void)handleCategoryForPromotionUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // Track notification when the page is deeplinked ...
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
-    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-    
+    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     if ([self.oldDelegate respondsToSelector:@selector(promotionCategoryPushClickedWithDetails:)]) {
         // User already implemented the promotionCategoryPushClickedWithDetails: in App Delegate...
         
