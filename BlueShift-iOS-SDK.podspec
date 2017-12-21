@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "BlueShift-iOS-SDK"
-  s.version      = "0.3.4"
+  s.version      = "0.3.5"
   s.summary      = "iOS SDK for integrating push notification and analytics"
 
   s.description  = <<-DESC
