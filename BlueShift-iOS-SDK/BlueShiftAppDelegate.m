@@ -807,6 +807,14 @@
     return [pushTrackParametersMutableDictionary copy];
 }
 
+- (BOOL)isSendPushAnalytics {
+    if (self.userInfo && self.userInfo[@"bsft_seed_list_send"] && [self.userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
+
 - (void)trackAppOpen {
     [self trackAppOpenWithParameters:nil];
 }
@@ -826,15 +834,16 @@
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
-    
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-        [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
+    if ([self isSendPushAnalytics]) {
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        
+        if (parameters) {
+            [parameterMutableDictionary addEntriesFromDictionary:parameters];
+            [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
+        }
+        
+        [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
     }
-    
-    [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
 }
 
 - (void)trackPushClicked {
@@ -842,14 +851,16 @@
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-        [parameterMutableDictionary setObject:@"click" forKey:@"a"];
+    if ([self isSendPushAnalytics]) {
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        
+        if (parameters) {
+            [parameterMutableDictionary addEntriesFromDictionary:parameters];
+            [parameterMutableDictionary setObject:@"click" forKey:@"a"];
+        }
+        
+        [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
     }
-    
-    [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
 }
 
 - (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{

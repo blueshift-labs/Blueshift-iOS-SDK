@@ -568,6 +568,14 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [BlueShiftRequestQueue addRequestOperation:requestOperation];
 }
 
+- (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo {
+    if (userInfo && userInfo[@"bsft_seed_list_send"] && [userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
+
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     
@@ -597,19 +605,20 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
-    
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (pushTrackParameterDictionary) {
-        [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+    if ([self isSendPushAnalytics:userInfo]) {
+        NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        
+        if (pushTrackParameterDictionary) {
+            [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+        }
+        
+        [parameterMutableDictionary setObject:type forKey:@"a"];
+        
+        NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameterMutableDictionary copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+        [BlueShiftRequestQueue addRequestOperation:requestOperation];
     }
-    
-    [parameterMutableDictionary setObject:type forKey:@"a"];
-    
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameterMutableDictionary copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-    [BlueShiftRequestQueue addRequestOperation:requestOperation];
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
