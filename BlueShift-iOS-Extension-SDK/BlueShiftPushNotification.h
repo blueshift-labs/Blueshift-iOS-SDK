@@ -12,10 +12,12 @@
 @interface BlueShiftPushNotification : NSObject
 
 @property NSArray <UNNotificationAttachment *>* attachments;
+@property NSString *apiKey;
 
 + (instancetype) sharedInstance;
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request;
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
 - (BOOL)hasBlueShiftAttachments;
+- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request;
 
 @end

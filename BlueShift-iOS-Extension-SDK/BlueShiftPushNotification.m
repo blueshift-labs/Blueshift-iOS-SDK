@@ -7,6 +7,7 @@
 
 
 #import "BlueShiftPushNotification.h"
+#import "BlueShiftPushAnalytics.h"
 
 
 static BlueShiftPushNotification *_sharedInstance = nil;
@@ -38,11 +39,20 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
-    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self trackPushViewedWithRequest:request];
+    });
     if ([request.content.categoryIdentifier isEqualToString: @"carousel"] || [request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
         return [self carouselAttachmentsDownload:request];
     } else {
         return [self mediaAttachmentDownlaod:request];
+    }
+}
+
+- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
+    NSDictionary *userInfo = request.content.userInfo;
+    if(userInfo && [[BlueShiftPushNotification sharedInstance] apiKey] && ![[[BlueShiftPushNotification sharedInstance] apiKey] isEqualToString:@""]) {
+        [BlueShiftPushAnalytics sendPushAnalytics:@"delivered" withParams:userInfo];
     }
 }
 
