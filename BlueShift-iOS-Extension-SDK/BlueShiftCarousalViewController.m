@@ -8,6 +8,15 @@
 
 #import "BlueShiftCarousalViewController.h"
 
+#define kPaddingLeft            0
+#define kpaddingRight           0
+#define kPaddingTop             0
+#define kPaddingBottom          0
+
+#define kPageIndicatorHeight    30
+
+#define kImageCornerRadius      0.0
+
 @interface BlueShiftCarousalViewController ()
 
 @property (strong, nonatomic) NSMutableArray *items;
@@ -62,9 +71,9 @@
 
 - (void)createAndConfigCarousel {
     // Initialize and configure the carousel
-    carousel = [[iCarousel alloc] initWithFrame:CGRectMake(30, 10, self.view.frame.size.width - 60, self.view.frame.size.height - 40)];
+    carousel = [[iCarousel alloc] initWithFrame:CGRectMake(kPaddingLeft, kPaddingTop, self.view.frame.size.width - (kPaddingLeft + kpaddingRight), self.view.frame.size.height - (kPaddingTop + kPaddingBottom))];
     carousel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    carousel.type = iCarouselTypeCylinder;
+    carousel.type = iCarouselTypeLinear;
     carousel.delegate = self;
     carousel.dataSource = self;
     carousel.autoscroll = -0.1;
@@ -76,7 +85,7 @@
     // Init Page Control
     UIPageControl *pc = [[UIPageControl alloc] init];
     pageControl = pc;
-    pageControl.frame = CGRectMake(0, self.view.frame.size.height - 30, self.view.frame.size.width, 30);
+    pageControl.frame = CGRectMake(0, self.view.frame.size.height - kPageIndicatorHeight, self.view.frame.size.width, kPageIndicatorHeight);
     pageControl.numberOfPages = numberOfPages;
     pageControl.currentPage = 0;
     pageControl.pageIndicatorTintColor = [UIColor whiteColor];
@@ -116,10 +125,10 @@
 
 - (UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view {
     //create new view if no view is available for recycling
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(30, 10, self.view.frame.size.width - 60, self.view.frame.size.height - 40)];
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(kPaddingLeft, kPaddingTop, self.view.frame.size.width - (kPaddingLeft + kpaddingRight), self.view.frame.size.height - (kPaddingTop + kPaddingBottom))];
     imageView.image = [items objectAtIndex:index];
     view = imageView;
-    view.layer.cornerRadius = 12.0;
+    view.layer.cornerRadius = kImageCornerRadius;
     view.layer.masksToBounds = YES;
     return view;
 }
@@ -295,7 +304,7 @@
     } else if([themeName isEqualToString:@"inverted_time_machine"]) {
         return iCarouselTypeInvertedTimeMachine;
     } else {
-        return iCarouselTypeCylinder;
+        return iCarouselTypeInvertedTimeMachine;
     }
 }
 
