@@ -7,11 +7,17 @@
 
 
 #import "BlueShiftCarousalViewController.h"
+#import "UIColor+HexString.h"
 
 #define kPaddingLeft            0
 #define kpaddingRight           0
 #define kPaddingTop             0
 #define kPaddingBottom          0
+
+#define kTextPaddingLeft        10
+#define kTextPaddingRight       10
+#define kTextPaddingTop         0
+#define kTextPaddingBottom      10
 
 #define kPageIndicatorHeight    30
 
@@ -21,6 +27,7 @@
 
 @property (strong, nonatomic) NSMutableArray *items;
 @property NSMutableArray *deepLinkURLs;
+@property NSArray *carouselElements;
 
 @end
 
@@ -30,6 +37,7 @@
 @synthesize items;
 @synthesize pageControl;
 @synthesize deepLinkURLs;
+@synthesize carouselElements;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -93,13 +101,220 @@
     [self.view addSubview:pageControl];
 }
 
+- (void)createContentViewOnTopOf:(UIView *)view withTitle:(NSDictionary *)title andSubTitle:(NSDictionary *)subTitle withPosition:(NSString *)position {
+    UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 260)];
+    contentView.backgroundColor = [UIColor clearColor];
+    CGRect titleFrame = CGRectMake(kTextPaddingLeft, kTextPaddingTop , self.view.frame.size.width - (kTextPaddingLeft + kTextPaddingRight), 30);
+    UILabel *titleLabel =  [self createTitle:title withFrame:titleFrame onView:contentView];
+    CGRect subTitleFrame = CGRectMake(kTextPaddingLeft, kTextPaddingTop + titleLabel.frame.size.height + 5, self.view.frame.size.width - (kTextPaddingLeft + kTextPaddingRight), 30);
+    UILabel *subTitleLabel = [self createSubTitle:subTitle withFrame:subTitleFrame onView:contentView];
+    CGRect newFrame = contentView.frame;
+    newFrame.size.height = titleLabel.frame.size.height + subTitleLabel.frame.size.height + 10;
+    contentView.frame = newFrame;
+    [self contentView:contentView onTopOfTheView:view withTitle:titleLabel andSubTitle:subTitleLabel withPosition:position];
+    [view addSubview: contentView];
+}
+
+- (UILabel *)createTitle:(NSDictionary *)titleDictionary withFrame:(CGRect)frame onView:(UIView *)view {
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:frame];
+    [self setLabel:titleLabel withData:titleDictionary];
+    if(titleLabel.font.pointSize == 0)
+        [titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Bold" size:18]];
+    else
+        [titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Bold" size:titleLabel.font.pointSize]];
+    CGRect newFrame = titleLabel.frame;
+    newFrame.size.height = [self getLabelHeight:titleLabel];
+    titleLabel.frame = newFrame;
+    [view addSubview:titleLabel];
+    return titleLabel;
+}
+
+
+- (UILabel *)createSubTitle:(NSDictionary *)subTitleDictionary withFrame:(CGRect)frame onView:(UIView *)view {
+    UILabel *subTitleLabel = [[UILabel alloc] initWithFrame:frame];
+    [self setLabel:subTitleLabel withData:subTitleDictionary];
+    if(subTitleLabel.font.pointSize == 0)
+        [subTitleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:14]];
+    else
+        [subTitleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:subTitleLabel.font.pointSize]];
+    CGRect newFrame = subTitleLabel.frame;
+    newFrame.size.height = [self getLabelHeight:subTitleLabel];
+    subTitleLabel.frame = newFrame;
+    [view addSubview:subTitleLabel];
+    return subTitleLabel;
+}
+
+- (void)setLabel:(UILabel *)label withData:(NSDictionary *)data {
+    NSString *text = [data objectForKey:@"text"];
+    NSString *hexColor = [data objectForKey:@"text_color"];
+    NSString *hexBackgroundColor = [data objectForKey:@"text_background_color"];
+    NSString *fontSizeString = [data objectForKey:@"text_size"];
+    UIColor *textColor = hexColor != nil ? [UIColor colorWithHexString:hexColor] : [UIColor whiteColor];
+    UIColor *textBackgroundColor = hexBackgroundColor != nil ? [UIColor colorWithHexString:hexBackgroundColor] : [UIColor clearColor];
+    CGFloat fontSize = (CGFloat)[fontSizeString floatValue];
+    if (text) {
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:text];
+        
+        [attributedString addAttribute:NSBackgroundColorAttributeName
+                                 value:textBackgroundColor
+                                 range:NSMakeRange(0, attributedString.length)];
+        label.attributedText = attributedString;
+        [label setTextColor:textColor];
+        [label setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:fontSize]];
+        [label setNumberOfLines:0];
+    }
+}
+
+- (void)leftAlignTitle:(UILabel *)title andSubTitle:(UILabel *)subTitle {
+    [title setTextAlignment:NSTextAlignmentLeft];
+    [subTitle setTextAlignment:NSTextAlignmentLeft];
+}
+
+- (void)centerAlignTitle:(UILabel *)title andSubTitle:(UILabel *)subTitle {
+    [title setTextAlignment:NSTextAlignmentCenter];
+    [subTitle setTextAlignment:NSTextAlignmentCenter];
+}
+
+- (void)rightAlignTitle:(UILabel *)title andSubTitle:(UILabel *)subTitle {
+    [title setTextAlignment:NSTextAlignmentRight];
+    [subTitle setTextAlignment:NSTextAlignmentRight];
+}
+
+- (CGPoint)alignContentViewVerticallyTop:(UIView *)contentView onTopOfTheView:(UIView *)view {
+    return CGPointMake(0, 15);
+}
+
+- (CGPoint)alignContentViewVerticallyMiddle:(UIView *)contentView onTopOfTheView:(UIView *)view {
+    return CGPointMake(0, (view.frame.size.height-contentView.frame.size.height)/2);
+}
+
+- (CGPoint)alignContentViewVerticallyBottom:(UIView *)contentView onTopOfTheView:(UIView *)view {
+    return CGPointMake(0, (view.frame.size.height-contentView.frame.size.height)-15);
+}
+
+- (void) positionContentView:(UIView *)contentView topOfTheView:(UIView *)view andLeftAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self leftAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView topOfTheView:(UIView *)view andCenterAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self centerAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView topOfTheView:(UIView *)view andRightAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self rightAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView middleOfTheView:(UIView *)view andLeftAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self leftAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView middleOfTheView:(UIView *)view andCenterAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self centerAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView middleOfTheView:(UIView *)view andRightAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self rightAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView bottomOfTheView:(UIView *)view andLeftAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self leftAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView bottomOfTheView:(UIView *)view andCenterAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self centerAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) positionContentView:(UIView *)contentView bottomOfTheView:(UIView *)view andRightAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
+    CGRect newFrame = contentView.frame;
+    CGPoint newPoint = newFrame.origin;
+    [self rightAlignTitle:titleLabel andSubTitle:subTitleLabel];
+    newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
+    newFrame.origin = newPoint;
+    contentView.frame = newFrame;
+}
+
+- (void) contentView:(UIView *)contentView onTopOfTheView:(UIView *)view withTitle:(UILabel *)title andSubTitle:(UILabel *)subTitle withPosition:(NSString *)position {
+    if([position isEqualToString:@"top_left"]) {
+        [self positionContentView:contentView topOfTheView:view andLeftAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"top_center"]) {
+        [self positionContentView:contentView topOfTheView:view andCenterAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"top_right"]) {
+        [self positionContentView:contentView topOfTheView:view andRightAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"middle_left"]) {
+        [self positionContentView:contentView middleOfTheView:view andLeftAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"middle_center"]) {
+        [self positionContentView:contentView middleOfTheView:view andCenterAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"middle_right"]) {
+        [self positionContentView:contentView middleOfTheView:view andRightAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"bottom_left"]) {
+        [self positionContentView:contentView bottomOfTheView:view andLeftAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"bottom_center"]) {
+        [self positionContentView:contentView bottomOfTheView:view andCenterAlignTitle:title andSubTitle:subTitle];
+    } else if([position isEqualToString:@"bottom_right"]) {
+        [self positionContentView:contentView bottomOfTheView:view andRightAlignTitle:title andSubTitle:subTitle];
+    } else {
+        [self positionContentView:contentView middleOfTheView:view andCenterAlignTitle:title andSubTitle:subTitle];
+    }
+}
+
+- (CGFloat)getLabelHeight:(UILabel*)label {
+    CGSize constraint = CGSizeMake(label.frame.size.width, CGFLOAT_MAX);
+    CGSize size;
+    NSStringDrawingContext *context = [[NSStringDrawingContext alloc] init];
+    CGSize boundingBox = [label.text boundingRectWithSize:constraint
+                                                  options:NSStringDrawingUsesLineFragmentOrigin
+                                               attributes:@{NSFontAttributeName:label.font}
+                                                  context:context].size;
+    
+    size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
+    return size.height;
+}
 
 - (void)dealloc {
     //it's a good idea to set these to nil here to avoid
     //sending messages to a deallocated viewcontroller
     carousel.delegate = nil;
     carousel.dataSource = nil;
-    
 }
 
 
@@ -121,15 +336,32 @@
     return (NSInteger)[self.items count];
 }
 
+- (UIViewContentMode)setImageContentMode: (NSString *)mode {
+    if([mode  isEqual: @"ScaleToFill"]) {
+        return UIViewContentModeScaleToFill;
+    } else if([mode  isEqual: @"AspectFill"]) {
+        return UIViewContentModeScaleAspectFill;
+    } else if([mode  isEqual: @"AspectFit"]) {
+        return UIViewContentModeScaleAspectFit;
+    } else {
+        return UIViewContentModeScaleAspectFill;
+    }
+}
 
 
 - (UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view {
     //create new view if no view is available for recycling
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(kPaddingLeft, kPaddingTop, self.view.frame.size.width - (kPaddingLeft + kpaddingRight), self.view.frame.size.height - (kPaddingTop + kPaddingBottom))];
+    NSDictionary *carouselElement = [self.carouselElements objectAtIndex:index];
     imageView.image = [items objectAtIndex:index];
+    imageView.contentMode = [self setImageContentMode:[carouselElement objectForKey:@"image_mode"]];
     view = imageView;
     view.layer.cornerRadius = kImageCornerRadius;
     view.layer.masksToBounds = YES;
+    NSDictionary *titleDictionary = [carouselElement objectForKey:@"content_text"];
+    NSDictionary *subTitleDictionary = [carouselElement objectForKey:@"content_subtext"];
+    NSString *position = [carouselElement objectForKey:@"content_layout_type"];
+    [self createContentViewOnTopOf:view withTitle:titleDictionary andSubTitle:subTitleDictionary withPosition:position];
     return view;
 }
 
@@ -159,16 +391,16 @@
 - (void)getImages:(UNNotification *)notification {
     NSArray <UNNotificationAttachment *> *attachments = notification.request.content.attachments;
     [self fetchAttachmentsToImageArray:attachments];
-    NSArray *carouselImages = [notification.request.content.userInfo objectForKey:@"carousel_elements"];
-    [self fetchDeepLinkURLs:carouselImages];
-    if(self.items.count < carouselImages.count) {
+    self.carouselElements = [notification.request.content.userInfo objectForKey:@"carousel_elements"];
+    [self fetchDeepLinkURLs:self.carouselElements];
+    if(self.items.count < self.carouselElements.count) {
         NSMutableArray *images = [[NSMutableArray alloc]init];
         images = [self.items mutableCopy];
         NSMutableArray *attachmentIDs = [[NSMutableArray alloc]init];
         for(UNNotificationAttachment *attachment in attachments) {
             [attachmentIDs addObject:attachment.identifier];
         }
-        [carouselImages enumerateObjectsUsingBlock:
+        [self.carouselElements enumerateObjectsUsingBlock:
          ^(NSDictionary *image, NSUInteger index, BOOL *stop) {
              if(attachmentIDs.count < index + 1 || ![[attachmentIDs objectAtIndex:index] isEqualToString:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index]]) {
                  NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
