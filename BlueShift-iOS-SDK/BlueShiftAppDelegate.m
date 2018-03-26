@@ -140,8 +140,6 @@
     if (applicationState == UIApplicationStateActive) {
         
         // Track notification view when app is open ...
-        //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
-        
         // Handle push notification when the app is in active state...
         UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
         BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
