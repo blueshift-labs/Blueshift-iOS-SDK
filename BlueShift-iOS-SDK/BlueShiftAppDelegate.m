@@ -24,13 +24,22 @@
 - (void) registerForNotification {
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
-        [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
-    } else {
-     
-     // Ignore the warning for now.
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+        if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+            center.delegate = self.userNotificationDelegate;
+            [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+            [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
+                if(!error){
+                    dispatch_async(dispatch_get_main_queue(), ^(void) {
+                        [[UIApplication sharedApplication] registerForRemoteNotifications];
+                    });
+                }
+            }];
+        } else {
+            UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
+            [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        }
     }
 }
 
@@ -130,6 +139,18 @@
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
 
+- (void)presentInAppAlert:(NSDictionary *)userInfo {
+    // Track notification view when app is open ...
+    //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
+    
+    // Handle push notification when the app is in active state...
+    UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+    BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
+    pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
+    UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+    [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+}
+
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
@@ -138,14 +159,7 @@
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
-        
-        // Track notification view when app is open ...
-        // Handle push notification when the app is in active state...
-        UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
-        BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
-        pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-        UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-        [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+        [self presentInAppAlert:userInfo];
     } else {
         
         // Handle push notification when the app is in inactive or background state ...
