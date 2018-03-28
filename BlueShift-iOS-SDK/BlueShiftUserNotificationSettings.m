@@ -69,7 +69,6 @@
     
     UNNotificationCategory *carouselCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
     
-    
     return carouselCategory;
 }
 
@@ -101,12 +100,8 @@
     
     UNNotificationCategory *carouselAnimationCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselAnimationIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
     
-    
     return carouselAnimationCategory;
 }
-
-
-
 
 - (NSSet *)notificationCategories {
     return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.oneButtonAlertCategory, self.twoButtonAlertCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
@@ -117,10 +112,5 @@
             UNAuthorizationOptionSound|
             UNAuthorizationOptionBadge);
 }
-
-//- (UNNotificationSettings *)notificationSettings {
-//    return [UIUserNotificationSettings settingsForTypes:self.notificationTypes categories:self.notificationCategories];
-//}
-
 
 @end

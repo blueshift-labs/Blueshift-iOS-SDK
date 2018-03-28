@@ -7,7 +7,6 @@
 
 #import "BlueShift.h"
 #import <UserNotifications/UserNotifications.h>
-#import "BlueShiftUserNotificationCenterDelegate.h"
 
 BlueShiftAppDelegate *_newDelegate;
 static BlueShift *_sharedBlueShiftInstance = nil;
