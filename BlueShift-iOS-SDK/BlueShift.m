@@ -29,7 +29,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         [[BlueShift sharedInstance] setAppDelegate];
     });
-    [[BlueShift sharedInstance] setUserNotificationDelegate];
 }
 
 - (void)setAppDelegate {
@@ -71,7 +70,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;
-    blueShiftAppDelegate.userNotificationDelegate = config.userNotificationDelegate;
+    if(config.userNotificationDelegate) {
+        blueShiftAppDelegate.userNotificationDelegate = config.userNotificationDelegate;
+    } else {
+        blueShiftAppDelegate.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
+    }
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
         [BlueShiftHttpRequestBatchUpload startBatchUpload];
