@@ -37,7 +37,7 @@
     UNNotificationAction *viewAction = [UNNotificationAction actionWithIdentifier:kNotificationActionViewIdentifier title:@"View" options:UNNotificationActionOptionForeground];
     
     UNNotificationCategory *twoButtonAlertCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationTwoButtonAlertIdentifier actions:@[viewAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-
+    
     return twoButtonAlertCategory;
 }
 

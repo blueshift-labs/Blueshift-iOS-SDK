@@ -40,6 +40,7 @@
 @property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
 @property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification;
+@property (nonatomic, strong) BlueShiftUserNotificationSettings *userNotification;
 @property NSString *deviceToken;
 
 + (instancetype)sharedInstance;

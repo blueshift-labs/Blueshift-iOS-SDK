@@ -9,6 +9,7 @@
 #define BlueShift_iOS_SDK_BlueShiftAppDelegate_h
 
 #import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
 #import <UIKit/UIKit.h>
 #import "BlueShift.h"
 #import "BlueShiftPushDelegate.h"
@@ -24,6 +25,7 @@
 @property NSDictionary * _Nullable pushAlertDictionary;
 
 @property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
+@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
 
