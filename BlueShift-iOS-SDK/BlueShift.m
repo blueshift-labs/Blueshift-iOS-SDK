@@ -6,6 +6,7 @@
 //
 
 #import "BlueShift.h"
+#import <UserNotifications/UserNotifications.h>
 
 BlueShiftAppDelegate *_newDelegate;
 static BlueShift *_sharedBlueShiftInstance = nil;
@@ -25,11 +26,19 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 + (void) autoIntegration {
-    [[BlueShift sharedInstance] performSelectorInBackground:@selector(setAppDelegate) withObject:nil];
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        [[BlueShift sharedInstance] setAppDelegate];
+    });
 }
 
 - (void)setAppDelegate {
     [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
+}
+
+- (void)setUserNotificationDelegate {
+    BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = blueShiftUserNotificationCenterDelegate;
 }
 
 - (void) setupWithConfiguration:(BlueShiftConfig *)config {
@@ -45,6 +54,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     _sharedBlueShiftInstance.deviceData = [[BlueShiftDeviceData alloc] init];
     _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
     _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
+    _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
     // Initialize deeplinks ...
     [self initDeepLinks];
     
@@ -53,13 +63,18 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     // initiating the newDelegate ...
     _newDelegate = [[BlueShiftAppDelegate alloc] init];
-    
+    BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
     // assigning the current application delegate with the app delegate we are going to use in the SDK ...
     _sharedBlueShiftInstance.appDelegate = _newDelegate;
-    
+    _sharedBlueShiftInstance.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;
+    if(config.userNotificationDelegate) {
+        blueShiftAppDelegate.userNotificationDelegate = config.userNotificationDelegate;
+    } else {
+        blueShiftAppDelegate.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
+    }
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
         [BlueShiftHttpRequestBatchUpload startBatchUpload];

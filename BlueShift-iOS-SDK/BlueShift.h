@@ -27,9 +27,12 @@
 #import "SDKVersion.h"
 #import "BlueShiftLiveContent.h"
 #import "BlueShiftPushNotificationSettings.h"
+#import "BlueShiftUserNotificationSettings.h"
+#import "BlueShiftUserNotificationCenterDelegate.h"
 
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
+@class BlueShiftUserNotificationCenterDelegate;
 @interface BlueShift : NSObject
 
 @property (nonatomic, strong) BlueShiftConfig *config;
@@ -37,6 +40,7 @@
 @property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
 @property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification;
+@property (nonatomic, strong) BlueShiftUserNotificationSettings *userNotification;
 @property NSString *deviceToken;
 
 + (instancetype)sharedInstance;
@@ -47,6 +51,7 @@
 - (NSString *) getDeviceToken;
 - (void) setDeviceToken;
 @property BlueShiftAppDelegate *appDelegate;
+@property BlueShiftUserNotificationCenterDelegate *userNotificationDelegate;
 
 
 // track events functions ...

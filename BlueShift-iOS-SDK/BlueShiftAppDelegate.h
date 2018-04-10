@@ -9,6 +9,7 @@
 #define BlueShift_iOS_SDK_BlueShiftAppDelegate_h
 
 #import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
 #import <UIKit/UIKit.h>
 #import "BlueShift.h"
 #import "BlueShiftPushDelegate.h"
@@ -24,6 +25,7 @@
 @property NSDictionary * _Nullable pushAlertDictionary;
 
 @property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
+@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
 
@@ -49,9 +51,10 @@
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *_Nonnull)error;
 - (void) handleRemoteNotification:(NSDictionary *_Nonnull)userInfo forApplication:(UIApplication *_Nonnull)application fetchCompletionHandler:(void (^_Nonnull)(UIBackgroundFetchResult result))handler;
 - (void) application:(UIApplication *_Nonnull)application handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
+- (void)handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
 - (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UILocalNotification *)notification;
+- (void)presentInAppAlert:(NSDictionary *_Nonnull)userInfo;
 - (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)()) completionHandler;
-
 - (void)appDidEnterBackground:(UIApplication *_Nonnull)application;
 - (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
 
