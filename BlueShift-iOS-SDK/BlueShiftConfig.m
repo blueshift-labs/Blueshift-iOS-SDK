@@ -16,6 +16,7 @@
         self.enableLocationAccess = YES;
         self.enableAnalytics = YES;
         self.enableIDFAFetch = YES;
+        self.enableAppOpenTrackEvent = YES;
     }
     return self;
 }

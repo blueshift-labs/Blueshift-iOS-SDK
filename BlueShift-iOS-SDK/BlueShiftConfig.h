@@ -23,6 +23,7 @@
 @property BOOL enableLocationAccess;
 @property BOOL enableAnalytics;
 @property BOOL enableIDFAFetch;
+@property BOOL enableAppOpenTrackEvent;
 
 @property NSString * _Nullable appGroupID;
 
