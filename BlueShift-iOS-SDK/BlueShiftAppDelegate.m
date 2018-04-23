@@ -830,17 +830,22 @@
 }
 
 - (void)trackAppOpen {
-    [self trackAppOpenWithParameters:nil];
+    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
+        [self trackAppOpenWithParameters:nil];
+    }
 }
 
 - (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
+    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
+        
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        
+        if (parameters) {
+            [parameterMutableDictionary addEntriesFromDictionary:parameters];
+        }
+        
+        [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
     }
-    
-    [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }
 
 - (void)trackPushViewed {
