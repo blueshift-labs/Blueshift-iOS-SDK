@@ -260,7 +260,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     NSDictionary *paramsDictionary = @{@"events": parametersArray};
     // perform executions based on the request operation http method ...
     
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:paramsDictionary completetionHandler:^(BOOL status) {
+    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:paramsDictionary completetionHandler:^(BOOL status, NSDictionary* response, NSError *error) {
         handler(status);
     }];
 }
