@@ -536,7 +536,7 @@
     } else if([themeName isEqualToString:@"inverted_time_machine"]) {
         return iCarouselTypeInvertedTimeMachine;
     } else {
-        return iCarouselTypeInvertedTimeMachine;
+        return iCarouselTypeLinear;
     }
 }
 
