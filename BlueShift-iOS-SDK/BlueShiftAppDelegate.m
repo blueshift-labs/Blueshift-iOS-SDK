@@ -830,9 +830,7 @@
 }
 
 - (void)trackAppOpen {
-    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        [self trackAppOpenWithParameters:nil];
-    }
+    [self trackAppOpenWithParameters:nil];
 }
 
 - (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
