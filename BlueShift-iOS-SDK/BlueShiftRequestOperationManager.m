@@ -93,7 +93,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
-- (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL))handler{
+- (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(_backgroundSession == NULL) {
         _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
@@ -117,12 +117,13 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                                                                NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                                                                
                                                                if (statusCode == kStatusCodeSuccessfullResponse) {
-                                                                   handler(true);
+                                                                   NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                                                   handler(true, dictionary, error);
                                                                } else {
-                                                                   handler(false);
+                                                                   handler(false, nil, error);
                                                                }
                                                            } else {
-                                                               handler(false);
+                                                               handler(false, nil, error);
                                                            }
                                                            
                                                        }];
