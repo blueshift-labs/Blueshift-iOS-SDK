@@ -7,6 +7,11 @@
 
 #import "BatchEventEntity.h"
 
+@interface BatchEventEntity ()
+
++ (void *)fetchBatchesFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
+@end
+
 @implementation BatchEventEntity
 
 @dynamic paramsArray;
@@ -86,28 +91,7 @@
                     NSLog(@"Caught exception %@", exception);
                 }
                 if(fetchRequest.entity != nil) {
-                    NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-                    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
-                    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-                    @try {
-                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            [context performBlock:^{
-                                NSError *error;
-                                NSArray *results = [[NSArray alloc]init];
-                                results = [context executeFetchRequest:fetchRequest error:&error];
-                                if (results && results.count > 0) {
-                                    handler(YES, results);
-                                } else {
-                                    handler(NO, nil);
-                                }
-                            }];
-                        } else {
-                            handler(NO, nil);
-                        }
-                    }
-                    @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
-                    }
+                    [BatchEventEntity fetchBatchesFromCoreDataFromContext:context request:fetchRequest handler:handler];
                 } else {
                     handler(NO, nil);
                 }
@@ -117,6 +101,32 @@
         }
     }
 }
+
++ (void *)fetchBatchesFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
+    NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
+    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    @try {
+        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                NSError *error;
+                NSArray *results = [[NSArray alloc]init];
+                results = [context executeFetchRequest:fetchRequest error:&error];
+                if (results && results.count > 0) {
+                    handler(YES, results);
+                } else {
+                    handler(NO, nil);
+                }
+            }];
+        } else {
+            handler(NO, nil);
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
+}
+
 
 
 @end

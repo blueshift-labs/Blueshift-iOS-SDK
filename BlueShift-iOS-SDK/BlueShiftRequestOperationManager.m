@@ -41,7 +41,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSData *credentialsData = [credentials dataUsingEncoding:NSUTF8StringEncoding];
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
     
-    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration backgroundSessionConfiguration:@"BlueShiftBackgroundSession"];
     defaultConfigObject.HTTPAdditionalHeaders = @{
                                                   @"Authorization":credentialsBase64String,
                                                   @"Content-Type":@"application/json"
@@ -52,7 +52,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 - (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
-    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    if(_backgroundSession == NULL) {
+        _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    }
+//    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     
     NSString *paramsString = [[NSString alloc] init];
     for(id key in params) {
@@ -70,7 +73,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
     [urlRequest setHTTPMethod:@"GET"];
     
-    NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
+    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest
                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                            if(error == nil)
                                                            {
@@ -92,7 +95,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 - (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
-    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    if(_backgroundSession == NULL) {
+        _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    }
+//    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     
     NSURL * url = [NSURL URLWithString:urlString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
@@ -104,7 +110,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                                                          error:nil];
     [urlRequest setHTTPBody:JSONData];
     [urlRequest setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
+    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest
                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                            if(error == nil)
                                                            {

@@ -25,6 +25,8 @@
 @property BOOL enableIDFAFetch;
 @property BOOL enableAppOpenTrackEvent;
 
+@property NSSet * _Nullable customCategories;
+
 @property NSString * _Nullable appGroupID;
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;

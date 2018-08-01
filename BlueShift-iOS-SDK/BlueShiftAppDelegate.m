@@ -70,6 +70,21 @@
     } else if (deviceTokenString) {
         [self fireIdentifyCall];
     }
+    
+    NSSet *categories = [[[BlueShift sharedInstance] pushNotification] notificationCategories];
+    NSSet *customCategories = [[[BlueShift sharedInstance] config] customCategories];
+    NSMutableSet *categoriesWithCustomCategory = [[NSMutableSet alloc] init];
+    // Adding custom category to categories
+    [categoriesWithCustomCategory setByAddingObjectsFromSet:customCategories];
+    [categoriesWithCustomCategory unionSet:categories];
+    if (@available(iOS 8.0, *)) {
+        UIUserNotificationType types = [[[BlueShift sharedInstance] pushNotification] notificationTypes];
+        UIUserNotificationSettings *notificationSettings = [UIUserNotificationSettings settingsForTypes:types categories:categoriesWithCustomCategory];
+        [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    } else {
+        // Fallback on earlier versions
+    }
 }
 
 - (void)fireIdentifyCall {

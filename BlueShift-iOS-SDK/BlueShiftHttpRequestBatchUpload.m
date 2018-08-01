@@ -9,6 +9,16 @@
 
 #define kBatchSize  100
 
+@interface BlueShiftHttpRequestBatchUpload ()
+
++ (void)createBatchesWithContext: (NSManagedObjectContext*)masterContext withBatchList: (NSMutableArray*) batchList;
+
++ (void) deleteBatchRecords:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*) context completetionHandler:(void (^)(BOOL))handler;
+
++ (void) handleRetryBatchUpload:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*)context requestOperation: (BlueShiftBatchRequestOperation*)requestOperation completetionHandler:(void (^)(BOOL))handler;
+
+@end
+
 // this static variable is meant to show the status of the request queue ...
 
 static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
@@ -70,43 +80,29 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     }
                 }
                 if(masterContext) {
-                    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                    context.parentContext = masterContext;
-                    if(context) {
-                        for (NSArray *operationEntitiesToBeExecuted in batchList) {
-                            NSMutableArray *paramsArray = [[NSMutableArray alloc]init];
-                            for(HttpRequestOperationEntity *operationEntityToBeExecuted in operationEntitiesToBeExecuted) {
-                                if ([operationEntityToBeExecuted.nextRetryTimeStamp floatValue] < [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]) {
-                                    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithHttpRequestOperationEntity:operationEntityToBeExecuted];
-                                    if(requestOperation.parameters != nil) {
-                                        [paramsArray addObject:requestOperation.parameters];
-                                    }
-                                    @try {
-                                        if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                            [masterContext performBlockAndWait:^{
-                                                [masterContext deleteObject:operationEntityToBeExecuted];
-                                            }];
-                                        }
-                                    }
-                                    @catch (NSException *exception) {
-                                        NSLog(@"Caught exception %@", exception);
-                                    }
-                                }
-                            }
-                            [self createBatch:paramsArray];
-                        }
+                    [BlueShiftHttpRequestBatchUpload createBatchesWithContext:masterContext withBatchList:batchList];
+                }
+            }
+        }];
+    }
+}
+
++ (void)createBatchesWithContext: (NSManagedObjectContext*)masterContext withBatchList: (NSMutableArray*) batchList  {
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    context.parentContext = masterContext;
+    if(context) {
+        for (NSArray *operationEntitiesToBeExecuted in batchList) {
+            NSMutableArray *paramsArray = [[NSMutableArray alloc]init];
+            for(HttpRequestOperationEntity *operationEntityToBeExecuted in operationEntitiesToBeExecuted) {
+                if ([operationEntityToBeExecuted.nextRetryTimeStamp floatValue] < [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]) {
+                    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithHttpRequestOperationEntity:operationEntityToBeExecuted];
+                    if(requestOperation.parameters != nil) {
+                        [paramsArray addObject:requestOperation.parameters];
                     }
                     @try {
-                        if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            [context performBlock:^{
-                                NSError *saveError = nil;
-                                [context save:&saveError];
-                                [masterContext performBlock:^{
-                                    NSError *saveError = nil;
-                                    if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                        [masterContext save:&saveError];
-                                    }
-                                }];
+                        if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                            [masterContext performBlockAndWait:^{
+                                [masterContext deleteObject:operationEntityToBeExecuted];
                             }];
                         }
                     }
@@ -115,9 +111,28 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     }
                 }
             }
-        }];
+            [self createBatch:paramsArray];
+        }
+    }
+    @try {
+        if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                NSError *saveError = nil;
+                [context save:&saveError];
+                [masterContext performBlock:^{
+                    NSError *saveError = nil;
+                    if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                        [masterContext save:&saveError];
+                    }
+                }];
+            }];
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
     }
 }
+
 
 // Method to create a batch
 + (void)createBatch:(NSArray *)paramsArray {
@@ -177,53 +192,10 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         [BlueShiftHttpRequestBatchUpload performRequestOperation:requestOperation  completetionHandler:^(BOOL status) {
                             if (status == YES) {
                                 // delete batch records for the request operation if it is successfully executed ...
-                                @try {
-                                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                        [context performBlock:^{
-                                            [context deleteObject:batchEvent];
-                                            [context performBlock:^{
-                                                NSError *saveError = nil;
-                                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                                    [context save:&saveError];
-                                                }
-                                                _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                                            }];
-                                        }];
-                                    }
-                                }
-                                @catch (NSException *exception) {
-                                    NSLog(@"Caught exception %@", exception);
-                                }
-                                handler(YES);
+                                [BlueShiftHttpRequestBatchUpload deleteBatchRecords:batchEvent context:context completetionHandler:handler];
                             } else {
                                 // Request is not executed due to some reasons ...
-                                @try {
-                                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                        [context performBlock:^{
-                                            [context deleteObject:batchEvent];
-                                            [context performBlock:^{
-                                                NSError *saveError = nil;
-                                                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                                    [context save:&saveError];
-                                                    NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
-                                                    requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
-                                                    requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
-                                                    
-                                                    // request record is removed successfully from core data ...
-                                                    if (requestOperation.retryAttemptsCount > 0) {
-                                                        [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
-                                                        [self retryBatchUpload];
-                                                    }
-                                                }
-                                                _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                                            }];
-                                        }];
-                                    }
-                                }
-                                @catch (NSException *exception) {
-                                    NSLog(@"Caught exception %@", exception);
-                                }
-                                handler(NO);
+                                [BlueShiftHttpRequestBatchUpload handleRetryBatchUpload:batchEvent context:context requestOperation:requestOperation completetionHandler:handler];
                             }
                         }];
                     }
@@ -232,6 +204,59 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         }
     }
 }
+
++ (void) deleteBatchRecords:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*) context completetionHandler:(void (^)(BOOL))handler {
+    @try {
+        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                [context deleteObject:batchEvent];
+                [context performBlock:^{
+                    NSError *saveError = nil;
+                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                        [context save:&saveError];
+                    }
+                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                }];
+            }];
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
+    handler(YES);
+}
+
++ (void) handleRetryBatchUpload:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*)context requestOperation: (BlueShiftBatchRequestOperation*)requestOperation completetionHandler:(void (^)(BOOL))handler {
+    // Request is not executed due to some reasons ...
+    @try {
+        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                [context deleteObject:batchEvent];
+                [context performBlock:^{
+                    NSError *saveError = nil;
+                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                        [context save:&saveError];
+                        NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
+                        requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
+                        requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
+                        
+                        // request record is removed successfully from core data ...
+                        if (requestOperation.retryAttemptsCount > 0) {
+                            [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
+                            [self retryBatchUpload];
+                        }
+                    }
+                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                }];
+            }];
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
+    handler(NO);
+}
+
 
 // Method to retry batch uploading
 + (void)retryBatchUpload {
