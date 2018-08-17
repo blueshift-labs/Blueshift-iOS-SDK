@@ -59,6 +59,23 @@
 }
 
 - (void) registerForRemoteNotification:(NSData *)deviceToken {
+    if (@available(iOS 8.0, *)) {
+        if ([[[UIApplication sharedApplication] currentUserNotificationSettings] types]) {
+            NSDictionary *userInfo =
+            [NSDictionary dictionaryWithObject:@YES forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:
+             [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
+        }
+        else {
+            NSDictionary *userInfo =
+            [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:
+             [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
+        }
+    } else {
+        // Fallback on earlier versions
+    }
+
     NSString *deviceTokenString = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
@@ -88,6 +105,10 @@
 
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
     NSLog(@"\n\n Failed to get push token, error: %@ \n\n", error);
+    NSDictionary *userInfo =
+    [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:
+     [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
 }
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error {
