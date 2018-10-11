@@ -31,6 +31,9 @@
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
 
+@property NSString * _Nonnull blueShiftNotificationName;
+@property NSString * _Nonnull isEnabledPushNotificationKey;
+
 - (BOOL)validateConfigDetails;
 
 + (BlueShiftConfig * _Nonnull )config;

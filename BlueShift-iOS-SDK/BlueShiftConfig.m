@@ -17,6 +17,8 @@
         self.enableAnalytics = YES;
         self.enableIDFAFetch = YES;
         self.enableAppOpenTrackEvent = YES;
+        self.blueShiftNotificationName = @"BlueShiftPushNotificationSetting";
+        self.isEnabledPushNotificationKey = @"isEnabled";
     }
     return self;
 }
