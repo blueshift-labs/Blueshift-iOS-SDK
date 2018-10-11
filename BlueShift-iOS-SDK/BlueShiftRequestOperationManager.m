@@ -41,7 +41,9 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSData *credentialsData = [credentials dataUsingEncoding:NSUTF8StringEncoding];
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
     
-    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration backgroundSessionConfiguration:@"BlueShiftBackgroundSession"];
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+
+//    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration backgroundSessionConfiguration:@"BlueShiftBackgroundSession"];
     defaultConfigObject.HTTPAdditionalHeaders = @{
                                                   @"Authorization":credentialsBase64String,
                                                   @"Content-Type":@"application/json"
