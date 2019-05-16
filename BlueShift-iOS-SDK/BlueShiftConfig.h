@@ -9,6 +9,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import "BlueShiftDeepLink.h"
 #import "BlueShiftUserInfo.h"
+#import "BlueShiftPushDelegate.h"
 
 @interface BlueShiftConfig : NSObject
 
@@ -30,6 +31,7 @@
 @property NSString * _Nullable appGroupID;
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
+@property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 
 @property NSString * _Nonnull blueShiftNotificationName;
 @property NSString * _Nonnull isEnabledPushNotificationKey;
