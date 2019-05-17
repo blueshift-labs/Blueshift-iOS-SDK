@@ -370,10 +370,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(buyCategoryPushClickedWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(buyCategoryPushClickedWithDetails:)]) {
         // User already implemented the buyCategoryPushClickedWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate buyCategoryPushClickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
@@ -403,10 +403,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(cartViewCategoryPushClickedWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(cartViewCategoryPushClickedWithDetails:)]) {
         // User already implemented the cartViewCategoryPushClickedWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate cartViewCategoryPushClickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Open Cart Action in SDK ...
@@ -432,10 +432,10 @@
     // Track notification when the page is deeplinked ...
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-    if ([self.oldDelegate respondsToSelector:@selector(promotionCategoryPushClickedWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(promotionCategoryPushClickedWithDetails:)]) {
         // User already implemented the promotionCategoryPushClickedWithDetails: in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate promotionCategoryPushClickedWithDetails:pushDetailsDictionary];
         
     } else {
@@ -468,10 +468,10 @@
         NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
         NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
         NSURL *url = [NSURL URLWithString:urlString];
-        if ([self.oldDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
+        if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
             // User already implemented the viewPushActionWithDetails in App Delegate...
             
-            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
             [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithIndex:index withDetails:pushDetailsDictionary];
         } else {
             // Handle the View Action in SDK ...
@@ -507,10 +507,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(handleCustomCategory:clickedWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCustomCategory:clickedWithDetails:)]) {
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate handleCustomCategory:categoryName clickedWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
@@ -548,10 +548,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(buyPushActionWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(buyPushActionWithDetails:)]) {
         // User already implemented the buyPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate buyPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Buy Action in SDK ...
@@ -583,10 +583,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(viewPushActionWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(viewPushActionWithDetails:)]) {
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate viewPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
@@ -614,10 +614,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
         // User already implemented the viewPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate handlePushActionForIdentifier:identifier withDetails:pushDetailsDictionary];
     } else {
         // Handle the View Action in SDK ...
@@ -654,10 +654,10 @@
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
-    if ([self.oldDelegate respondsToSelector:@selector(openCartPushActionWithDetails:)]) {
+    if ([self.blueShiftPushDelegate respondsToSelector:@selector(openCartPushActionWithDetails:)]) {
         // User already implemented the buyPushActionWithDetails in App Delegate...
         
-        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+        self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
         [self.blueShiftPushDelegate openCartPushActionWithDetails:pushDetailsDictionary];
     } else {
         // Handle the Open Cart Action in SDK ...
@@ -703,10 +703,10 @@
         // If any action other than the predefined action is selected ...
         // We allow user to implement a custom method which we will provide the neccessary details to the user which includes action identifier and push details ...
         
-        if ([self.oldDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
+        if ([self.blueShiftPushDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
             // User needs to implemented if he needs to perform other actions other than the predefined one in App Delegate...
             
-            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.oldDelegate;
+            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
             [self.blueShiftPushDelegate handlePushActionForIdentifier:identifier withDetails:pushAlertDictionary];
         }
     }
