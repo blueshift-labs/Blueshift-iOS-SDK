@@ -75,6 +75,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     } else {
         blueShiftAppDelegate.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
     }
+    if(config.blueShiftPushDelegate) {
+        blueShiftAppDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
+    } else {
+        blueShiftAppDelegate.blueShiftPushDelegate = oldDelegate;
+    }
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
         [BlueShiftHttpRequestBatchUpload startBatchUpload];
