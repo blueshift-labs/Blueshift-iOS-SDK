@@ -25,13 +25,6 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return idfvString;
 }
 
-- (NSString *)deviceIDFA {
-    NSString *idfaString;
-    if([[BlueShift sharedInstance].config enableIDFAFetch] == YES) {
-        idfaString = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
-    }
-    return idfaString;
-}
 
 - (NSString *)deviceIDFV {
     NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
@@ -76,9 +69,6 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.deviceToken forKey:@"device_token"];
     }
     
-    if (self.deviceIDFA) {
-        [deviceMutableDictionary setObject:self.deviceIDFA forKey:@"device_idfa"];
-    }
     
     if (self.deviceIDFV) {
         [deviceMutableDictionary setObject:self.deviceIDFV forKey:@"device_idfv"];

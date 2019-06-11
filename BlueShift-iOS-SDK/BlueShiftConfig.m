@@ -15,7 +15,6 @@
         self.enablePushNotification = YES;
         self.enableLocationAccess = YES;
         self.enableAnalytics = YES;
-        self.enableIDFAFetch = YES;
         self.enableAppOpenTrackEvent = YES;
         self.blueShiftNotificationName = @"BlueShiftPushNotificationSetting";
         self.isEnabledPushNotificationKey = @"isEnabled";
