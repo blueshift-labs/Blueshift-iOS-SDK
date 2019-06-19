@@ -35,10 +35,10 @@
 #import <netdb.h>
 
 
-NSString *const kReachabilityChangedNotification = @"kReachabilityChangedNotification";
+NSString *const kBlueShiftReachabilityChangedNotification = @"kReachabilityChangedNotification";
 
 
-@interface Reachability ()
+@interface BlueShiftReachability ()
 
 @property (nonatomic, assign) SCNetworkReachabilityRef  reachabilityRef;
 @property (nonatomic, strong) dispatch_queue_t          reachabilitySerialQueue;
@@ -73,7 +73,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 {
 #pragma unused (target)
 
-    Reachability *reachability = ((__bridge Reachability*)info);
+    BlueShiftReachability *reachability = ((__bridge BlueShiftReachability*)info);
 
     // We probably don't need an autoreleasepool here, as GCD docs state each queue has its own autorelease pool,
     // but what the heck eh?
@@ -84,13 +84,13 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 }
 
 
-@implementation Reachability
+@implementation BlueShiftReachability
 
 #pragma mark - Class Constructor Methods
 
 +(instancetype)reachabilityWithHostName:(NSString*)hostname
 {
-    return [Reachability reachabilityWithHostname:hostname];
+    return [BlueShiftReachability reachabilityWithHostname:hostname];
 }
 
 +(instancetype)reachabilityWithHostname:(NSString*)hostname
@@ -458,7 +458,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     
     // this makes sure the change notification happens on the MAIN THREAD
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification 
+        [[NSNotificationCenter defaultCenter] postNotificationName:kBlueShiftReachabilityChangedNotification 
                                                             object:self];
     });
 }

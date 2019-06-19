@@ -43,7 +43,7 @@ FOUNDATION_EXPORT const unsigned char ReachabilityVersionString[];
 #define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
 
-extern NSString *const kReachabilityChangedNotification;
+extern NSString *const kBlueShiftReachabilityChangedNotification;
 
 typedef NS_ENUM(NSInteger, NetworkStatus) {
     // Apple NetworkStatus Compatible Names.
@@ -52,14 +52,14 @@ typedef NS_ENUM(NSInteger, NetworkStatus) {
     ReachableViaWWAN = 1
 };
 
-@class Reachability;
+@class BlueShiftReachability;
 
-typedef void (^NetworkReachable)(Reachability * reachability);
-typedef void (^NetworkUnreachable)(Reachability * reachability);
-typedef void (^NetworkReachability)(Reachability * reachability, SCNetworkConnectionFlags flags);
+typedef void (^NetworkReachable)(BlueShiftReachability * reachability);
+typedef void (^NetworkUnreachable)(BlueShiftReachability * reachability);
+typedef void (^NetworkReachability)(BlueShiftReachability * reachability, SCNetworkConnectionFlags flags);
 
 
-@interface Reachability : NSObject
+@interface BlueShiftReachability : NSObject
 
 @property (nonatomic, copy) NetworkReachable    reachableBlock;
 @property (nonatomic, copy) NetworkUnreachable  unreachableBlock;
