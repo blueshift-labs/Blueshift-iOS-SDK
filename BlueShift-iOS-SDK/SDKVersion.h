@@ -9,6 +9,6 @@
 #ifndef SDKVersion_h
 #define SDKVersion_h
 
-#define kSDKVersionNumber   @"0.4.1"
+#define kSDKVersionNumber   @"1.0.0"
 
 #endif /* SDKVersion_h */
