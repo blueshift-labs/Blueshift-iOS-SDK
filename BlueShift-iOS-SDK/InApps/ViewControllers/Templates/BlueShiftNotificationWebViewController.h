@@ -6,10 +6,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "../BlueShiftNotificationViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BlueShiftNotificationWebViewController : UIViewController
+@interface BlueShiftNotificationWebViewController : BlueShiftNotificationViewController
 
 @end
 
