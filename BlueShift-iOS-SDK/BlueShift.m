@@ -7,8 +7,10 @@
 
 #import "BlueShift.h"
 #import <UserNotifications/UserNotifications.h>
+#import "InApps/BlueShiftInAppNotificationManager.h"
 
 BlueShiftAppDelegate *_newDelegate;
+BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
 
 @implementation BlueShift
@@ -57,6 +59,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
     // Initialize deeplinks ...
     [self initDeepLinks];
+    
+    // Initialize In App Manager
+    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+    [_inAppNotificationMananger load];
     
     // Getting the original Delegate ...
     NSObject<UIApplicationDelegate> *oldDelegate = [UIApplication sharedApplication].delegate;
@@ -134,6 +140,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     _deviceToken = (NSString *)[defaults objectForKey:@"deviceToken"];
     return _deviceToken;
+}
+
+- (void) createInAppNotification:(NSDictionary *)dictionary {
+    [_inAppNotificationMananger createNotificationFromDictionary:dictionary];
 }
 
 
