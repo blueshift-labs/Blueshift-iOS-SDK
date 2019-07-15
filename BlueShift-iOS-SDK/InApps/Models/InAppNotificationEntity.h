@@ -21,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *eventName;
 @property (nonatomic, retain) NSString *status;
 
+- (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler;
++ (void)fetchAll:(void (^)(BOOL, NSArray *))handler;
+
 @end
 
 NS_ASSUME_NONNULL_END
