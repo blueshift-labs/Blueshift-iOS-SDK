@@ -7,6 +7,8 @@
 
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
+#import "Models/InAppNotificationEntity.h"
+#import "BlueShiftAppDelegate.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 @end
@@ -19,11 +21,52 @@
 }
 
 - (void)pushInAppNotificationToDB:(NSDictionary*)payload {
-    
+    @synchronized(self) {
+        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+        NSManagedObjectContext *masterContext;
+        if (appDelegate) {
+            @try {
+                masterContext = appDelegate.managedObjectContext;
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
+        }
+        if(masterContext) {
+            NSEntityDescription *entity;
+            @try {
+                entity = [NSEntityDescription entityForName:@"InAppNotificationEntity" inManagedObjectContext:masterContext];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
+            if(entity != nil) {
+
+                NSManagedObjectContext *context = appDelegate.managedObjectContext;
+
+                InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
+                if(inAppNotificationEntity != nil) {
+                    [inAppNotificationEntity insert:payload handler:^(BOOL status) {
+                        if(status) {
+                            [self fetchInAppNotificationsFromDB];
+                        }
+                    }];
+                }
+            }
+        }
+    }
 }
 
 - (void)fetchInAppNotificationsFromDB {
-    
+    [InAppNotificationEntity fetchAll:^(BOOL status, NSArray *results) {
+        if(status) {
+            for(int i = 0; i < [results count]; i++) {
+                InAppNotificationEntity *entity = [results objectAtIndex:i];
+                NSDictionary *payload = [NSKeyedUnarchiver unarchiveObjectWithData:entity.payload];
+                [self createNotificationFromDictionary:payload];
+            }
+        }
+    }];
 }
 
 // trigger queued notifications
