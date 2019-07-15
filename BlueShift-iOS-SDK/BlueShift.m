@@ -143,7 +143,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void) createInAppNotification:(NSDictionary *)dictionary {
-    [_inAppNotificationMananger createNotificationFromDictionary:dictionary];
+    [_inAppNotificationMananger pushInAppNotificationToDB:dictionary];
 }
 
 
