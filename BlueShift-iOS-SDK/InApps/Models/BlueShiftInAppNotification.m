@@ -31,6 +31,9 @@
 - (void)configureFromDictionary: (NSDictionary *)dictionary {
     self.inAppType =  [BlueShiftInAppNotificationHelper inAppTypeFromString:[dictionary objectForKey:@"type"]];
     self.html = [dictionary objectForKey:@"html"];
+    self.title = [dictionary objectForKey:@"title"];
+    self.subTitle = [dictionary objectForKey:@"subTitle"];
+    self.descriptionText = [dictionary objectForKey:@"description"];
     if([dictionary objectForKey:@"width"]) {
         self.width = [[dictionary objectForKey:@"width"] floatValue];
     }
