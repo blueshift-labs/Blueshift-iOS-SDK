@@ -43,31 +43,5 @@
     }
     return self;
 }
-@end
 
-
-
-@implementation BlueShiftInAppNotification
-
-- (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity {
-    
-    if (self = [super init]) {
-        @try {
-            self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: appEntity.type];
-            
-            NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
-            self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
-            
-            self.showCloseButton = YES;
-            self.position = @"center";
-            self.dimensionType = @"percentage";
-            
-            self.width = 90;
-            self.height = 50;
-        } @catch (NSException *e) {
-            
-        }
-    }
-    return self;
-}
 @end
