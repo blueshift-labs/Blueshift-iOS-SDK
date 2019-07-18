@@ -48,8 +48,4 @@
     NSAssert(false, @"Override in sub-class");
 }
 
-*- (UIView)getUIView:(NSString *)xibName{
-    
-}
-
 @end
