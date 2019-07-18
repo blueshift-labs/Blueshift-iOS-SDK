@@ -190,16 +190,6 @@
     }
 }
 
-- (void)createWindow {
-    Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
-    self.window = [[windowClass alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    self.window.alpha = 0;
-    self.window.backgroundColor = [UIColor clearColor];
-    self.window.windowLevel = UIWindowLevelNormal;
-    self.window.rootViewController = self;
-    [self.window setHidden:NO];
-}
-
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
     [self createWindow];
