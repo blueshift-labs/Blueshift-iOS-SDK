@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)hide:(BOOL)animated;
 
 - (void)closeButtonDidTapped;
+- (void)createWindow;
 
 @end
 
