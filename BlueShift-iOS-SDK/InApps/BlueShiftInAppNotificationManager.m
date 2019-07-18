@@ -7,7 +7,7 @@
 
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
-#import "ViewControllers/Templates/BlueShiftPromoNotificationViewController.h"
+#import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
 
@@ -109,7 +109,7 @@
             notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
             break;
         case BlueShiftInAppTypeModal:
-            notificationController = [[BlueShiftPromoNotificationViewController alloc] initWithNotification:notification];
+            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
             break;
         default:
             errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
