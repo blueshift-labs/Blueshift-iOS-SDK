@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)closeButtonDidTapped;
 - (void)createWindow;
+- (CGRect)positionNotificationView:(UIView *) notificationView;
+- (void)configureBackground;
+- (UIColor *)colorWithHexString:(NSString *)str;
 
 @end
 
