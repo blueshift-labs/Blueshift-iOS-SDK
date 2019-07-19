@@ -14,7 +14,7 @@ static NSDictionary *_inAppTypeDictionay;
 + (void)load {
     _inAppTypeDictionay = @{
                         @"html": @(BlueShiftInAppTypeHTML),
-                        @"modal": @(BlueShiftInAppTypeModal)
+                        @"center_popup": @(BlueShiftInAppTypeModal)
                     };
 }
 

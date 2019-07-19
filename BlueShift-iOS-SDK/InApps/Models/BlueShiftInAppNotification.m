@@ -7,6 +7,7 @@
 
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftNotificationLabel.h"
 
 @implementation BlueShiftInAppNotification
 
@@ -59,6 +60,26 @@
     }
     if([dictionary objectForKey:@"show_close_button"]) {
         self.showCloseButton = [dictionary objectForKey:@"show_close_button"];
+    }
+    if ([dictionary objectForKey:@"trigger"]) {
+        self.trigger = [dictionary objectForKey:@"trigger"];
+    }
+    if ([dictionary objectForKey:@"content_style"]) {
+        self.contentStyle = [[BlueShiftNotificationLabel alloc] initFromDictionary:[dictionary objectForKey:@"content_style"]];
+    }
+    if ([dictionary objectForKey:@"content"]) {
+        self.content = [[BlueShiftNotificationLabel alloc] initFromDictionary:[dictionary objectForKey:@"content"]];
+    }
+    if ([dictionary objectForKey:@"action"]) {
+        if ([dictionary valueForKeyPath:@"action.dismiss"]) {
+            self.dismiss = [[BlueshiftNotificationButton alloc] initFromDictionary:[dictionary valueForKeyPath:@"action.dismiss"]];
+        }
+        if ([dictionary valueForKeyPath:@"action.app_open"]) {
+            self.appOpen = [[BlueshiftNotificationButton alloc] initFromDictionary:[dictionary valueForKeyPath:@"action.app_open"]];
+        }
+        if ([dictionary valueForKeyPath:@"action.share"]) {
+            self.share = [[BlueshiftNotificationButton alloc] initFromDictionary:[dictionary valueForKeyPath:@"action.share"]];
+        }
     }
 }
 

@@ -14,7 +14,6 @@
                 <outlet property="CancelButton" destination="ayK-hv-8dl" id="WJL-bT-9sn"/>
                 <outlet property="DescriptionLabel" destination="UO6-6U-EFA" id="Atf-dh-2Ah"/>
                 <outlet property="OkButton" destination="97f-Nf-LXy" id="EJE-ce-cOi"/>
-                <outlet property="SubTitleLabel" destination="Bmr-hz-XUV" id="UJ3-oj-w6z"/>
                 <outlet property="TitleLabel" destination="qe8-kV-HJ2" id="2Ht-Wp-SmJ"/>
             </connections>
         </placeholder>
@@ -23,22 +22,13 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uUs-dU-yRf" customClass="BlueShiftNotificationView">
+                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uUs-dU-yRf" customClass="BlueShiftNotificationView">
                     <rect key="frame" x="37.5" y="200" width="300" height="267"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SubTitle" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bmr-hz-XUV">
-                            <rect key="frame" x="0.0" y="42" width="300" height="20"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="20" id="Jra-T7-tOy"/>
-                            </constraints>
-                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
-                            <nil key="textColor"/>
-                            <nil key="highlightedColor"/>
-                        </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="97f-Nf-LXy">
-                            <rect key="frame" x="170" y="227" width="120" height="30"/>
+                            <rect key="frame" x="170" y="228" width="120" height="29"/>
                             <color key="backgroundColor" red="0.2190229081" green="0.6192428525" blue="0.95881233809999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                             <state key="normal" title="OK"/>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -63,14 +53,15 @@
                                 <action selector="onCancelButtonTapped:" destination="-1" eventType="touchDown" id="XI7-6j-WDS"/>
                             </connections>
                         </button>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qe8-kV-HJ2">
-                            <rect key="frame" x="0.0" y="10" width="300" height="22"/>
-                            <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="18"/>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qe8-kV-HJ2">
+                            <rect key="frame" x="0.0" y="0.0" width="300" height="22.5"/>
+                            <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
+                            <color key="shadowColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UO6-6U-EFA">
-                            <rect key="frame" x="0.0" y="97" width="300" height="17"/>
+                            <rect key="frame" x="-0.5" y="52.5" width="301" height="17"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
@@ -85,20 +76,15 @@
                         <constraint firstItem="ayK-hv-8dl" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" multiplier="0.4" id="04r-N1-8qz"/>
                         <constraint firstItem="ayK-hv-8dl" firstAttribute="leading" secondItem="uUs-dU-yRf" secondAttribute="leading" constant="10" id="8mT-Lf-Obd"/>
                         <constraint firstAttribute="trailing" secondItem="97f-Nf-LXy" secondAttribute="trailing" constant="10" id="A9q-IS-qje"/>
-                        <constraint firstItem="Bmr-hz-XUV" firstAttribute="centerX" secondItem="UO6-6U-EFA" secondAttribute="centerX" id="CFf-hY-t6K"/>
-                        <constraint firstItem="Bmr-hz-XUV" firstAttribute="centerX" secondItem="uUs-dU-yRf" secondAttribute="centerX" id="Dzs-vA-r3q"/>
                         <constraint firstItem="97f-Nf-LXy" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" multiplier="0.4" id="H6K-Px-nYv"/>
-                        <constraint firstItem="UO6-6U-EFA" firstAttribute="top" secondItem="Bmr-hz-XUV" secondAttribute="bottom" constant="35" id="TS1-eo-w6R"/>
+                        <constraint firstItem="UO6-6U-EFA" firstAttribute="centerX" secondItem="uUs-dU-yRf" secondAttribute="centerX" id="Qki-1Q-KrX"/>
                         <constraint firstAttribute="bottom" secondItem="97f-Nf-LXy" secondAttribute="bottom" constant="10" id="UWD-UA-Cs6"/>
-                        <constraint firstItem="qe8-kV-HJ2" firstAttribute="centerX" secondItem="uUs-dU-yRf" secondAttribute="centerX" id="YWU-4X-O3y"/>
-                        <constraint firstItem="Bmr-hz-XUV" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" id="bhf-aC-BPn"/>
-                        <constraint firstItem="qe8-kV-HJ2" firstAttribute="top" secondItem="uUs-dU-yRf" secondAttribute="top" constant="10" id="dCF-8T-0UG"/>
+                        <constraint firstItem="UO6-6U-EFA" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" constant="0.90000000000000002" id="ZiQ-lG-tA8"/>
+                        <constraint firstItem="qe8-kV-HJ2" firstAttribute="leading" secondItem="uUs-dU-yRf" secondAttribute="leading" id="c1i-6W-chz"/>
+                        <constraint firstItem="qe8-kV-HJ2" firstAttribute="top" secondItem="uUs-dU-yRf" secondAttribute="top" id="dCF-8T-0UG"/>
                         <constraint firstItem="qe8-kV-HJ2" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" id="eq4-xJ-q89"/>
-                        <constraint firstItem="UO6-6U-EFA" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" id="fPA-gO-yR4"/>
-                        <constraint firstItem="UO6-6U-EFA" firstAttribute="top" secondItem="Bmr-hz-XUV" secondAttribute="bottom" constant="35" id="gUk-iQ-Qf2"/>
-                        <constraint firstItem="Bmr-hz-XUV" firstAttribute="top" secondItem="qe8-kV-HJ2" secondAttribute="bottom" constant="10" id="kzY-dl-s0J"/>
                         <constraint firstAttribute="bottom" secondItem="ayK-hv-8dl" secondAttribute="bottom" constant="10" id="ndS-qr-bRO"/>
-                        <constraint firstItem="UO6-6U-EFA" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" id="xq8-wF-AVq"/>
+                        <constraint firstItem="UO6-6U-EFA" firstAttribute="top" secondItem="qe8-kV-HJ2" secondAttribute="bottom" constant="30" id="zYr-lA-oa6"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -109,6 +95,7 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="1bu-Hq-uxs"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="583-B5-kXo"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="AtU-s0-zcq"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.4" id="Cmv-Tv-oSY"/>
@@ -116,6 +103,7 @@
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="LVp-1g-kii"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="eun-cw-SoQ"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="ouC-9c-RML"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="z9u-OP-1qV"/>
             </constraints>
             <point key="canvasLocation" x="138.40000000000001" y="154.27286356821591"/>
         </view>
