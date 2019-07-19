@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 #import "BlueShiftInAppType.h"
 #import "InAppNotificationEntity.h"
+#import "BlueShiftNotificationLabel.h"
+#import "BlueshiftNotificationButton.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,13 +64,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readwrite) BOOL showCloseButton;
 
-/* configure In-App Entity */
 - (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
 
+@property (nonatomic, assign, readwrite) long *expiresAt;
+@property (nonatomic, copy, readwrite) NSString *trigger;
+@property (nonatomic, readwrite) BlueShiftNotificationLabel *contentStyle;
+@property (nonatomic, readwrite) BlueShiftNotificationLabel *content;
+@property (nonatomic, readwrite) BlueshiftNotificationButton *dismiss;
+@property (nonatomic, readwrite) BlueshiftNotificationButton *appOpen;
+@property (nonatomic, readwrite) BlueshiftNotificationButton *share;
+
 @end
-
-
-
-
 
 NS_ASSUME_NONNULL_END
