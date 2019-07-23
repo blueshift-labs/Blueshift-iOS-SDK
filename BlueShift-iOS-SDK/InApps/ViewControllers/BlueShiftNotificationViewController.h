@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (CGRect)positionNotificationView:(UIView *) notificationView;
 - (void)configureBackground;
 - (UIColor *)colorWithHexString:(NSString *)str;
+- (UIView *) loadNotificationView;
+- (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL;
 
 @end
 

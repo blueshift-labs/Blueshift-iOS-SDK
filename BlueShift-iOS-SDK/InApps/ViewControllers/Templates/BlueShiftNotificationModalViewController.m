@@ -8,7 +8,7 @@
 #import "BlueShiftNotificationModalViewController.h"
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
-#import "../BlueshiftUIColor.h"
+#import "../../Models/BlueShiftInAppNotificationHelper.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -18,6 +18,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;
 @property (strong, nonatomic) IBOutlet UIButton *okButton;
+@property (strong, nonatomic) IBOutlet UIImageView *titleBackgroundView;
 
 - (IBAction)onCancelButtonTapped:(id)sender;
 - (IBAction)onOkayButtonTapped:(id)sender;
@@ -30,8 +31,9 @@
 
 - (void)loadView {
     [super loadView];
-    notificationView= [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
+    notificationView = [self loadNotificationView];
     [self.view insertSubview:notificationView aboveSubview:self.view];
+    //self.view.frame = CGRectMake(0, 0, 300, 3000);
 }
 
 - (void)viewDidLoad {
@@ -54,6 +56,21 @@
             if (self.notification.appOpen) {
                 [self setButton:[self okButton] andString:self.notification.appOpen.title
                     textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
+            }
+            
+            if (self.notification.contentStyle
+                && self.notification.contentStyle.titleBackground != (id)[NSNull null] && self.notification.contentStyle.titleBackground.length > 0) {
+                [self loadImageFromURL:[self titleBackgroundView] andImageURL:self.notification.contentStyle.titleBackground];
+            }
+            
+            if (self.notification.contentStyle.titleSize != (id)[NSNull null] && self.notification.contentStyle.titleSize > 0) {
+                    CGFloat titleFontSize = [self.notification.contentStyle.titleSize doubleValue];
+                    [[self titleLabel] setFont:[UIFont fontWithName:@"System-Heavy" size:titleFontSize]];
+            }
+            
+            if (self.notification.contentStyle.messageSize != (id)[NSNull null] && self.notification.contentStyle.messageSize > 0) {
+                    CGFloat messageFontSize = [self.notification.contentStyle.messageSize doubleValue];
+                    [[self descriptionLabel] setFont:[UIFont fontWithName:@"System" size:messageFontSize]];
             }
         }
     }
@@ -128,12 +145,17 @@
 
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value
           labelColor:(NSString *)labelColorCode
-     backgroundColor:(NSString *)backgroundColorCode{
-    if (value != (id)[NSNull null] || value.length > 0 ) {
+     backgroundColor:(NSString *)backgroundColorCode {
+    if (value != (id)[NSNull null] && value.length > 0 ) {
         label.hidden = NO;
         label.text = value;
-        label.textColor = [self colorWithHexString:labelColorCode];
-        label.backgroundColor = [self colorWithHexString:backgroundColorCode];
+        
+        if (labelColorCode != (id)[NSNull null] && labelColorCode.length > 0) {
+            label.textColor = [self colorWithHexString:labelColorCode];
+        }
+        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
+            label.backgroundColor = [self colorWithHexString:backgroundColorCode];
+        }
     }else {
         label.hidden = YES;
     }
@@ -142,10 +164,15 @@
 - (void)setButton:(UIButton *)button andString:(NSString *)value
         textColor:(NSString *)textColorCode
         backgroundColor:(NSString *)backgroundColorCode {
-     if (value != (id)[NSNull null] || value.length > 0 ) {
+     if (value != (id)[NSNull null] && value.length > 0 ) {
          [button setTitle : value forState:UIControlStateNormal];
-         [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
-         [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+         
+         if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
+             [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
+         }
+         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
+              [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+         }
      }
 }
 

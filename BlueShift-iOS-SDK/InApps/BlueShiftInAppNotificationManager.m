@@ -116,6 +116,9 @@
         case BlueShiftInAppTypeModal:
             notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
             break;
+        case BlueShiftInAppModalWithImage:
+            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+            break;
         default:
             errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
             break;
