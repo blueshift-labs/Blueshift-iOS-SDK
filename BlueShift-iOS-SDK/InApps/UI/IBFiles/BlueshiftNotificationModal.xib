@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BlueShiftPromoNotificationViewController">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BlueShiftNotificationModalViewController">
             <connections>
                 <outlet property="CancelButton" destination="ayK-hv-8dl" id="WJL-bT-9sn"/>
                 <outlet property="DescriptionLabel" destination="UO6-6U-EFA" id="Atf-dh-2Ah"/>
@@ -23,10 +23,10 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uUs-dU-yRf" customClass="BlueShiftNotificationView">
-                    <rect key="frame" x="37.5" y="200" width="300" height="267"/>
+                    <rect key="frame" x="37.5" y="183.5" width="300" height="300"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="97f-Nf-LXy">
-                            <rect key="frame" x="170" y="228" width="120" height="29"/>
+                            <rect key="frame" x="170" y="261" width="120" height="29"/>
                             <color key="backgroundColor" red="0.2190229081" green="0.6192428525" blue="0.95881233809999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                             <state key="normal" title="OK"/>
@@ -40,7 +40,7 @@
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ayK-hv-8dl">
-                            <rect key="frame" x="10" y="228" width="120" height="29"/>
+                            <rect key="frame" x="10" y="261" width="120" height="29"/>
                             <color key="backgroundColor" red="0.2190229081" green="0.6192428525" blue="0.95881233809999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                             <state key="normal" title="Cancel"/>
@@ -61,7 +61,7 @@
                             <color key="shadowColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UO6-6U-EFA">
-                            <rect key="frame" x="-0.5" y="52.5" width="301" height="17"/>
+                            <rect key="frame" x="-0.5" y="141.5" width="301" height="17"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
@@ -75,6 +75,7 @@
                     <constraints>
                         <constraint firstItem="ayK-hv-8dl" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" multiplier="0.4" id="04r-N1-8qz"/>
                         <constraint firstItem="ayK-hv-8dl" firstAttribute="leading" secondItem="uUs-dU-yRf" secondAttribute="leading" constant="10" id="8mT-Lf-Obd"/>
+                        <constraint firstItem="UO6-6U-EFA" firstAttribute="centerY" secondItem="uUs-dU-yRf" secondAttribute="centerY" id="9oy-l9-Aia"/>
                         <constraint firstAttribute="trailing" secondItem="97f-Nf-LXy" secondAttribute="trailing" constant="10" id="A9q-IS-qje"/>
                         <constraint firstItem="97f-Nf-LXy" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" multiplier="0.4" id="H6K-Px-nYv"/>
                         <constraint firstItem="UO6-6U-EFA" firstAttribute="centerX" secondItem="uUs-dU-yRf" secondAttribute="centerX" id="Qki-1Q-KrX"/>
@@ -84,7 +85,7 @@
                         <constraint firstItem="qe8-kV-HJ2" firstAttribute="top" secondItem="uUs-dU-yRf" secondAttribute="top" id="dCF-8T-0UG"/>
                         <constraint firstItem="qe8-kV-HJ2" firstAttribute="width" secondItem="uUs-dU-yRf" secondAttribute="width" id="eq4-xJ-q89"/>
                         <constraint firstAttribute="bottom" secondItem="ayK-hv-8dl" secondAttribute="bottom" constant="10" id="ndS-qr-bRO"/>
-                        <constraint firstItem="UO6-6U-EFA" firstAttribute="top" secondItem="qe8-kV-HJ2" secondAttribute="bottom" constant="30" id="zYr-lA-oa6"/>
+                        <constraint firstItem="UO6-6U-EFA" firstAttribute="centerX" secondItem="uUs-dU-yRf" secondAttribute="centerX" id="sZU-mp-NB1"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -98,10 +99,12 @@
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="1bu-Hq-uxs"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="583-B5-kXo"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="AtU-s0-zcq"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.4" id="Cmv-Tv-oSY"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.45" id="Cmv-Tv-oSY"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.8" id="Hfi-hi-gdO"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="LVp-1g-kii"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="Q6l-Tf-Czb"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="eun-cw-SoQ"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="hfe-5Q-77x"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="ouC-9c-RML"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="z9u-OP-1qV"/>
             </constraints>

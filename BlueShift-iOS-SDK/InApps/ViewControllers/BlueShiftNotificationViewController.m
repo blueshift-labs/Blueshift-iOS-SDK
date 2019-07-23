@@ -109,5 +109,33 @@
     return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
 }
 
+- (UIView *)loadNotificationView{
+    switch (self.notification.inAppType) {
+        case BlueShiftInAppTypeModal:
+            return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
+        case BlueShiftInAppModalWithImage:
+            return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModalWithImage" owner:self options:nil] objectAtIndex:0];
+            break;
+        default:
+            return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
+            break;
+    }
+}
+
+- (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL{
+    NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
+    UIImage *image = [[UIImage alloc] initWithData:imageData];
+    
+    // resize image
+    CGSize newSize = CGSizeMake(40, 40);
+    UIGraphicsBeginImageContext( newSize );// a CGSize that has the size you want
+    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    
+    //image is the original UIImage
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    imageView.image = newImage;
+}
 
 @end
