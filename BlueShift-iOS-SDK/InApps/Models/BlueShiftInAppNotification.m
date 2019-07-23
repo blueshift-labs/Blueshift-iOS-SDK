@@ -9,8 +9,6 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftNotificationLabel.h"
 
-
-
 @implementation BlueShiftInAppNotificationContent
 
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {

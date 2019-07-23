@@ -15,14 +15,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite) NSString *title;
 @property (nonatomic, copy, readwrite) NSString *titleColor;
 @property (nonatomic, copy, readwrite) NSString *titleBackgroundColor;
-@property (assign, readwrite) NSInteger *titleSize;
+@property (assign, readwrite) NSNumber *titleSize;
 @property (nonatomic, copy, readwrite) NSString *message;
 @property (nonatomic, copy, readwrite) NSString *messageColor;
 @property (nonatomic, copy, readwrite) NSString *messageBackgroundColor;
-@property (assign, readwrite) NSInteger *messageSize;
+@property (assign, readwrite) NSNumber *messageSize;
 @property (nonatomic, copy, readwrite) NSString *messageAlign;
 @property (nonatomic, copy, readwrite) NSString *backgroundImage;
 @property (nonatomic, copy, readwrite) NSString *backgroundColor;
+@property (nonatomic, assign, readwrite) NSNumber *width;
+@property (nonatomic, assign, readwrite) NSNumber *height;
+@property (nonatomic, copy, readwrite) NSString *titleBackground;
 
 - (instancetype)initFromDictionary: (NSDictionary *)dictionary;
 

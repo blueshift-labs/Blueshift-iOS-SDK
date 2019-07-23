@@ -37,6 +37,15 @@
     if ([dictionary objectForKey:@"background_color"]) {
         self.backgroundColor = [dictionary objectForKey:@"background_color"];
     }
+    if ([dictionary objectForKey:@"title_size"]) {
+        self.titleSize = [dictionary objectForKey:@"title_size"];
+    }
+    if ([dictionary objectForKey:@"message_size"]) {
+        self.messageSize = [dictionary objectForKey:@"message_size"];
+    }
+    if ([dictionary objectForKey:@"title_background"]) {
+        self.titleBackground = [dictionary objectForKey:@"title_background"];
+    }
     
     return self;
 }

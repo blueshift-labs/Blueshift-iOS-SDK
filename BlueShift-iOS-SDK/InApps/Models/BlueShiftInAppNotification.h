@@ -68,6 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, readwrite) long *expiresAt;
 @property (nonatomic, copy, readwrite) NSString *trigger;
+@property (nonatomic, readwrite) BlueShiftNotificationLabel *templateStyle;
 @property (nonatomic, readwrite) BlueShiftNotificationLabel *contentStyle;
 @property (nonatomic, readwrite) BlueShiftNotificationLabel *content;
 @property (nonatomic, readwrite) BlueshiftNotificationButton *dismiss;
