@@ -8,17 +8,59 @@
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
 
+
+
+@implementation BlueShiftInAppNotificationContent
+
+- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
+    if (self = [super init]) {
+        
+        @try {
+            
+            NSDictionary *contentDictionary = [payloadDictionary objectForKey:@"content"];
+            
+            switch (inAppType) {
+                case BlueShiftInAppTypeHTML:
+                    self.content = (NSString*)[contentDictionary objectForKey:@"html"];
+                    self.url = (NSString*)[contentDictionary objectForKey:@"url"];
+                    break;
+                    
+                case BlueShiftInAppTypeModal:
+                    self.title = (NSString*)[contentDictionary objectForKey:@"title"];
+                    self.subTitle = (NSString*)[contentDictionary objectForKey:@"subTitle"];
+                    self.backgroundImage = (NSString*)[contentDictionary objectForKey:@"background_image"];
+                    self.backgroundColor = (NSString*)[contentDictionary objectForKey:@"background_color"];
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+        } @catch (NSException *e) {
+            
+        }
+    }
+    return self;
+}
+@end
+
+
+
 @implementation BlueShiftInAppNotification
 
-
-- (instancetype)initFromDictionary:(NSDictionary *)dictionary {
+- (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity {
+    
     if (self = [super init]) {
         @try {
-            self.inAppType = BlueShiftInAppDefault;
+            self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: appEntity.type];
+            
+            NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
+            self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+            
             self.showCloseButton = YES;
-            self.shadowBackground = NO;
             self.position = @"center";
             self.dimensionType = @"percentage";
+            
             self.width = 90;
             self.height = 50;
         } @catch (NSException *e) {
@@ -27,28 +69,4 @@
     }
     return self;
 }
-
-- (void)configureFromDictionary: (NSDictionary *)dictionary {
-    self.inAppType =  [BlueShiftInAppNotificationHelper inAppTypeFromString:[dictionary objectForKey:@"type"]];
-    self.html = [dictionary objectForKey:@"html"];
-    if([dictionary objectForKey:@"width"]) {
-        self.width = [[dictionary objectForKey:@"width"] floatValue];
-    }
-    if([dictionary objectForKey:@"height"]) {
-        self.height = [[dictionary objectForKey:@"height"] floatValue];
-    }
-    if([dictionary objectForKey:@"position"]) {
-        self.position = [dictionary objectForKey:@"position"];
-    }
-    if([dictionary objectForKey:@"dimension_type"]) {
-        self.dimensionType = [dictionary objectForKey:@"dimension_type"];
-    }
-    if([dictionary objectForKey:@"shadow_backround"]) {
-        self.shadowBackground = [dictionary objectForKey:@"shadow_backround"];
-    }
-    if([dictionary objectForKey:@"show_close_button"]) {
-        self.showCloseButton = [dictionary objectForKey:@"show_close_button"];
-    }
-}
-
 @end

@@ -26,4 +26,19 @@
 #define kNotificationCarouselPreviousIdentifier                         @"previous"
 #define kNotificationCarouselGotoappIdentifier                          @"go_to_app"
 
+
+
+
+#define kSilentNotificationPayloadIdentifierKey                            @"data"
+#define kSilentNotificationPayloadTypeKey                                  @"type"
+
+#define kSilentNotificationTriggerKey                                      @"trigger"
+#define kSilentNotificationTriggerStartTimeKey                             @"at"
+#define kSilentNotificationTriggerModeKey                                  @"on_event"
+
+
+#define kSilentNotificationTriggerEndTimeKey                               @"expires_at"
+
+
+
 #endif
