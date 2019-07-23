@@ -289,9 +289,11 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+    
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     self.userInfo = userInfo;
+    
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     [self trackAppOpenWithParameters:pushTrackParameterDictionary];
     // Way to handle push notification in three states
@@ -309,7 +311,21 @@
             UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
             [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
         } else {
-            [self scheduleLocalNotification:userInfo];
+            
+            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
+            NSNumber *num = [NSNumber numberWithInt:1];
+            BOOL isSilentPush = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+            
+            if (isSilentPush == TRUE) {
+                NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+                printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
+
+                [[BlueShift sharedInstance] createInAppNotification: dataPayload];
+
+            } else {
+                [self scheduleLocalNotification:userInfo];
+            }
+            
         }
     } else {
         
