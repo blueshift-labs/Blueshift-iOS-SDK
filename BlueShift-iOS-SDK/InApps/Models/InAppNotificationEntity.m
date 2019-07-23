@@ -122,14 +122,21 @@
             return;
         }
         [self map:dictionary];
+        
         @try {
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSError *error = nil;
+                    printf("%f InAppNotify:: saving child context ++\n", [[NSDate date] timeIntervalSince1970]);
+                    [context save:&error];
+                    
+                    printf("%f InAppNotify:: saving child context --\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                        printf("%f InAppNotify:: masterContext perform block --\n", [[NSDate date] timeIntervalSince1970]);
                         [masterContext performBlock:^{
                             NSError *error = nil;
+                            printf("%f InAppNotify:: saving parent context \n", [[NSDate date] timeIntervalSince1970]);
                             [masterContext save:&error];
                             handler(YES);
                         }];
@@ -159,19 +166,35 @@
 }
 
 - (void)map:(NSDictionary *)dictionary {
-    //self.id = [dictionary objectForKey:@"id"];
-    // Temporary
+    
     self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
+    
     NSMutableDictionary *payload = [dictionary mutableCopy];
     [payload setValue:self.id forKey:@"id"];
-    self.type = [dictionary objectForKey:@"type"];
-    self.startTime = [NSNumber numberWithDouble: [[dictionary objectForKey:@"start_time"] doubleValue]];
-    self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey:@"end_time"] doubleValue]];
-    self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+    
+    
+    /* parse the payload and save the relevant keys related to presentation of In-App msg */
+    
+    /* get in-app payload */
+    dictionary = [dictionary objectForKey: @"inapp"];
+    
+    /* get type of In-App msg */
+    self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
+    
+    
+    /* get start and end Time */
+    self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
+    
+    NSDictionary *triggerDictionaryNode = [dictionary objectForKey: kSilentNotificationTriggerKey];
+    self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
+    self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
+    
+    /* Other properties */
     self.priority = @"MEDIUM";
-    self.triggerMode = @"NOW";
     self.eventName = @"";
     self.status = @"READY";
+    
+    self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }
 
 @end
