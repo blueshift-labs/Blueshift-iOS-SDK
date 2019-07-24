@@ -59,7 +59,7 @@
 
 + (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", @"NOW", @"READY"];
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", @"now", @"ready"];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
@@ -190,9 +190,9 @@
     self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
     
     /* Other properties */
-    self.priority = @"MEDIUM";
+    self.priority = @"medium";
     self.eventName = @"";
-    self.status = @"READY";
+    self.status = @"ready";
     
     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }
