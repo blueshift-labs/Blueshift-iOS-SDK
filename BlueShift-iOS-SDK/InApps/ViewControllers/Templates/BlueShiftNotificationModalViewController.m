@@ -44,33 +44,33 @@
 
 - (void)loadNotification {
     if (self.notification) {
-        if (self.notification.content && self.notification.contentStyle) {
-            [self setLabelText:[self titleLabel] andString:self.notification.content.title labelColor:self.notification.contentStyle.titleColor backgroundColor:self.notification.contentStyle.titleBackgroundColor];
+        if (self.notification.notificationContent && self.notification.contentStyle) {
+            [self setLabelText:[self titleLabel] andString:self.notification.notificationContent.title labelColor:self.notification.contentStyle.titleColor backgroundColor:self.notification.contentStyle.titleBackgroundColor];
             
-            [self setLabelText:[self descriptionLabel] andString:self.notification.content.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
+            [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
             
             if (self.notification.dismiss) {
-                [self setButton:[self cancelButton] andString:self.notification.dismiss.title
+                [self setButton:[self cancelButton] andString:self.notification.dismiss.text
                     textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
             }
             if (self.notification.appOpen) {
-                [self setButton:[self okButton] andString:self.notification.appOpen.title
+                [self setButton:[self okButton] andString:self.notification.appOpen.text
                     textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
             }
             
             if (self.notification.contentStyle
-                && self.notification.contentStyle.titleBackground != (id)[NSNull null] && self.notification.contentStyle.titleBackground.length > 0) {
-                [self loadImageFromURL:[self titleBackgroundView] andImageURL:self.notification.contentStyle.titleBackground];
+                && self.notification.contentStyle.titleBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.titleBackgroundColor.length > 0) {
+                [self loadImageFromURL:[self titleBackgroundView] andImageURL:self.notification.contentStyle.titleBackgroundColor];
             }
             
             if (self.notification.contentStyle.titleSize != (id)[NSNull null] && self.notification.contentStyle.titleSize > 0) {
-                    CGFloat titleFontSize = [self.notification.contentStyle.titleSize doubleValue];
-                    [[self titleLabel] setFont:[UIFont fontWithName:@"System-Heavy" size:titleFontSize]];
+                    //CGFloat titleFontSize = [self.notification.contentStyle.titleSize doubleValue];
+                    //[[self titleLabel] setFont:[UIFont fontWithName:@"System-Heavy" size:titleFontSize]];
             }
             
             if (self.notification.contentStyle.messageSize != (id)[NSNull null] && self.notification.contentStyle.messageSize > 0) {
-                    CGFloat messageFontSize = [self.notification.contentStyle.messageSize doubleValue];
-                    [[self descriptionLabel] setFont:[UIFont fontWithName:@"System" size:messageFontSize]];
+                    //CGFloat messageFontSize = [self.notification.contentStyle.messageSize doubleValue];
+                    //[[self descriptionLabel] setFont:[UIFont fontWithName:@"System" size:messageFontSize]];
             }
         }
     }
