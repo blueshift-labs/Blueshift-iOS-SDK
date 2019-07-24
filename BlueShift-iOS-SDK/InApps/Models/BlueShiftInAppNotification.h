@@ -8,8 +8,6 @@
 #import <Foundation/Foundation.h>
 #import "BlueShiftInAppType.h"
 #import "InAppNotificationEntity.h"
-#import "BlueShiftNotificationLabel.h"
-#import "BlueshiftNotificationButton.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,12 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *descriptionText;
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundImage;
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *message;
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
 @end
-
-
 
 
 
@@ -42,10 +39,34 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
+/* notification contentStyle */
+@interface BlueShiftInAppNotificationContentStyle : NSObject
 
+@property (nonatomic, copy, readwrite, nullable) NSString *titleColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *titleBackgroundColor;
+@property (assign, readwrite) NSNumber *titleSize;
+@property (nonatomic, copy, readwrite, nullable) NSString *messageColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *messageBackgroundColor;
+@property (assign, readwrite) NSNumber *messageSize;
+@property (nonatomic, copy, readwrite, nullable) NSString *messageAlign;
+@property (nonatomic, copy, readwrite, nullable) NSString *titleGravity;
+@property (nonatomic, copy, readwrite, nullable) NSString *messageGravity;
 
+@end
 
+/* Notification button details */
+@interface BlueShiftInAppNotificationButton : NSObject
 
+@property (nonatomic, copy, readwrite, nullable) NSString *text;
+@property (nonatomic, copy, readwrite, nullable) NSString *textColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *page;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *extra;
+@property (nonatomic, copy, readwrite, nullable) NSString *productID;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *content;
+@property (nonatomic, copy, readwrite, nullable) NSString *image;
+
+@end
 
 @interface BlueShiftInAppNotification : NSObject
 
@@ -63,17 +84,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite) float width;
 
 @property (nonatomic, readwrite) BOOL showCloseButton;
-
-- (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
-
 @property (nonatomic, assign, readwrite) long *expiresAt;
 @property (nonatomic, copy, readwrite) NSString *trigger;
-@property (nonatomic, readwrite) BlueShiftNotificationLabel *templateStyle;
-@property (nonatomic, readwrite) BlueShiftNotificationLabel *contentStyle;
-@property (nonatomic, readwrite) BlueShiftNotificationLabel *content;
-@property (nonatomic, readwrite) BlueshiftNotificationButton *dismiss;
-@property (nonatomic, readwrite) BlueshiftNotificationButton *appOpen;
-@property (nonatomic, readwrite) BlueshiftNotificationButton *share;
+//@property (nonatomic, readwrite) BlueShiftNotificationLabel *templateStyle;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *dismiss;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *appOpen;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *share;
+
+- (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
 
 @end
 
