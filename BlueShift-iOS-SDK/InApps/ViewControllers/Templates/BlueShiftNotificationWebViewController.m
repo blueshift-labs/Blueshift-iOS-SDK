@@ -28,6 +28,7 @@
 @implementation BlueShiftNotificationWebViewController
 
 - (void)loadView {
+    printf("WebViewController:: Creating view");
     if (self.canTouchesPassThroughWindow) {
         [self loadNotificationView];
     } else {
@@ -41,6 +42,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    printf("WebViewController:: viewDidLoad");
     [self configureBackground];
     [self presentWebViewNotification];
 }
@@ -87,12 +90,14 @@
 }
 
 - (void)loadFromURL {
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.notification.url]]];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.notification.notificationContent.url]]];
     webView.navigationDelegate = nil;
 }
 
 - (void)loadFromHTML {
-    [webView loadHTMLString:self.notification.html baseURL:nil];
+    printf("%f WebViewController:: loadFromHTML ++ \n", [[NSDate date] timeIntervalSince1970]);
+    [webView loadHTMLString:self.notification.notificationContent.content baseURL:nil];
+    printf("%f WebViewController:: loadFromHTML --\n", [[NSDate date] timeIntervalSince1970]);
 }
 
 - (CGRect)positionWebView {
@@ -147,9 +152,11 @@
 }
 
 - (void)configureWebViewBackground {
+    /*
     if (self.notification.shadowBackground) {
         self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.75f];
-    }
+    }*/
+     
     self.view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
     UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin
     | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
@@ -167,9 +174,11 @@
 }
 
 - (void)loadWebView {
-    if (self.notification.url) {
+    
+    if (self.notification.notificationContent.url) {
         [self loadFromURL];
     } else{
+        printf("%f WebViewController:: loading html from data \n", [[NSDate date] timeIntervalSince1970]);
         [self loadFromHTML];
     }
     CGRect frame = [self positionWebView];
@@ -240,7 +249,7 @@
 #pragma mark - Public
 
 -(void)show:(BOOL)animated {
-    if (!self.notification.html) return;
+    if (!self.notification.notificationContent.content) return;
     [self showFromWindow:animated];
 }
 
