@@ -179,15 +179,24 @@
     dictionary = [dictionary objectForKey: @"inapp"];
     
     /* get type of In-App msg */
-    self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
-    
+    if ([dictionary objectForKey:kSilentNotificationPayloadTypeKey]) {
+        self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
+    }
     
     /* get start and end Time */
-    self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
+    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey]) {
+         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
+    }
     
-    NSDictionary *triggerDictionaryNode = [dictionary objectForKey: kSilentNotificationTriggerKey];
-    self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
-    self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
+    if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
+        NSDictionary *triggerDictionaryNode = [dictionary objectForKey: kSilentNotificationTriggerKey];
+        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey]) {
+             self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
+        }
+        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey]) {
+            self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
+        }
+    }
     
     /* Other properties */
     self.priority = @"medium";
