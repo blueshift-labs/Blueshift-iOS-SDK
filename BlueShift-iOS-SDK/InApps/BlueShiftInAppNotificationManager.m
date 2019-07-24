@@ -41,13 +41,15 @@
                 NSLog(@"Caught exception %@", exception);
             }
             if(entity != nil) {
-
+                
                 NSManagedObjectContext *context = appDelegate.managedObjectContext;
-
+                
                 InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
                 if(inAppNotificationEntity != nil) {
+                    printf("%f NotificationMgr: Inserting the payload \n", [[NSDate date] timeIntervalSince1970]);
                     [inAppNotificationEntity insert:payload handler:^(BOOL status) {
                         if(status) {
+                            printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
                             [self fetchInAppNotificationsFromDB];
                         }
                     }];
@@ -62,8 +64,7 @@
         if(status) {
             for(int i = 0; i < [results count]; i++) {
                 InAppNotificationEntity *entity = [results objectAtIndex:i];
-                NSDictionary *payload = [NSKeyedUnarchiver unarchiveObjectWithData:entity.payload];
-                [self createNotificationFromDictionary:payload];
+                [self createNotificationFromDictionary: entity];
             }
         }
     }];
@@ -77,6 +78,7 @@
         [self presentInAppNotification:notificationController];
     }
 }
+
 
 // Present ViewController
 - (void)presentInAppNotification:(BlueShiftNotificationViewController*)notificationController {
@@ -94,7 +96,9 @@
 // Remove current notification and Schedule next
 - (void)inAppNotificationDidDismiss:(BlueShiftNotificationViewController*)notificationController {
     if (self.currentNotificationController && self.currentNotificationController == notificationController) {
+        
         self.currentNotificationController= nil;
+        
         [self scanNotificationQueue];
     }
 }
@@ -105,6 +109,7 @@
     
     switch (notification.inAppType) {
         case BlueShiftInAppTypeHTML:
+            printf("%f NotificationMgr:: Creating html notification View \n", [[NSDate date] timeIntervalSince1970]);
             notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
             break;
         default:
@@ -118,12 +123,12 @@
     }
     if (errorString) {
     }
-
+    
 }
 
-- (void)createNotificationFromDictionary:(NSDictionary *)dictionary {
-    BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromDictionary:dictionary];
-    [inAppNotification configureFromDictionary:dictionary];
+- (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
+    
+    BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
     
     [self createNotification:inAppNotification];
 }

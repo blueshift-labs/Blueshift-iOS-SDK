@@ -13,9 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, retain) NSString *id;
 @property (nonatomic, retain) NSString *type;
+
 @property (nonatomic, retain) NSNumber *startTime;
 @property (nonatomic, retain) NSNumber *endTime;
+
 @property (nonatomic, retain) NSData *payload;
+
 @property (nonatomic, retain) NSString *priority;
 @property (nonatomic, retain) NSString *triggerMode;
 @property (nonatomic, retain) NSString *eventName;
