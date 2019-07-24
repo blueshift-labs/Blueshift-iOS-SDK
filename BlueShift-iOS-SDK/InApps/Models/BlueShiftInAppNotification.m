@@ -17,7 +17,8 @@
         
         @try {
             
-            NSDictionary *contentDictionary = [payloadDictionary objectForKey:@"content"];
+            NSDictionary *inAppDictionary = [payloadDictionary objectForKey:@"inapp"];
+            NSDictionary *contentDictionary = [inAppDictionary objectForKey:@"content"];
             
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
