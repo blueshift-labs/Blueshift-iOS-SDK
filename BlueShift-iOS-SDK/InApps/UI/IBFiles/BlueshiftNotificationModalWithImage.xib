@@ -19,7 +19,7 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" restorationIdentifier="BlueshiftNotificationModalWithImage" id="iN0-l3-epB" customClass="BlueShiftNotificationModalViewControlller">
+        <view contentMode="scaleToFill" restorationIdentifier="BlueshiftNotificationModalWithImage" id="iN0-l3-epB" customClass="BlueShiftNotificationCloseButton">
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -78,7 +78,7 @@
                             </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="shb-2d-W8e">
-                            <rect key="frame" x="0.0" y="193" width="331" height="17"/>
+                            <rect key="frame" x="0.0" y="65" width="331" height="17"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
@@ -92,16 +92,15 @@
                         <constraint firstItem="wRr-DF-V8s" firstAttribute="height" secondItem="GeN-77-rc3" secondAttribute="height" id="7h4-Ht-7Km"/>
                         <constraint firstItem="wRr-DF-V8s" firstAttribute="centerX" secondItem="uI6-NH-00v" secondAttribute="centerX" id="BYN-sD-pAe"/>
                         <constraint firstItem="shb-2d-W8e" firstAttribute="width" secondItem="uI6-NH-00v" secondAttribute="width" id="CdY-1d-8ij"/>
-                        <constraint firstItem="shb-2d-W8e" firstAttribute="centerY" secondItem="uI6-NH-00v" secondAttribute="centerY" id="Di1-Ef-C3W"/>
                         <constraint firstItem="lks-cw-6ca" firstAttribute="width" secondItem="uI6-NH-00v" secondAttribute="width" multiplier="0.4" id="DkP-AU-J1I"/>
                         <constraint firstItem="wRr-DF-V8s" firstAttribute="width" secondItem="GeN-77-rc3" secondAttribute="width" id="Gc3-o2-sLm"/>
                         <constraint firstAttribute="trailing" secondItem="TWO-Gt-d2k" secondAttribute="trailing" constant="10" id="LUe-Dn-b59"/>
                         <constraint firstItem="wRr-DF-V8s" firstAttribute="centerX" secondItem="uI6-NH-00v" secondAttribute="centerX" id="Tbx-t0-9aQ"/>
                         <constraint firstItem="lks-cw-6ca" firstAttribute="leading" secondItem="uI6-NH-00v" secondAttribute="leading" constant="10" id="YJ9-eG-P3v"/>
-                        <constraint firstItem="shb-2d-W8e" firstAttribute="centerX" secondItem="uI6-NH-00v" secondAttribute="centerX" id="dQ4-Yl-aU9"/>
                         <constraint firstItem="TWO-Gt-d2k" firstAttribute="width" secondItem="uI6-NH-00v" secondAttribute="width" multiplier="0.4" id="guz-O7-NmX"/>
                         <constraint firstItem="GeN-77-rc3" firstAttribute="centerX" secondItem="uI6-NH-00v" secondAttribute="centerX" id="lLG-l5-7u5"/>
                         <constraint firstItem="wRr-DF-V8s" firstAttribute="centerY" secondItem="GeN-77-rc3" secondAttribute="centerY" id="nKK-0d-ikT"/>
+                        <constraint firstItem="shb-2d-W8e" firstAttribute="top" secondItem="wRr-DF-V8s" secondAttribute="bottom" constant="15" id="oEz-Ch-saJ"/>
                         <constraint firstAttribute="bottom" secondItem="lks-cw-6ca" secondAttribute="bottom" constant="10" id="wcX-K2-rI1"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>

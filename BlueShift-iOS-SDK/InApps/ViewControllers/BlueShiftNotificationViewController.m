@@ -116,6 +116,8 @@
         case BlueShiftInAppModalWithImage:
             return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModalWithImage" owner:self options:nil] objectAtIndex:0];
             break;
+        case BlueShiftNotificationSlideBanner:
+            return [[[NSBundle mainBundle] loadNibNamed:@"BlueShiftNotificationSlideBanner" owner:self options:nil] objectAtIndex:0];
         default:
             return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
             break;
