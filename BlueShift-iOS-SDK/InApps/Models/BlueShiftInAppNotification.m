@@ -99,6 +99,12 @@
                     if ([contenStyletDictionary objectForKey:@"message_size"]) {
                         self.messageSize = (NSNumber *)[contenStyletDictionary objectForKey:@"message_size"];
                     }
+                    if ([contenStyletDictionary objectForKey:@"background_color"]) {
+                        self.backgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"background_color"];
+                    }
+                    if ([contenStyletDictionary objectForKey:@"position"]) {
+                        self.position = (NSString *)[contenStyletDictionary objectForKey:@"position"];
+                    }
                     
                     break;
                     
@@ -178,7 +184,8 @@
                 
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
-            
+                self.templateStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
+                
                 if ([payloadDictionary valueForKeyPath:@"action.dismiss"]) {
                     self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:@"action.dismiss"] withType: self.inAppType];
                 }
