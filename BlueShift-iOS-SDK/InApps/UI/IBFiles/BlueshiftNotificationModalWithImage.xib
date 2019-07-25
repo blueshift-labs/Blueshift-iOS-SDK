@@ -13,6 +13,7 @@
             <connections>
                 <outlet property="cancelButton" destination="lks-cw-6ca" id="kNw-Zy-y5v"/>
                 <outlet property="descriptionLabel" destination="shb-2d-W8e" id="VuB-4I-1jE"/>
+                <outlet property="notificationModalView" destination="uI6-NH-00v" id="dkF-El-a7h"/>
                 <outlet property="okButton" destination="TWO-Gt-d2k" id="5g2-Ra-EaJ"/>
                 <outlet property="titleBackgroundView" destination="wRr-DF-V8s" id="T3m-By-ggf"/>
                 <outlet property="titleLabel" destination="GeN-77-rc3" id="hcc-fF-ZgC"/>

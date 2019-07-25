@@ -14,6 +14,7 @@
     UIView *notificationView;
 }
 
+@property (strong, nonatomic) IBOutlet BlueShiftNotificationView *notificationModalView;
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;

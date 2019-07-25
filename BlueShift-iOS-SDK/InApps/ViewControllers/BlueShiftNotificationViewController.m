@@ -70,7 +70,7 @@
     notificationView.autoresizingMask = UIViewAutoresizingNone;
     
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    NSString* position = self.notification.position;
+    NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     if([position  isEqual: INAPP_POSITION_TOP]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
