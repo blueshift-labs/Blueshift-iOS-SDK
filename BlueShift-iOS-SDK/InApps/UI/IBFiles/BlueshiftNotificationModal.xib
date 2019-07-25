@@ -15,6 +15,7 @@
                 <outlet property="DescriptionLabel" destination="UO6-6U-EFA" id="Atf-dh-2Ah"/>
                 <outlet property="OkButton" destination="97f-Nf-LXy" id="EJE-ce-cOi"/>
                 <outlet property="TitleLabel" destination="qe8-kV-HJ2" id="2Ht-Wp-SmJ"/>
+                <outlet property="notificationModalView" destination="uUs-dU-yRf" id="gtR-TQ-GX8"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
