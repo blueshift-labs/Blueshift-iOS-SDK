@@ -33,6 +33,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)hide:(BOOL)animated;
 
 - (void)closeButtonDidTapped;
+- (void)createWindow;
+- (CGRect)positionNotificationView:(UIView *) notificationView;
+- (void)configureBackground;
+- (UIColor *)colorWithHexString:(NSString *)str;
+- (UIView *) loadNotificationView;
+- (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL;
 
 @end
 

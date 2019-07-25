@@ -7,6 +7,7 @@
 
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
+#import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
 
@@ -112,6 +113,13 @@
             printf("%f NotificationMgr:: Creating html notification View \n", [[NSDate date] timeIntervalSince1970]);
             notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
             break;
+        case BlueShiftInAppTypeModal:
+            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+            break;
+        case BlueShiftInAppModalWithImage:
+            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+            break;
+            
         default:
             errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
             break;
