@@ -182,13 +182,13 @@
 - (void)presentInAppAlert:(NSDictionary *)userInfo {
     // Track notification view when app is open ...
     //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
-    
+
     // Handle push notification when the app is in active state...
     UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
     BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
     pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
     UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-    [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    //[topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
 }
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
@@ -309,7 +309,7 @@
                 [[BlueShift sharedInstance] createInAppNotification: dataPayload];
 
             } else {
-                [self scheduleLocalNotification:userInfo];
+               // [self scheduleLocalNotification:userInfo];
             }
             
         }
