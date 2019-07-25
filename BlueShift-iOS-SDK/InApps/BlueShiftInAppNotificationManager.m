@@ -8,7 +8,6 @@
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
 #import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
-#import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
 
@@ -119,9 +118,6 @@
             break;
         case BlueShiftInAppModalWithImage:
             notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftNotificationSlideBanner:
-            notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
             break;
             
         default:
