@@ -140,4 +140,22 @@
     imageView.image = newImage;
 }
 
+- (void)setLabelText:(UILabel *)label andString:(NSString *)value
+          labelColor:(NSString *)labelColorCode
+     backgroundColor:(NSString *)backgroundColorCode {
+    if (value != (id)[NSNull null] && value.length > 0 ) {
+        label.hidden = NO;
+        label.text = value;
+        
+        if (labelColorCode != (id)[NSNull null] && labelColorCode.length > 0) {
+            label.textColor = [self colorWithHexString:labelColorCode];
+        }
+        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
+            label.backgroundColor = [self colorWithHexString:backgroundColorCode];
+        }
+    }else {
+        label.hidden = YES;
+    }
+}
+
 @end
