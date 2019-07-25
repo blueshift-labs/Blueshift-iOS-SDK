@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueShiftInAppNotificationLayout : NSObject
 
 /* margin rect of the In-App UI */
+@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *position;
 @property (nonatomic, assign, readwrite, nullable) Rect *margin;
 
 @end
@@ -51,8 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *messageAlign;
 @property (nonatomic, copy, readwrite, nullable) NSString *titleGravity;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageGravity;
-@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
-@property (nonatomic, copy, readwrite, nullable) NSString *position;
 
 @end
 
@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) BOOL showCloseButton;
 @property (nonatomic, assign, readwrite) long *expiresAt;
 @property (nonatomic, copy, readwrite) NSString *trigger;
-@property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *templateStyle;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationLayout *templateStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationButton *dismiss;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationButton *appOpen;

@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIColor *)colorWithHexString:(NSString *)str;
 - (UIView *) loadNotificationView;
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL;
+- (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
 
 @end
 

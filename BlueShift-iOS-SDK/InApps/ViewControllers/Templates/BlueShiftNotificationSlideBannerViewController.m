@@ -6,12 +6,15 @@
 //
 
 #import "BlueShiftNotificationSlideBannerViewController.h"
+#import "../BlueShiftNotificationView.h"
+#import "../BlueShiftNotificationWindow.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
 }
 
-@property (strong, nonatomic) IBOutlet UIImageView *slideBannerImageView;
+@property (strong, nonatomic) IBOutlet BlueShiftNotificationView *slideBannerPopUpView;
+@property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 
 @end
@@ -28,11 +31,18 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureBackground];
+    [self loadNotification];
+}
+
+- (void)loadNotification{
+    if (self.notification) {
+        [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
+    }
     
     CGRect frame = [self positionNotificationView:slideBannerView];
     slideBannerView.frame = frame;
     if ([self.notification.dimensionType  isEqual: @"percentage"]) {
-       slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
+        slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
 }
