@@ -8,6 +8,8 @@
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
 
+
+
 @implementation BlueShiftInAppNotificationContent
 
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
@@ -28,6 +30,8 @@
                     break;
                     
                 case BlueShiftInAppTypeModal:
+                case BlueShiftInAppModalWithImage:
+                case BlueShiftNotificationSlideBanner:
                     if ([contentDictionary objectForKey:@"title"]) {
                         self.title = (NSString*)[contentDictionary objectForKey:@"title"];
                     }
@@ -59,6 +63,42 @@
 
 @end
 
+@implementation BlueShiftInAppNotificationLayout
+
+- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
+    if (self = [super init]) {
+        
+        @try {
+            
+            NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey:@"template_style"];
+            
+            switch (inAppType) {
+                case BlueShiftInAppTypeHTML:
+                case BlueShiftInAppTypeModal:
+                case BlueShiftInAppModalWithImage:
+                case BlueShiftNotificationSlideBanner:
+                    if ([templateStyleDictionary objectForKey:@"background_color"]) {
+                        self.backgroundColor = (NSString *)[templateStyleDictionary objectForKey:@"background_color"];
+                    }
+                    if ([templateStyleDictionary objectForKey:@"position"]) {
+                        self.position = (NSString *)[templateStyleDictionary objectForKey:@"position"];
+                    }
+                    
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+        } @catch (NSException *e) {
+            
+        }
+    }
+    return self;
+}
+
+@end
+
 @implementation BlueShiftInAppNotificationContentStyle
 
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
@@ -72,6 +112,7 @@
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
                 case BlueShiftInAppModalWithImage:
+                case BlueShiftNotificationSlideBanner:
                     if ([contenStyletDictionary objectForKey:@"title_color"]) {
                         self.titleColor = (NSString *)[contenStyletDictionary objectForKey:@"title_color"];
                     }
@@ -98,12 +139,6 @@
                     }
                     if ([contenStyletDictionary objectForKey:@"message_size"]) {
                         self.messageSize = (NSNumber *)[contenStyletDictionary objectForKey:@"message_size"];
-                    }
-                    if ([contenStyletDictionary objectForKey:@"background_color"]) {
-                        self.backgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"background_color"];
-                    }
-                    if ([contenStyletDictionary objectForKey:@"position"]) {
-                        self.position = (NSString *)[contenStyletDictionary objectForKey:@"position"];
                     }
                     
                     break;
@@ -132,6 +167,7 @@
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
                 case BlueShiftInAppModalWithImage:
+                case BlueShiftNotificationSlideBanner:
                     if ([payloadDictionary objectForKey:@"text"]) {
                         self.text = (NSString *)[payloadDictionary objectForKey:@"text"];
                     }
@@ -184,7 +220,7 @@
                 
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
-                self.templateStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
+                self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
                 
                 if ([payloadDictionary valueForKeyPath:@"action.dismiss"]) {
                     self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:@"action.dismiss"] withType: self.inAppType];
@@ -199,7 +235,7 @@
                 self.showCloseButton = YES;
                 self.position = @"center";
                 self.dimensionType = @"percentage";
-                self.width = 90;
+                self.width = 100;
                 self.height = 50;
                 
             }

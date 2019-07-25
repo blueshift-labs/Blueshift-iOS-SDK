@@ -144,37 +144,19 @@
     [self hideFromWindow:animated];
 }
 
-- (void)setLabelText:(UILabel *)label andString:(NSString *)value
-          labelColor:(NSString *)labelColorCode
-     backgroundColor:(NSString *)backgroundColorCode {
-    if (value != (id)[NSNull null] && value.length > 0 ) {
-        label.hidden = NO;
-        label.text = value;
-        
-        if (labelColorCode != (id)[NSNull null] && labelColorCode.length > 0) {
-            label.textColor = [self colorWithHexString:labelColorCode];
-        }
-        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
-            label.backgroundColor = [self colorWithHexString:backgroundColorCode];
-        }
-    }else {
-        label.hidden = YES;
-    }
-}
-
 - (void)setButton:(UIButton *)button andString:(NSString *)value
         textColor:(NSString *)textColorCode
-        backgroundColor:(NSString *)backgroundColorCode {
-     if (value != (id)[NSNull null] && value.length > 0 ) {
-         [button setTitle : value forState:UIControlStateNormal];
-         
-         if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
-             [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
-         }
-         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
-              [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-         }
-     }
+  backgroundColor:(NSString *)backgroundColorCode {
+    if (value != (id)[NSNull null] && value.length > 0 ) {
+        [button setTitle : value forState:UIControlStateNormal];
+        
+        if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
+            [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
+        }
+        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
+            [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+        }
+    }
 }
 
 @end
