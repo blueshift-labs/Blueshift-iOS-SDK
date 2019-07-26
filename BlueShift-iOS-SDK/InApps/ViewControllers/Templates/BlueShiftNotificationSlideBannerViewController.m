@@ -60,7 +60,7 @@
             }
     }
     
-    CGRect frame = [self positionNotificationView:slideBannerView];
+    CGRect frame = [self positionNotificationView: [self slideBannerPopupView]];
     slideBannerView.frame = frame;
     if ([self.notification.dimensionType  isEqual: @"percentage"]) 
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
