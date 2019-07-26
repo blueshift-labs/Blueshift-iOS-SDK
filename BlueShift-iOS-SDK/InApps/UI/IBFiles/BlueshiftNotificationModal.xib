@@ -23,10 +23,10 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uUs-dU-yRf">
-                    <rect key="frame" x="19" y="200" width="337.5" height="267"/>
+                    <rect key="frame" x="19" y="33.5" width="337.5" height="600"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="97f-Nf-LXy">
-                            <rect key="frame" x="192.5" y="228" width="135" height="29"/>
+                            <rect key="frame" x="192.5" y="561" width="135" height="29"/>
                             <color key="backgroundColor" red="0.2190229081" green="0.6192428525" blue="0.95881233809999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                             <state key="normal" title="OK"/>
@@ -40,7 +40,7 @@
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ayK-hv-8dl">
-                            <rect key="frame" x="10" y="228" width="135" height="29"/>
+                            <rect key="frame" x="10" y="561" width="135" height="29"/>
                             <color key="backgroundColor" red="0.2190229081" green="0.6192428525" blue="0.95881233809999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                             <state key="normal" title="Cancel"/>
@@ -98,18 +98,10 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="1bu-Hq-uxs"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="583-B5-kXo"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="AtU-s0-zcq"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.4" id="Cmv-Tv-oSY"/>
                 <constraint firstItem="uUs-dU-yRf" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.9" id="Hfi-hi-gdO"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="LVp-1g-kii"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="Q6l-Tf-Czb"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="RHh-O7-Koq"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="eun-cw-SoQ"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="hfe-5Q-77x"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="ouC-9c-RML"/>
-                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="z9u-OP-1qV"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="cK7-Sa-opC"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="kxY-BZ-cub"/>
+                <constraint firstItem="uUs-dU-yRf" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.9" id="uGe-5E-H1b"/>
             </constraints>
             <point key="canvasLocation" x="138.40000000000001" y="154.27286356821591"/>
         </view>

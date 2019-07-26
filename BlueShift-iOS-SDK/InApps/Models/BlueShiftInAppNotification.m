@@ -95,6 +95,9 @@
                     if ([templateStyleDictionary objectForKey:@"height"]) {
                         self.height = [[templateStyleDictionary objectForKey:@"height"] floatValue];
                     }
+                    if ([templateStyleDictionary objectForKey:@"fullscreen"]) {
+                        self.fullScreen = [templateStyleDictionary objectForKey:@"fullscreen"];
+                    }
                     
                     break;
                     
