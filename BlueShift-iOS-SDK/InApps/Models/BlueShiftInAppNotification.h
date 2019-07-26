@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundImage;
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *message;
+@property (nonatomic, copy, readwrite, nullable) NSString *icon;
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
@@ -46,13 +47,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy, readwrite, nullable) NSString *titleColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *titleBackgroundColor;
-@property (assign, readwrite) NSNumber *titleSize;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *titleSize;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageBackgroundColor;
-@property (assign, readwrite) NSNumber *messageSize;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *messageSize;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageAlign;
 @property (nonatomic, copy, readwrite, nullable) NSString *titleGravity;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageGravity;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *iconSize;
+@property (nonatomic, copy, readwrite, nullable) NSString *iconColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *iconBackgroundColor;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *iconBackgroundRadius;
 
 @end
 
