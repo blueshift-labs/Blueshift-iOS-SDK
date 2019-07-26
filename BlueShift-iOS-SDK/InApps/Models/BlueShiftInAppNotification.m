@@ -32,6 +32,7 @@
                 case BlueShiftInAppTypeModal:
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
+                case BlueShiftNotificationOneButton:
                     if ([contentDictionary objectForKey:@"title"]) {
                         self.title = (NSString*)[contentDictionary objectForKey:@"title"];
                     }
@@ -80,6 +81,7 @@
                 case BlueShiftInAppTypeModal:
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
+                case BlueShiftNotificationOneButton:
                     if ([templateStyleDictionary objectForKey:@"background_color"]) {
                         self.backgroundColor = (NSString *)[templateStyleDictionary objectForKey:@"background_color"];
                     }
@@ -123,6 +125,7 @@
                 case BlueShiftInAppTypeModal:
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
+                case BlueShiftNotificationOneButton:
                     if ([contenStyletDictionary objectForKey:@"title_color"]) {
                         self.titleColor = (NSString *)[contenStyletDictionary objectForKey:@"title_color"];
                     }
@@ -190,6 +193,7 @@
                 case BlueShiftInAppTypeModal:
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
+                case BlueShiftNotificationOneButton:
                     if ([payloadDictionary objectForKey:@"text"]) {
                         self.text = (NSString *)[payloadDictionary objectForKey:@"text"];
                     }
