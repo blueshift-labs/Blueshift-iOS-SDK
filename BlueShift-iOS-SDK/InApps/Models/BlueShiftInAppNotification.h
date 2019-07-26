@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *position;
 @property (nonatomic, assign, readwrite, nullable) Rect *margin;
+@property (nonatomic, assign, readwrite) float height;
+@property (nonatomic, assign, readwrite) float width;;
 
 @end
 

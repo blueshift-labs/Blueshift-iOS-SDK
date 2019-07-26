@@ -86,6 +86,13 @@
                     if ([templateStyleDictionary objectForKey:@"position"]) {
                         self.position = (NSString *)[templateStyleDictionary objectForKey:@"position"];
                     }
+                    if ([templateStyleDictionary objectForKey:@"width"]) {
+                        self.width = [[templateStyleDictionary objectForKey:@"width"]
+                                     floatValue];
+                    }
+                    if ([templateStyleDictionary objectForKey:@"height"]) {
+                        self.height = [[templateStyleDictionary objectForKey:@"height"] floatValue];
+                    }
                     
                     break;
                     
@@ -250,8 +257,8 @@
                 self.showCloseButton = YES;
                 self.position = @"center";
                 self.dimensionType = @"percentage";
-                self.width = 100;
-                self.height = 50;
+                self.width = 90;
+                self.height = 90;
                 
             }
         } @catch (NSException *e) {

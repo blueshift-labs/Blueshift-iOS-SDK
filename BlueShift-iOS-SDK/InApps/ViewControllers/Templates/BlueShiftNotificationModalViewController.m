@@ -13,8 +13,7 @@
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
 }
-
-@property (strong, nonatomic) IBOutlet BlueShiftNotificationView *notificationModalView;
+@property (strong, nonatomic) IBOutlet UIView *notificationModalView;
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;
@@ -72,6 +71,10 @@
             if (self.notification.contentStyle.messageSize != (id)[NSNull null] && self.notification.contentStyle.messageSize > 0) {
                     //CGFloat messageFontSize = [self.notification.contentStyle.messageSize doubleValue];
                     //[[self descriptionLabel] setFont:[UIFont fontWithName:@"System" size:messageFontSize]];
+            }
+            
+            if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {
+                [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor];
             }
         }
     }
