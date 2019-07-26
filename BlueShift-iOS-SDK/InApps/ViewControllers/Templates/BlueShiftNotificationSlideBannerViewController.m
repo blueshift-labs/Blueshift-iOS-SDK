@@ -16,6 +16,9 @@
 @property (strong, nonatomic) IBOutlet BlueShiftNotificationView *slideBannerPopUpView;
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
+@property (strong, nonatomic) IBOutlet UIButton *okayButton;
+
+- (IBAction)onOkayButtonTapped:(id)sender;
 
 @end
 
@@ -36,16 +39,34 @@
 
 - (void)loadNotification{
     if (self.notification) {
-        [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
+        if (self.notification.notificationContent && self.notification.contentStyle) {
+                [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
+            
+                if (self.notification.contentStyle.iconSize != (id)[NSNull null] && self.notification.contentStyle.iconSize > 0) {
+                    CGFloat iconFontSize = [self.notification.contentStyle.iconSize doubleValue];
+                    [[self iconLabel] setFont:[UIFont fontWithName:@"../../Fonts/Font -Awesome-Solid.otf" size: iconFontSize]];
+                }
+            
+                if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
+                    CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
+                    [self iconLabel].layer.cornerRadius = iconRadius;
+                }
+        
+                [self setLabelText:[self iconLabel] andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+            
+                if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {
+                    CGColorRef backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor].CGColor;
+                        [self slideBannerPopUpView].layer.backgroundColor = backgroundColor;
+                }
+            }
     }
     
     CGRect frame = [self positionNotificationView:slideBannerView];
     slideBannerView.frame = frame;
-    if ([self.notification.dimensionType  isEqual: @"percentage"]) {
+    if ([self.notification.dimensionType  isEqual: @"percentage"]) 
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
-    }
-}
+ }
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
@@ -56,8 +77,8 @@
         }
     };
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:^{
-            self.window.alpha = 1.0;
+        [UIView animateWithDuration:0.7f animations:^{
+            self.window.alpha = 2.0;
         } completion:^(BOOL finished) {
             completionBlock();
         }];
@@ -78,7 +99,7 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:0.7f animations:^{
             self.window.alpha = 0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -99,4 +120,7 @@
     [self hideFromWindow:animated];
 }
 
+- (IBAction)onOkayButtonTapped:(id)sender {
+    [self closeButtonDidTapped];
+}
 @end
