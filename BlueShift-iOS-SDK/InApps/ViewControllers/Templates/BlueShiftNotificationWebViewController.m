@@ -101,14 +101,17 @@
 }
 
 - (CGRect)positionWebView {
+    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
+    
     CGSize size = CGSizeZero;
     if ([self.notification.dimensionType  isEqual: @"points"]) {
         // Ignore Constants.INAPP_X_PERCENT
-        size.width = self.notification.width;
-        size.height = self.notification.height;
+        size.width = width;
+        size.height = height;
     } else if([self.notification.dimensionType  isEqual: @"percentage"]) {
-        size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (self.notification.width / 100.0f));
-        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (self.notification.height / 100.0f));
+        size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
     }else {
         
     }

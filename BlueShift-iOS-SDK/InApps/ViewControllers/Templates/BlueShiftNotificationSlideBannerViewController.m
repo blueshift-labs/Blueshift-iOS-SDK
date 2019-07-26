@@ -13,7 +13,7 @@
     UIView *slideBannerView;
 }
 
-@property (strong, nonatomic) IBOutlet BlueShiftNotificationView *slideBannerPopUpView;
+@property (strong, nonatomic) IBOutlet UIView *slideBannerPopupView;
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *okayButton;
@@ -28,11 +28,11 @@
     [super loadView];
     slideBannerView = [self loadNotificationView];
     [self.view insertSubview:slideBannerView aboveSubview:self.view];
-    //self.view.frame = CGRectMake(0, 0, 300, 3000);
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self setTouchesPassThroughWindow: TRUE];
     [self configureBackground];
     [self loadNotification];
 }
@@ -55,8 +55,7 @@
                 [self setLabelText:[self iconLabel] andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
             
                 if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {
-                    CGColorRef backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor].CGColor;
-                        [self slideBannerPopUpView].layer.backgroundColor = backgroundColor;
+                        [self slideBannerPopupView].backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor];
                 }
             }
     }
