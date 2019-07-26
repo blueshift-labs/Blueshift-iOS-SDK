@@ -18,7 +18,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;
 @property (strong, nonatomic) IBOutlet UIButton *okButton;
-@property (strong, nonatomic) IBOutlet UIImageView *titleBackgroundView;
+@property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 
 - (IBAction)onCancelButtonTapped:(id)sender;
 - (IBAction)onOkayButtonTapped:(id)sender;
@@ -33,7 +33,6 @@
     [super loadView];
     notificationView = [self loadNotificationView];
     [self.view insertSubview:notificationView aboveSubview:self.view];
-    //self.view.frame = CGRectMake(0, 0, 300, 3000);
 }
 
 - (void)viewDidLoad {
@@ -58,11 +57,6 @@
                     textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
             }
             
-            if (self.notification.contentStyle
-                && self.notification.contentStyle.titleBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.titleBackgroundColor.length > 0) {
-                [self loadImageFromURL:[self titleBackgroundView] andImageURL:self.notification.contentStyle.titleBackgroundColor];
-            }
-            
             if (self.notification.contentStyle.titleSize != (id)[NSNull null] && self.notification.contentStyle.titleSize > 0) {
                     //CGFloat titleFontSize = [self.notification.contentStyle.titleSize doubleValue];
                     //[[self titleLabel] setFont:[UIFont fontWithName:@"System-Heavy" size:titleFontSize]];
@@ -76,6 +70,18 @@
             if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {
                 [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor];
             }
+            
+            if (self.notification.contentStyle.iconSize != (id)[NSNull null] && self.notification.contentStyle.iconSize > 0) {
+                CGFloat iconFontSize = [self.notification.contentStyle.iconSize doubleValue];
+                [[self iconLabel] setFont:[UIFont fontWithName:@"../../Fonts/Font -Awesome-Solid.otf" size: iconFontSize]];
+            }
+            
+            if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
+                CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
+                [self iconLabel].layer.cornerRadius = iconRadius;
+            }
+            
+            [self setLabelText:[self iconLabel] andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
         }
     }
     
