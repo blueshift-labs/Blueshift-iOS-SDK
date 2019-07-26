@@ -122,7 +122,7 @@
         case BlueShiftNotificationSlideBanner:
             return [[[NSBundle mainBundle] loadNibNamed:@"BlueShiftNotificationSlideBanner" owner:self options:nil] objectAtIndex:0];
         default:
-            return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
+            return [[[NSBundle mainBundle] loadNibNamed:@"BlueShiftNotificationModalWithOneButton" owner:self options:nil] objectAtIndex:0];
             break;
     }
 }

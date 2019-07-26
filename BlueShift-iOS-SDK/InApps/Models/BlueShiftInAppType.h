@@ -19,6 +19,7 @@ typedef NS_ENUM(NSUInteger, BlueShiftInAppType){
     BlueShiftInAppTypeModal,
     BlueShiftInAppModalWithImage,
     BlueShiftNotificationSlideBanner,
+    BlueShiftNotificationOneButton,
     BlueShiftInAppDefault
 };
 
