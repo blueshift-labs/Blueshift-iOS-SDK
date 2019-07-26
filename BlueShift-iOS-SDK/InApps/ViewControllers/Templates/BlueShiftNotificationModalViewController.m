@@ -52,6 +52,7 @@
                 [self setButton:[self cancelButton] andString:self.notification.dismiss.text
                     textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
             }
+            
             if (self.notification.appOpen) {
                 [self setButton:[self okButton] andString:self.notification.appOpen.text
                     textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
@@ -85,7 +86,7 @@
         }
     }
     
-    CGRect frame = [self positionNotificationView:notificationView];
+    CGRect frame = [self positionNotificationView: [self notificationModalView]];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: @"percentage"]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;

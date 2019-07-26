@@ -22,7 +22,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9N2-wQ-5OT">
-                    <rect key="frame" x="20.5" y="269" width="373" height="358"/>
+                    <rect key="frame" x="20.5" y="45" width="373" height="806"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ctP-Sn-Igw">
                             <rect key="frame" x="0.0" y="0.0" width="373" height="30"/>
@@ -40,7 +40,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="itL-TE-QWz">
-                            <rect key="frame" x="112" y="319" width="149" height="29"/>
+                            <rect key="frame" x="112" y="767" width="149" height="29"/>
                             <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                             <state key="normal" title="Button">
@@ -78,10 +78,8 @@
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="9N2-wQ-5OT" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.4" id="9pP-it-ahx"/>
-                <constraint firstItem="9N2-wQ-5OT" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="HL6-1t-kkv"/>
+                <constraint firstItem="9N2-wQ-5OT" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" multiplier="0.9" id="9pP-it-ahx"/>
                 <constraint firstItem="9N2-wQ-5OT" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="I2S-mb-fvL"/>
-                <constraint firstItem="9N2-wQ-5OT" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="PTQ-o5-HMe"/>
                 <constraint firstItem="9N2-wQ-5OT" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="neD-8t-Dli"/>
                 <constraint firstItem="9N2-wQ-5OT" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.9" id="r25-P3-fEa"/>
             </constraints>
