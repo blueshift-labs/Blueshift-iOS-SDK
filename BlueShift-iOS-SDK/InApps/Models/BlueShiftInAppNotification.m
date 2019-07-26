@@ -47,11 +47,14 @@
                     if ([contentDictionary objectForKey:@"background_color"]) {
                         self.backgroundColor = (NSString*)[contentDictionary objectForKey:@"background_color"];
                     }
+                    if ([contentDictionary objectForKey:@"icon"]) {
+                        self.icon =(NSString *)[contentDictionary objectForKey:@"icon"];
+                    }
 
                     break;
                     
                 default:
-                    break;
+                    break; 
             }
             
         } @catch (NSException *e) {
@@ -139,6 +142,18 @@
                     }
                     if ([contenStyletDictionary objectForKey:@"message_size"]) {
                         self.messageSize = (NSNumber *)[contenStyletDictionary objectForKey:@"message_size"];
+                    }
+                    if ([contenStyletDictionary objectForKey:@"icon_size"]) {
+                        self.iconSize = (NSNumber *)[contenStyletDictionary objectForKey:@"icon_size"];
+                    }
+                    if ([contenStyletDictionary objectForKey:@"icon_color"]) {
+                        self.iconColor = (NSString *)[contenStyletDictionary objectForKey:@"icon_color"];
+                    }
+                    if ([contenStyletDictionary objectForKey:@"icon_background_color"]) {
+                        self.iconBackgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"icon_background_color"];
+                    }
+                    if ([contenStyletDictionary objectForKey:@"icon_background_radius"]){
+                        self.iconBackgroundRadius = (NSNumber *)[contenStyletDictionary objectForKey:@"icon_background_radius"];
                     }
                     
                     break;

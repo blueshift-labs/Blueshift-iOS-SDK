@@ -13,6 +13,7 @@
             <connections>
                 <outlet property="descriptionLabel" destination="aMf-qD-LOb" id="m8w-fY-w0o"/>
                 <outlet property="iconLabel" destination="Rtk-ga-ARr" id="34k-i4-DDG"/>
+                <outlet property="okayButton" destination="i2s-nr-wTh" id="mye-0c-xaA"/>
                 <outlet property="slideBannerView" destination="kUJ-lQ-u9S" id="Lz6-lc-W3v"/>
             </connections>
         </placeholder>
@@ -25,27 +26,43 @@
                     <rect key="frame" x="0.0" y="816" width="414" height="80"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aMf-qD-LOb">
-                            <rect key="frame" x="80" y="31.5" width="319" height="17"/>
+                            <rect key="frame" x="80" y="31.5" width="299" height="17"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rtk-ga-ARr">
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rtk-ga-ARr">
                             <rect key="frame" x="20" y="20" width="40" height="40"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="40" id="4ra-G6-bhY"/>
                                 <constraint firstAttribute="width" constant="40" id="KNh-WH-glO"/>
                             </constraints>
-                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="22"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="boolean" keyPath="keyPath" value="YES"/>
+                            </userDefinedRuntimeAttributes>
                         </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i2s-nr-wTh">
+                            <rect key="frame" x="379" y="22.5" width="35" height="35"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="35" id="SP1-ZK-cCA"/>
+                                <constraint firstAttribute="width" constant="35" id="pZm-y3-8yy"/>
+                            </constraints>
+                            <state key="normal" image="right.png"/>
+                            <connections>
+                                <action selector="onOkayButtonTapped:" destination="-1" eventType="touchDown" id="wiZ-g1-r09"/>
+                            </connections>
+                        </button>
                     </subviews>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
+                        <constraint firstItem="i2s-nr-wTh" firstAttribute="leading" secondItem="aMf-qD-LOb" secondAttribute="trailing" id="0sc-Ck-aPM"/>
                         <constraint firstItem="Rtk-ga-ARr" firstAttribute="centerY" secondItem="aMf-qD-LOb" secondAttribute="centerY" id="3uR-fI-GeE"/>
-                        <constraint firstAttribute="trailing" secondItem="aMf-qD-LOb" secondAttribute="trailing" constant="15" id="7BG-5b-CfD"/>
+                        <constraint firstItem="i2s-nr-wTh" firstAttribute="centerY" secondItem="aMf-qD-LOb" secondAttribute="centerY" id="BvL-tM-Gr6"/>
                         <constraint firstItem="Rtk-ga-ARr" firstAttribute="centerY" secondItem="kUJ-lQ-u9S" secondAttribute="centerY" id="Q7r-cL-knm"/>
+                        <constraint firstAttribute="trailing" secondItem="i2s-nr-wTh" secondAttribute="trailing" id="ZYh-8m-JeP"/>
                         <constraint firstAttribute="height" constant="80" id="ab2-SQ-3cz"/>
                         <constraint firstItem="aMf-qD-LOb" firstAttribute="leading" secondItem="Rtk-ga-ARr" secondAttribute="trailing" constant="20" id="eeg-H1-31G"/>
                         <constraint firstItem="Rtk-ga-ARr" firstAttribute="leading" secondItem="kUJ-lQ-u9S" secondAttribute="leading" constant="20" id="jhz-QI-sOD"/>
@@ -67,4 +84,7 @@
             <point key="canvasLocation" x="89.855072463768124" y="35.491071428571423"/>
         </view>
     </objects>
+    <resources>
+        <image name="right.png" width="31.5" height="31.5"/>
+    </resources>
 </document>
