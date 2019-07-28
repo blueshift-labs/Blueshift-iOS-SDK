@@ -6,6 +6,7 @@
 //
 
 #import <CoreData/CoreData.h>
+#import "BlueShiftInAppTriggerMode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,8 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *eventName;
 @property (nonatomic, retain) NSString *status;
 
-- (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler;
-+ (void)fetchAll:(void (^)(BOOL, NSArray *))handler;
+- (void) insert:(NSDictionary *)dictionary inContext: (NSManagedObjectContext*) manageContext handler:(void (^)(BOOL))handler;
++ (void) fetchAll:(BlueShiftInAppTriggerMode)triggerMode withHandler:(void (^)(BOOL, NSArray *))handler;
+
 
 @end
 
