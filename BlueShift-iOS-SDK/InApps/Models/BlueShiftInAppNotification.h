@@ -80,6 +80,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueShiftInAppNotification : NSObject
 
+
+/* object Id of the record (entity) */
+@property (nonatomic, readwrite, nullable) NSManagedObjectID* objectID;
+
 /* type of in-app */
 @property (nonatomic, readwrite) BlueShiftInAppType inAppType;
 
