@@ -16,9 +16,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readwrite) BlueShiftNotificationViewController * _Nullable currentNotificationController;
 @property (nonatomic, strong, readwrite) NSMutableArray<BlueShiftNotificationViewController*> *notificationControllerQueue;
 
-- (void)load;
-- (void)pushInAppNotificationToDB:(NSDictionary*)payload;
-- (void)createNotificationFromDictionary:(NSDictionary *)dictionary;
+- (void) load;
+- (void) addInAppNotificationToDataStore: (NSDictionary*)payload forApplicationState:(UIApplicationState)applicationState;
+
+- (void) createNotificationFromDictionary:(NSDictionary *)dictionary;
+
+- (void) startInAppMessageLoadTimer;
 
 @end
 

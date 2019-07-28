@@ -14,7 +14,7 @@
     if (self = [super init]) {
         
         @try {
-        
+            
             NSDictionary *contentDictionary = [payloadDictionary objectForKey:@"content"];
             
             switch (inAppType) {
@@ -43,7 +43,7 @@
                     if ([contentDictionary objectForKey:@"background_color"]) {
                         self.backgroundColor = (NSString*)[contentDictionary objectForKey:@"background_color"];
                     }
-
+                    
                     break;
                     
                 default:
@@ -67,7 +67,7 @@
         @try {
             
             NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey:@"content_style"];
-        
+            
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
@@ -76,7 +76,7 @@
                         self.titleColor = (NSString *)[contenStyletDictionary objectForKey:@"title_color"];
                     }
                     if ([contenStyletDictionary objectForKey:@"title_background_color"]) {
-                         self.titleBackgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"title_background_color"];
+                        self.titleBackgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"title_background_color"];
                     }
                     if ([contenStyletDictionary objectForKey:@"title_gravity"]) {
                         self.titleGravity = (NSString *)[contenStyletDictionary objectForKey:@"title_gravity"];
@@ -172,13 +172,15 @@
         @try {
             self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: appEntity.type];
             
+            self.objectID = appEntity.objectID;
+            
             NSDictionary *inAppDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
             if ([inAppDictionary objectForKey:@"inapp"]) {
                 NSDictionary *payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
                 
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
-            
+                
                 if ([payloadDictionary valueForKeyPath:@"action.dismiss"]) {
                     self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:@"action.dismiss"] withType: self.inAppType];
                 }
