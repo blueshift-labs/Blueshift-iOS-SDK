@@ -47,18 +47,6 @@
         if (self.notification.notificationContent && self.notification.contentStyle) {
                 [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
             
-//            [self setLabelText:[self iconLabel] andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
-//
-//                if (self.notification.contentStyle.iconSize != (id)[NSNull null] && self.notification.contentStyle.iconSize > 0) {
-//                    CGFloat iconFontSize = [self.notification.contentStyle.iconSize doubleValue];
-//                    [[self iconLabel] setFont:[UIFont fontWithName:@"../../Fonts/Font -Awesome-Solid.otf" size: iconFontSize]];
-//                }
-//
-//                if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
-//                    CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
-//                    [self iconLabel].layer.cornerRadius = iconRadius;
-//                }
-            
                 [self applyIconToLabelView:[self iconLabel]];
             
                 if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {

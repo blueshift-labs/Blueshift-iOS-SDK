@@ -98,8 +98,8 @@ Pod::Spec.new do |s|
     ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
     ss.public_header_files = "BlueShift-iOS-SDK/**/*.h"
     ss.exclude_files = "Classes/Exclude"
-    ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}"
-    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel}' }
+    ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,otf}"
+    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,otf}' }
 
     ss.subspec 'InApps' do |ia|
       ia.source_files = "Blueshift-iOS-SDK/InApps/*.{h,m}"
@@ -122,19 +122,15 @@ Pod::Spec.new do |s|
         ui.source_files = "Blueshift-iOS-SDK/InApps/UI/*.{h,m}"
         ui.exclude_files = "Classes/Exclude"
         ui.public_header_files = "Blueshift-iOS-SDK/InApps/UI/*.h"
-        ui.subspec 'Fonts' do |fs|
-			fs.resources = 'Blueshift-iOS-SDK/InApps/Fonts/*.{otf}'
-			fs.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/Fonts/*.{otf}' }
-		end
-		ui.subspec 'Images' do |is|
-			is.resources = 'Blueshift-iOS-SDK/InApps/Images/*.{png}'
-			is.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/Images/*.{png}' }
-		end
-		ui.subspec 'IBFiles' do |ib|
-			ib.resources = "Blueshift-iOS-SDK/InApps/UI/IBFiles/*.{xib}"
-			ib.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/UI/IBFiles/*.{xib}' }
-		end
-      end
+		    ui.subspec 'Images' do |is|
+			   is.resources = 'Blueshift-iOS-SDK/InApps/Images/*.{png}'
+			   is.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/Images/*.{png}' }
+		  end
+		  ui.subspec 'IBFiles' do |ib|
+			 ib.resources = "Blueshift-iOS-SDK/InApps/UI/IBFiles/*.{xib}"
+			 ib.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/UI/IBFiles/*.{xib}' }
+		  end
+    end
 
       ia.subspec 'ViewControllers' do |vc|
         vc.source_files = "Blueshift-iOS-SDK/InApps/ViewControllers/*.{h,m}"
