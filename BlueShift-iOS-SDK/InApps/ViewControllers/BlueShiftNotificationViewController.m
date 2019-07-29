@@ -8,6 +8,7 @@
 #import "BlueShiftNotificationViewController.h"
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftNotificationView.h"
+#import <CoreText/CoreText.h>
 
 @interface BlueShiftNotificationViewController ()
 
@@ -16,6 +17,8 @@
 @property(nonatomic, assign) CGFloat originalCenter;
 
 @end
+
+static NSString *const FontAwesomeName = @"FontAwesome";
 
 @implementation BlueShiftNotificationViewController
 
@@ -158,6 +161,7 @@
         if (labelColorCode != (id)[NSNull null] && labelColorCode.length > 0) {
             label.textColor = [self colorWithHexString:labelColorCode];
         }
+        
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             label.backgroundColor = [self colorWithHexString:backgroundColorCode];
         }
@@ -167,18 +171,35 @@
 }
 
 - (void)applyIconToLabelView:(UILabel *)iconLabelView {
-    if ([UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid" size: 22] == nil) {
+    if (self.notification.notificationContent.icon) {
+        if ([UIFont fontWithName:@"FontAwesome5Free-Solid" size:30] == nil) {
             NSString *fontPath = [[NSBundle bundleForClass:[BlueShiftNotificationViewController class]]
-                                  pathForResource: @"../../Fonts/Font-Awesome-Solid"
+                                  pathForResource:FontAwesomeName
                                   ofType:@"otf"];
+            
+            NSData *fontData = [NSData dataWithContentsOfFile:fontPath];
+            CFErrorRef error;
+            CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
+            CGFontRef font = CGFontCreateWithDataProvider(provider);
+            BOOL failedToRegisterFont = NO;
+            if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
+                CFStringRef errorDescription = CFErrorCopyDescription(error);
+                NSLog(@"Error: Cannot load Font Awesome");
+                CFBridgingRelease(errorDescription);
+                failedToRegisterFont = YES;
+            }
+            
+            CFRelease(font);
+            CFRelease(provider);
         }
     
-    [iconLabelView setFont: [UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid.otf" size:22]];
+        iconLabelView.font = [UIFont fontWithName:@"FontAwesome5Free-Solid" size: 22.0];
     
-    [self setLabelText: iconLabelView andString: @"\f030" labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
-        // The icon here is a Unicode string, so we use a text label instead of an image view
+        [self setLabelText: iconLabelView andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+    
         iconLabelView.layer.cornerRadius = 10;
         iconLabelView.layer.masksToBounds = YES;
+    }
 }
 
 @end
