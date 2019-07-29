@@ -57,19 +57,13 @@
                 [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
             }
             
-            [self initializeButtonView];
-            
-            if (self.notification.contentStyle.iconSize != (id)[NSNull null] && self.notification.contentStyle.iconSize > 0) {
-                CGFloat iconFontSize = [self.notification.contentStyle.iconSize doubleValue];
-                [[self iconLabel] setFont:[UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid.otf" size: iconFontSize]];
-            }
-            
             if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
                 CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
                 [self iconLabel].layer.cornerRadius = iconRadius;
             }
             
-            [self setLabelText:[self iconLabel] andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+            [self initializeButtonView];
+            [self applyIconToLabelView: [self iconLabel]];
         }
     }
     
