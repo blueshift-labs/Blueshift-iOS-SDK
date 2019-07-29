@@ -7,6 +7,7 @@
 
 #import "BlueShiftNotificationViewController.h"
 #import "BlueShiftNotificationWindow.h"
+#import "BlueShiftNotificationView.h"
 
 @interface BlueShiftNotificationViewController ()
 
@@ -32,6 +33,10 @@
 
 - (void)closeButtonDidTapped {
     [self hide:YES];
+}
+
+- (void)loadNotificationView {
+    self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
 }
 
 - (void)createWindow {
@@ -112,7 +117,7 @@
     return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
 }
 
-- (UIView *)loadNotificationView{
+- (UIView *)fetchNotificationView{
     switch (self.notification.inAppType) {
         case BlueShiftInAppTypeModal:
             return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
@@ -170,7 +175,7 @@
     
     [iconLabelView setFont: [UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid.otf" size:22]];
     
-    [self setLabelText: iconLabelView andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+    [self setLabelText: iconLabelView andString: @"\f030" labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
         // The icon here is a Unicode string, so we use a text label instead of an image view
         iconLabelView.layer.cornerRadius = 10;
         iconLabelView.layer.masksToBounds = YES;

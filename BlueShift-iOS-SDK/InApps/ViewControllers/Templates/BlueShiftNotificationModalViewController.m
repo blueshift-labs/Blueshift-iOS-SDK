@@ -30,8 +30,13 @@
 @implementation BlueShiftNotificationModalViewController
 
 - (void)loadView {
-    [super loadView];
-    notificationView = [self loadNotificationView];
+    if (self.canTouchesPassThroughWindow) {
+        [self loadNotificationView];
+    } else {
+        [super loadView];
+    }
+    
+    notificationView = [self fetchNotificationView];
     [self.view insertSubview:notificationView aboveSubview:self.view];
 }
 
