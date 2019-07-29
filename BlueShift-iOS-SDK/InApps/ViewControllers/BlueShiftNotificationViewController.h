@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIView *) loadNotificationView;
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL;
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
+- (void)applyIconToLabelView:(UILabel *)iconLabelView;
 
 @end
 

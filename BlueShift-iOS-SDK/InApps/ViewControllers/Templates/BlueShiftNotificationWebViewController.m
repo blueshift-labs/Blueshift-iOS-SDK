@@ -128,7 +128,8 @@
     webView.autoresizingMask = UIViewAutoresizingNone;
     
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    NSString* position = self.notification.position;
+    NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
+    
     int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH / 2.0f) : 0.0f);
     
     if([position  isEqual: INAPP_POSITION_TOP]) {

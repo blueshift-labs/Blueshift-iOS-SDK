@@ -48,33 +48,15 @@
             
             [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
             
-            if (self.notification.dismiss) {
-                [self setButton:[self cancelButton] andString:self.notification.dismiss.text
-                    textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
+            if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor) {
+                [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
             }
             
-            if (self.notification.appOpen) {
-                [self setButton:[self okButton] andString:self.notification.appOpen.text
-                    textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
-            }
-            
-            if (self.notification.contentStyle.titleSize != (id)[NSNull null] && self.notification.contentStyle.titleSize > 0) {
-                    //CGFloat titleFontSize = [self.notification.contentStyle.titleSize doubleValue];
-                    //[[self titleLabel] setFont:[UIFont fontWithName:@"System-Heavy" size:titleFontSize]];
-            }
-            
-            if (self.notification.contentStyle.messageSize != (id)[NSNull null] && self.notification.contentStyle.messageSize > 0) {
-                    //CGFloat messageFontSize = [self.notification.contentStyle.messageSize doubleValue];
-                    //[[self descriptionLabel] setFont:[UIFont fontWithName:@"System" size:messageFontSize]];
-            }
-            
-            if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {
-                [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor];
-            }
+            [self initializeButtonView];
             
             if (self.notification.contentStyle.iconSize != (id)[NSNull null] && self.notification.contentStyle.iconSize > 0) {
                 CGFloat iconFontSize = [self.notification.contentStyle.iconSize doubleValue];
-                [[self iconLabel] setFont:[UIFont fontWithName:@"../../Fonts/Font -Awesome-Solid.otf" size: iconFontSize]];
+                [[self iconLabel] setFont:[UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid.otf" size: iconFontSize]];
             }
             
             if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
@@ -165,6 +147,33 @@
         }
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+        }
+    }
+}
+
+- (void)initializeButtonView{
+    if (self.notification) {
+        if (self.notification.appOpen && self.notification.dismiss) {
+            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
+                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
+            
+            [self setButton:[self okButton] andString:self.notification.appOpen.text
+                  textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
+        } else if (self.notification.share && self.notification.dismiss){
+            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
+                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
+            
+            [self setButton:[self okButton] andString:self.notification.share.text
+                  textColor:self.notification.share.textColor backgroundColor:self.notification.share.backgroundColor];
+        } else if (self.notification.share && self.notification.appOpen){
+            [self setButton:[self cancelButton] andString:self.notification.appOpen.text
+                  textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
+            
+            [self setButton:[self okButton] andString:self.notification.share.text
+                  textColor:self.notification.share.textColor backgroundColor:self.notification.share.backgroundColor];
+        } else {
+            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
+                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
         }
     }
 }

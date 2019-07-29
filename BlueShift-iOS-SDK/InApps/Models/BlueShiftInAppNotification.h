@@ -71,9 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *textColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *page;
-@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *extra;
+@property (nonatomic, copy, readwrite, nullable) NSDictionary *extra;
 @property (nonatomic, copy, readwrite, nullable) NSString *productID;
-@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *content;
+@property (nonatomic, copy, readwrite, nullable) NSDictionary *content;
 @property (nonatomic, copy, readwrite, nullable) NSString *image;
 
 @end

@@ -161,4 +161,19 @@
     }
 }
 
+- (void)applyIconToLabelView:(UILabel *)iconLabelView {
+    if ([UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid" size: 22] == nil) {
+            NSString *fontPath = [[NSBundle bundleForClass:[BlueShiftNotificationViewController class]]
+                                  pathForResource: @"../../Fonts/Font-Awesome-Solid"
+                                  ofType:@"otf"];
+        }
+    
+    [iconLabelView setFont: [UIFont fontWithName:@"../../Fonts/Font-Awesome-Solid.otf" size:22]];
+    
+    [self setLabelText: iconLabelView andString:self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+        // The icon here is a Unicode string, so we use a text label instead of an image view
+        iconLabelView.layer.cornerRadius = 10;
+        iconLabelView.layer.masksToBounds = YES;
+}
+
 @end

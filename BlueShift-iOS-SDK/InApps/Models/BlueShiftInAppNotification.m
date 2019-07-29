@@ -210,10 +210,10 @@
                         self.page = (NSString *)[payloadDictionary objectForKey:@"page"];
                     }
                     if ([payloadDictionary objectForKey:@"extra"]) {
-                        self.extra = [self initFromDictionary: [payloadDictionary objectForKey:@"extra"] withType: inAppType];
+                        self.extra = [payloadDictionary objectForKey:@"extra"];
                     }
                     if ([payloadDictionary objectForKey:@"content"]) {
-                        self.content = [self initFromDictionary: [payloadDictionary objectForKey:@"content"] withType: inAppType];
+                        self.content = [payloadDictionary objectForKey:@"content"];
                     }
                     if ([payloadDictionary objectForKey:@"image"]) {
                         self.image = (NSString *)[payloadDictionary objectForKey:@"image"];
