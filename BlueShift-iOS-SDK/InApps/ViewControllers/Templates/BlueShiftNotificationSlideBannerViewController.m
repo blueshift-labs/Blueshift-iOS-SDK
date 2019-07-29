@@ -25,8 +25,13 @@
 @implementation BlueShiftNotificationSlideBannerViewController
 
 - (void)loadView {
-    [super loadView];
-    slideBannerView = [self loadNotificationView];
+    if (self.canTouchesPassThroughWindow) {
+        [self loadNotificationView];
+    } else {
+        [super loadView];
+    }
+    
+    slideBannerView = [self fetchNotificationView];
     [self.view insertSubview:slideBannerView aboveSubview:self.view];
 }
 
