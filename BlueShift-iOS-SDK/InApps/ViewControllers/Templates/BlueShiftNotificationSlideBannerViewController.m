@@ -25,7 +25,7 @@
 @implementation BlueShiftNotificationSlideBannerViewController
 
 - (void)loadView {
-    if (self.canTouchesPassThroughWindow) {
+    if (self.notification && self.notification.templateStyle && self.notification.templateStyle.enableBackgroundAction == TRUE){
         [self loadNotificationView];
     } else {
         [super loadView];
