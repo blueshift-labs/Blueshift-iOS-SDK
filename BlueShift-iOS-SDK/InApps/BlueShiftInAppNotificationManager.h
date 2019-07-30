@@ -21,8 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void) createNotificationFromDictionary:(NSDictionary *)dictionary;
 
-- (void) startInAppMessageLoadTimer;
-
 @end
 
 NS_ASSUME_NONNULL_END
