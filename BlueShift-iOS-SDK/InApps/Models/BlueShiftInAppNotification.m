@@ -95,7 +95,10 @@
                         self.height = [[templateStyleDictionary objectForKey:@"height"] floatValue];
                     }
                     if ([templateStyleDictionary objectForKey:@"fullscreen"]) {
-                        self.fullScreen = [templateStyleDictionary objectForKey:@"fullscreen"];
+                        self.fullScreen = [[templateStyleDictionary objectForKey:@"fullscreen"] boolValue];
+                    }
+                    if ([templateStyleDictionary objectForKey:@"enable_background_action"]) {
+                        self.enableBackgroundAction = [[templateStyleDictionary objectForKey:@"enable_background_action"] boolValue];
                     }
                     
                     break;
