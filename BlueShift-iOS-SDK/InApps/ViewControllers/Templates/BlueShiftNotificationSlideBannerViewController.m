@@ -32,12 +32,11 @@
     }
     
     slideBannerView = [self fetchNotificationView];
-    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+    [self presentAnimationView];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self setTouchesPassThroughWindow: TRUE];
     [self configureBackground];
     [self loadNotification];
 }
@@ -71,11 +70,11 @@
         }
     };
     if (animated) {
-        [UIView animateWithDuration:0.7f animations:^{
+       // [UIView animateWithDuration:0.7f delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
             self.window.alpha = 2.0;
-        } completion:^(BOOL finished) {
+       // } completion:^(BOOL finished) {
             completionBlock();
-        }];
+       // }];
     } else {
         self.window.alpha = 1.0;
         completionBlock();
@@ -93,15 +92,26 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.7f animations:^{
+        [UIView animateWithDuration:1.5 animations:^{
+         self.view.frame = CGRectMake(2 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
             self.window.alpha = 0;
-        } completion:^(BOOL finished) {
-            completionBlock();
-        }];
+     } completion:^(BOOL finished) {
+            completionBlock();        }];
     }
     else {
         completionBlock();
     }
+}
+
+- (void)presentAnimationView {
+    CATransition *transition = [CATransition animation];
+    transition.duration = 1.0;
+    transition.type = kCATransitionPush;
+    transition.subtype = kCATransitionFromLeft;
+    [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+    [slideBannerView.layer addAnimation:transition forKey:nil];
+    
+    [self.view insertSubview:slideBannerView aboveSubview:self.view];
 }
 
 #pragma mark - Public
