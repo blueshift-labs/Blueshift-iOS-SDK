@@ -27,6 +27,35 @@
 // init
 - (void)load {
     self.notificationControllerQueue = [NSMutableArray new];
+    
+    /* create timer for upcoming events */
+    [self startInAppMessageLoadTimer];
+    
+    /* register for app background / foreground notification */
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(OnApplicationEnteringBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(OnApplicationEnteringForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
+}
+
+- (void) OnApplicationEnteringBackground:(NSNotification *)notification {
+    /* start the timer once over */
+    [self startInAppMessageLoadTimer];
+}
+
+- (void) OnApplicationEnteringForeground:(NSNotification *)notification {
+    
+    if (nil != self.inAppMsgTimer) {
+        [self.inAppMsgTimer invalidate];
+        self.inAppMsgTimer = nil;
+    }
 }
 
 
@@ -102,7 +131,7 @@
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSManagedObject* pManagedObject =  [context objectWithID: entityItem];
-          
+                    
                     @try {
                         [context deleteObject: pManagedObject];
                     }
@@ -137,8 +166,11 @@
 
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
     [InAppNotificationEntity fetchAll: triggerMode withHandler:^(BOOL status, NSArray *results) {
-        if(status) {
-            for(int i = 0; i < [results count]; i++) {
+        
+        if (status) {
+            NSArray* filteredResults = [self filterInAppNotificationResults:results withTriggerMode:triggerMode];
+            
+            for(int i = 0; i < [filteredResults count]; i++) {
                 InAppNotificationEntity *entity = [results objectAtIndex:i];
                 [self createNotificationFromDictionary: entity];
             }
@@ -146,14 +178,54 @@
     }];
 }
 
+
+- (NSArray *) filterInAppNotificationResults: (NSArray*) results withTriggerMode:(BlueShiftInAppTriggerMode) triggerMode {
+    
+    /* get the current time (since 1970) */
+    NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
+    
+    NSArray *outResults = nil;
+    
+    if (BlueShiftInAppTriggerUpComing == triggerMode)
+    {
+        NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
+        
+        for(int i = 0; i < [results count]; i++) {
+            InAppNotificationEntity *entity = [results objectAtIndex:i];
+            
+            
+            double endTime = [entity.endTime doubleValue];
+            double startTime = [entity.startTime doubleValue];
+            
+            if (currentTime > endTime) {
+                /* discard notification if its expired */
+            } else if (startTime > currentTime) {
+                /* discard notificaiton if its early */
+            } else {
+                [filteredResults addObject:entity];
+            }
+        }
+        outResults = [NSArray arrayWithArray: filteredResults];
+    } else {
+        outResults = results;
+    }
+    return outResults;
+}
+
+
+
 // Method to start In-App message loading timer
 - (void)startInAppMessageLoadTimer {
-    [NSTimer scheduledTimerWithTimeInterval:10
-                                     target:self
-                                   selector:@selector(handlePendingInAppMessage)
-                                   userInfo:nil
-                                    repeats:YES];
+    if (nil == self.inAppMsgTimer) {
+        self.inAppMsgTimer = [NSTimer scheduledTimerWithTimeInterval:10
+                                                          target:self
+                                                        selector:@selector(handlePendingInAppMessage)
+                                                        userInfo:nil
+                                                         repeats:YES];
+    }
 }
+
+
 
 // handle In-App msg.
 - (void) handlePendingInAppMessage {
