@@ -6,6 +6,7 @@
 //
 
 #import "BlueShiftInAppNotificationHelper.h"
+#import "../BlueShiftInAppNotificationConstant.h"
 
 static NSDictionary *_inAppTypeDictionay;
 
@@ -13,11 +14,11 @@ static NSDictionary *_inAppTypeDictionay;
 
 + (void)load {
     _inAppTypeDictionay = @{
-                        @"html": @(BlueShiftInAppTypeHTML),
-                        @"center_popup": @(BlueShiftInAppTypeModal),
-                        @"center_popup_with_image" : @(BlueShiftInAppModalWithImage),
-                        @"slide_in_banner" : @(BlueShiftNotificationSlideBanner),
-                        @"center_popup_one_button" :  @(BlueShiftNotificationOneButton)
+                        kInAppNotificationModalHTMLKey: @(BlueShiftInAppTypeHTML),
+                        kInAppNotificationTypeCenterPopUpKey: @(BlueShiftInAppTypeModal),
+                        kInAppNotificationTypeCenterPopUpImageKey: @(BlueShiftInAppModalWithImage),
+                        kInAppNotificationTypeSlideBannerKey: @(BlueShiftNotificationSlideBanner),
+                        kInAppNotificationTypeCenterPopUpOneButtonKey:  @(BlueShiftNotificationOneButton)
                     };
 }
 

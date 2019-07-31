@@ -12,6 +12,7 @@
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppTriggerMode.h"
+#import "BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -98,8 +99,6 @@
                         printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
                         if (applicationState == UIApplicationStateActive) {
                             [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-                        } else {
-                            NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
                         }
                     }
                 }];
