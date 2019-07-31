@@ -9,6 +9,7 @@
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
 #import "../../Models/BlueShiftInAppNotificationHelper.h"
+#import "../../BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -69,7 +70,7 @@
     
     CGRect frame = [self positionNotificationView: [self notificationModalView]];
     notificationView.frame = frame;
-    if ([self.notification.dimensionType  isEqual: @"percentage"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }

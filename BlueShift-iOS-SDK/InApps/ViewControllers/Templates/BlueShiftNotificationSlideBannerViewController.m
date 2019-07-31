@@ -8,6 +8,7 @@
 #import "BlueShiftNotificationSlideBannerViewController.h"
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
+#import "../../BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
@@ -56,7 +57,7 @@
     
     CGRect frame = [self positionNotificationView: [self slideBannerPopupView]];
     slideBannerView.frame = frame;
-    if ([self.notification.dimensionType  isEqual: @"percentage"]) 
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) 
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
  }
