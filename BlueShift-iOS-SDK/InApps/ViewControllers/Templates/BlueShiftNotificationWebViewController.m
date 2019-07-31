@@ -10,6 +10,7 @@
 #import "../../UI/BlueShiftNotificationCloseButton.h"
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
+#import "../../BlueShiftInAppNotificationConstant.h"
 
 #define INAPP_CLOSE_BUTTON_WIDTH 40
 
@@ -101,11 +102,11 @@
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
     CGSize size = CGSizeZero;
-    if ([self.notification.dimensionType  isEqual: @"points"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKeys]) {
         // Ignore Constants.INAPP_X_PERCENT
         size.width = width;
         size.height = height;
-    } else if([self.notification.dimensionType  isEqual: @"percentage"]) {
+    } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
     }else {
@@ -114,7 +115,7 @@
     
     // prevent webview content insets for Cover
     if (@available(iOS 11.0, *)) {
-        if ([self.notification.dimensionType  isEqual: @"percentage"] && self.notification.height == 100.0) {
+        if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey] && self.notification.height == 100.0) {
             webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
     }
@@ -128,14 +129,14 @@
     
     int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH / 2.0f) : 0.0f);
     
-    if([position  isEqual: INAPP_POSITION_TOP]) {
+    if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = 0.0f + extra + 20.0f;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
-    } else if([position  isEqual: INAPP_POSITION_CENTER]) {
+    } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
-    } else if([position  isEqual: INAPP_POSITION_BOTTOM]) {
+    } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
@@ -184,7 +185,7 @@
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];
-    if ([self.notification.dimensionType  isEqual: @"percentage"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }

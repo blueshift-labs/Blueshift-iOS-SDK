@@ -11,6 +11,7 @@
 #import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
+#import "BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 @end
@@ -37,7 +38,7 @@
         if(masterContext) {
             NSEntityDescription *entity;
             @try {
-                entity = [NSEntityDescription entityForName:@"InAppNotificationEntity" inManagedObjectContext:masterContext];
+                entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception %@", exception);

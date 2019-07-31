@@ -9,6 +9,7 @@
 #import "NSNumber+BlueShiftHelpers.h"
 #import "BlueShiftAppDelegate.h"
 #import "NSDate+BlueShiftDateHelpers.h"
+#import "../BlueShiftInAppNotificationConstant.h"
 
 @implementation InAppNotificationEntity
 
@@ -40,7 +41,7 @@
             if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"InAppNotificationEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     NSLog(@"Caught exception %@", exception);
@@ -176,7 +177,7 @@
     /* parse the payload and save the relevant keys related to presentation of In-App msg */
     
     /* get in-app payload */
-    dictionary = [dictionary objectForKey: @"inapp"];
+    dictionary = [dictionary objectForKey: kInAppNotificationKey];
     
     /* get type of In-App msg */
     if ([dictionary objectForKey:kSilentNotificationPayloadTypeKey]) {

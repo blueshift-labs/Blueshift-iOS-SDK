@@ -9,6 +9,7 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
+#import "../BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftNotificationViewController ()
 
@@ -17,8 +18,6 @@
 @property(nonatomic, assign) CGFloat originalCenter;
 
 @end
-
-static NSString *const FontAwesomeName = @"FontAwesome";
 
 @implementation BlueShiftNotificationViewController
 
@@ -65,11 +64,11 @@ static NSString *const FontAwesomeName = @"FontAwesome";
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
     CGSize size = CGSizeZero;
-    if ([self.notification.dimensionType  isEqual: @"points"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKeys]) {
         // Ignore Constants.INAPP_X_PERCENT
         size.width = width;
         size.height = height;
-    } else if([self.notification.dimensionType  isEqual: @"percentage"]) {
+    } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
     }else {
@@ -83,14 +82,14 @@ static NSString *const FontAwesomeName = @"FontAwesome";
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
-    if([position  isEqual: INAPP_POSITION_TOP]) {
+    if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = 0.0f + 20.0f;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
-    } else if([position  isEqual: INAPP_POSITION_CENTER]) {
+    } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
-    } else if([position  isEqual: INAPP_POSITION_BOTTOM]) {
+    } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
@@ -123,14 +122,14 @@ static NSString *const FontAwesomeName = @"FontAwesome";
 - (UIView *)fetchNotificationView{
     switch (self.notification.inAppType) {
         case BlueShiftInAppTypeModal:
-            return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModal" owner:self options:nil] objectAtIndex:0];
+            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
         case BlueShiftInAppModalWithImage:
-            return [[[NSBundle mainBundle] loadNibNamed:@"BlueshiftNotificationModalWithImage" owner:self options:nil] objectAtIndex:0];
+            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithImageXIBNameKey owner:self options:nil] objectAtIndex:0];
             break;
         case BlueShiftNotificationSlideBanner:
-            return [[[NSBundle mainBundle] loadNibNamed:@"BlueShiftNotificationSlideBanner" owner:self options:nil] objectAtIndex:0];
+            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
         default:
-            return [[[NSBundle mainBundle] loadNibNamed:@"BlueShiftNotificationModalWithOneButton" owner:self options:nil] objectAtIndex:0];
+            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithOneButtonXIBNameKey owner:self options:nil] objectAtIndex:0];
             break;
     }
 }
@@ -172,10 +171,10 @@ static NSString *const FontAwesomeName = @"FontAwesome";
 
 - (void)applyIconToLabelView:(UILabel *)iconLabelView {
     if (self.notification.notificationContent.icon) {
-        if ([UIFont fontWithName:@"FontAwesome5Free-Solid" size:30] == nil) {
+        if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil) {
             NSString *fontPath = [[NSBundle bundleForClass:[BlueShiftNotificationViewController class]]
-                                  pathForResource:FontAwesomeName
-                                  ofType:@"otf"];
+                                  pathForResource: kInAppNotificationModalFontAwesomeFileNameKey
+                                  ofType: kInAppNotificationModalFontExtensionKey];
             
             NSData *fontData = [NSData dataWithContentsOfFile:fontPath];
             CFErrorRef error;
@@ -193,7 +192,7 @@ static NSString *const FontAwesomeName = @"FontAwesome";
             CFRelease(provider);
         }
     
-        iconLabelView.font = [UIFont fontWithName:@"FontAwesome5Free-Solid" size: 22.0];
+        iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: 22.0];
     
         [self setLabelText: iconLabelView andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
     

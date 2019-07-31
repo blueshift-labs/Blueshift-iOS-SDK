@@ -7,7 +7,7 @@
 
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
-
+#import "../BlueShiftInAppNotificationConstant.h"
 
 
 @implementation BlueShiftInAppNotificationContent
@@ -17,15 +17,15 @@
         
         @try {
         
-            NSDictionary *contentDictionary = [payloadDictionary objectForKey:@"content"];
+            NSDictionary *contentDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
             
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
-                    if ([contentDictionary objectForKey:@"html"]) {
-                        self.content = (NSString*)[contentDictionary objectForKey:@"html"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalHTMLKey]) {
+                        self.content = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalHTMLKey];
                     }
-                    if ([contentDictionary objectForKey:@"url"]) {
-                        self.url = (NSString*)[contentDictionary objectForKey:@"url"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalURLKey]) {
+                        self.url = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalURLKey];
                     }
                     break;
                     
@@ -33,23 +33,23 @@
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
                 case BlueShiftNotificationOneButton:
-                    if ([contentDictionary objectForKey:@"title"]) {
-                        self.title = (NSString*)[contentDictionary objectForKey:@"title"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalTitleKey]) {
+                        self.title = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalTitleKey];
                     }
-                    if ([contentDictionary objectForKey:@"sub_title"]) {
-                        self.subTitle = (NSString*)[contentDictionary objectForKey:@"sub_title"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalSubTitleKey]) {
+                        self.subTitle = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalSubTitleKey];
                     }
-                    if ([contentDictionary objectForKey:@"message"]) {
-                        self.message = (NSString*)[contentDictionary objectForKey:@"message"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalMessageKey]) {
+                        self.message = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalMessageKey];
                     }
-                    if ([contentDictionary objectForKey:@"background_image"]) {
-                        self.backgroundImage = (NSString*)[contentDictionary objectForKey:@"background_image"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalBackgroundImageKey]) {
+                        self.backgroundImage = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalBackgroundImageKey];
                     }
-                    if ([contentDictionary objectForKey:@"background_color"]) {
-                        self.backgroundColor = (NSString*)[contentDictionary objectForKey:@"background_color"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalBackgroundColorKey]) {
+                        self.backgroundColor = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalBackgroundColorKey];
                     }
-                    if ([contentDictionary objectForKey:@"icon"]) {
-                        self.icon =(NSString *)[contentDictionary objectForKey:@"icon"];
+                    if ([contentDictionary objectForKey: kInAppNotificationModalIconKey]) {
+                        self.icon =(NSString *)[contentDictionary objectForKey: kInAppNotificationModalIconKey];
                     }
 
                     break;
@@ -74,7 +74,7 @@
         
         @try {
             
-            NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey:@"template_style"];
+            NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey];
             
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
@@ -82,24 +82,24 @@
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
                 case BlueShiftNotificationOneButton:
-                    if ([templateStyleDictionary objectForKey:@"background_color"]) {
-                        self.backgroundColor = (NSString *)[templateStyleDictionary objectForKey:@"background_color"];
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundColorKey]) {
+                        self.backgroundColor = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundColorKey];
                     }
-                    if ([templateStyleDictionary objectForKey:@"position"]) {
-                        self.position = (NSString *)[templateStyleDictionary objectForKey:@"position"];
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalPositionKey]) {
+                        self.position = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalPositionKey];
                     }
-                    if ([templateStyleDictionary objectForKey:@"width"]) {
-                        self.width = [[templateStyleDictionary objectForKey:@"width"]
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalWidthKey]) {
+                        self.width = [[templateStyleDictionary objectForKey: kInAppNotificationModalWidthKey]
                                      floatValue];
                     }
-                    if ([templateStyleDictionary objectForKey:@"height"]) {
-                        self.height = [[templateStyleDictionary objectForKey:@"height"] floatValue];
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalHeightKey]) {
+                        self.height = [[templateStyleDictionary objectForKey: kInAppNotificationModalHeightKey] floatValue];
                     }
-                    if ([templateStyleDictionary objectForKey:@"fullscreen"]) {
-                        self.fullScreen = [[templateStyleDictionary objectForKey:@"fullscreen"] boolValue];
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalFullScreenKey]) {
+                        self.fullScreen = [[templateStyleDictionary objectForKey: kInAppNotificationModalFullScreenKey] boolValue];
                     }
-                    if ([templateStyleDictionary objectForKey:@"enable_background_action"]) {
-                        self.enableBackgroundAction = [[templateStyleDictionary objectForKey:@"enable_background_action"] boolValue];
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey]) {
+                        self.enableBackgroundAction = [[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey] boolValue];
                     }
                     
                     break;
@@ -124,7 +124,7 @@
         
         @try {
             
-            NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey:@"content_style"];
+            NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey];
         
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
@@ -132,44 +132,44 @@
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
                 case BlueShiftNotificationOneButton:
-                    if ([contenStyletDictionary objectForKey:@"title_color"]) {
-                        self.titleColor = (NSString *)[contenStyletDictionary objectForKey:@"title_color"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleColorKey]) {
+                        self.titleColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleColorKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"title_background_color"]) {
-                         self.titleBackgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"title_background_color"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleBackgroundColorKey]) {
+                         self.titleBackgroundColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleBackgroundColorKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"title_gravity"]) {
-                        self.titleGravity = (NSString *)[contenStyletDictionary objectForKey:@"title_gravity"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleGravityKey]) {
+                        self.titleGravity = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleGravityKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"title_size"]) {
-                        self.titleSize = (NSNumber *)[contenStyletDictionary objectForKey:@"title_size"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleSizeKey]) {
+                        self.titleSize = (NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleSizeKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"message_color"]) {
-                        self.messageColor = (NSString *)[contenStyletDictionary objectForKey:@"message_color"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalMessageColorKey]) {
+                        self.messageColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalMessageColorKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"message_align"]) {
-                        self.messageAlign = (NSString *)[contenStyletDictionary objectForKey:@"message_align"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalMessageAlignKey]) {
+                        self.messageAlign = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalMessageAlignKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"message_background_color"]) {
-                        self.messageBackgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"message_background_color"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalMessageBackgroundColorKey]) {
+                        self.messageBackgroundColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalMessageBackgroundColorKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"message_gravity"]) {
-                        self.messageGravity = (NSString *)[contenStyletDictionary objectForKey:@"message_gravity"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalMessageGravityKey]) {
+                        self.messageGravity = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalMessageGravityKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"message_size"]) {
-                        self.messageSize = (NSNumber *)[contenStyletDictionary objectForKey:@"message_size"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalMessageSizeKey]) {
+                        self.messageSize = (NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalMessageSizeKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"icon_size"]) {
-                        self.iconSize = (NSNumber *)[contenStyletDictionary objectForKey:@"icon_size"];
+                    if ([contenStyletDictionary objectForKey:kInAppNotificationModalIconSizeKey]) {
+                        self.iconSize = (NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalIconSizeKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"icon_color"]) {
-                        self.iconColor = (NSString *)[contenStyletDictionary objectForKey:@"icon_color"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconColorKey]) {
+                        self.iconColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalIconColorKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"icon_background_color"]) {
-                        self.iconBackgroundColor = (NSString *)[contenStyletDictionary objectForKey:@"icon_background_color"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconBackgroundColorKey]) {
+                        self.iconBackgroundColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalIconBackgroundColorKey];
                     }
-                    if ([contenStyletDictionary objectForKey:@"icon_background_radius"]){
-                        self.iconBackgroundRadius = (NSNumber *)[contenStyletDictionary objectForKey:@"icon_background_radius"];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconBackgroundRadiusKey]){
+                        self.iconBackgroundRadius = (NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalIconBackgroundRadiusKey];
                     }
                     
                     break;
@@ -200,26 +200,26 @@
                 case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
                 case BlueShiftNotificationOneButton:
-                    if ([payloadDictionary objectForKey:@"text"]) {
-                        self.text = (NSString *)[payloadDictionary objectForKey:@"text"];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalTextKey]) {
+                        self.text = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalTextKey];
                     }
-                    if ([payloadDictionary objectForKey:@"text_color"]) {
-                        self.textColor = (NSString *)[payloadDictionary objectForKey:@"text_color"];
+                    if ([payloadDictionary objectForKey: kInAppNotiificationModalTextColorKey]) {
+                        self.textColor = (NSString *)[payloadDictionary objectForKey: kInAppNotiificationModalTextColorKey];
                     }
-                    if ([payloadDictionary objectForKey:@"background_color"]) {
-                        self.backgroundColor = (NSString *)[payloadDictionary objectForKey:@"background_color"];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalBackgroundColorKey]) {
+                        self.backgroundColor = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalBackgroundColorKey];
                     }
-                    if ([payloadDictionary objectForKey:@"page"]) {
-                        self.page = (NSString *)[payloadDictionary objectForKey:@"page"];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalPageKey]) {
+                        self.page = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalPageKey];
                     }
-                    if ([payloadDictionary objectForKey:@"extra"]) {
-                        self.extra = [payloadDictionary objectForKey:@"extra"];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalExtraKey]) {
+                        self.extra = [payloadDictionary objectForKey: kInAppNotificationModalExtraKey];
                     }
-                    if ([payloadDictionary objectForKey:@"content"]) {
-                        self.content = [payloadDictionary objectForKey:@"content"];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]){
+                        self.content = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
                     }
-                    if ([payloadDictionary objectForKey:@"image"]) {
-                        self.image = (NSString *)[payloadDictionary objectForKey:@"image"];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalImageKey]) {
+                        self.image = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalImageKey];
                     }
                     
                     break;
@@ -247,26 +247,26 @@
             self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: appEntity.type];
             
             NSDictionary *inAppDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
-            if ([inAppDictionary objectForKey:@"inapp"]) {
+            if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
                 NSDictionary *payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
                 
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
                 
-                if ([payloadDictionary valueForKeyPath:@"action.dismiss"]) {
-                    self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:@"action.dismiss"] withType: self.inAppType];
+                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalDismissButtonKey]) {
+                    self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath: kInAppNotificationModalDismissButtonKey] withType: self.inAppType];
                 }
-                if ([payloadDictionary valueForKeyPath:@"action.app_open"]) {
-                    self.appOpen = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:@"action.app_open"] withType: self.inAppType];
+                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalAppOpenButtonKey]) {
+                    self.appOpen = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:kInAppNotificationModalAppOpenButtonKey] withType: self.inAppType];
                 }
-                if ([payloadDictionary valueForKeyPath:@"action.share"]) {
-                    self.share = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:@"action.share"] withType: self.inAppType];
+                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalShareButtonKey]) {
+                    self.share = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath: kInAppNotificationModalShareButtonKey] withType: self.inAppType];
                 }
                 
                 self.showCloseButton = YES;
-                self.position = @"center";
-                self.dimensionType = @"percentage";
+                self.position = kInAppNotificationModalPositionCenterKey;
+                self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
                 self.width = 90;
                 self.height = 90;
                 
