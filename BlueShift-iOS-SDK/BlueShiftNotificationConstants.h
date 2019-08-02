@@ -39,6 +39,4 @@
 
 #define kSilentNotificationTriggerEndTimeKey                               @"expires_at"
 
-
-
 #endif

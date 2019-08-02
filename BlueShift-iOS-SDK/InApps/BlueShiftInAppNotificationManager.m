@@ -8,8 +8,10 @@
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
 #import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
+#import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
+#import "BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 @end
@@ -36,7 +38,7 @@
         if(masterContext) {
             NSEntityDescription *entity;
             @try {
-                entity = [NSEntityDescription entityForName:@"InAppNotificationEntity" inManagedObjectContext:masterContext];
+                entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception %@", exception);
@@ -110,14 +112,13 @@
     
     switch (notification.inAppType) {
         case BlueShiftInAppTypeHTML:
-            printf("%f NotificationMgr:: Creating html notification View \n", [[NSDate date] timeIntervalSince1970]);
             notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
             break;
         case BlueShiftInAppTypeModal:
             notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
             break;
-        case BlueShiftInAppModalWithImage:
-            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+        case BlueShiftNotificationSlideBanner:
+            notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
             break;
             
         default:
@@ -126,7 +127,7 @@
     }
     if (notificationController) {
         notificationController.delegate = self;
-        [notificationController setTouchesPassThroughWindow:YES];
+        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
         [self presentInAppNotification:notificationController];
     }
     if (errorString) {
@@ -142,13 +143,19 @@
 }
 
 // Notification Click Callbacks
--(void)inAppDidDismiss:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller  {
+-(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     [self inAppNotificationDidDismiss:controller];
     [self scanNotificationQueue];
+    [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+}
+
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
 }
 
 // Notification render Callbacks
 -(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    
 }
 
 @end
