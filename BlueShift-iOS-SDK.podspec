@@ -103,7 +103,6 @@ Pod::Spec.new do |s|
 
     ss.subspec 'InApps' do |ia|
       ia.source_files = "Blueshift-iOS-SDK/InApps/*.{h,m}"
-      ia.public_header_files = "BlueShift-iOS-SDK/InApps/*.h"
       ia.exclude_files = "Classes/Exclude"
       ia.public_header_files = "Blueshift-iOS-SDK/InApps/*.h"
 
