@@ -6,18 +6,19 @@
 //
 
 #import "BlueShiftNotificationSlideBannerViewController.h"
-#import "../BlueShiftNotificationView.h"
-#import "../BlueShiftNotificationWindow.h"
-#import "../../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftNotificationView.h"
+#import "BlueShiftNotificationWindow.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftInAppNotificationConstant.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
 }
 
-@property (strong, nonatomic) IBOutlet UIView *slideBannerPopupView;
-@property (strong, nonatomic) IBOutlet UILabel *iconLabel;
-@property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
-@property (strong, nonatomic) IBOutlet UIButton *okayButton;
+@property(nonatomic, assign) CGFloat initialHorizontalCenter;
+@property(nonatomic, assign) CGFloat initialTouchPositionX;
+@property(nonatomic, assign) CGFloat originalCenter;
 @property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (IBAction)onOkayButtonTapped:(id)sender;
@@ -34,18 +35,22 @@
     }
     
     slideBannerView = [self createNotificationWindow];
+    [self enableSingleTap];
     [self presentAnimationView];
-}
-
-- (void)viewDidLayoutSubviews{
-    [super viewDidLayoutSubviews];
-    [self initializeNotificationView];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureBackground];
     [self createNotificationView];
+    [self initializeNotificationView];
+}
+
+- (void)enableSingleTap {
+    UITapGestureRecognizer *singleFingerTap =
+      [[UITapGestureRecognizer alloc] initWithTarget:self
+                                              action:@selector(onOkayButtonTapped:)];
+    [self.view addGestureRecognizer:singleFingerTap];
 }
 
 - (void)presentAnimationView {
@@ -59,12 +64,14 @@
     [self.view insertSubview:slideBannerView aboveSubview:self.view];
 }
 
-- (void)createNotificationView{
-    CGRect frame = [self positionNotificationView: slideBannerView];
+- (void)createNotificationView {
+    CGRect frame = [self positionNotificationView];
     slideBannerView.frame = frame;
-    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) 
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
+        
+    }
  }
 
 - (void)showFromWindow:(BOOL)animated {
@@ -125,15 +132,15 @@
             [slideBannerView addSubview: iconLabel];
         }
         
-        UIButton *actionButton;
-        if (self.notification.notificationContent.actions && self.notification.notificationContent.actions[0]) {
-            actionButton = [self createActionButton];
-            [slideBannerView addSubview: actionButton];
+        UILabel *actionButtonLabel;
+        if (self.notification.notificationContent.secondarIcon) {
+            actionButtonLabel = [self createActionButtonLabel];
+            [slideBannerView addSubview: actionButtonLabel];
         }
         
         UILabel *descriptionLabel;
         if (self.notification.notificationContent.message) {
-            CGFloat descriptionLabelWidth = slideBannerView.frame.size.width - (xPadding + actionButton.frame.size.width + kInAppNotificationModalYPadding);
+            CGFloat descriptionLabelWidth = slideBannerView.frame.size.width - (xPadding + actionButtonLabel.frame.size.width + kInAppNotificationModalYPadding);
             descriptionLabel = [self createDescriptionLabel:xPadding andLabelWidth:descriptionLabelWidth];
             [slideBannerView addSubview: descriptionLabel];
         }
@@ -141,6 +148,20 @@
         if (self.notification.templateStyle) {
             slideBannerView.backgroundColor = self.notification.templateStyle.backgroundColor ? [self colorWithHexString: self.notification.templateStyle.backgroundColor]
             : UIColor.blueColor;
+        }
+        
+        if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
+            CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabel.frame.size.width] + 30;
+            
+            if (descriptionLabelHeight < 50) {
+                descriptionLabelHeight = 80;
+            }
+            
+            CGRect frame = slideBannerView.frame;
+            frame.size.height = descriptionLabelHeight;
+            slideBannerView.frame = frame;
+            
+            [self createNotificationView];
         }
     }
 }
@@ -150,7 +171,23 @@
     CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
     
     UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
-    [self applyIconToLabelView: label];
+    
+    CGFloat iconFontSize = 22;
+    if (self.notification.contentStyle && self.notification.contentStyle.iconSize) {
+        iconFontSize = self.notification.contentStyle.iconSize.floatValue > 0
+        ? self.notification.contentStyle.iconSize.floatValue : 22;
+    }
+    
+    [self applyIconToLabelView:label andFontIconSize:[NSNumber numberWithFloat:iconFontSize]];
+    
+    [self setLabelText: label andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+    
+    CGFloat iconRadius = 5;
+    if (self.notification.contentStyle && self.notification.contentStyle.iconBackgroundRadius) {
+        iconRadius = self.notification.contentStyle.iconBackgroundRadius.floatValue;
+    }
+       
+    label.layer.cornerRadius = iconRadius;
     label.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     [label setTextAlignment: NSTextAlignmentCenter];
     
@@ -181,20 +218,33 @@
     return descriptionLabel;
 }
 
-- (UIButton *)createActionButton {
-    UIButton *actionButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [actionButton addTarget:self
-               action:@selector(onOkayButtonTapped:)
-     forControlEvents:UIControlEventTouchUpInside];
-    [actionButton setImage:[UIImage imageNamed:@"right.png"] forState:UIControlStateNormal];
-    
+- (UILabel *)createActionButtonLabel {
     CGFloat yPosition = [self getCenterYPosition: kInAppNotificationSlideBannerActionButtonHeight];
     CGFloat xPosition = slideBannerView.frame.size.width - kInAppNotificationSlideBannerActionButtonWidth;
     CGRect cgrect = CGRectMake(xPosition, yPosition, kInAppNotificationSlideBannerActionButtonWidth, kInAppNotificationSlideBannerActionButtonHeight);
-    actionButton.frame = cgrect;
-    actionButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     
-    return actionButton;
+    UILabel *actionButtonlabel = [[UILabel alloc] initWithFrame:cgrect];
+    
+    CGFloat iconFontSize = 22;
+    if (self.notification.contentStyle && self.notification.contentStyle.secondaryIconSize) {
+        iconFontSize = self.notification.contentStyle.secondaryIconSize.floatValue > 0
+        ? self.notification.contentStyle.secondaryIconSize.floatValue : 22;
+    }
+    
+    [self applyIconToLabelView: actionButtonlabel andFontIconSize:[NSNumber numberWithFloat:iconFontSize]];
+    
+    [self setLabelText: actionButtonlabel andString: self.notification.notificationContent.secondarIcon labelColor:self.notification.contentStyle.secondaryIconColor backgroundColor:self.notification.contentStyle.secondaryIconBackgroundColor];
+    
+    CGFloat iconRadius = 5;
+    if (self.notification.contentStyle && self.notification.contentStyle.secondaryIconBackgroundRadius) {
+        iconRadius = self.notification.contentStyle.secondaryIconBackgroundRadius.floatValue;
+    }
+       
+    actionButtonlabel.layer.cornerRadius = iconRadius;
+    actionButtonlabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [actionButtonlabel setTextAlignment: NSTextAlignmentCenter];
+    
+    return actionButtonlabel;
 }
 
 - (CGFloat)getCenterYPosition:(CGFloat)height {
@@ -214,8 +264,80 @@
 }
 
 - (IBAction)onOkayButtonTapped:(id)sender {
-    if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions && self.notification.notificationContent.actions[0]) {
+    if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
+        self.notification.notificationContent.actions.count > 0 &&
+        self.notification.notificationContent.actions[0]) {
         [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
+    } else {
+        [self closeButtonDidTapped];
     }
 }
+
+- (CGRect)positionNotificationView {
+    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [self convertHeightToPercentage :slideBannerView];
+    
+    float topMargin = 0.0;
+    float bottomMargin = 0.0;
+    float leftMargin = 0.0;
+    float rightMargin = 0.0;
+    if (self.notification.templateStyle && self.notification.templateStyle.margin) {
+        if (self.notification.templateStyle.margin.top > 0) {
+            topMargin = self.notification.templateStyle.margin.top;
+        }
+        if (self.notification.templateStyle.margin.bottom > 0) {
+            bottomMargin = self.notification.templateStyle.margin.bottom;
+        }
+        if (self.notification.templateStyle.margin.left > 0) {
+            leftMargin = self.notification.templateStyle.margin.left;
+        }
+        if (self.notification.templateStyle.margin.right > 0) {
+            rightMargin = self.notification.templateStyle.margin.right;
+        }
+    }
+    
+    CGSize size = CGSizeZero;
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
+        size.width = width;
+        size.height = height;
+    } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
+        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        
+        if (width == 100) {
+            itemWidth = itemWidth - (leftMargin + rightMargin);
+        }
+        
+        size.width = itemWidth;
+        size.height = itemHeight;
+    }
+    
+    CGRect frame = slideBannerView.frame;
+    frame.size = size;
+    slideBannerView.autoresizingMask = UIViewAutoresizingNone;
+    
+    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
+    
+    if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = 0.0f + topMargin;
+        slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
+    } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = (screenSize.height - size.height) / 2.0f;
+    } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = screenSize.height - (size.height + bottomMargin);
+        slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
+    }
+    
+    frame.origin.x = frame.origin.x < 0.0f ? 0.0f : frame.origin.x;
+    frame.origin.y = frame.origin.y < 0.0f ? 0.0f : frame.origin.y;
+    slideBannerView.frame = frame;
+    _originalCenter = frame.origin.x + frame.size.width / 2.0f;
+    
+    return frame;
+}
+
 @end

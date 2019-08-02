@@ -7,13 +7,15 @@
 
 #import <WebKit/WebKit.h>
 #import "BlueShiftNotificationWebViewController.h"
-#import "../../UI/BlueShiftNotificationCloseButton.h"
-#import "../BlueShiftNotificationView.h"
-#import "../BlueShiftNotificationWindow.h"
-#import "../../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftNotificationCloseButton.h"
+#import "BlueShiftNotificationView.h"
+#import "BlueShiftNotificationWindow.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 #define INAPP_CLOSE_BUTTON_WIDTH 40
 
+API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate> {
     WKWebView *webView;
     BlueShiftNotificationCloseButton *_closeButton;
@@ -23,6 +25,7 @@
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
@@ -46,15 +49,16 @@
     self.view.backgroundColor = [UIColor clearColor];
 }
 
-- (void)presentWebViewNotification {
-    WKWebView *webView = [self createWebView];
-    [self setWebViewDelegate:webView];
-    [self addWebViewAsSubView:webView];
-    [self loadWebView];
-    [self addTapGesture];
+- (void)presentWebViewNotification{
+    if (@available(iOS 8.0, *)) {
+        WKWebView *webView = [self createWebView];
+        [self setWebViewDelegate:webView];
+        [self addWebViewAsSubView:webView];
+        [self loadWebView];
+    }
 }
 
-- (WKWebView *)createWebView {
+- (WKWebView *)createWebView  API_AVAILABLE(ios(8.0)){
     WKWebViewConfiguration *wkConfig = [[WKWebViewConfiguration alloc] init];
     webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:wkConfig];
     webView.scrollView.showsHorizontalScrollIndicator = NO;
@@ -69,20 +73,12 @@
     return webView;
 }
 
-- (void)setWebViewDelegate:(WKWebView *)webView {
+- (void)setWebViewDelegate:(WKWebView *)webView  API_AVAILABLE(ios(8.0)){
     webView.navigationDelegate = self;
 }
 
-- (void)addWebViewAsSubView:(WKWebView *)webView {
+- (void)addWebViewAsSubView:(WKWebView *)webView  API_AVAILABLE(ios(8.0)){
     [self.view addSubview:webView];
-}
-
-- (void)addTapGesture {
-    if (!self.notification.showCloseButton) {
-        _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureHandle:)];
-        _panGesture.delegate = self;
-        [webView addGestureRecognizer:_panGesture];
-    }
 }
 
 - (void)loadFromURL {
@@ -94,7 +90,7 @@
     [webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
 }
 
-- (CGRect)positionWebView {
+- (CGRect)positionWebView{
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
@@ -105,7 +101,10 @@
     if (self.notification.templateStyle && self.notification.templateStyle.margin) {
         if (self.notification.templateStyle.margin.top > 0) {
             topMargin = self.notification.templateStyle.margin.top;
+        } else if(height == 100){
+            topMargin = 15.0;
         }
+        
         if (self.notification.templateStyle.margin.bottom > 0) {
             bottomMargin = self.notification.templateStyle.margin.bottom;
         }
@@ -125,10 +124,6 @@
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
         CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
-        
-        if (self.notification.inAppType == BlueShiftNotificationSlideBanner && itemHeight < 80.0) {
-            itemHeight = 80.0;
-        }
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);
@@ -166,7 +161,11 @@
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
-        frame.origin.y = (screenSize.height - size.height) / 2.0f;
+        double yPosition = (screenSize.height - size.height) / 2.0f;
+        if (height == 100) {
+            yPosition = yPosition + topMargin;
+        }
+        frame.origin.y = yPosition;
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
@@ -183,11 +182,19 @@
     return frame;
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler API_AVAILABLE(ios(8.0)){
     
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
         NSURL *url = navigationAction.request.URL;
-        [[UIApplication sharedApplication] openURL:url];
+        if (@available(iOS 10.0, *)) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
+                if (success) {
+                    NSLog(@"Opened url");
+                }
+            }];
+        } else {
+            [[UIApplication sharedApplication] openURL:url];
+        }
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
@@ -196,11 +203,6 @@
 }
 
 - (void)configureWebViewBackground {
-    /*
-    if (self.notification.shadowBackground) {
-        self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.75f];
-    }*/
-     
     self.view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
     UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin
     | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
@@ -229,8 +231,8 @@
     [self configureWebViewBackground];
     [self createCloseButton:frame];
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
-        webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
+      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
+      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
 }
 

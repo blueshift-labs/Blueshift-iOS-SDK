@@ -7,7 +7,8 @@
 
 #import "BlueShift.h"
 #import <UserNotifications/UserNotifications.h>
-#import "InApps/BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationManager.h"
+#import "BlueShiftNotificationConstants.h"
 
 BlueShiftAppDelegate *_newDelegate;
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
@@ -39,8 +40,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)setUserNotificationDelegate {
     BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    center.delegate = blueShiftUserNotificationCenterDelegate;
+    if (@available(iOS 10.0, *)) {
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = blueShiftUserNotificationCenterDelegate;
+    }
 }
 
 - (void) setupWithConfiguration:(BlueShiftConfig *)config {
@@ -79,9 +82,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     if(config.blueShiftPushDelegate) {
         blueShiftAppDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
-    } else {
-        blueShiftAppDelegate.blueShiftPushDelegate = oldDelegate;
     }
+    
     
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
@@ -101,8 +103,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [_inAppNotificationMananger load];
         if (config.inAppNotificationDelegate) {
             _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
-        }else{
-            _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
         }
         
         if (config.BlueshiftInAppNotificationTimeInterval) {
@@ -111,7 +111,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             _inAppNotificationMananger.inAppNotificationTimeInterval = 60;
         }
         
-        [self startInAppMessageLoadFromaAPITimer];
+        [self fetchInAppNotificationFromAPI];
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
@@ -632,10 +632,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     
-    NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
-    NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"bsft_message_uuid"];
-    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"bsft_transaction_uuid"];
+    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_experiment_uuid"];
+    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_user_uuid"];
+    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
+    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
@@ -656,6 +656,18 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return [pushTrackParametersMutableDictionary copy];
 }
 
+- (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
+    if (notificationPayload && key && ![key isEqualToString:@""]) {
+        if ([notificationPayload objectForKey: key]) {
+            return (NSString *)[notificationPayload objectForKey: key];
+        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
+            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
+            return (NSString *)[notificationPayload objectForKey: key];
+        }
+    }
+    
+    return @"";
+}
 
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
     if ([self isSendPushAnalytics:userInfo]) {
@@ -699,23 +711,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self sendPushAnalytics:@"dismiss" withParams: notificationPayload canBatchThisEvent: isBatchEvent];
 }
 
-- (void)startInAppMessageLoadFromaAPITimer {
-    if (nil == self.inAppMsgAPITimer) {
-        self.inAppMsgAPITimer =  [NSTimer scheduledTimerWithTimeInterval: 15
-                                                                  target:self
-                                                                selector:@selector(fetchInAppNotificationFromAPI)
-                                                                userInfo:nil
-                                                                 repeats:NO];
-    }
-}
-
-- (void) stopInAppMessageLoadAPITimer {
-    if (nil != self.inAppMsgAPITimer) {
-        [self.inAppMsgAPITimer invalidate];
-        self.inAppMsgAPITimer = nil;
-    }
-}
-
 - (void)startInAppMessageLoadFromaDBTimer {
     if (nil == self.inAppDBTimer) {
         self.inAppDBTimer =  [NSTimer scheduledTimerWithTimeInterval: 2
@@ -751,23 +746,20 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-- (void) fetchInAppNotificationFromAPI {
+- (void)fetchInAppNotificationFromAPI{
     if (_config.enableInAppNotification == YES) {
-        [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID) {
+        [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID, NSString *lastTimestamp) {
             if (status) {
-                [BlueShiftLiveContent fetchInAppNotificationByDeviceID: notificationID success:^(NSDictionary *dictionary){
+                [BlueShiftLiveContent fetchInAppNotificationByDeviceID: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
                     if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
                         NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
                         [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray];
-                        [self stopInAppMessageLoadAPITimer];
                     }
                 } failure:^(NSError *error){
                     NSLog(@"Failed");
-                    [self stopInAppMessageLoadAPITimer];
                 }];
             } else {
                 NSLog(@"Failed");
-                [self stopInAppMessageLoadAPITimer];
             }
         }];
     }

@@ -6,21 +6,21 @@
 //
 
 #import "BlueShiftNotificationModalViewController.h"
-#import "../BlueShiftNotificationView.h"
-#import "../BlueShiftNotificationWindow.h"
-#import "../../Models/BlueShiftInAppNotificationHelper.h"
-#import "../../BlueShiftInAppNotificationConstant.h"
-#import "../../BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftNotificationView.h"
+#import "BlueShiftNotificationWindow.h"
+#import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
 }
-@property (strong, nonatomic) IBOutlet UIView *notificationModalView;
-@property (strong, nonatomic) IBOutlet UILabel *titleLabel;
-@property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
-@property (strong, nonatomic) IBOutlet UILabel *iconLabel;
+
 @property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
+@property(nonatomic, assign) CGFloat initialHorizontalCenter;
+@property(nonatomic, assign) CGFloat initialTouchPositionX;
+@property(nonatomic, assign) CGFloat originalCenter;
 
 - (void)onOkayButtonTapped:(UIButton *)customButton;
 
@@ -39,19 +39,15 @@
     [self.view insertSubview:notificationView aboveSubview:self.view];
 }
 
-- (void)viewDidLayoutSubviews{
-    [super viewDidLayoutSubviews];
-    [self initializeNotificationView];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureBackground];
     [self createNotificationView];
+    [self initializeNotificationView];
 }
 
 - (void)createNotificationView {
-    CGRect frame = [self positionNotificationView: notificationView];
+    CGRect frame = [self positionNotificationView];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -68,11 +64,10 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
-    
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
         [[self inAppNotificationDelegate] inAppNotificationWillAppear];
     }
-
+    
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -138,12 +133,13 @@
 - (void)initializeNotificationView{
     if (self.notification && self.notification.notificationContent) {
         CGFloat yPadding = 0.0;
+        CGFloat viewHeight = 0;
         
         UIImageView *imageView;
         if (self.notification.notificationContent.banner) {
             imageView = [self createImageView];
             yPadding = imageView.layer.frame.size.height + (2 * kInAppNotificationModalYPadding);
-            [notificationView addSubview:imageView];
+            viewHeight = yPadding;
         }
         
         UILabel *iconLabel;
@@ -151,21 +147,20 @@
             yPadding = yPadding > 0.0 ? yPadding : (2 * kInAppNotificationModalYPadding);
             iconLabel = [self createIconLabel: yPadding];
             yPadding = (2 * kInAppNotificationModalYPadding) + yPadding;
-            [notificationView addSubview: iconLabel];
+            viewHeight = viewHeight + iconLabel.frame.size.height + (2 * kInAppNotificationModalYPadding);
         }
         
         UILabel *titleLabel;
         if (self.notification.notificationContent.title) {
             yPadding = yPadding + iconLabel.layer.frame.size.height;
             titleLabel = [self createTitleLabel: yPadding];
-            [notificationView addSubview: titleLabel];
+            viewHeight = viewHeight + titleLabel.frame.size.height + (2 * kInAppNotificationModalYPadding);
         }
         
         UILabel *subTitleLabel;
         if (self.notification.notificationContent.subTitle) {
             yPadding = yPadding + iconLabel.layer.frame.size.height;
             subTitleLabel = [self createSubTitleLabel: yPadding];
-            [notificationView addSubview: subTitleLabel];
         }
         
         UILabel *descriptionLabel;
@@ -174,7 +169,7 @@
                 ? (yPadding + titleLabel.layer.frame.size.height + 2 * kInAppNotificationModalYPadding)
                 : (2 * kInAppNotificationModalYPadding);
             descriptionLabel = [self createDescriptionLabel:yPadding];
-            [notificationView addSubview:descriptionLabel];
+            viewHeight = viewHeight + descriptionLabel.frame.size.height + (2 * kInAppNotificationModalYPadding);
         }
         
         if (self.notification.contentStyle) {
@@ -182,6 +177,19 @@
                 : UIColor.whiteColor;
         }
         
+        if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
+            CGRect frame = notificationView.frame;
+            frame.size.height = viewHeight + [self calculateTotalButtonHeight];
+            notificationView.frame = frame;
+            
+            [self createNotificationView];
+        }
+        
+        [notificationView addSubview:imageView];
+        [notificationView addSubview: iconLabel];
+        [notificationView addSubview: titleLabel];
+        [notificationView addSubview: subTitleLabel];
+        [notificationView addSubview:descriptionLabel];
         [self initializeButtonView];
     }
 }
@@ -215,7 +223,23 @@
     CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
         
     UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
-    [self applyIconToLabelView: label];
+    
+    CGFloat iconFontSize = 22;
+    if (self.notification.contentStyle && self.notification.contentStyle.iconSize) {
+        iconFontSize = self.notification.contentStyle.iconSize.floatValue > 0
+        ? self.notification.contentStyle.iconSize.floatValue : 22;
+    }
+    
+    [self applyIconToLabelView:label andFontIconSize:[NSNumber numberWithFloat:iconFontSize]];
+    
+    [self setLabelText: label andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+    
+    CGFloat iconRadius = 5;
+    if (self.notification.contentStyle && self.notification.contentStyle.iconBackgroundRadius) {
+        iconFontSize = self.notification.contentStyle.iconBackgroundRadius.floatValue;
+    }
+    
+    label.layer.cornerRadius = iconRadius;
     label.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     [label setTextAlignment: NSTextAlignmentCenter];
         
@@ -290,15 +314,25 @@
 }
 
 - (void)initializeButtonView {
-    if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions) {
-        NSUInteger numberOfButtons = [self.notification.notificationContent.actions count];
-        CGFloat xPadding = numberOfButtons == 1 ? 0.0 : 5.0;
-        CGFloat yPadding = numberOfButtons == 1 ? 0.0 : 5.0;
+    if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
+        self.notification.notificationContent.actions.count > 0) {
+        
+        CGFloat xPadding = 0.0;
+        CGFloat yPadding = 0.0;
+        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsPadding !=nil) {
+            if (self.notification.contentStyle.actionsPadding.left > 0) {
+                xPadding = self.notification.contentStyle.actionsPadding.left;
+            }
+            
+            if (self.notification.contentStyle.actionsPadding.bottom > 0) {
+                yPadding = self.notification.contentStyle.actionsPadding.bottom;
+            }
+        }
     
         CGFloat buttonHeight = 40.0;
-        CGFloat buttonWidth = [self getActionButtonWidth] ;
+        CGFloat buttonWidth = [self getActionButtonWidth:xPadding] ;
         
-        CGFloat xPosition = numberOfButtons == 1 ? 0.0 :[self getActionButtonXPosition: notificationView childWidth: buttonWidth];
+        CGFloat xPosition = [self getActionButtonXPosition: notificationView childWidth: buttonWidth andXPadding: xPadding];
         CGFloat yPosition = notificationView.frame.size.height - buttonHeight - yPadding;
         
         for (int i = 0; i< [self.notification.notificationContent.actions count]; i++) {
@@ -306,7 +340,7 @@
             [self createActionButton: self.notification.notificationContent.actions[i] positionButton: cgRect objectPosition: &i];
             
              if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation .intValue > 0) {
-                 yPosition = yPosition - buttonHeight - (2 * yPadding);
+                 yPosition = yPosition - buttonHeight - yPadding;
              } else {
                  xPosition =  xPosition + buttonWidth + xPadding;
              }
@@ -322,7 +356,11 @@
     [button setTag: *position];
     [self setButton: button andString: buttonDetails.text
           textColor: buttonDetails.textColor backgroundColor: buttonDetails.backgroundColor];
-    button.layer.cornerRadius = [self.notification.notificationContent.actions count] == 1 ? 0.0 : 10.0;
+    
+    CGFloat buttonRadius = (buttonDetails.backgroundRadius !=nil && buttonDetails.backgroundRadius > 0) ?
+    [buttonDetails.backgroundRadius floatValue] : 0.0;
+    
+    button.layer.cornerRadius = buttonRadius;
     button.frame = positionValue;
     button.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     [notificationView addSubview:button];
@@ -349,19 +387,109 @@
     return ((parentView.frame.size.width / 2) - xPadding);
 }
 
-- (CGFloat)getActionButtonWidth{
+- (CGFloat)getActionButtonWidth:(CGFloat)xPadding{
     NSUInteger numberOfButtons = [self.notification.notificationContent.actions count];
-    CGFloat xPadding = numberOfButtons == 1 ? 0.0 : 5.0;
     
     return (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation.intValue > 0)
     ? (notificationView.frame.size.width - ((numberOfButtons + 1) * xPadding))
-    : (notificationView.frame.size.width - ((numberOfButtons + 1) * xPadding))/numberOfButtons;
+    : (notificationView.frame.size.width - ((numberOfButtons + 1) * xPadding)) /numberOfButtons;
 }
 
-- (CGFloat)getActionButtonXPosition:(UIView *)parentView childWidth:(CGFloat)width {
+- (CGFloat)getActionButtonXPosition:(UIView *)parentView childWidth:(CGFloat)width andXPadding:(CGFloat)xPadding{
     return (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation.intValue > 0)
     ? [self getCenterXPosition: parentView childWidth: width]
-    : 5.0;
+    : xPadding;
+}
+
+- (CGRect)positionNotificationView {
+    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[self convertHeightToPercentage: notificationView];
+    
+    float topMargin = 0.0;
+    float bottomMargin = 0.0;
+    float leftMargin = 0.0;
+    float rightMargin = 0.0;
+    if (self.notification.templateStyle && self.notification.templateStyle.margin) {
+        if (self.notification.templateStyle.margin.top > 0) {
+            topMargin = self.notification.templateStyle.margin.top;
+        }
+        if (self.notification.templateStyle.margin.bottom > 0) {
+            bottomMargin = self.notification.templateStyle.margin.bottom;
+        }
+        if (self.notification.templateStyle.margin.left > 0) {
+            leftMargin = self.notification.templateStyle.margin.left;
+        }
+        if (self.notification.templateStyle.margin.right > 0) {
+            rightMargin = self.notification.templateStyle.margin.right;
+        }
+    }
+    
+    CGSize size = CGSizeZero;
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
+        size.width = width;
+        size.height = height;
+    } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
+        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        
+        if (height == 100) {
+            itemHeight = itemHeight - (topMargin + bottomMargin);
+        }
+        
+        if (width == 100) {
+            itemWidth = itemWidth - (leftMargin + rightMargin);
+        }
+        
+        size.width = itemWidth;
+        size.height = itemHeight;
+    }
+    
+    CGRect frame = notificationView.frame;
+    frame.size = size;
+    notificationView.autoresizingMask = UIViewAutoresizingNone;
+    
+    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
+    
+    if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = 0.0f + topMargin;
+        notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
+    } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = (screenSize.height - size.height) / 2.0f;
+    } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = screenSize.height - (size.height + bottomMargin);
+        notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
+    }
+    
+    frame.origin.x = frame.origin.x < 0.0f ? 0.0f : frame.origin.x;
+    frame.origin.y = frame.origin.y < 0.0f ? 0.0f : frame.origin.y;
+    notificationView.frame = frame;
+    _originalCenter = frame.origin.x + frame.size.width / 2.0f;
+    
+    return frame;
+}
+
+- (CGFloat)calculateTotalButtonHeight {
+    if (self.notification.notificationContent.actions != nil && self.notification.notificationContent.actions.count > 0) {
+    
+        CGFloat bottomPadding = 0;
+        CGFloat buttonCount = [self.notification.notificationContent.actions count];
+        
+        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsPadding != nil && self.notification.contentStyle.actionsPadding.bottom > 0) {
+            bottomPadding = self.notification.contentStyle.actionsPadding.bottom;
+        }
+        
+        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsOrientation != nil && self.notification.contentStyle.actionsOrientation.intValue > 0) {
+                return ((buttonCount * 40) + ((buttonCount * bottomPadding) + 20));
+        } else {
+            return (bottomPadding + 40 + 20);
+        }
+    }
+    
+    return 0;
 }
 
 @end
