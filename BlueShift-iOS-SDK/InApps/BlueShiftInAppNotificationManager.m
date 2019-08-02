@@ -112,20 +112,13 @@
     
     switch (notification.inAppType) {
         case BlueShiftInAppTypeHTML:
-            printf("%f NotificationMgr:: Creating html notification View \n", [[NSDate date] timeIntervalSince1970]);
             notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
             break;
         case BlueShiftInAppTypeModal:
             notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
             break;
-        case BlueShiftInAppModalWithImage:
-            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
-            break;
         case BlueShiftNotificationSlideBanner:
             notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftNotificationOneButton:
-           notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
             break;
             
         default:
