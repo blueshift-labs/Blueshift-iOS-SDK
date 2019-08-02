@@ -9,6 +9,7 @@
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
 #import "../../BlueShiftInAppNotificationConstant.h"
+#import "../../../BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
@@ -18,6 +19,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *okayButton;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (IBAction)onOkayButtonTapped:(id)sender;
 
@@ -64,6 +66,7 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    [[self inAppNotificationDelegate] inAppNotificationWillAppear];
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -84,11 +87,12 @@
 
 - (void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        [[self inAppNotificationDelegate] inAppNotificationWillDisAppear];
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss: self.notification.dismiss.content fromViewController:self];
         }
     };
     

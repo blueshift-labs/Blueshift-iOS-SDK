@@ -314,10 +314,16 @@
     /* scan queue for any pending notification. */
     //TODO:  check app foreground state before scanning.
     [self scanNotificationQueue];
+   // [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+}
+
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
 }
 
 // Notification render Callbacks
 -(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    
 }
 
 @end

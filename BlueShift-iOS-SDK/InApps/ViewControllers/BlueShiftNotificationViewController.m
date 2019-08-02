@@ -10,12 +10,14 @@
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
 #import "../BlueShiftInAppNotificationConstant.h"
+#import "../../BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationViewController ()
 
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
@@ -27,6 +29,16 @@
         _notification = notification;
     }
     return self;
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [[self inAppNotificationDelegate] inAppNotificationDidAppear];
+}
+
+- (void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [[self inAppNotificationDelegate] inAppNotificationDidDisAppear];
 }
 
 - (void)setTouchesPassThroughWindow:(BOOL) can {
@@ -84,7 +96,7 @@
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
-        frame.origin.y = 0.0f + 20.0f;
+        frame.origin.y = 0.0f + 40.0f;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
