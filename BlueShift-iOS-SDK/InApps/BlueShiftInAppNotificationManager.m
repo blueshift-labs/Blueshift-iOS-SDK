@@ -127,7 +127,7 @@
     }
     if (notificationController) {
         notificationController.delegate = self;
-        [notificationController setTouchesPassThroughWindow:YES];
+        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
         [self presentInAppNotification:notificationController];
     }
     if (errorString) {
