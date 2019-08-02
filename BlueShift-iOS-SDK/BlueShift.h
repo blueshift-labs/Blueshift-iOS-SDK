@@ -55,6 +55,7 @@
 @property BlueShiftUserNotificationCenterDelegate *userNotificationDelegate;
 
 
+
 // track events functions ...
 - (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent;
 

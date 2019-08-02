@@ -10,6 +10,7 @@
 #import "../BlueShiftNotificationWindow.h"
 #import "../../Models/BlueShiftInAppNotificationHelper.h"
 #import "../../BlueShiftInAppNotificationConstant.h"
+#import "../../../BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -20,6 +21,7 @@
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;
 @property (strong, nonatomic) IBOutlet UIButton *okButton;
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (IBAction)onCancelButtonTapped:(id)sender;
 - (IBAction)onOkayButtonTapped:(id)sender;
@@ -82,10 +84,14 @@
 
 - (IBAction)onOkayButtonTapped:(id)sender {
     [self closeButtonDidTapped];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
+        [self.delegate inAppActionDidTapped :self.notification.dismiss.content fromViewController:self];
+    }
 }
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    [[self inAppNotificationDelegate] inAppNotificationWillAppear];
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -106,11 +112,12 @@
 
 - (void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        [[self inAppNotificationDelegate] inAppNotificationWillDisAppear];
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
         }
     };
     

@@ -150,13 +150,19 @@
 }
 
 // Notification Click Callbacks
--(void)inAppDidDismiss:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller  {
+-(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     [self inAppNotificationDidDismiss:controller];
     [self scanNotificationQueue];
+    [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+}
+
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
 }
 
 // Notification render Callbacks
 -(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    
 }
 
 @end

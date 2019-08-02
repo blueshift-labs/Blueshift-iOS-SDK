@@ -11,6 +11,7 @@
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
 #import "../../BlueShiftInAppNotificationConstant.h"
+#import "../../../BlueShiftInAppNotificationDelegate.h"
 
 #define INAPP_CLOSE_BUTTON_WIDTH 40
 
@@ -23,6 +24,7 @@
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
@@ -205,6 +207,7 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    [[self inAppNotificationDelegate] inAppNotificationWillAppear];
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -225,11 +228,12 @@
 
 -(void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        [[self inAppNotificationDelegate] inAppNotificationWillDisAppear];
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
         }
     };
     
