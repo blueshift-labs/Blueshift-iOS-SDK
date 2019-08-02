@@ -18,8 +18,8 @@
 - (void)dismissButtonDidTapped:(NSDictionary *)payloadDictionary;
 - (void)inAppNotificationWillAppear;
 - (void)inAppNotificationDidAppear;
-- (void)inAppNotificationWillDisAppear;
-- (void)inAppNotificationDidDisAppear;
+- (void)inAppNotificationWillDisappear;
+- (void)inAppNotificationDidDisappear;
 
 @end
 
