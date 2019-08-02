@@ -29,6 +29,20 @@
     return self;
 }
 
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidAppear)]) {
+        [[self inAppNotificationDelegate] inAppNotificationDidAppear];
+    }
+}
+
+- (void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDisappear)]) {
+         [[self inAppNotificationDelegate] inAppNotificationDidDisappear];
+    }
+}
+
 - (void)setTouchesPassThroughWindow:(BOOL) can {
     self.canTouchesPassThroughWindow = can;
 }
@@ -64,7 +78,7 @@
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
     CGSize size = CGSizeZero;
-    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKeys]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
         // Ignore Constants.INAPP_X_PERCENT
         size.width = width;
         size.height = height;

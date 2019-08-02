@@ -31,7 +31,7 @@
 @implementation BlueShiftNotificationModalViewController
 
 - (void)loadView {
-    if (self.notification && self.notification.templateStyle && self.notification.templateStyle.enableBackgroundAction == TRUE) {
+    if (self.canTouchesPassThroughWindow) {
         [self loadNotificationView];
     } else {
         [super loadView];
@@ -86,6 +86,11 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
+        [[self inAppNotificationDelegate] inAppNotificationWillAppear];
+    }
+
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -106,6 +111,10 @@
 
 - (void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
+            [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
+        }
+        
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;

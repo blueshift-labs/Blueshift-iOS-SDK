@@ -26,7 +26,7 @@
 @implementation BlueShiftNotificationSlideBannerViewController
 
 - (void)loadView {
-    if (self.notification && self.notification.templateStyle && self.notification.templateStyle.enableBackgroundAction == TRUE){
+   if (self.canTouchesPassThroughWindow) {
         [self loadNotificationView];
     } else {
         [super loadView];
@@ -64,6 +64,13 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+<<<<<<< HEAD
+=======
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
+        [[self inAppNotificationDelegate] inAppNotificationWillAppear];
+    }
+    
+>>>>>>> change the variable name & check the delegate is present
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -84,6 +91,13 @@
 
 - (void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+<<<<<<< HEAD
+=======
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
+            [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
+        }
+        
+>>>>>>> change the variable name & check the delegate is present
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;

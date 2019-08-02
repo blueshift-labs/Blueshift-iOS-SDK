@@ -29,8 +29,7 @@
 @implementation BlueShiftNotificationWebViewController
 
 - (void)loadView {
-    printf("WebViewController:: Creating view");
-    if (self.notification && self.notification.templateStyle && self.notification.templateStyle.enableBackgroundAction == TRUE) {
+    if (self.canTouchesPassThroughWindow) {
         [self loadNotificationView];
     } else {
         [super loadView];
@@ -39,8 +38,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    printf("WebViewController:: viewDidLoad");
     [self configureBackground];
     [self presentWebViewNotification];
 }
@@ -100,7 +97,7 @@
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
     CGSize size = CGSizeZero;
-    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKeys]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
         // Ignore Constants.INAPP_X_PERCENT
         size.width = width;
         size.height = height;
@@ -203,6 +200,10 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
+        [[self inAppNotificationDelegate] inAppNotificationWillAppear];
+    }
+    
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -223,6 +224,10 @@
 
 -(void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
+            [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
+        }
+        
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
