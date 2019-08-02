@@ -94,9 +94,7 @@
 }
 
 - (void)loadFromHTML {
-    printf("%f WebViewController:: loadFromHTML ++ \n", [[NSDate date] timeIntervalSince1970]);
-    [webView loadHTMLString:self.notification.notificationContent.content baseURL:nil];
-    printf("%f WebViewController:: loadFromHTML --\n", [[NSDate date] timeIntervalSince1970]);
+    [webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
 }
 
 - (CGRect)positionWebView {

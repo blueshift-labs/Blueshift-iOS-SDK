@@ -70,6 +70,7 @@
 /* Define Resolution Type */
 #define kInAppNotificationModalResolutionPointsKeys             @"points"
 #define kInAppNotificationModalResolutionPercntageKey           @"percentage"
+#define kInAppNotificationModalHTMLHeaderKey                    @"<header><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></header>"
 
 /* Define a Notification Type */
 #define kInAppNotificationTypeCenterPopUpKey                    @"center_popup"
