@@ -30,9 +30,7 @@
                     break;
                     
                 case BlueShiftInAppTypeModal:
-                case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
-                case BlueShiftNotificationOneButton:
                     if ([contentDictionary objectForKey: kInAppNotificationModalTitleKey]) {
                         self.title = (NSString*)[contentDictionary objectForKey: kInAppNotificationModalTitleKey];
                     }
@@ -78,9 +76,7 @@
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
-                case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
-                case BlueShiftNotificationOneButton:
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundColorKey]) {
                         self.backgroundColor = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundColorKey];
                     }
@@ -128,9 +124,7 @@
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
-                case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
-                case BlueShiftNotificationOneButton:
                     if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleColorKey]) {
                         self.titleColor = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleColorKey];
                     }
@@ -196,9 +190,7 @@
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
-                case BlueShiftInAppModalWithImage:
                 case BlueShiftNotificationSlideBanner:
-                case BlueShiftNotificationOneButton:
                     if ([payloadDictionary objectForKey: kInAppNotificationModalTextKey]) {
                         self.text = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalTextKey];
                     }
