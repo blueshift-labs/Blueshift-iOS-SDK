@@ -35,29 +35,31 @@
     
     /* register for app background / foreground notification */
     
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(OnApplicationEnteringBackground)
+                                             selector:@selector(OnApplicationEnteringBackground:)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(OnApplicationEnteringForeground)
+                                             selector:@selector(OnApplicationEnteringForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
+    
     
 }
 
 - (void) OnApplicationEnteringBackground:(NSNotification *)notification {
-    /* start the timer once over */
-    [self startInAppMessageLoadTimer];
+    /* stop the timer once app enters background */
+    
+    [self stopInAppMessageLoadTimer];
 }
 
 - (void) OnApplicationEnteringForeground:(NSNotification *)notification {
+    /* start the timer once app enters foreground */
     
-    if (nil != self.inAppMsgTimer) {
-        [self.inAppMsgTimer invalidate];
-        self.inAppMsgTimer = nil;
-    }
+    [self startInAppMessageLoadTimer];
+    
 }
 
 
@@ -225,6 +227,14 @@
     }
 }
 
+// Method to stop In-App message loading timer
+- (void) stopInAppMessageLoadTimer {
+    if (nil != self.inAppMsgTimer) {
+        [self.inAppMsgTimer invalidate];
+        self.inAppMsgTimer = nil;
+    }
+}
+
 
 
 // handle In-App msg.
@@ -295,7 +305,7 @@
 
 
 // Notification Click Callbacks
--(void)inAppDidDismiss:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller  {
+-(void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     
     NSManagedObjectID* entityItem = controller.notification.objectID;
     
@@ -307,6 +317,12 @@
     /* scan queue for any pending notification. */
     //TODO:  check app foreground state before scanning.
     [self scanNotificationQueue];
+}
+
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
+   if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+        [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+    }
 }
 
 // Notification render Callbacks
