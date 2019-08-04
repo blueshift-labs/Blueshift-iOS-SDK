@@ -8,9 +8,12 @@
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
 #import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
+#import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppTriggerMode.h"
+#import "BlueShiftInAppNotificationConstant.h"
+
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -263,14 +266,13 @@
     
     switch (notification.inAppType) {
         case BlueShiftInAppTypeHTML:
-            printf("%f NotificationMgr:: Creating html notification View \n", [[NSDate date] timeIntervalSince1970]);
             notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
             break;
         case BlueShiftInAppTypeModal:
             notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
             break;
-        case BlueShiftInAppModalWithImage:
-            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+        case BlueShiftNotificationSlideBanner:
+            notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
             break;
             
         default:
@@ -279,7 +281,7 @@
     }
     if (notificationController) {
         notificationController.delegate = self;
-        [notificationController setTouchesPassThroughWindow:YES];
+        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
         [self presentInAppNotification:notificationController];
     }
     if (errorString) {
@@ -308,10 +310,17 @@
     /* scan queue for any pending notification. */
     //TODO:  check app foreground state before scanning.
     [self scanNotificationQueue];
+    
+    [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+}
+
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
 }
 
 // Notification render Callbacks
 -(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    
 }
 
 @end

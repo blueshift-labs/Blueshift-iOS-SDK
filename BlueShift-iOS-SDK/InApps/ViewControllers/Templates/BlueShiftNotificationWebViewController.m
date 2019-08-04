@@ -10,6 +10,8 @@
 #import "../../UI/BlueShiftNotificationCloseButton.h"
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
+#import "../../BlueShiftInAppNotificationConstant.h"
+#import "../../../BlueShiftInAppNotificationDelegate.h"
 
 #define INAPP_CLOSE_BUTTON_WIDTH 40
 
@@ -22,13 +24,13 @@
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
 @implementation BlueShiftNotificationWebViewController
 
 - (void)loadView {
-    printf("WebViewController:: Creating view");
     if (self.canTouchesPassThroughWindow) {
         [self loadNotificationView];
     } else {
@@ -36,14 +38,8 @@
     }
 }
 
-- (void)loadNotificationView {
-    self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    printf("WebViewController:: viewDidLoad");
     [self configureBackground];
     [self presentWebViewNotification];
 }
@@ -95,27 +91,28 @@
 }
 
 - (void)loadFromHTML {
-    printf("%f WebViewController:: loadFromHTML ++ \n", [[NSDate date] timeIntervalSince1970]);
-    [webView loadHTMLString:self.notification.notificationContent.content baseURL:nil];
-    printf("%f WebViewController:: loadFromHTML --\n", [[NSDate date] timeIntervalSince1970]);
+    [webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
 }
 
 - (CGRect)positionWebView {
+    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
+    
     CGSize size = CGSizeZero;
-    if ([self.notification.dimensionType  isEqual: @"points"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
         // Ignore Constants.INAPP_X_PERCENT
-        size.width = self.notification.width;
-        size.height = self.notification.height;
-    } else if([self.notification.dimensionType  isEqual: @"percentage"]) {
-        size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (self.notification.width / 100.0f));
-        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (self.notification.height / 100.0f));
+        size.width = width;
+        size.height = height;
+    } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
+        size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
     }else {
         
     }
     
     // prevent webview content insets for Cover
     if (@available(iOS 11.0, *)) {
-        if ([self.notification.dimensionType  isEqual: @"percentage"] && self.notification.height == 100.0) {
+        if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey] && self.notification.height == 100.0) {
             webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
     }
@@ -125,17 +122,18 @@
     webView.autoresizingMask = UIViewAutoresizingNone;
     
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    NSString* position = self.notification.position;
+    NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
+    
     int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH / 2.0f) : 0.0f);
     
-    if([position  isEqual: INAPP_POSITION_TOP]) {
+    if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = 0.0f + extra + 20.0f;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
-    } else if([position  isEqual: INAPP_POSITION_CENTER]) {
+    } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
-    } else if([position  isEqual: INAPP_POSITION_BOTTOM]) {
+    } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
@@ -149,6 +147,18 @@
     _originalCenter = frame.origin.x + frame.size.width / 2.0f;
     
     return frame;
+}
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    
+    if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
+        NSURL *url = navigationAction.request.URL;
+        [[UIApplication sharedApplication] openURL:url];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)configureWebViewBackground {
@@ -166,8 +176,8 @@
     if (self.notification.showCloseButton) {
         _closeButton = [BlueShiftNotificationCloseButton new];
         [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
-        int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH / 2.0f) : 0.0f);
-        _closeButton.frame = CGRectMake(frame.origin.x + frame.size.width - extra, frame.origin.y - extra, INAPP_CLOSE_BUTTON_WIDTH, INAPP_CLOSE_BUTTON_WIDTH);
+        int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH) : 0.0f);
+        _closeButton.frame = CGRectMake(frame.origin.x + frame.size.width - extra + 5, frame.origin.y - 5, INAPP_CLOSE_BUTTON_WIDTH, INAPP_CLOSE_BUTTON_WIDTH);
         _closeButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
         [self.view addSubview:_closeButton];
     }
@@ -184,7 +194,7 @@
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];
-    if ([self.notification.dimensionType  isEqual: @"percentage"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
@@ -192,6 +202,10 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
+        [[self inAppNotificationDelegate] inAppNotificationWillAppear];
+    }
+    
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -212,11 +226,15 @@
 
 -(void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
+            [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
+        }
+        
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
         }
     };
     

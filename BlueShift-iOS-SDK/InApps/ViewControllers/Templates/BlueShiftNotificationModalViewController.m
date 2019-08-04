@@ -9,16 +9,19 @@
 #import "../BlueShiftNotificationView.h"
 #import "../BlueShiftNotificationWindow.h"
 #import "../../Models/BlueShiftInAppNotificationHelper.h"
+#import "../../BlueShiftInAppNotificationConstant.h"
+#import "../../../BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
 }
-
+@property (strong, nonatomic) IBOutlet UIView *notificationModalView;
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *cancelButton;
 @property (strong, nonatomic) IBOutlet UIButton *okButton;
-@property (strong, nonatomic) IBOutlet UIImageView *titleBackgroundView;
+@property (strong, nonatomic) IBOutlet UILabel *iconLabel;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (IBAction)onCancelButtonTapped:(id)sender;
 - (IBAction)onOkayButtonTapped:(id)sender;
@@ -30,10 +33,14 @@
 @implementation BlueShiftNotificationModalViewController
 
 - (void)loadView {
-    [super loadView];
-    notificationView = [self loadNotificationView];
+    if (self.canTouchesPassThroughWindow) {
+        [self loadNotificationView];
+    } else {
+        [super loadView];
+    }
+    
+    notificationView = [self fetchNotificationView];
     [self.view insertSubview:notificationView aboveSubview:self.view];
-    //self.view.frame = CGRectMake(0, 0, 300, 3000);
 }
 
 - (void)viewDidLoad {
@@ -49,35 +56,23 @@
             
             [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
             
-            if (self.notification.dismiss) {
-                [self setButton:[self cancelButton] andString:self.notification.dismiss.text
-                    textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
-            }
-            if (self.notification.appOpen) {
-                [self setButton:[self okButton] andString:self.notification.appOpen.text
-                    textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
+            if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor) {
+                [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
             }
             
-            if (self.notification.contentStyle
-                && self.notification.contentStyle.titleBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.titleBackgroundColor.length > 0) {
-                [self loadImageFromURL:[self titleBackgroundView] andImageURL:self.notification.contentStyle.titleBackgroundColor];
+            if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
+                CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
+                [self iconLabel].layer.cornerRadius = iconRadius;
             }
             
-            if (self.notification.contentStyle.titleSize != (id)[NSNull null] && self.notification.contentStyle.titleSize > 0) {
-                    //CGFloat titleFontSize = [self.notification.contentStyle.titleSize doubleValue];
-                    //[[self titleLabel] setFont:[UIFont fontWithName:@"System-Heavy" size:titleFontSize]];
-            }
-            
-            if (self.notification.contentStyle.messageSize != (id)[NSNull null] && self.notification.contentStyle.messageSize > 0) {
-                    //CGFloat messageFontSize = [self.notification.contentStyle.messageSize doubleValue];
-                    //[[self descriptionLabel] setFont:[UIFont fontWithName:@"System" size:messageFontSize]];
-            }
+            [self initializeButtonView];
+            [self applyIconToLabelView: [self iconLabel]];
         }
     }
     
-    CGRect frame = [self positionNotificationView:notificationView];
+    CGRect frame = [self positionNotificationView: [self notificationModalView]];
     notificationView.frame = frame;
-    if ([self.notification.dimensionType  isEqual: @"percentage"]) {
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
@@ -89,10 +84,17 @@
 
 - (IBAction)onOkayButtonTapped:(id)sender {
     [self closeButtonDidTapped];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
+        [self.delegate inAppActionDidTapped :self.notification.dismiss.content fromViewController:self];
+    }
 }
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
+        [[self inAppNotificationDelegate] inAppNotificationWillAppear];
+    }
+    
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -113,11 +115,15 @@
 
 - (void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
+            [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
+        }
+        
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
         }
     };
     
@@ -143,37 +149,46 @@
     [self hideFromWindow:animated];
 }
 
-- (void)setLabelText:(UILabel *)label andString:(NSString *)value
-          labelColor:(NSString *)labelColorCode
-     backgroundColor:(NSString *)backgroundColorCode {
+- (void)setButton:(UIButton *)button andString:(NSString *)value
+        textColor:(NSString *)textColorCode
+  backgroundColor:(NSString *)backgroundColorCode {
     if (value != (id)[NSNull null] && value.length > 0 ) {
-        label.hidden = NO;
-        label.text = value;
+        [button setTitle : value forState:UIControlStateNormal];
         
-        if (labelColorCode != (id)[NSNull null] && labelColorCode.length > 0) {
-            label.textColor = [self colorWithHexString:labelColorCode];
+        if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
+            [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
         }
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
-            label.backgroundColor = [self colorWithHexString:backgroundColorCode];
+            [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
         }
-    }else {
-        label.hidden = YES;
     }
 }
 
-- (void)setButton:(UIButton *)button andString:(NSString *)value
-        textColor:(NSString *)textColorCode
-        backgroundColor:(NSString *)backgroundColorCode {
-     if (value != (id)[NSNull null] && value.length > 0 ) {
-         [button setTitle : value forState:UIControlStateNormal];
-         
-         if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
-             [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
-         }
-         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
-              [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-         }
-     }
+- (void)initializeButtonView{
+    if (self.notification) {
+        if (self.notification.appOpen && self.notification.dismiss) {
+            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
+                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
+            
+            [self setButton:[self okButton] andString:self.notification.appOpen.text
+                  textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
+        } else if (self.notification.share && self.notification.dismiss){
+            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
+                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
+            
+            [self setButton:[self okButton] andString:self.notification.share.text
+                  textColor:self.notification.share.textColor backgroundColor:self.notification.share.backgroundColor];
+        } else if (self.notification.share && self.notification.appOpen){
+            [self setButton:[self cancelButton] andString:self.notification.appOpen.text
+                  textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
+            
+            [self setButton:[self okButton] andString:self.notification.share.text
+                  textColor:self.notification.share.textColor backgroundColor:self.notification.share.backgroundColor];
+        } else {
+            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
+                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
+        }
+    }
 }
 
 @end
