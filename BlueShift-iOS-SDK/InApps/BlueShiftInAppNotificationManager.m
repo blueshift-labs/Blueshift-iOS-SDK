@@ -14,6 +14,8 @@
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
 
+#define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
+
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -176,7 +178,7 @@
             NSArray* filteredResults = [self filterInAppNotificationResults:results withTriggerMode:triggerMode];
             
             for(int i = 0; i < [filteredResults count]; i++) {
-                InAppNotificationEntity *entity = [results objectAtIndex:i];
+                InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
                 [self createNotificationFromDictionary: entity];
             }
         }
@@ -202,11 +204,22 @@
             double endTime = [entity.endTime doubleValue];
             double startTime = [entity.startTime doubleValue];
             
-            if (currentTime > endTime) {
-                /* discard notification if its expired */
+            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
+                /* discard notification if its expired. */
+    
+                //TODO: remove from db
+                
+                printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
+                
             } else if (startTime > currentTime) {
-                /* discard notificaiton if its early */
+                /* Wait for (startTime-currentTime) before IAM is shown */
+                
+                printf("\nUpcoming:: Wait further Current time of IAM = %f startTime = %f", currentTime, startTime);
+                
             } else {
+                
+                printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
+                
                 [filteredResults addObject:entity];
             }
         }
