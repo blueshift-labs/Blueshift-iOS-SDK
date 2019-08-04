@@ -33,7 +33,7 @@
         NSManagedObjectContext *context;
         if (appDelegate) {
             @try {
-                context = appDelegate.batchEventManagedObjectContext;
+                context = appDelegate.managedObjectContext;
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception %@", exception);
