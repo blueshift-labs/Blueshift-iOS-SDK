@@ -149,10 +149,6 @@
     if (self.notification) {
         if (self.notification.notificationContent && self.notification.notificationContent.icon) {
             return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithImageXIBNameKey owner:self options:nil] objectAtIndex:0];
-        }else if ((self.notification.appOpen && !self.notification.dismiss && !self.notification.share)
-                  || (!self.notification.appOpen && self.notification.dismiss && !self.notification.share)
-                  || (!self.notification.appOpen && !self.notification.dismiss && self.notification.share)){
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithOneButtonXIBNameKey owner:self options:nil] objectAtIndex:0];
         }else{
             return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
         }

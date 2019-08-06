@@ -182,13 +182,13 @@
 }
 
 - (void)loadWebView {
-    
     if (self.notification.notificationContent.url) {
         [self loadFromURL];
     } else{
         printf("%f WebViewController:: loading html from data \n", [[NSDate date] timeIntervalSince1970]);
         [self loadFromHTML];
     }
+    
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];

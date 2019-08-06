@@ -15,7 +15,6 @@
 @optional
 
 - (void)actionButtonDidTapped:(NSDictionary *)payloadDictionary;
-- (void)dismissButtonDidTapped:(NSDictionary *)payloadDictionary;
 - (void)inAppNotificationWillAppear;
 - (void)inAppNotificationDidAppear;
 - (void)inAppNotificationWillDisappear;

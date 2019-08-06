@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite) float width;;
 @property (nonatomic, assign, readwrite) BOOL fullScreen;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *actionButtonCount;
 
 @end
 
@@ -103,9 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite) NSString *trigger;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationLayout *templateStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
-@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *dismiss;
-@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *appOpen;
-@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *share;
+@property (nonatomic, readwrite) NSMutableArray<BlueShiftInAppNotificationButton *>* actions;
 
 - (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
 
