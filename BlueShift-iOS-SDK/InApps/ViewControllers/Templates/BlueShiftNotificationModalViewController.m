@@ -16,9 +16,6 @@
     UIView *notificationView;
 }
 @property (strong, nonatomic) IBOutlet UIView *notificationModalView;
-@property (strong, nonatomic) IBOutlet UILabel *titleLabel;
-@property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
-@property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
