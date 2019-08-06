@@ -104,7 +104,9 @@
 + (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
     for(int i = 0; i < notifications.count; i++) {
         InAppNotificationEntity *notification = [notifications objectAtIndex:i];
-        [notification setValue:@"QUEUE" forKey:@"status"];
+        
+        //TODO: commented the below code. Dont think its required.
+        //[notification setValue:@"QUEUE" forKey:@"status"];
     }
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
