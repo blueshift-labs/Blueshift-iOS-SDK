@@ -102,7 +102,8 @@
                 [inAppNotificationEntity insert:payload inContext:self.privateObjectContext handler:^(BOOL status) {
                     if(status) {
                         printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
-                        if (applicationState == UIApplicationStateActive) {
+                        if (applicationState == UIApplicationStateActive ||
+                            applicationState == UIApplicationStateInactive) {
                             [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                         } else {
                             NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
