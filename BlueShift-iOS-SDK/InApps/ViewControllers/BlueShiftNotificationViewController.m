@@ -136,25 +136,13 @@
 - (UIView *)fetchNotificationView{
     switch (self.notification.inAppType) {
         case BlueShiftInAppTypeModal:
-            return [self renderCategorizedNotificationView];
+            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
         case BlueShiftNotificationSlideBanner:
             return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
         default:
             return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
             break;
     }
-}
-
-- (UIView *)renderCategorizedNotificationView{
-    if (self.notification) {
-        if (self.notification.notificationContent && self.notification.notificationContent.icon) {
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithImageXIBNameKey owner:self options:nil] objectAtIndex:0];
-        }else{
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
-        }
-    }
-    
-    return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
 }
 
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL{
