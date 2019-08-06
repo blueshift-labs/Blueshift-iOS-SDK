@@ -101,7 +101,8 @@
                 [inAppNotificationEntity insert:payload inContext:self.privateObjectContext handler:^(BOOL status) {
                     if(status) {
                         printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
-                        if (applicationState == UIApplicationStateActive) {
+                        if (applicationState == UIApplicationStateActive ||
+                            applicationState == UIApplicationStateInactive) {
                             [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                         }
                     }
