@@ -42,35 +42,16 @@
 
 - (void)viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
-    [self initializeButtonView];
+    [self initializeNotificationView];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureBackground];
-    [self loadNotification];
+    [self createNotificationView];
 }
 
-- (void)loadNotification {
-    if (self.notification) {
-        if (self.notification.notificationContent && self.notification.contentStyle) {
-            [self setLabelText:[self titleLabel] andString:self.notification.notificationContent.title labelColor:self.notification.contentStyle.titleColor backgroundColor:self.notification.contentStyle.titleBackgroundColor];
-            
-            [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
-            
-            if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor) {
-                [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
-            }
-            
-            if (self.notification.contentStyle.iconBackgroundRadius != (id)[NSNull null] && self.notification.contentStyle.iconBackgroundRadius > 0) {
-                CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
-                [self iconLabel].layer.cornerRadius = iconRadius;
-            }
-        
-            [self applyIconToLabelView: [self iconLabel]];
-        }
-    }
-    
+- (void)createNotificationView {
     CGRect frame = [self positionNotificationView: [self notificationModalView]];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
@@ -78,7 +59,6 @@
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
 }
-
 
 - (void)onOkayButtonTapped:(UIButton *)customButton{
     [self closeButtonDidTapped];
@@ -148,7 +128,121 @@
     [self hideFromWindow:animated];
 }
 
-- (void)initializeButtonView{
+- (void)initializeNotificationView{
+    if (self.notification && self.notification.notificationContent) {
+        CGFloat yPadding = 0.0;
+        
+        UILabel *iconLabel;
+        if (self.notification.notificationContent.icon) {
+            iconLabel = [self createIconLabel];
+            yPadding = 3 * kInAppNotificationModalYPadding;
+            [self.notificationModalView addSubview: iconLabel];
+        }
+        
+        UILabel *titleLabel;
+        if (self.notification.notificationContent.title) {
+            yPadding = yPadding + iconLabel.layer.frame.size.height;
+            titleLabel = [self createTitleLabel: yPadding];
+            [self.notificationModalView addSubview: titleLabel];
+        }
+        
+        UILabel *subTitleLabel;
+        if (self.notification.notificationContent.subTitle) {
+            yPadding = yPadding + iconLabel.layer.frame.size.height;
+            subTitleLabel = [self createSubTitleLabel: yPadding];
+            [self.notificationModalView addSubview: subTitleLabel];
+        }
+        
+        UILabel *descriptionLabel;
+        if (self.notification.notificationContent.message) {
+            yPadding = titleLabel.layer.frame.size.height > 0
+                ? (yPadding + titleLabel.layer.frame.size.height + 2 * kInAppNotificationModalYPadding)
+                : (2 * kInAppNotificationModalYPadding);
+            descriptionLabel = [self createDescriptionLabel:yPadding];
+            [self.notificationModalView addSubview:descriptionLabel];
+        }
+        
+        if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor) {
+            [self notificationModalView].backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
+        }
+        
+        [self initializeButtonView];
+    }
+}
+
+- (UILabel *)createIconLabel {
+    CGFloat xPosition = [self getCenterXPosition:self.notificationModalView childWidth: kInAppNotificationModalIconWidth];
+    CGFloat yPosition = 2 * kInAppNotificationModalYPadding;
+    CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
+        
+    UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
+    [self applyIconToLabelView: label];
+    label.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [label setTextAlignment: NSTextAlignmentCenter];
+        
+    return label;
+}
+
+- (UILabel *)createTitleLabel:(CGFloat)yPosition {
+    CGFloat titleLabelWidth = self.notificationModalView.frame.size.width;
+    CGFloat titleLabelHeight = kInAppNotificationModalTitleHeight;
+    CGRect cgRect = CGRectMake(1.0, yPosition, titleLabelWidth, titleLabelHeight);
+    
+    UILabel *titlelabel = [[UILabel alloc] initWithFrame: cgRect];
+    if (self.notification.contentStyle) {
+        [self setLabelText: titlelabel andString:self.notification.notificationContent.title labelColor:self.notification.contentStyle.titleColor backgroundColor:self.notification.contentStyle.titleBackgroundColor];
+    }
+    
+    [titlelabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:18]];
+    titlelabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [titlelabel setTextAlignment: NSTextAlignmentCenter];
+    
+    return titlelabel;
+}
+
+- (UILabel *)createSubTitleLabel:(CGFloat)yPosition {
+    CGFloat subTitleLabelWidth = self.notificationModalView.frame.size.width;
+    
+    UILabel *subTitleLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+    [subTitleLabel setNumberOfLines: 0];
+    [subTitleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:16]];
+    
+    if (self.notification.contentStyle) {
+        [self setLabelText: subTitleLabel andString:self.notification.notificationContent.subTitle labelColor:self.notification.contentStyle.titleColor backgroundColor:self.notification.contentStyle.titleBackgroundColor];
+    }
+    
+    CGFloat descriptionLabelHeight = [self getLabelHeight: subTitleLabel labelWidth: subTitleLabelWidth] + 10.0;
+    CGRect cgRect = CGRectMake(1.0, yPosition, subTitleLabelWidth, descriptionLabelHeight);
+    
+    subTitleLabel.frame = cgRect;
+    subTitleLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [subTitleLabel setTextAlignment: NSTextAlignmentCenter];
+    
+    return subTitleLabel;
+}
+
+- (UILabel *)createDescriptionLabel:(CGFloat)yPosition {
+    CGFloat descriptionLabelWidth = self.notificationModalView.frame.size.width;
+    
+    UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+    [descriptionLabel setNumberOfLines: 0];
+    [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size:14]];
+    
+    if (self.notification.contentStyle) {
+        [self setLabelText: descriptionLabel andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
+    }
+
+    CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabelWidth];
+    CGRect cgRect = CGRectMake(1.0, yPosition, descriptionLabelWidth, descriptionLabelHeight);
+    
+    descriptionLabel.frame = cgRect;
+    descriptionLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [descriptionLabel setTextAlignment: NSTextAlignmentCenter];
+    
+    return descriptionLabel;
+}
+
+- (void)initializeButtonView {
     if (self.notification && self.notification.actions) {
         CGFloat xPadding = [self.notification.actions count] == 1 ? 0.0 : 5.0;
         CGFloat yPadding = [self.notification.actions count] == 1 ? 0.0 : 5.0;
@@ -195,6 +289,28 @@
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
         }
     }
+}
+
+- (CGFloat)getCenterXPosition:(UIView *)parentView childWidth:(CGFloat)width {
+    CGFloat xPadding = width / 2.0;
+    
+    return ((parentView.frame.size.width / 2) - xPadding);
+}
+
+- (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {
+    CGSize constraint = CGSizeMake(width, CGFLOAT_MAX);
+    CGSize size;
+    [label setNumberOfLines: 0];
+    
+    NSStringDrawingContext *context = [[NSStringDrawingContext alloc] init];
+    CGSize boundingBox = [label.text boundingRectWithSize:constraint
+                                                  options:NSStringDrawingUsesLineFragmentOrigin
+                                               attributes:@{NSFontAttributeName:label.font}
+                                                  context:context].size;
+    
+    size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
+    
+    return size.height;
 }
 
 @end
