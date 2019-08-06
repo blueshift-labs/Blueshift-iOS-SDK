@@ -241,29 +241,39 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
-    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
-    self.userInfo = userInfo;
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
-    if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
-        [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
-    } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
-        [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
-    } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
-        [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
-    }
-    else {
-        NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-        if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-            if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
-                [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+    /* if there is payload for IAM , give priority to the it */
+    NSDictionary* inAppMsgPayLoad =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+    
+    if (nil != inAppMsgPayLoad) {
+        [[BlueShift sharedInstance] createInAppNotification: inAppMsgPayLoad forApplicationState: UIApplicationStateActive];
+        
+    } else {
+        
+        NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+        self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+        self.userInfo = userInfo;
+        NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+        
+        if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+            [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
+        } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+            [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
+        } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+            [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
+        }
+        else {
+            NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+            if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
+                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                    [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+                } else {
+                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                }
             } else {
-                [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                // Track notification when app is in background and when we click the push notification from tray..
+                [self trackPushClickedWithParameters:pushTrackParameterDictionary];
             }
-        } else {
-            // Track notification when app is in background and when we click the push notification from tray..
-            [self trackPushClickedWithParameters:pushTrackParameterDictionary];
         }
     }
 }
@@ -314,7 +324,7 @@
             [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
         } else {
             
-            BOOL isSilentPush = [self checkIfPushNotificationIsSilent:userInfo];
+            BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
             if (isSilentPush == TRUE) {
                 NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
                 printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
@@ -325,7 +335,7 @@
             }
         }
     } else {
-        BOOL isSilentPush = [self checkIfPushNotificationIsSilent:userInfo];
+        BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
         if (isSilentPush == TRUE) {
             NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
             printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
@@ -365,16 +375,22 @@
 }
 
 
--(BOOL) checkIfPushNotificationIsSilent: (NSDictionary*)userInfo {
+-(BOOL) checkIfPayloadHasInAppMessage: (NSDictionary*)userInfo {
     
-    BOOL pushIsSilent = false;
+    BOOL isIAMPayloadPresent = false;
     if (nil != userInfo) {
         
-        NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-        NSNumber *num = [NSNumber numberWithInt:1];
-        pushIsSilent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+        if (nil != dataPayload) {
+            isIAMPayloadPresent = true;
+        } else {
+        
+            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
+            NSNumber *num = [NSNumber numberWithInt:1];
+            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        }
     }
-    return pushIsSilent;
+    return isIAMPayloadPresent;
 }
 
 
