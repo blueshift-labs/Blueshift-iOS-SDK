@@ -38,6 +38,11 @@
     [self.view insertSubview:notificationView aboveSubview:self.view];
 }
 
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    [self initializeButtonView];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureBackground];
@@ -59,8 +64,7 @@
                 CGFloat iconRadius = [self.notification.contentStyle.iconBackgroundRadius doubleValue];
                 [self iconLabel].layer.cornerRadius = iconRadius;
             }
-            
-            [self initializeButtonView];
+        
             [self applyIconToLabelView: [self iconLabel]];
         }
     }
@@ -146,14 +150,17 @@
 - (void)initializeButtonView{
     if (self.notification && self.notification.actions) {
         CGFloat xPadding = [self.notification.actions count] == 1 ? 0.0 : 5.0;
-        CGFloat yPadding = [self.notification.actions count] == 1 ? 30.0 : 60.0;
+        CGFloat yPadding = [self.notification.actions count] == 1 ? 0.0 : 5.0;
+        
         NSUInteger numberOfButtons = [self.notification.actions count];
-        CGFloat xPosition = [self.notification.actions count] == 1 ? 0.0 :self.notificationModalView.frame.origin.x + xPadding;
         CGFloat buttonHeight = 40.0;
         CGFloat buttonWidth = (self.notificationModalView.frame.size.width - ((numberOfButtons + 1) * xPadding))/numberOfButtons;
-        CGFloat yPosition = self.notificationModalView.frame.origin.y + self.notificationModalView.frame.size.height - buttonHeight - yPadding;
+        
+        CGFloat xPosition = [self.notification.actions count] == 1 ? 0.0 : xPadding;
+        CGFloat yPosition = self.notificationModalView.frame.size.height - buttonHeight - yPadding;
+        
         for (int i = 0; i< [self.notification.actions count]; i++) {
-            CGRect cgRect = CGRectMake(xPosition, yPosition, buttonWidth, buttonHeight);
+            CGRect cgRect = CGRectMake(xPosition, yPosition , buttonWidth, buttonHeight);
             [self createActionButton: self.notification.actions[i] positionButton: cgRect objectPosition: &i];
             xPosition =  xPosition + buttonWidth + xPadding;
         }
@@ -168,7 +175,7 @@
     [button setTag: *position];
     [self setButton: button andString: buttonDetails.text
           textColor: buttonDetails.textColor backgroundColor: buttonDetails.backgroundColor];
-    button.layer.cornerRadius = 10.0;
+    button.layer.cornerRadius = [self.notification.actions count] == 1 ? 0.0 : 10.0;
     button.frame = positionValue;
     button.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     [self.notificationModalView addSubview:button];
