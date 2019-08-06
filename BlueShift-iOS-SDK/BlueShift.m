@@ -665,6 +665,4 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self sendPushAnalytics:@"delivered" withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
 
-
-
 @end

@@ -10,9 +10,7 @@
 
 /* InApp Notification Modal */
 #define kInAppNotificationKey                                   @"inapp"
-#define kInAppNotificationModalDismissButtonKey                 @"action.dismiss"
-#define kInAppNotificationModalAppOpenButtonKey                 @"action.app_open"
-#define kInAppNotificationModalShareButtonKey                   @"action.share"
+#define kInAppNotificationActionButtonKey                       @"action"
 #define kInAppNotificationModalContentKey                       @"content"
 #define kInAppNotificationModalHTMLKey                          @"html"
 #define kInAppNotificationModalURLKey                           @"url"

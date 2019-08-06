@@ -184,13 +184,13 @@
 }
 
 - (void)loadWebView {
-    
     if (self.notification.notificationContent.url) {
         [self loadFromURL];
     } else{
         printf("%f WebViewController:: loading html from data \n", [[NSDate date] timeIntervalSince1970]);
         [self loadFromHTML];
     }
+    
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];
@@ -234,7 +234,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
         }
     };
     

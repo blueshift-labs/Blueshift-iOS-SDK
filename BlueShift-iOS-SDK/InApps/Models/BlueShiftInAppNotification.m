@@ -97,6 +97,9 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey]) {
                         self.enableBackgroundAction = [[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey] boolValue];
                     }
+                    if ([templateStyleDictionary objectForKey:kInAppNotificationActionButtonKey]) {
+                        self.actionButtonCount =[templateStyleDictionary objectForKey:kInAppNotificationActionButtonKey];
+                    }
                     
                     break;
                     
@@ -246,14 +249,14 @@
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
                 
-                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalDismissButtonKey]) {
-                    self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath: kInAppNotificationModalDismissButtonKey] withType: self.inAppType];
-                }
-                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalAppOpenButtonKey]) {
-                    self.appOpen = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:kInAppNotificationModalAppOpenButtonKey] withType: self.inAppType];
-                }
-                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalShareButtonKey]) {
-                    self.share = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath: kInAppNotificationModalShareButtonKey] withType: self.inAppType];
+                if ([payloadDictionary objectForKey: kInAppNotificationActionButtonKey]) {
+                    NSDictionary *actionButtonDictionary = [payloadDictionary objectForKey: kInAppNotificationActionButtonKey];
+                    NSMutableArray<BlueShiftInAppNotificationButton *> *actions = [[NSMutableArray alloc] init];
+                    for(id key in actionButtonDictionary){
+                        [actions addObject:[[BlueShiftInAppNotificationButton alloc] initFromDictionary:[actionButtonDictionary objectForKey: key] withType: self.inAppType]];
+                    }
+
+                    self.actions = actions;
                 }
                 
                 self.showCloseButton = YES;
