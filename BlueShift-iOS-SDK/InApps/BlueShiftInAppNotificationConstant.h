@@ -18,11 +18,10 @@
 #define kInAppNotificationModalTitleKey                         @"title"
 #define kInAppNotificationModalSubTitleKey                      @"sub_title"
 #define kInAppNotificationModalMessageKey                       @"message"
-#define kInAppNotificationModalBackgroundImageKey               @"background_image"
-#define kInAppNotificationModalBackgroundColorKey               @"background_color"
 #define kInAppNotificationModalIconKey                          @"icon"
 #define kInAppNotificationModalBannerKey                        @"banner"
 #define kInAppNotificationModalImageFileNameKey                 @"file_name"
+#define kInAppNotificationModalSecondaryIconKey                 @"secondary_icon"
 
 #define kInAppNotificationModalContentStyleKey                  @"content_style"
 #define kInAppNotificationModalTitleColorKey                    @"title_color"
@@ -39,25 +38,28 @@
 #define kInAppNotificationModalIconBackgroundColorKey           @"icon_background_color"
 #define kInAppNotificationModalIconBackgroundRadiusKey          @"icon_background_radius"
 #define kInAppNotificationModalActionsOrientationKey            @"actions_orientation"
+#define kInAppNotificationModalSecondaryIconSizeKey             @"secondary_icon_size"
+#define kInAppNotificationModalSecondaryIconColorKey            @"secondary_icon_color"
+#define kInAppNotificationModalSecondaryIconBackgroundColorKey  @"secondary_icon_background_color"
+#define kInAppNotificationModalSecondaryIconRadiusKey           @"secondary_icon_background_color"
+#define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
 
 #define kInAppNotificationModalTemplateStyleKey                 @"template_style"
 #define kInAppNotificationModalPositionKey                      @"position"
 #define kInAppNotificationModalWidthKey                         @"width"
 #define kInAppNotificationModalHeightKey                        @"height"
+#define kInAppNotificationModalBackgroundColorKey               @"background_color"
 #define kInAppNotificationModalBackgroundActionKey              @"enable_background_action"
 
 #define kInAppNotificationModalTextKey                          @"text"
 #define kInAppNotiificationModalTextColorKey                    @"text_color"
-#define kInAppNotificationModalPageKey                          @"page"
-#define kInAppNotificationModalExtraKey                         @"extra"
-#define kInAppNotificationModalImageKey                         @"image"
+#define kInAppNotificationModalPageKey                          @"ios_link"
 #define kInAppNotificationModalSharableTextKey                  @"shareable_text"
+#define kInAppNotificationModalButtonBackgroundRadiusKey        @"background_radius"
 
 /* Define a Font */
-#define kInAppNotificationModalFontAwesomeFileNameKey           @"FontAwesome"
 #define kInAppNotificationModalFontExtensionKey                 @"otf"
 #define kInAppNotificationModalFontAwesomeNameKey               @"FontAwesome5Free-Solid"
-#define kInAppNotificationModalFontWithExtensionKey             @"FontAwesome.otf"
 
 /* Define Position Modal */
 #define kInAppNotificationModalPositionBottomKey                @"bottom"
