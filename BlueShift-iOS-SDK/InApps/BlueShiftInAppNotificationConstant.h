@@ -56,9 +56,7 @@
 
 /* Define XIB Name */
 #define kInAppNotificationModalXIBNameKey                       @"BlueshiftNotificationModal"
-#define kInAppNotificationModalWithImageXIBNameKey              @"BlueshiftNotificationModalWithImage"
 #define kInAppNotificationSlideBannerXIBNameKey                 @"BlueShiftNotificationSlideBanner"
-#define kInAppNotificationModalWithOneButtonXIBNameKey          @"BlueShiftNotificationModalWithOneButton"
 
 /* Define Position Modal */
 #define kInAppNotificationModalPositionBottomKey                @"bottom"
@@ -77,5 +75,11 @@
 /*  Define a DataMart */
 #define kInAppNotificationEntityNameKey                         @"InAppNotificationEntity"
 
+
+/* Define size of view */
+#define kInAppNotificationModalIconWidth                        50.0
+#define kInAppNotificationModalIconHeight                       50.0
+#define kInAppNotificationModalYPadding                         10.0
+#define kInAppNotificationModalTitleHeight                      40.0
 
 #endif /* BlueShiftInAppNotificationConstant_h */
