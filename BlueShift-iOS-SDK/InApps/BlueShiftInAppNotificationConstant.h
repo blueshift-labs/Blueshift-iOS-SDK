@@ -71,10 +71,8 @@
 #define kInAppNotificationModalHTMLHeaderKey                    @"<header><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></header>"
 
 /* Define a Notification Type */
-#define kInAppNotificationTypeCenterPopUpKey                    @"center_popup"
-#define kInAppNotificationTypeCenterPopUpImageKey               @"center_popup_with_image"
+#define kInAppNotificationTypeCenterPopUpKey                    @"modal"
 #define kInAppNotificationTypeSlideBannerKey                    @"slide_in_banner"
-#define kInAppNotificationTypeCenterPopUpOneButtonKey           @"center_popup_one_button"
 
 /*  Define a DataMart */
 #define kInAppNotificationEntityNameKey                         @"InAppNotificationEntity"
