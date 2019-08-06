@@ -10,6 +10,7 @@
 #import "../BlueShiftNotificationWindow.h"
 #import "../../Models/BlueShiftInAppNotificationHelper.h"
 #import "../../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -18,6 +19,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
 
