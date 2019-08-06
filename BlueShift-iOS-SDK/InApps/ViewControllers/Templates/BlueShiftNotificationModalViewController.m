@@ -18,15 +18,12 @@
 @property (strong, nonatomic) IBOutlet UIView *notificationModalView;
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
-@property (strong, nonatomic) IBOutlet UIButton *cancelButton;
-@property (strong, nonatomic) IBOutlet UIButton *okButton;
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
-- (IBAction)onCancelButtonTapped:(id)sender;
-- (IBAction)onOkayButtonTapped:(id)sender;
-
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
+
+- (void)onOkayButtonTapped:(UIButton *)customButton;
 
 @end
 
@@ -78,14 +75,12 @@
     }
 }
 
-- (IBAction)onCancelButtonTapped:(id)sender {
-    [self closeButtonDidTapped];
-}
 
-- (IBAction)onOkayButtonTapped:(id)sender {
+- (void)onOkayButtonTapped:(UIButton *)customButton{
     [self closeButtonDidTapped];
-    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
-        [self.delegate inAppActionDidTapped :self.notification.dismiss.content fromViewController:self];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)] && self.notification && self.notification.actions && self.notification.actions[customButton.tag]) {
+        NSInteger position = [customButton tag];
+        [self.delegate inAppActionDidTapped : self.notification.actions[position].content fromViewController:self];
     }
 }
 
@@ -123,7 +118,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
         }
     };
     
@@ -149,6 +144,37 @@
     [self hideFromWindow:animated];
 }
 
+- (void)initializeButtonView{
+    if (self.notification && self.notification.actions) {
+        CGFloat xPadding = [self.notification.actions count] == 1 ? 0.0 : 5.0;
+        CGFloat yPadding = [self.notification.actions count] == 1 ? 30.0 : 60.0;
+        NSUInteger numberOfButtons = [self.notification.actions count];
+        CGFloat xPosition = [self.notification.actions count] == 1 ? 0.0 :self.notificationModalView.frame.origin.x + xPadding;
+        CGFloat buttonHeight = 40.0;
+        CGFloat buttonWidth = (self.notificationModalView.frame.size.width - ((numberOfButtons + 1) * xPadding))/numberOfButtons;
+        CGFloat yPosition = self.notificationModalView.frame.origin.y + self.notificationModalView.frame.size.height - buttonHeight - yPadding;
+        for (int i = 0; i< [self.notification.actions count]; i++) {
+            CGRect cgRect = CGRectMake(xPosition, yPosition, buttonWidth, buttonHeight);
+            [self createActionButton: self.notification.actions[i] positionButton: cgRect objectPosition: &i];
+            xPosition =  xPosition + buttonWidth + xPadding;
+        }
+    }
+}
+
+- (void)createActionButton:(BlueShiftInAppNotificationButton *)buttonDetails positionButton:(CGRect)positionValue objectPosition:(int *)position{
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button addTarget:self
+               action:@selector(onOkayButtonTapped:)
+     forControlEvents:UIControlEventTouchUpInside];
+    [button setTag: *position];
+    [self setButton: button andString: buttonDetails.text
+          textColor: buttonDetails.textColor backgroundColor: buttonDetails.backgroundColor];
+    button.layer.cornerRadius = 10.0;
+    button.frame = positionValue;
+    button.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [self.notificationModalView addSubview:button];
+}
+
 - (void)setButton:(UIButton *)button andString:(NSString *)value
         textColor:(NSString *)textColorCode
   backgroundColor:(NSString *)backgroundColorCode {
@@ -160,33 +186,6 @@
         }
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-        }
-    }
-}
-
-- (void)initializeButtonView{
-    if (self.notification) {
-        if (self.notification.appOpen && self.notification.dismiss) {
-            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
-                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
-            
-            [self setButton:[self okButton] andString:self.notification.appOpen.text
-                  textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
-        } else if (self.notification.share && self.notification.dismiss){
-            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
-                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
-            
-            [self setButton:[self okButton] andString:self.notification.share.text
-                  textColor:self.notification.share.textColor backgroundColor:self.notification.share.backgroundColor];
-        } else if (self.notification.share && self.notification.appOpen){
-            [self setButton:[self cancelButton] andString:self.notification.appOpen.text
-                  textColor:self.notification.appOpen.textColor backgroundColor:self.notification.appOpen.backgroundColor];
-            
-            [self setButton:[self okButton] andString:self.notification.share.text
-                  textColor:self.notification.share.textColor backgroundColor:self.notification.share.backgroundColor];
-        } else {
-            [self setButton:[self cancelButton] andString:self.notification.dismiss.text
-                  textColor:self.notification.dismiss.textColor backgroundColor:self.notification.dismiss.backgroundColor];
         }
     }
 }
