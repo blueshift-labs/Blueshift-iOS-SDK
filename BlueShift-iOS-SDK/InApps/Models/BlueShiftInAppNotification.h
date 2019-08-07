@@ -103,6 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite) NSString *trigger;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationLayout *templateStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
+@property (nonatomic, copy, readwrite, nullable) NSDictionary *notificationPayload;
 
 - (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
 

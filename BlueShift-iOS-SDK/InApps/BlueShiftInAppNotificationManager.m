@@ -13,6 +13,7 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueShift.h"
 
 #define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
 
@@ -317,7 +318,7 @@
 }
 
 // Notification Click Callbacks
--(void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
+-(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     
     NSManagedObjectID* entityItem = controller.notification.objectID;
     
@@ -329,16 +330,20 @@
     /* scan queue for any pending notification. */
     //TODO:  check app foreground state before scanning.
     [self scanNotificationQueue];
- //   [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+    //[[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:NULL canBacthThisEvent: NO];
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+        [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+        
+    }
 }
 
 // Notification render Callbacks
--(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    
+-(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
 }
 
 @end
