@@ -12,6 +12,7 @@
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueShift.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 @end
@@ -53,6 +54,7 @@
                     [inAppNotificationEntity insert:payload handler:^(BOOL status) {
                         if(status) {
                             printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
+                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
                             [self fetchInAppNotificationsFromDB];
                         }
                     }];
@@ -143,19 +145,23 @@
 }
 
 // Notification Click Callbacks
--(void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
+-(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     [self inAppNotificationDidDismiss:controller];
     [self scanNotificationQueue];
  //   [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:NULL canBacthThisEvent: NO];
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+        [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+        
+    }
 }
 
 // Notification render Callbacks
--(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    
+-(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
 }
 
 @end

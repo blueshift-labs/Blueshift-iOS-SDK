@@ -60,10 +60,8 @@
 
 - (void)onOkayButtonTapped:(UIButton *)customButton{
     [self closeButtonDidTapped];
-    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)] && self.notification && self.notification.notificationContent &&
-        self.notification.notificationContent.actions && self.notification.notificationContent.actions[customButton.tag]) {
-        NSInteger position = [customButton tag];
-        [self.delegate inAppActionDidTapped : self.notification.notificationContent.actions[position] fromViewController:self];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)] && self.notification && self.notification.notificationContent) {
+        [self.delegate inAppActionDidTapped : self.notification.notificationContent.notificationActionButtonPayload fromViewController:self];
     }
 }
 
@@ -76,7 +74,7 @@
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
-            [self.delegate inAppDidShow:self.notification fromViewController:self];
+            [self.delegate inAppDidShow: self.notification.notificationPayload fromViewController:self];
         }
     };
     if (animated) {
@@ -101,7 +99,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.notificationPayload fromViewController:self];
         }
     };
     
