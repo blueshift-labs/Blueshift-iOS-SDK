@@ -279,7 +279,6 @@
                 payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
                 
                 self.notificationPayload = [inAppDictionary objectForKey:@"inapp"];
-                
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
