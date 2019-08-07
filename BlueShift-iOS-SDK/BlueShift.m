@@ -660,4 +660,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self sendPushAnalytics:@"delivered" withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
 
+- (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
+    printf("notification delivered\n");
+}
+
+- (void)trackInAppNotificationShowingWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
+    printf("notification showed\n");
+}
+
+- (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
+    printf("notification button tapped\n");
+}
+
 @end
