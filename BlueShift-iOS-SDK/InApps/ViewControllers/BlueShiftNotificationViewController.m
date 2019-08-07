@@ -100,7 +100,7 @@
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
-        frame.origin.y = 0.0f + 40.0f;
+        frame.origin.y = 0.0f + 10.0;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
