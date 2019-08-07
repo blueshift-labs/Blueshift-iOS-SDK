@@ -11,26 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/* notification content , either be html link/ html source / layout props */
-@interface BlueShiftInAppNotificationContent : NSObject
-
-@property (nonatomic, strong, readwrite, nullable) NSString *content;
-@property (nonatomic, copy, readwrite, nullable) NSString *url;
-
-@property (nonatomic, copy, readwrite, nullable) NSString *title;
-@property (nonatomic, copy, readwrite, nullable) NSString *subTitle;
-@property (nonatomic, copy, readwrite, nullable) NSString *descriptionText;
-@property (nonatomic, copy, readwrite, nullable) NSString *backgroundImage;
-@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
-@property (nonatomic, copy, readwrite, nullable) NSString *message;
-@property (nonatomic, copy, readwrite, nullable) NSString *icon;
-
-/* configure In-App Entity */
-- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
-@end
-
-
-
 /* notification Layout (presentation details) */
 @interface BlueShiftInAppNotificationLayout : NSObject
 
@@ -63,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *iconColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *iconBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *iconBackgroundRadius;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *actionsOrientation;
 
 @end
 
@@ -80,6 +61,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/* notification content , either be html link/ html source / layout props */
+@interface BlueShiftInAppNotificationContent : NSObject
+
+@property (nonatomic, strong, readwrite, nullable) NSString *content;
+@property (nonatomic, copy, readwrite, nullable) NSString *url;
+
+@property (nonatomic, copy, readwrite, nullable) NSString *title;
+@property (nonatomic, copy, readwrite, nullable) NSString *subTitle;
+@property (nonatomic, copy, readwrite, nullable) NSString *descriptionText;
+@property (nonatomic, copy, readwrite, nullable) NSString *backgroundImage;
+@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *message;
+@property (nonatomic, copy, readwrite, nullable) NSString *icon;
+@property (nonatomic, readwrite) NSMutableArray<BlueShiftInAppNotificationButton *>* actions;
+
+/* configure In-App Entity */
+- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
+@end
+
 @interface BlueShiftInAppNotification : NSObject
 
 /* type of in-app */
@@ -87,8 +87,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* content of in-app notification msg*/
 @property (nonatomic, strong, readwrite) BlueShiftInAppNotificationContent* notificationContent;
-
-
 @property (nonatomic, assign, readwrite) NSString *position;
 
 @property (nonatomic, copy, readwrite) NSString *dimensionType;
@@ -100,7 +98,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite) NSString *trigger;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationLayout *templateStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
-@property (nonatomic, readwrite) NSMutableArray<BlueShiftInAppNotificationButton *>* actions;
 
 - (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
 

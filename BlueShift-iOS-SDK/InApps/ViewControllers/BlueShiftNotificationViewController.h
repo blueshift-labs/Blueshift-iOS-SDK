@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BlueShiftNotificationDelegate <NSObject>
 @optional
 - (void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
-- (void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)
+- (void)inAppActionDidTapped:(BlueShiftInAppNotificationButton *)notificationActionButton fromViewController:(BlueShiftNotificationViewController *)
 controller;
 - (void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
 @end
