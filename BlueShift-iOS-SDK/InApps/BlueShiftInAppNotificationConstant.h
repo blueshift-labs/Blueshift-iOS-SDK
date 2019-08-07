@@ -35,6 +35,7 @@
 #define kInAppNotificationModalIconColorKey                     @"icon_color"
 #define kInAppNotificationModalIconBackgroundColorKey           @"icon_background_color"
 #define kInAppNotificationModalIconBackgroundRadiusKey          @"icon_background_radius"
+#define kInAppNotificationModalActionsOrientationKey            @"actions_orientation"
 
 #define kInAppNotificationModalTemplateStyleKey                 @"template_style"
 #define kInAppNotificationModalPositionKey                      @"position"
