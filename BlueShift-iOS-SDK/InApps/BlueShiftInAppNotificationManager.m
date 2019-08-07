@@ -18,7 +18,6 @@
 
 #define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
 
-
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
 /* In-App message timer for handlin upcoming messages */
@@ -115,6 +114,7 @@
                         
                         if (applicationState == UIApplicationStateActive ||
                             applicationState == UIApplicationStateInactive) {
+                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
                             [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                         } else {
                             NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
@@ -385,7 +385,7 @@
 
 
 // Notification Click Callbacks
--(void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
+-(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller   {
     
     NSManagedObjectID* entityItem = controller.notification.objectID;
     
@@ -408,9 +408,6 @@
         [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
         
     }
-
-    //[[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
-
 }
 
 // Notification render Callbacks
