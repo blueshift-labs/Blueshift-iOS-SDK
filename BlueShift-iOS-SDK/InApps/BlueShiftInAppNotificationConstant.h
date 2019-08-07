@@ -56,7 +56,6 @@
 #define kInAppNotificationModalFontAwesomeNameKey               @"FontAwesome5Free-Solid"
 
 /* Define XIB Name */
-#define kInAppNotificationModalXIBNameKey                       @"BlueshiftNotificationModal"
 #define kInAppNotificationSlideBannerXIBNameKey                 @"BlueShiftNotificationSlideBanner"
 
 /* Define Position Modal */

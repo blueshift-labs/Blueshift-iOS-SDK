@@ -135,18 +135,6 @@
     return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
 }
 
-- (UIView *)fetchNotificationView{
-    switch (self.notification.inAppType) {
-        case BlueShiftInAppTypeModal:
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
-        case BlueShiftNotificationSlideBanner:
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
-        default:
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
-            break;
-    }
-}
-
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL{
     NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
     UIImage *image = [[UIImage alloc] initWithData:imageData];

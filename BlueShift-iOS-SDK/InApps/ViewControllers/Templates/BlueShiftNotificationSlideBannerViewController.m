@@ -34,7 +34,7 @@
         [super loadView];
     }
     
-    slideBannerView = [self fetchNotificationView];
+    slideBannerView = [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
     [self presentAnimationView];
 }
 
