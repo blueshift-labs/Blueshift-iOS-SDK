@@ -141,5 +141,9 @@
 
 - (IBAction)onOkayButtonTapped:(id)sender {
     [self closeButtonDidTapped];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)] && self.notification && self.notification.notificationContent &&
+        self.notification.notificationContent.actions && self.notification.notificationContent.actions[0]) {
+        [self.delegate inAppActionDidTapped : self.notification.notificationContent.actions[0] fromViewController:self];
+    }
 }
 @end
