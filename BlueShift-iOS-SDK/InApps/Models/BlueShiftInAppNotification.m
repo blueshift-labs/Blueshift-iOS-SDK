@@ -55,6 +55,21 @@
     return self;
 }
 
+- (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails {
+    NSMutableDictionary *buttonDictionary = [[NSMutableDictionary alloc] init];
+    if (buttonDetails) {
+        [buttonDictionary setValue: buttonDetails.text  forKey: kInAppNotificationModalTextKey];
+        [buttonDictionary setValue: buttonDetails.textColor forKey: kInAppNotiificationModalTextColorKey];
+        [buttonDictionary setValue: buttonDetails.backgroundColor forKey: kInAppNotificationModalBackgroundColorKey];
+        [buttonDictionary setValue: buttonDetails.page forKey: kInAppNotificationModalPageKey];
+        [buttonDictionary setValue: buttonDetails.extra forKey: kInAppNotificationModalExtraKey];
+        [buttonDictionary setValue: buttonDetails.content forKey: kInAppNotificationModalContentKey];
+        [buttonDictionary setValue: buttonDetails.image forKey: kInAppNotificationModalImageKey];
+    }
+    
+    return buttonDictionary;
+}
+
 @end
 
 @implementation BlueShiftInAppNotificationContent
