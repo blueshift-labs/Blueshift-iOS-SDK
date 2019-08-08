@@ -11,7 +11,7 @@
 #import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
-#import "BlueShiftInAppTriggerMode.h"
+#import "Models/BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "../BlueShift.h"
 
