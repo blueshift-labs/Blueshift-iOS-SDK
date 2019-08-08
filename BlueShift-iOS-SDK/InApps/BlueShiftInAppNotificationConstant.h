@@ -50,6 +50,7 @@
 #define kInAppNotificationModalPageKey                          @"page"
 #define kInAppNotificationModalExtraKey                         @"extra"
 #define kInAppNotificationModalImageKey                         @"image"
+#define kInAppNotificationModalSharableTextKey                  @"shareable_text"
 
 /* Define a Font */
 #define kInAppNotificationModalFontAwesomeFileNameKey           @"FontAwesome"
