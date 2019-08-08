@@ -65,6 +65,8 @@
     webView.backgroundColor = [UIColor whiteColor];
     webView.opaque = NO;
     webView.tag = 188293;
+    webView.clipsToBounds = TRUE;
+    webView.layer.cornerRadius = 10.0;
     
     return webView;
 }

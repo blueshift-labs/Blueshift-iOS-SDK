@@ -131,10 +131,18 @@
     if (self.notification && self.notification.notificationContent) {
         CGFloat yPadding = 0.0;
         
+        UIImageView *imageView;
+        if (self.notification.notificationContent.banner) {
+            imageView = [self createImageView];
+            yPadding = imageView.layer.frame.size.height + (2 * kInAppNotificationModalYPadding);
+            [notificationView addSubview:imageView];
+        }
+        
         UILabel *iconLabel;
         if (self.notification.notificationContent.icon) {
-            iconLabel = [self createIconLabel];
-            yPadding = 3 * kInAppNotificationModalYPadding;
+            yPadding = yPadding > 0.0 ? yPadding : (2 * kInAppNotificationModalYPadding);
+            iconLabel = [self createIconLabel: yPadding];
+            yPadding = (2 * kInAppNotificationModalYPadding) + yPadding;
             [notificationView addSubview: iconLabel];
         }
         
@@ -170,9 +178,29 @@
     }
 }
 
-- (UILabel *)createIconLabel {
+- (UIImageView *)createImageView {
+    CGFloat xPosition = 0.0;
+    CGFloat yPosition = 0.0;
+    CGFloat imageViewWidth = notificationView.frame.size.width;
+    CGFloat imageViewHeight = notificationView.frame.size.width / 2;
+    CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
+    
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
+    
+    if (self.notification.notificationContent.banner) {
+     [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
+    }
+    
+    //imageView.frame = cgRect;
+    imageView.contentMode = UIViewContentModeScaleToFill;
+    imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    
+    
+    return imageView;
+}
+
+- (UILabel *)createIconLabel:(CGFloat)yPosition {
     CGFloat xPosition = [self getCenterXPosition:notificationView childWidth: kInAppNotificationModalIconWidth];
-    CGFloat yPosition = 2 * kInAppNotificationModalYPadding;
     CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
         
     UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
@@ -226,7 +254,8 @@
 }
 
 - (UILabel *)createDescriptionLabel:(CGFloat)yPosition {
-    CGFloat descriptionLabelWidth = notificationView.frame.size.width;
+    CGFloat descriptionLabelWidth = notificationView.frame.size.width - 20;
+    CGFloat xPosition = [self getCenterXPosition: notificationView childWidth: descriptionLabelWidth];
     
     UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
     [descriptionLabel setNumberOfLines: 0];
@@ -240,7 +269,7 @@
     
     [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];
     CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabelWidth];
-    CGRect cgRect = CGRectMake(1.0, yPosition, descriptionLabelWidth, descriptionLabelHeight);
+    CGRect cgRect = CGRectMake(xPosition, yPosition, descriptionLabelWidth, descriptionLabelHeight);
     
     descriptionLabel.frame = cgRect;
     descriptionLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;

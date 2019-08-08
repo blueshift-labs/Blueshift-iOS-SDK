@@ -105,6 +105,9 @@
                         
                         self.actions = actions;
                     }
+                    if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey]) {
+                        self.banner = (NSString *)[contentDictionary objectForKey:kInAppNotificationModalBannerKey];
+                    }
 
                     break;
                     

@@ -75,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *message;
 @property (nonatomic, copy, readwrite, nullable) NSString *icon;
 @property (nonatomic, readwrite) NSMutableArray<BlueShiftInAppNotificationButton *>* actions;
+@property (nonatomic, copy, readwrite, nullable) NSString *banner;
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;

@@ -140,9 +140,9 @@
     UIImage *image = [[UIImage alloc] initWithData:imageData];
     
     // resize image
-    CGSize newSize = CGSizeMake(40, 40);
-    UIGraphicsBeginImageContext( newSize );// a CGSize that has the size you want
-    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    CGSize newSize = CGSizeMake(imageView.layer.frame.size.width, imageView.layer.frame.size.width);
+    UIGraphicsBeginImageContext(newSize);// a CGSize that has the size you want
+    [image drawInRect:CGRectMake(0.0, 0.0, newSize.width, newSize.height)];
     
     //image is the original UIImage
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
