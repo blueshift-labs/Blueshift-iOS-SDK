@@ -13,6 +13,7 @@ typedef NS_ENUM(NSUInteger, BlueShiftInAppType){
     BlueShiftInAppTypeHTML,
     BlueShiftInAppTypeModal,
     BlueShiftNotificationSlideBanner,
+    BlueShiftNotificationRating,
     BlueShiftInAppDefault
 };
 

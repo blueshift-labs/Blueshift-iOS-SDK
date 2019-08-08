@@ -73,6 +73,7 @@
 /* Define a Notification Type */
 #define kInAppNotificationTypeCenterPopUpKey                    @"modal"
 #define kInAppNotificationTypeSlideBannerKey                    @"slide_in_banner"
+#define kInAppNotificationTypeRatingKey                         @"rating"
 
 /*  Define a DataMart */
 #define kInAppNotificationEntityNameKey                         @"InAppNotificationEntity"
