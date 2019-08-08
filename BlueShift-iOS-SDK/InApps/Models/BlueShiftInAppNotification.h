@@ -58,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *productID;
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *content;
 @property (nonatomic, copy, readwrite, nullable) NSString *image;
+@property (nonatomic, copy, readwrite, nullable) NSString *sharableText;
 
 - (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails;
 
