@@ -27,13 +27,13 @@
     
 }
 
-+ (void)fetchAll:(void (^)(BOOL, NSArray *))handler {
++ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode withHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         NSManagedObjectContext *context;
         if (appDelegate) {
             @try {
-                context = appDelegate.batchEventManagedObjectContext;
+                context = appDelegate.managedObjectContext;
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception %@", exception);
@@ -47,7 +47,7 @@
                     NSLog(@"Caught exception %@", exception);
                 }
                 if(fetchRequest.entity != nil) {
-                    [self fetchFromCoreDataFromContext:context request:fetchRequest handler:handler];
+                    [self fetchFromCoreDataFromContext:context forTriggerMode:triggerMode request:fetchRequest handler:handler];
                 } else {
                     handler(NO, nil);
                 }
@@ -58,10 +58,27 @@
     }
 }
 
-+ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
++ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext*) context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
+    
     //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", @"now", @"ready"];
+    
+    NSString* triggerStr;
+    
+    switch (triggerMode) {
+        case BlueShiftInAppTriggerNow:
+            triggerStr = @"now";
+            break;
+        case BlueShiftInAppTriggerUpComing:
+            triggerStr = @"upcoming";
+            break;
+        case BlueShiftInAppTriggerEvent:
+            triggerStr = @"event";
+            break;
+    }
+    
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", triggerStr, @"ready"];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
@@ -87,7 +104,9 @@
 + (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
     for(int i = 0; i < notifications.count; i++) {
         InAppNotificationEntity *notification = [notifications objectAtIndex:i];
-        [notification setValue:@"QUEUE" forKey:@"status"];
+        
+        //TODO: commented the below code. Dont think its required.
+        //[notification setValue:@"QUEUE" forKey:@"status"];
     }
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
@@ -102,8 +121,8 @@
     }
 }
 
+- (void) insert:(NSDictionary *)dictionary inContext: (NSManagedObjectContext*) manageContext handler:(void (^)(BOOL))handler {
 
-- (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     if (appDelegate) {
@@ -115,7 +134,10 @@
         }
     }
     if (masterContext) {
+        /*
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+         */
+        NSManagedObjectContext *context = manageContext;
         context.parentContext = masterContext;
         // return if context is unavailable ...
         if (context == nil || masterContext == nil) {

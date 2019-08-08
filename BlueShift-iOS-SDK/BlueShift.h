@@ -50,7 +50,8 @@
 - (void) setPushParamDelegate: (id) obj;
 - (NSString *) getDeviceToken;
 - (void) setDeviceToken;
-- (void) createInAppNotification:(NSDictionary *)dictionary;
+- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
+
 @property BlueShiftAppDelegate *appDelegate;
 @property BlueShiftUserNotificationCenterDelegate *userNotificationDelegate;
 

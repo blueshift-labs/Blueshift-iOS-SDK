@@ -148,12 +148,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-- (void) createInAppNotification:(NSDictionary *)dictionary {
-    [_inAppNotificationMananger pushInAppNotificationToDB:dictionary];
+
+- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+    [_inAppNotificationMananger addInAppNotificationToDataStore:dictionary forApplicationState:applicationState];
 }
 
 
-- (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
+- (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent {
     [self identifyUserWithEmail:[BlueShiftUserInfo sharedInstance].email andDetails:details canBatchThisEvent:isBatchEvent];
 }
 
