@@ -59,6 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *content;
 @property (nonatomic, copy, readwrite, nullable) NSString *image;
 
+- (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails;
+
 @end
 
 /* notification content , either be html link/ html source / layout props */
@@ -79,6 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
+
 @end
 
 @interface BlueShiftInAppNotification : NSObject
