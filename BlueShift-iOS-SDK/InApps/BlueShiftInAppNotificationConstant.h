@@ -20,6 +20,7 @@
 #define kInAppNotificationModalBackgroundImageKey               @"background_image"
 #define kInAppNotificationModalBackgroundColorKey               @"background_color"
 #define kInAppNotificationModalIconKey                          @"icon"
+#define kInAppNotificationModalBannerKey                        @"banner"
 
 #define kInAppNotificationModalContentStyleKey                  @"content_style"
 #define kInAppNotificationModalTitleColorKey                    @"title_color"
