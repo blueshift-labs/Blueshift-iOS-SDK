@@ -5,6 +5,7 @@
 //  Created by shahas kp on 10/07/19.
 //
 
+#import <StoreKit/StoreKit.h>
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
 #import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
@@ -296,6 +297,13 @@
         case BlueShiftNotificationSlideBanner:
             notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
             break;
+        case BlueShiftNotificationRating:
+            [self displayReviewController];
+            
+            /* delete this notification from coreData */
+            [self removeInAppNotificationFromDB: notification.objectID];
+            return;
+            
             
         default:
             errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
@@ -308,7 +316,12 @@
     }
     if (errorString) {
     }
-    
+}
+
+- (void)displayReviewController {
+    if (@available(iOS 10.3, *)) {
+        [SKStoreReviewController requestReview];
+    }
 }
 
 - (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
