@@ -18,6 +18,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *iconLabel;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
 @property (strong, nonatomic) IBOutlet UIButton *okayButton;
+@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (IBAction)onOkayButtonTapped:(id)sender;
 
@@ -32,30 +33,34 @@
         [super loadView];
     }
     
-    slideBannerView = [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
+    slideBannerView = [self createNotificationWindow];
     [self presentAnimationView];
+}
+
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    [self initializeNotificationView];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureBackground];
-    [self loadNotification];
+    [self createNotificationView];
 }
 
-- (void)loadNotification{
-    if (self.notification) {
-        if (self.notification.notificationContent && self.notification.contentStyle) {
-                [self setLabelText:[self descriptionLabel] andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
-            
-                [self applyIconToLabelView:[self iconLabel]];
-            
-                if (self.notification.templateStyle && self.notification.templateStyle.backgroundColor) {
-                        [self slideBannerPopupView].backgroundColor = [self colorWithHexString: self.notification.templateStyle.backgroundColor];
-                }
-            }
-    }
+- (void)presentAnimationView {
+    CATransition *transition = [CATransition animation];
+    transition.duration = 1.0;
+    transition.type = kCATransitionPush;
+    transition.subtype = kCATransitionFromLeft;
+    [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+    [slideBannerView.layer addAnimation:transition forKey:nil];
     
-    CGRect frame = [self positionNotificationView: [self slideBannerPopupView]];
+    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+}
+
+- (void)createNotificationView{
+    CGRect frame = [self positionNotificationView: slideBannerView];
     slideBannerView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) 
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -64,13 +69,10 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
-<<<<<<< HEAD
-=======
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
         [[self inAppNotificationDelegate] inAppNotificationWillAppear];
     }
     
->>>>>>> change the variable name & check the delegate is present
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -78,11 +80,8 @@
         }
     };
     if (animated) {
-       // [UIView animateWithDuration:0.7f delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
-            self.window.alpha = 2.0;
-       // } completion:^(BOOL finished) {
-            completionBlock();
-       // }];
+        self.window.alpha = 2.0;
+        completionBlock();
     } else {
         self.window.alpha = 1.0;
         completionBlock();
@@ -91,13 +90,10 @@
 
 - (void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
-<<<<<<< HEAD
-=======
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
             [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
         }
         
->>>>>>> change the variable name & check the delegate is present
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
@@ -118,15 +114,93 @@
     }
 }
 
-- (void)presentAnimationView {
-    CATransition *transition = [CATransition animation];
-    transition.duration = 1.0;
-    transition.type = kCATransitionPush;
-    transition.subtype = kCATransitionFromLeft;
-    [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-    [slideBannerView.layer addAnimation:transition forKey:nil];
+- (void)initializeNotificationView {
+    if (self.notification && self.notification.notificationContent) {
+        CGFloat xPadding = 2 * kInAppNotificationModalYPadding;
+        
+        UILabel *iconLabel;
+        if (self.notification.notificationContent.icon) {
+            iconLabel = [self createIconLabel: xPadding];
+            xPadding = (2 * xPadding) + iconLabel.layer.frame.size.width;
+            [slideBannerView addSubview: iconLabel];
+        }
+        
+        UIButton *actionButton;
+        if (self.notification.notificationContent.actions && self.notification.notificationContent.actions[0]) {
+            actionButton = [self createActionButton];
+            [slideBannerView addSubview: actionButton];
+        }
+        
+        UILabel *descriptionLabel;
+        if (self.notification.notificationContent.message) {
+            CGFloat descriptionLabelWidth = slideBannerView.frame.size.width - (xPadding + actionButton.frame.size.width + kInAppNotificationModalYPadding);
+            descriptionLabel = [self createDescriptionLabel:xPadding andLabelWidth:descriptionLabelWidth];
+            [slideBannerView addSubview: descriptionLabel];
+        }
+        
+        if (self.notification.templateStyle) {
+            slideBannerView.backgroundColor = self.notification.templateStyle.backgroundColor ? [self colorWithHexString: self.notification.templateStyle.backgroundColor]
+            : UIColor.blueColor;
+        }
+    }
+}
+
+- (UILabel *)createIconLabel:(CGFloat)xPosition {
+    CGFloat yPosition = [self getCenterYPosition: kInAppNotificationModalIconHeight];
+    CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
     
-    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+    UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
+    [self applyIconToLabelView: label];
+    label.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [label setTextAlignment: NSTextAlignmentCenter];
+    
+    return label;
+}
+
+- (UILabel *)createDescriptionLabel:(CGFloat)xPosition andLabelWidth:(CGFloat)labelWidth{
+    UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+    [descriptionLabel setNumberOfLines: 0];
+    CGFloat fontSize = 14.0;
+    
+    if (self.notification.contentStyle) {
+        [self setLabelText: descriptionLabel andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
+        fontSize = self.notification.contentStyle.messageSize.floatValue > 0
+        ? self.notification.contentStyle.messageSize.floatValue : 18.0;
+    }
+    
+    [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];
+    CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: labelWidth];
+    CGFloat yPosition = [self getCenterYPosition: descriptionLabelHeight];
+    
+    CGRect cgRect = CGRectMake(xPosition, yPosition, labelWidth, descriptionLabelHeight);
+    
+    descriptionLabel.frame = cgRect;
+    descriptionLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [descriptionLabel setTextAlignment: NSTextAlignmentLeft];
+    
+    return descriptionLabel;
+}
+
+- (UIButton *)createActionButton {
+    UIButton *actionButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [actionButton addTarget:self
+               action:@selector(onOkayButtonTapped:)
+     forControlEvents:UIControlEventTouchUpInside];
+    [actionButton setImage:[UIImage imageNamed:@"right.png"] forState:UIControlStateNormal];
+    
+    CGFloat yPosition = [self getCenterYPosition: kInAppNotificationSlideBannerActionButtonHeight];
+    CGFloat xPosition = slideBannerView.frame.size.width - kInAppNotificationSlideBannerActionButtonWidth;
+    CGRect cgrect = CGRectMake(xPosition, yPosition, kInAppNotificationSlideBannerActionButtonWidth, kInAppNotificationSlideBannerActionButtonHeight);
+    actionButton.frame = cgrect;
+    actionButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    
+    return actionButton;
+}
+
+- (CGFloat)getCenterYPosition:(CGFloat)height {
+    CGFloat yPadding = height / 2.0;
+    
+    return ((slideBannerView.frame.size.height / 2) - yPadding);
 }
 
 #pragma mark - Public
