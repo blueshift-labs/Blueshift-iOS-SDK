@@ -150,7 +150,7 @@
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+    //[[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
 }
 
 // Notification render Callbacks
