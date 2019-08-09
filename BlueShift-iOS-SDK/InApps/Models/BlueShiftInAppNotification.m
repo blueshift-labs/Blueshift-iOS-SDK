@@ -44,6 +44,9 @@
                     if ([payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey]) {
                         self.sharableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
                     }
+                    if ([payloadDictionary objectForKey: kInAppNotificationButtonTypeKey]) {
+                        self.buttonType = (NSString *) [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey];
+                    }
                     
                     break;
                     
@@ -69,6 +72,7 @@
         [buttonDictionary setValue: buttonDetails.content forKey: kInAppNotificationModalContentKey];
         [buttonDictionary setValue: buttonDetails.image forKey: kInAppNotificationModalImageKey];
         [buttonDictionary setValue: buttonDetails.sharableText forKey: kInAppNotificationModalSharableTextKey];
+        [buttonDictionary setValue: buttonDetails.buttonType forKey:kInAppNotificationButtonTypeKey];
     }
     
     return buttonDictionary;
