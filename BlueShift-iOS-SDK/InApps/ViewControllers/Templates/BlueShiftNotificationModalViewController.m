@@ -32,9 +32,7 @@
         [super loadView];
     }
     
-    notificationView = [[UIView alloc] initWithFrame:CGRectZero];
-    notificationView.layer.cornerRadius = 10.0;
-    notificationView.clipsToBounds = YES;
+    notificationView = [self createNotificationWindow];
     [self.view insertSubview:notificationView aboveSubview:self.view];
 }
 
@@ -189,7 +187,6 @@
      [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
     }
     
-    //imageView.frame = cgRect;
     imageView.contentMode = UIViewContentModeScaleToFill;
     imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     
@@ -257,7 +254,7 @@
     
     UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
     [descriptionLabel setNumberOfLines: 0];
-     CGFloat fontSize = 18.0;
+     CGFloat fontSize = 14.0;
     
     if (self.notification.contentStyle) {
         [self setLabelText: descriptionLabel andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
@@ -334,22 +331,6 @@
     CGFloat xPadding = width / 2.0;
     
     return ((parentView.frame.size.width / 2) - xPadding);
-}
-
-- (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {
-    CGSize constraint = CGSizeMake(width, CGFLOAT_MAX);
-    CGSize size;
-    [label setNumberOfLines: 0];
-    
-    NSStringDrawingContext *context = [[NSStringDrawingContext alloc] init];
-    CGSize boundingBox = [label.text boundingRectWithSize:constraint
-                                                  options:NSStringDrawingUsesLineFragmentOrigin
-                                               attributes:@{NSFontAttributeName:label.font}
-                                                  context:context].size;
-    
-    size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
-    
-    return size.height;
 }
 
 - (CGFloat)getActionButtonWidth{
