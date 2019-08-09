@@ -44,6 +44,8 @@ controller;
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
 - (void)applyIconToLabelView:(UILabel *)iconLabelView;
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails;
+- (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
+- (UIView *)createNotificationWindow;
 
 @end
 
