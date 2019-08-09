@@ -208,4 +208,36 @@
     }
 }
 
+- (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
+    if (buttonDetails && buttonDetails.buttonType) {
+        if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeOpenKey]) {
+            [self closeButtonDidTapped];
+            
+            if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
+                NSDictionary *buttonPayload = [[BlueShiftInAppNotificationButton alloc] convertObjectToDictionary: buttonDetails];
+                [self.delegate inAppActionDidTapped : buttonPayload fromViewController:self];
+            }
+        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
+            [self shareData: buttonDetails.sharableText ? buttonDetails.sharableText :@""];
+            
+        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]){
+            [self closeButtonDidTapped];
+        }
+    }
+}
+
+- (void)shareData:(NSString *)sharableData{
+    UIActivityViewController* activityView = [[UIActivityViewController alloc] initWithActivityItems:@[sharableData] applicationActivities:nil];
+    
+    if (@available(iOS 8.0, *)) {
+        activityView.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            if (completed){
+                [self closeButtonDidTapped];
+            }
+        };
+    }
+    
+    [self presentViewController:activityView animated:YES completion:nil];
+}
+
 @end

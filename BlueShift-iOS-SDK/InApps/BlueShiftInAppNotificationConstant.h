@@ -78,6 +78,11 @@
 /*  Define a DataMart */
 #define kInAppNotificationEntityNameKey                         @"InAppNotificationEntity"
 
+/*  Define a Button type */
+#define kInAppNotificationButtonTypeKey                         @"type"
+#define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
+#define kInAppNotificationButtonTypeOpenKey                     @"open"
+#define kInAppNotificationButtonTypeShareKey                    @"share"
 
 /* Define size of view */
 #define kInAppNotificationModalIconWidth                        50.0

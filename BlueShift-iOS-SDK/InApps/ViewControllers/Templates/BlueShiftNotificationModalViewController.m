@@ -59,11 +59,9 @@
 }
 
 - (void)onOkayButtonTapped:(UIButton *)customButton{
-    [self closeButtonDidTapped];
     NSInteger position = customButton.tag;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)] && self.notification && self.notification.notificationContent && self.notification.notificationContent.actions && self.notification.notificationContent.actions[position]) {
-        NSDictionary *buttonPayload = [[BlueShiftInAppNotificationButton alloc] convertObjectToDictionary: self.notification.notificationContent.actions[position]];
-        [self.delegate inAppActionDidTapped : buttonPayload fromViewController:self];
+    if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions && self.notification.notificationContent.actions[position]) {
+        [self handleActionButtonNavigation: self.notification.notificationContent.actions[position]];
     }
 }
 
