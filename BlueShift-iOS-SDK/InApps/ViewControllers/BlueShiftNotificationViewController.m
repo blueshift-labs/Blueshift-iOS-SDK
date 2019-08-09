@@ -83,8 +83,14 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
+        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        
+        if (self.notification.inAppType == BlueShiftNotificationSlideBanner && itemHeight < 80.0) {
+            itemHeight = 80.0;
+        }
         size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
-        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        size.height = itemHeight;
+        
     }else {
         
     }

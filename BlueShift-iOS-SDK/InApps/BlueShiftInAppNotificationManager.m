@@ -347,10 +347,9 @@
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:NULL canBacthThisEvent: NO];
+    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: NO];
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
         [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
-        
     }
 }
 
