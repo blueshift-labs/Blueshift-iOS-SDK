@@ -9,6 +9,53 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "../BlueShiftInAppNotificationConstant.h"
 
+@implementation BlueShiftInAppNotificationButton
+
+- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
+    if (self = [super init]) {
+        
+        @try {
+            
+            switch (inAppType) {
+                case BlueShiftInAppTypeHTML:
+                case BlueShiftInAppTypeModal:
+                case BlueShiftNotificationSlideBanner:
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalTextKey]) {
+                        self.text = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalTextKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotiificationModalTextColorKey]) {
+                        self.textColor = (NSString *)[payloadDictionary objectForKey: kInAppNotiificationModalTextColorKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalBackgroundColorKey]) {
+                        self.backgroundColor = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalBackgroundColorKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalPageKey]) {
+                        self.page = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalPageKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalExtraKey]) {
+                        self.extra = [payloadDictionary objectForKey: kInAppNotificationModalExtraKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]){
+                        self.content = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalImageKey]) {
+                        self.image = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalImageKey];
+                    }
+                    
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+        } @catch (NSException *e) {
+            
+        }
+    }
+    return self;
+}
+
+@end
 
 @implementation BlueShiftInAppNotificationContent
 
@@ -48,6 +95,18 @@
                     }
                     if ([contentDictionary objectForKey: kInAppNotificationModalIconKey]) {
                         self.icon =(NSString *)[contentDictionary objectForKey: kInAppNotificationModalIconKey];
+                    }
+                    if ([contentDictionary objectForKey: kInAppNotificationActionButtonKey]) {
+                        NSDictionary *actionButtonDictionary = [contentDictionary objectForKey: kInAppNotificationActionButtonKey];
+                        NSMutableArray<BlueShiftInAppNotificationButton *> *actions = [[NSMutableArray alloc] init];
+                        for(id key in actionButtonDictionary){
+                            [actions addObject:[[BlueShiftInAppNotificationButton alloc] initFromDictionary:[actionButtonDictionary objectForKey: key] withType: inAppType]];
+                        }
+                        
+                        self.actions = actions;
+                    }
+                    if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey]) {
+                        self.banner = (NSString *)[contentDictionary objectForKey:kInAppNotificationModalBannerKey];
                     }
 
                     break;
@@ -165,53 +224,8 @@
                     if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconBackgroundRadiusKey]){
                         self.iconBackgroundRadius = (NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalIconBackgroundRadiusKey];
                     }
-                    
-                    break;
-                    
-                default:
-                    break;
-            }
-            
-        } @catch (NSException *e) {
-            
-        }
-    }
-    return self;
-}
-
-@end
-
-@implementation BlueShiftInAppNotificationButton
-
-- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
-    if (self = [super init]) {
-        
-        @try {
-            
-            switch (inAppType) {
-                case BlueShiftInAppTypeHTML:
-                case BlueShiftInAppTypeModal:
-                case BlueShiftNotificationSlideBanner:
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalTextKey]) {
-                        self.text = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalTextKey];
-                    }
-                    if ([payloadDictionary objectForKey: kInAppNotiificationModalTextColorKey]) {
-                        self.textColor = (NSString *)[payloadDictionary objectForKey: kInAppNotiificationModalTextColorKey];
-                    }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalBackgroundColorKey]) {
-                        self.backgroundColor = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalBackgroundColorKey];
-                    }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalPageKey]) {
-                        self.page = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalPageKey];
-                    }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalExtraKey]) {
-                        self.extra = [payloadDictionary objectForKey: kInAppNotificationModalExtraKey];
-                    }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]){
-                        self.content = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
-                    }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalImageKey]) {
-                        self.image = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalImageKey];
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalActionsOrientationKey]) {
+                        self.actionsOrientation =(NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalActionsOrientationKey];
                     }
                     
                     break;
@@ -228,7 +242,6 @@
 }
 
 @end
-
 
 @implementation BlueShiftInAppNotification
 
@@ -245,16 +258,6 @@
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
-                
-                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalDismissButtonKey]) {
-                    self.dismiss = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath: kInAppNotificationModalDismissButtonKey] withType: self.inAppType];
-                }
-                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalAppOpenButtonKey]) {
-                    self.appOpen = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath:kInAppNotificationModalAppOpenButtonKey] withType: self.inAppType];
-                }
-                if ([payloadDictionary valueForKeyPath: kInAppNotificationModalShareButtonKey]) {
-                    self.share = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: [payloadDictionary valueForKeyPath: kInAppNotificationModalShareButtonKey] withType: self.inAppType];
-                }
                 
                 self.showCloseButton = YES;
                 self.position = kInAppNotificationModalPositionCenterKey;

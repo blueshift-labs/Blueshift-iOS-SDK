@@ -14,8 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol BlueShiftNotificationDelegate <NSObject>
 @optional
-- (void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
-- (void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)
+- (void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
+- (void)inAppActionDidTapped:(BlueShiftInAppNotificationButton *)notificationActionButton fromViewController:(BlueShiftNotificationViewController *)
 controller;
 - (void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
 @end
@@ -40,7 +40,6 @@ controller;
 - (void)configureBackground;
 - (UIColor *)colorWithHexString:(NSString *)str;
 - (void)loadNotificationView;
-- (UIView *) fetchNotificationView;
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL;
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
 - (void)applyIconToLabelView:(UILabel *)iconLabelView;

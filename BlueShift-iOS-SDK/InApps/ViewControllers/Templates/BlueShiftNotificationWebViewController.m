@@ -65,6 +65,8 @@
     webView.backgroundColor = [UIColor whiteColor];
     webView.opaque = NO;
     webView.tag = 188293;
+    webView.clipsToBounds = TRUE;
+    webView.layer.cornerRadius = 10.0;
     
     return webView;
 }
@@ -112,7 +114,7 @@
     
     // prevent webview content insets for Cover
     if (@available(iOS 11.0, *)) {
-        if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey] && self.notification.height == 100.0) {
+        if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey] && height == 100.0) {
             webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
     }
@@ -132,7 +134,9 @@
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
-        frame.origin.y = (screenSize.height - size.height) / 2.0f;
+        frame.origin.y = height == 100
+            ? (screenSize.height - size.height) / 2.0f + 20.0
+            :(screenSize.height - size.height) / 2.0f;
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
@@ -184,13 +188,13 @@
 }
 
 - (void)loadWebView {
-    
     if (self.notification.notificationContent.url) {
         [self loadFromURL];
     } else{
         printf("%f WebViewController:: loading html from data \n", [[NSDate date] timeIntervalSince1970]);
         [self loadFromHTML];
     }
+    
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];
@@ -234,7 +238,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification.dismiss.content fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
         }
     };
     

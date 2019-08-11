@@ -34,7 +34,7 @@
         [super loadView];
     }
     
-    slideBannerView = [self fetchNotificationView];
+    slideBannerView = [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
     [self presentAnimationView];
 }
 
@@ -98,7 +98,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss: self.notification.dismiss.content fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
         }
     };
     
@@ -137,5 +137,9 @@
 
 - (IBAction)onOkayButtonTapped:(id)sender {
     [self closeButtonDidTapped];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)] && self.notification && self.notification.notificationContent &&
+        self.notification.notificationContent.actions && self.notification.notificationContent.actions[0]) {
+        [self.delegate inAppActionDidTapped : self.notification.notificationContent.actions[0] fromViewController:self];
+    }
 }
 @end

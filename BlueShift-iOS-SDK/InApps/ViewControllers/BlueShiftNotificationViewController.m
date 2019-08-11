@@ -85,8 +85,14 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
+        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        
+        if (self.notification.inAppType == BlueShiftNotificationSlideBanner && itemHeight < 80.0) {
+            itemHeight = 80.0;
+        }
         size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
-        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        size.height = itemHeight;
+        
     }else {
         
     }
@@ -100,7 +106,7 @@
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
-        frame.origin.y = 0.0f + 40.0f;
+        frame.origin.y = 0.0f + 10.0;
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
@@ -135,42 +141,14 @@
     return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
 }
 
-- (UIView *)fetchNotificationView{
-    switch (self.notification.inAppType) {
-        case BlueShiftInAppTypeModal:
-            return [self renderCategorizedNotificationView];
-        case BlueShiftNotificationSlideBanner:
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationSlideBannerXIBNameKey  owner:self options:nil] objectAtIndex:0];
-        default:
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
-            break;
-    }
-}
-
-- (UIView *)renderCategorizedNotificationView{
-    if (self.notification) {
-        if (self.notification.notificationContent && self.notification.notificationContent.icon) {
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithImageXIBNameKey owner:self options:nil] objectAtIndex:0];
-        }else if ((self.notification.appOpen && !self.notification.dismiss && !self.notification.share)
-                  || (!self.notification.appOpen && self.notification.dismiss && !self.notification.share)
-                  || (!self.notification.appOpen && !self.notification.dismiss && self.notification.share)){
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalWithOneButtonXIBNameKey owner:self options:nil] objectAtIndex:0];
-        }else{
-            return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
-        }
-    }
-    
-    return [[[NSBundle mainBundle] loadNibNamed: kInAppNotificationModalXIBNameKey owner:self options:nil] objectAtIndex:0];
-}
-
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL{
     NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
     UIImage *image = [[UIImage alloc] initWithData:imageData];
     
     // resize image
-    CGSize newSize = CGSizeMake(40, 40);
-    UIGraphicsBeginImageContext( newSize );// a CGSize that has the size you want
-    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    CGSize newSize = CGSizeMake(imageView.layer.frame.size.width, imageView.layer.frame.size.width);
+    UIGraphicsBeginImageContext(newSize);// a CGSize that has the size you want
+    [image drawInRect:CGRectMake(0.0, 0.0, newSize.width, newSize.height)];
     
     //image is the original UIImage
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();

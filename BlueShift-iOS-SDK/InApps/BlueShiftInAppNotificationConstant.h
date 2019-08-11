@@ -10,9 +10,7 @@
 
 /* InApp Notification Modal */
 #define kInAppNotificationKey                                   @"inapp"
-#define kInAppNotificationModalDismissButtonKey                 @"action.dismiss"
-#define kInAppNotificationModalAppOpenButtonKey                 @"action.app_open"
-#define kInAppNotificationModalShareButtonKey                   @"action.share"
+#define kInAppNotificationActionButtonKey                       @"action"
 #define kInAppNotificationModalContentKey                       @"content"
 #define kInAppNotificationModalHTMLKey                          @"html"
 #define kInAppNotificationModalURLKey                           @"url"
@@ -22,6 +20,7 @@
 #define kInAppNotificationModalBackgroundImageKey               @"background_image"
 #define kInAppNotificationModalBackgroundColorKey               @"background_color"
 #define kInAppNotificationModalIconKey                          @"icon"
+#define kInAppNotificationModalBannerKey                        @"banner"
 
 #define kInAppNotificationModalContentStyleKey                  @"content_style"
 #define kInAppNotificationModalTitleColorKey                    @"title_color"
@@ -37,6 +36,7 @@
 #define kInAppNotificationModalIconColorKey                     @"icon_color"
 #define kInAppNotificationModalIconBackgroundColorKey           @"icon_background_color"
 #define kInAppNotificationModalIconBackgroundRadiusKey          @"icon_background_radius"
+#define kInAppNotificationModalActionsOrientationKey            @"actions_orientation"
 
 #define kInAppNotificationModalTemplateStyleKey                 @"template_style"
 #define kInAppNotificationModalPositionKey                      @"position"
@@ -57,10 +57,7 @@
 #define kInAppNotificationModalFontAwesomeNameKey               @"FontAwesome5Free-Solid"
 
 /* Define XIB Name */
-#define kInAppNotificationModalXIBNameKey                       @"BlueshiftNotificationModal"
-#define kInAppNotificationModalWithImageXIBNameKey              @"BlueshiftNotificationModalWithImage"
 #define kInAppNotificationSlideBannerXIBNameKey                 @"BlueShiftNotificationSlideBanner"
-#define kInAppNotificationModalWithOneButtonXIBNameKey          @"BlueShiftNotificationModalWithOneButton"
 
 /* Define Position Modal */
 #define kInAppNotificationModalPositionBottomKey                @"bottom"
@@ -73,13 +70,17 @@
 #define kInAppNotificationModalHTMLHeaderKey                    @"<header><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></header>"
 
 /* Define a Notification Type */
-#define kInAppNotificationTypeCenterPopUpKey                    @"center_popup"
-#define kInAppNotificationTypeCenterPopUpImageKey               @"center_popup_with_image"
+#define kInAppNotificationTypeCenterPopUpKey                    @"modal"
 #define kInAppNotificationTypeSlideBannerKey                    @"slide_in_banner"
-#define kInAppNotificationTypeCenterPopUpOneButtonKey           @"center_popup_one_button"
 
 /*  Define a DataMart */
 #define kInAppNotificationEntityNameKey                         @"InAppNotificationEntity"
 
+
+/* Define size of view */
+#define kInAppNotificationModalIconWidth                        50.0
+#define kInAppNotificationModalIconHeight                       50.0
+#define kInAppNotificationModalYPadding                         10.0
+#define kInAppNotificationModalTitleHeight                      40.0
 
 #endif /* BlueShiftInAppNotificationConstant_h */
