@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "BlueShiftInAppTriggerMode.h"
-#import "../../BlueShiftAppDelegate.h"
+#import "BlueShiftAppDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,8 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *triggerMode;
 @property (nonatomic, retain) NSString *eventName;
 @property (nonatomic, retain) NSString *status;
-@property (nonatomic, retain) NSNumber* createdAt;
-@property (nonatomic, retain) NSString* displayOn;
+@property (nonatomic, retain) NSNumber *createdAt;
+@property (nonatomic, retain) NSString *displayOn;
+@property (nonatomic, retain) NSString *timestamp;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
@@ -46,4 +47,3 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 NS_ASSUME_NONNULL_END
 
 @end
-

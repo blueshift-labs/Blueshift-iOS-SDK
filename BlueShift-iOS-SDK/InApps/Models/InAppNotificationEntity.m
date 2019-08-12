@@ -5,13 +5,11 @@
 //  Created by shahas kp on 12/07/19.
 //
 #import "InAppNotificationEntity.h"
-#import "NSNumber+BlueShiftHelpers.h"
-#import "NSDate+BlueShiftDateHelpers.h"
-#import "../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotification.h"
-#import "../../BlueShiftAppDelegate.h"
+#import "BlueShiftAppDelegate.h"
 
 @implementation InAppNotificationEntity
 
@@ -26,6 +24,7 @@
 @dynamic status;
 @dynamic createdAt;
 @dynamic displayOn;
+@dynamic timestamp;
 
 - (void)fetchBy:(NSString *)key withValue:(NSString *)value {
 }
@@ -98,7 +97,7 @@
 
 + (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
     for(int i = 0; i < notifications.count; i++) {
-        InAppNotificationEntity *notification = [notifications objectAtIndex:i];
+        //InAppNotificationEntity *notification = [notifications objectAtIndex:i];
         
         //TODO: commented the below code. Dont think its required.
         //[notification setValue:@"QUEUE" forKey:@"status"];
@@ -251,7 +250,7 @@
     NSMutableDictionary *payload = [dictionary mutableCopy];
     if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
-    }else {
+    } else {
         self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
         [payload setValue:self.id forKey:@"id"];
     }
@@ -260,6 +259,14 @@
     /* get in-app payload */
     if ([dictionary objectForKey: kSilentNotificationPayloadIdentifierKey]) {
         dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
+    }
+    
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+        self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
+    }
+    
+    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey]) {
+        self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
     }
     
     if ([dictionary objectForKey: kInAppNotificationKey]) {
