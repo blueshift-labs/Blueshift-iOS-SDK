@@ -60,10 +60,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // Initialize deeplinks ...
     [self initDeepLinks];
     
-    // Initialize In App Manager
-    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
-    [_inAppNotificationMananger load];
-    
     // Getting the original Delegate ...
     NSObject<UIApplicationDelegate> *oldDelegate = [UIApplication sharedApplication].delegate;
     
@@ -86,11 +82,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     } else {
         blueShiftAppDelegate.blueShiftPushDelegate = oldDelegate;
     }
-    if (config.inAppNotificationDelegate) {
-        _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
-    }else{
-        _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
-    }
+    
     
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
@@ -102,6 +94,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     if (config.enableLocationAccess == YES) {
         [blueShiftAppDelegate registerLocationService];
+    }
+    
+    // Initialize In App Manager
+    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+    [_inAppNotificationMananger load];
+    if (config.inAppNotificationDelegate) {
+        _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
+    }else{
+        _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];

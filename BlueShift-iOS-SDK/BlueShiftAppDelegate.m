@@ -1064,7 +1064,9 @@
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
-    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    //return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    
+    return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.blueshift.readsapp"];
 }
 
 - (NSManagedObjectModel *)managedObjectModel {
