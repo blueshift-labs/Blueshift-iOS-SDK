@@ -7,9 +7,9 @@
 
 #import "InAppNotificationEntity.h"
 #import "NSNumber+BlueShiftHelpers.h"
-#import "BlueShiftAppDelegate.h"
 #import "NSDate+BlueShiftDateHelpers.h"
 #import "../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftNotificationConstants.h"
 
 @implementation InAppNotificationEntity
 
@@ -24,41 +24,32 @@
 @dynamic status;
 
 - (void)fetchBy:(NSString *)key withValue:(NSString *)value {
-    
 }
 
-+ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode withHandler:(void (^)(BOOL, NSArray *))handler {
-    @synchronized(self) {
-        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        NSManagedObjectContext *context;
-        if (appDelegate) {
-            @try {
-                context = appDelegate.managedObjectContext;
-            }
-            @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
-            }
-            if(context) {
-                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-                @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:context]];
-                }
-                @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
-                }
-                if(fetchRequest.entity != nil) {
-                    [self fetchFromCoreDataFromContext:context forTriggerMode:triggerMode request:fetchRequest handler:handler];
-                } else {
-                    handler(NO, nil);
-                }
-            }
+
+
++ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler {
+    
+    if (nil != masterContext) {
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        @try {
+            [fetchRequest setEntity:[NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: masterContext]];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+        if(fetchRequest.entity != nil) {
+            [self fetchFromCoreDataFromContext: masterContext forTriggerMode:triggerMode request: fetchRequest handler: handler];
         } else {
             handler(NO, nil);
         }
+    } else {
+        handler(NO, nil);
     }
 }
 
-+ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext*) context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
++ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     
     //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
     
@@ -101,6 +92,7 @@
     }
 }
 
+
 + (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
     for(int i = 0; i < notifications.count; i++) {
         InAppNotificationEntity *notification = [notifications objectAtIndex:i];
@@ -121,23 +113,17 @@
     }
 }
 
-- (void) insert:(NSDictionary *)dictionary inContext: (NSManagedObjectContext*) manageContext handler:(void (^)(BOOL))handler {
 
-    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
-        }
-    }
-    if (masterContext) {
-        /*
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-         */
-        NSManagedObjectContext *context = manageContext;
+
+
+- (void) insert:(NSDictionary *)dictionary
+usingPrivateContext: (NSManagedObjectContext*)privateContext
+ andMainContext: (NSManagedObjectContext*)masterContext
+        handler:(void (^)(BOOL))handler {
+    
+    if (nil != masterContext && nil != privateContext) {
+        
+        NSManagedObjectContext *context = privateContext;
         context.parentContext = masterContext;
         // return if context is unavailable ...
         if (context == nil || masterContext == nil) {
@@ -180,6 +166,7 @@
     }
 }
 
+
 - (void)update:(NSDictionary *)dictionary {
     
 }
@@ -202,19 +189,19 @@
     dictionary = [dictionary objectForKey: kInAppNotificationKey];
     
     /* get type of In-App msg */
-    if ([dictionary objectForKey:kSilentNotificationPayloadTypeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {
         self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
     }
     
     /* get start and end Time */
     if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey]) {
-         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
+        self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
     }
     
     if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
         NSDictionary *triggerDictionaryNode = [dictionary objectForKey: kSilentNotificationTriggerKey];
         if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey]) {
-             self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
+            self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
         }
         if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey]) {
             self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];

@@ -37,9 +37,11 @@
     /* create timer for upcoming events */
     [self startInAppMessageLoadTimer];
     
+    /* show any now messages if saved earlier */
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    
+    
     /* register for app background / foreground notification */
-    
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(OnApplicationEnteringBackground:)
                                                  name:UIApplicationDidEnterBackgroundNotification
@@ -64,6 +66,9 @@
     
     [self startInAppMessageLoadTimer];
     
+    /* show any now messages if saved earlier */
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    
 }
 
 
@@ -87,7 +92,7 @@
     if(masterContext) {
         NSEntityDescription *entity;
         @try {
-            entity = [NSEntityDescription entityForName:@"InAppNotificationEntity" inManagedObjectContext:masterContext];
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
         }
         @catch (NSException *exception) {
             NSLog(@"Caught exception %@", exception);
@@ -100,7 +105,9 @@
             
             if(inAppNotificationEntity != nil) {
                 printf("%f NotificationMgr: Inserting the payload \n", [[NSDate date] timeIntervalSince1970]);
-                [inAppNotificationEntity insert:payload inContext:self.privateObjectContext handler:^(BOOL status) {
+                
+                [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext:context handler:^(BOOL status) {
+                    
                     if(status) {
                         printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
                         if (applicationState == UIApplicationStateActive ||
@@ -108,6 +115,7 @@
                             [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                         }
                     }
+                    
                 }];
             }
         }
@@ -130,6 +138,11 @@
     }
     
     if (entityItem != nil) {
+        
+        /* creating a private context */
+        if (nil == self.privateObjectContext) {
+            self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        }
         
         NSManagedObjectContext *context = self.privateObjectContext;
         context.parentContext = masterContext;
@@ -169,11 +182,20 @@
 }
 
 
-
-
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
-    [InAppNotificationEntity fetchAll: triggerMode withHandler:^(BOOL status, NSArray *results) {
-        
+    
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    
+    [InAppNotificationEntity fetchAll:triggerMode context:masterContext withHandler:^(BOOL status, NSArray *results) {
         if (status) {
             NSArray* filteredResults = [self filterInAppNotificationResults:results withTriggerMode:triggerMode];
             
@@ -186,20 +208,20 @@
 }
 
 
+
 - (NSArray *) filterInAppNotificationResults: (NSArray*) results withTriggerMode:(BlueShiftInAppTriggerMode) triggerMode {
     
     /* get the current time (since 1970) */
     NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
-    
     NSArray *outResults = nil;
     
     if (BlueShiftInAppTriggerUpComing == triggerMode)
     {
         NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
         
-        for(int i = 0; i < [results count]; i++) {
+        for(int i = 0; i < [results count]; i++)
+        {
             InAppNotificationEntity *entity = [results objectAtIndex:i];
-            
             
             double endTime = [entity.endTime doubleValue];
             double startTime = [entity.startTime doubleValue];
@@ -207,15 +229,13 @@
             if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
                 /* discard notification if its expired. */
     
-                //TODO: remove from db
-                
+                [self removeInAppNotificationFromDB: entity.objectID];
                 printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
                 
             } else if (startTime > currentTime) {
                 /* Wait for (startTime-currentTime) before IAM is shown */
                 
                 printf("\nUpcoming:: Wait further Current time of IAM = %f startTime = %f", currentTime, startTime);
-                
             } else {
                 
                 printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
@@ -224,6 +244,33 @@
             }
         }
         outResults = [NSArray arrayWithArray: filteredResults];
+        
+    } else if (BlueShiftInAppTriggerNow == triggerMode) {
+        
+        NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
+        
+        for(int i = 0; i < [results count]; i++)
+        {
+            InAppNotificationEntity *entity = [results objectAtIndex:i];
+            
+            double endTime = [entity.endTime doubleValue];
+            double startTime = [entity.startTime doubleValue];
+            
+            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
+                /* discard notification if its expired. */
+                
+                [self removeInAppNotificationFromDB: entity.objectID];
+                
+                printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
+            } else {
+                /* For 'Now' category msg show it if time is not expired */
+                
+                printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
+                [filteredResults addObject:entity];
+            }
+        }
+        outResults = [NSArray arrayWithArray: filteredResults];
+        
     } else {
         outResults = results;
     }
