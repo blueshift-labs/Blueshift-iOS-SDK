@@ -58,6 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *productID;
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *content;
 @property (nonatomic, copy, readwrite, nullable) NSString *image;
+@property (nonatomic, copy, readwrite, nullable) NSString *sharableText;
+
+- (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails;
 
 @end
 
@@ -79,9 +82,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
+
 @end
 
 @interface BlueShiftInAppNotification : NSObject
+
+
+/* object Id of the record (entity) */
+@property (nonatomic, readwrite, nullable) NSManagedObjectID* objectID;
 
 /* type of in-app */
 @property (nonatomic, readwrite) BlueShiftInAppType inAppType;
@@ -99,6 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite) NSString *trigger;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationLayout *templateStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
+@property (nonatomic, copy, readwrite, nullable) NSDictionary *notificationPayload;
 
 - (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
 

@@ -60,10 +60,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // Initialize deeplinks ...
     [self initDeepLinks];
     
-    // Initialize In App Manager
-    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
-    [_inAppNotificationMananger load];
-    
     // Getting the original Delegate ...
     NSObject<UIApplicationDelegate> *oldDelegate = [UIApplication sharedApplication].delegate;
     
@@ -86,11 +82,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     } else {
         blueShiftAppDelegate.blueShiftPushDelegate = oldDelegate;
     }
-    if (config.inAppNotificationDelegate) {
-        _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
-    }else{
-        _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
-    }
+    
     
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
@@ -102,6 +94,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     if (config.enableLocationAccess == YES) {
         [blueShiftAppDelegate registerLocationService];
+    }
+    
+    // Initialize In App Manager
+    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+    [_inAppNotificationMananger load];
+    if (config.inAppNotificationDelegate) {
+        _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
+    }else{
+        _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
@@ -148,12 +149,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-- (void) createInAppNotification:(NSDictionary *)dictionary {
-    [_inAppNotificationMananger pushInAppNotificationToDB:dictionary];
+
+- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+    [_inAppNotificationMananger addInAppNotificationToDataStore:dictionary forApplicationState:applicationState];
 }
 
 
-- (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
+- (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent {
     [self identifyUserWithEmail:[BlueShiftUserInfo sharedInstance].email andDetails:details canBatchThisEvent:isBatchEvent];
 }
 
@@ -663,6 +665,18 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent {
     [self sendPushAnalytics:@"delivered" withParams:userInfo canBatchThisEvent:isBatchEvent];
+}
+
+- (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
+    printf("notification delivered\n");
+}
+
+- (void)trackInAppNotificationShowingWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
+    printf("notification showed\n");
+}
+
+- (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
+    printf("notification button tapped\n");
 }
 
 @end

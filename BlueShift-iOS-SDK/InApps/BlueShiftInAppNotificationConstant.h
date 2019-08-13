@@ -50,6 +50,7 @@
 #define kInAppNotificationModalPageKey                          @"page"
 #define kInAppNotificationModalExtraKey                         @"extra"
 #define kInAppNotificationModalImageKey                         @"image"
+#define kInAppNotificationModalSharableTextKey                  @"shareable_text"
 
 /* Define a Font */
 #define kInAppNotificationModalFontAwesomeFileNameKey           @"FontAwesome"
@@ -72,6 +73,7 @@
 /* Define a Notification Type */
 #define kInAppNotificationTypeCenterPopUpKey                    @"modal"
 #define kInAppNotificationTypeSlideBannerKey                    @"slide_in_banner"
+#define kInAppNotificationTypeRatingKey                         @"rating"
 
 /*  Define a DataMart */
 #define kInAppNotificationEntityNameKey                         @"InAppNotificationEntity"

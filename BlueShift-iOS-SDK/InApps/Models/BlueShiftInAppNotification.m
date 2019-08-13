@@ -41,6 +41,9 @@
                     if ([payloadDictionary objectForKey: kInAppNotificationModalImageKey]) {
                         self.image = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalImageKey];
                     }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey]) {
+                        self.sharableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
+                    }
                     
                     break;
                     
@@ -53,6 +56,22 @@
         }
     }
     return self;
+}
+
+- (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails {
+    NSMutableDictionary *buttonDictionary = [[NSMutableDictionary alloc] init];
+    if (buttonDetails) {
+        [buttonDictionary setValue: buttonDetails.text  forKey: kInAppNotificationModalTextKey];
+        [buttonDictionary setValue: buttonDetails.textColor forKey: kInAppNotiificationModalTextColorKey];
+        [buttonDictionary setValue: buttonDetails.backgroundColor forKey: kInAppNotificationModalBackgroundColorKey];
+        [buttonDictionary setValue: buttonDetails.page forKey: kInAppNotificationModalPageKey];
+        [buttonDictionary setValue: buttonDetails.extra forKey: kInAppNotificationModalExtraKey];
+        [buttonDictionary setValue: buttonDetails.content forKey: kInAppNotificationModalContentKey];
+        [buttonDictionary setValue: buttonDetails.image forKey: kInAppNotificationModalImageKey];
+        [buttonDictionary setValue: buttonDetails.sharableText forKey: kInAppNotificationModalSharableTextKey];
+    }
+    
+    return buttonDictionary;
 }
 
 @end
@@ -96,6 +115,7 @@
                     if ([contentDictionary objectForKey: kInAppNotificationModalIconKey]) {
                         self.icon =(NSString *)[contentDictionary objectForKey: kInAppNotificationModalIconKey];
                     }
+
                     if ([contentDictionary objectForKey: kInAppNotificationActionButtonKey]) {
                         NSDictionary *actionButtonDictionary = [contentDictionary objectForKey: kInAppNotificationActionButtonKey];
                         NSMutableArray<BlueShiftInAppNotificationButton *> *actions = [[NSMutableArray alloc] init];
@@ -194,6 +214,7 @@
                     if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleGravityKey]) {
                         self.titleGravity = (NSString *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleGravityKey];
                     }
+
                     if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitleSizeKey]) {
                         self.titleSize = (NSNumber *)[contenStyletDictionary objectForKey: kInAppNotificationModalTitleSizeKey];
                     }
@@ -251,12 +272,19 @@
         @try {
             self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: appEntity.type];
             
+            self.objectID = appEntity.objectID;
+            
             NSDictionary *inAppDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
             if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-                NSDictionary *payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
+                NSDictionary *payloadDictionary = [[NSDictionary alloc] init];
+                payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
+                
+                self.notificationPayload = [inAppDictionary objectForKey:@"inapp"];
                 
                 self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+                
                 self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+                
                 self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
                 
                 self.showCloseButton = YES;

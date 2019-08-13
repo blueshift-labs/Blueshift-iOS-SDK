@@ -5,15 +5,28 @@
 //  Created by shahas kp on 10/07/19.
 //
 
+#import <StoreKit/StoreKit.h>
 #import "BlueShiftInAppNotificationManager.h"
 #import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
 #import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
 #import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
 #import "Models/InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
+#import "Models/BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueShift.h"
+
+#define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
+
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
+
+/* In-App message timer for handlin upcoming messages */
+@property (nonatomic, strong, readwrite) NSTimer *inAppMsgTimer;
+
+/* private object context */
+@property (nonatomic, strong, readwrite) NSManagedObjectContext *privateObjectContext;
+
 @end
 
 @implementation BlueShiftInAppNotificationManager
@@ -21,57 +34,282 @@
 // init
 - (void)load {
     self.notificationControllerQueue = [NSMutableArray new];
+    
+    /* create timer for upcoming events */
+    [self startInAppMessageLoadTimer];
+    
+    /* show any now messages if saved earlier */
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    
+    
+    /* register for app background / foreground notification */
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(OnApplicationEnteringBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(OnApplicationEnteringForeground:)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
+    
 }
 
-- (void)pushInAppNotificationToDB:(NSDictionary*)payload {
-    @synchronized(self) {
-        BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        NSManagedObjectContext *masterContext;
-        if (appDelegate) {
-            @try {
-                masterContext = appDelegate.managedObjectContext;
-            }
-            @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
-            }
+- (void) OnApplicationEnteringBackground:(NSNotification *)notification {
+    /* stop the timer once app enters background */
+    
+    [self stopInAppMessageLoadTimer];
+}
+
+- (void) OnApplicationEnteringForeground:(NSNotification *)notification {
+    /* start the timer once app enters foreground */
+    
+    [self startInAppMessageLoadTimer];
+    
+    /* show any now messages if saved earlier */
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    
+}
+
+
+- (void) addInAppNotificationToDataStore: (NSDictionary*)payload forApplicationState:(UIApplicationState)applicationState {
+    
+    /* creating a private context */
+    if (nil == self.privateObjectContext) {
+        self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    }
+    
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
         }
-        if(masterContext) {
-            NSEntityDescription *entity;
-            @try {
-                entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-            }
-            @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
-            }
-            if(entity != nil) {
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    if(masterContext) {
+        NSEntityDescription *entity;
+        @try {
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+        if(entity != nil) {
+            
+            NSManagedObjectContext *context = appDelegate.managedObjectContext;
+            
+            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
+            
+            if(inAppNotificationEntity != nil) {
+                printf("%f NotificationMgr: Inserting the payload \n", [[NSDate date] timeIntervalSince1970]);
                 
-                NSManagedObjectContext *context = appDelegate.managedObjectContext;
-                
-                InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
-                if(inAppNotificationEntity != nil) {
-                    printf("%f NotificationMgr: Inserting the payload \n", [[NSDate date] timeIntervalSince1970]);
-                    [inAppNotificationEntity insert:payload handler:^(BOOL status) {
-                        if(status) {
-                            printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
-                            [self fetchInAppNotificationsFromDB];
+                [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext:context handler:^(BOOL status) {
+                    
+                    if(status) {
+                        printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
+                        [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
+                        
+                        if (applicationState == UIApplicationStateActive ||
+                            applicationState == UIApplicationStateInactive) {
+                            [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+                        } else {
+                            NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
                         }
-                    }];
-                }
+                    }
+                    
+                }];
             }
         }
     }
 }
 
-- (void)fetchInAppNotificationsFromDB {
-    [InAppNotificationEntity fetchAll:^(BOOL status, NSArray *results) {
-        if(status) {
-            for(int i = 0; i < [results count]; i++) {
-                InAppNotificationEntity *entity = [results objectAtIndex:i];
+
+- (void)removeInAppNotificationFromDB:(NSManagedObjectID *) entityItem {
+    
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    
+    if (entityItem != nil) {
+        
+        /* creating a private context */
+        if (nil == self.privateObjectContext) {
+            self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        }
+        
+        NSManagedObjectContext *context = self.privateObjectContext;
+        context.parentContext = masterContext;
+        
+        @try {
+            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                [context performBlock:^{
+                    NSManagedObject* pManagedObject =  [context objectWithID: entityItem];
+                    
+                    @try {
+                        [context deleteObject: pManagedObject];
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
+                    [context performBlock:^{
+                        NSError *saveError = nil;
+                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                            [context save:&saveError];
+                            
+                            if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                [masterContext performBlock:^{
+                                    NSError *error = nil;
+                                    [masterContext save:&error];
+                                }];
+                            }
+                        }
+                    }];
+                }];
+            } else {
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+}
+
+
+- (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
+    
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    
+    [InAppNotificationEntity fetchAll:triggerMode context:masterContext withHandler:^(BOOL status, NSArray *results) {
+        if (status) {
+            NSArray* filteredResults = [self filterInAppNotificationResults:results withTriggerMode:triggerMode];
+            
+            for(int i = 0; i < [filteredResults count]; i++) {
+                InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
                 [self createNotificationFromDictionary: entity];
             }
         }
     }];
 }
+
+
+
+- (NSArray *) filterInAppNotificationResults: (NSArray*) results withTriggerMode:(BlueShiftInAppTriggerMode) triggerMode {
+    
+    /* get the current time (since 1970) */
+    NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
+    NSArray *outResults = nil;
+    
+    if (BlueShiftInAppTriggerUpComing == triggerMode)
+    {
+        NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
+        
+        for(int i = 0; i < [results count]; i++)
+        {
+            InAppNotificationEntity *entity = [results objectAtIndex:i];
+            
+            double endTime = [entity.endTime doubleValue];
+            double startTime = [entity.startTime doubleValue];
+            
+            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
+                /* discard notification if its expired. */
+    
+                [self removeInAppNotificationFromDB: entity.objectID];
+                printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
+                
+            } else if (startTime > currentTime) {
+                /* Wait for (startTime-currentTime) before IAM is shown */
+                
+                printf("\nUpcoming:: Wait further Current time of IAM = %f startTime = %f", currentTime, startTime);
+            } else {
+                
+                printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
+                
+                [filteredResults addObject:entity];
+            }
+        }
+        outResults = [NSArray arrayWithArray: filteredResults];
+        
+    } else if (BlueShiftInAppTriggerNow == triggerMode) {
+        
+        NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
+        
+        for(int i = 0; i < [results count]; i++)
+        {
+            InAppNotificationEntity *entity = [results objectAtIndex:i];
+            
+            double endTime = [entity.endTime doubleValue];
+            double startTime = [entity.startTime doubleValue];
+            
+            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
+                /* discard notification if its expired. */
+                
+                [self removeInAppNotificationFromDB: entity.objectID];
+                
+                printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
+            } else {
+                /* For 'Now' category msg show it if time is not expired */
+                
+                printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
+                [filteredResults addObject:entity];
+            }
+        }
+        outResults = [NSArray arrayWithArray: filteredResults];
+        
+    } else {
+        outResults = results;
+    }
+    return outResults;
+}
+
+
+
+// Method to start In-App message loading timer
+- (void)startInAppMessageLoadTimer {
+    if (nil == self.inAppMsgTimer) {
+        self.inAppMsgTimer = [NSTimer scheduledTimerWithTimeInterval:10
+                                                          target:self
+                                                        selector:@selector(handlePendingInAppMessage)
+                                                        userInfo:nil
+                                                         repeats:YES];
+    }
+}
+
+// Method to stop In-App message loading timer
+- (void) stopInAppMessageLoadTimer {
+    if (nil != self.inAppMsgTimer) {
+        [self.inAppMsgTimer invalidate];
+        self.inAppMsgTimer = nil;
+    }
+}
+
+
+
+// handle In-App msg.
+- (void) handlePendingInAppMessage {
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerUpComing];
+}
+
 
 // trigger queued notifications
 - (void)scanNotificationQueue {
@@ -96,15 +334,6 @@
     }
 }
 
-// Remove current notification and Schedule next
-- (void)inAppNotificationDidDismiss:(BlueShiftNotificationViewController*)notificationController {
-    if (self.currentNotificationController && self.currentNotificationController == notificationController) {
-        
-        self.currentNotificationController= nil;
-        
-        [self scanNotificationQueue];
-    }
-}
 
 - (void)createNotification:(BlueShiftInAppNotification*)notification {
     BlueShiftNotificationViewController *notificationController;
@@ -120,6 +349,13 @@
         case BlueShiftNotificationSlideBanner:
             notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
             break;
+        case BlueShiftNotificationRating:
+            [self displayReviewController];
+            
+            /* delete this notification from coreData */
+            [self removeInAppNotificationFromDB: notification.objectID];
+            return;
+            
             
         default:
             errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
@@ -132,30 +368,54 @@
     }
     if (errorString) {
     }
-    
+}
+
+- (void)displayReviewController {
+    if (@available(iOS 10.3, *)) {
+        [SKStoreReviewController requestReview];
+    }
 }
 
 - (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
     
     BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
-    
-    [self createNotification:inAppNotification];
+    [self createNotification: inAppNotification];
 }
+
+
 
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(BlueShiftInAppNotification *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
-    [self inAppNotificationDidDismiss:controller];
+    
+    NSManagedObjectID* entityItem = controller.notification.objectID;
+    
+    self.currentNotificationController = nil;
+    
+    /* delete the app entity from core data */
+    [self removeInAppNotificationFromDB: entityItem];
+    
+    /* scan queue for any pending notification. */
+    //TODO:  check app foreground state before scanning.
     [self scanNotificationQueue];
- //   [[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+    
+    //[[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
+
+    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:NULL canBacthThisEvent: NO];
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+        [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+        
+    }
+
     //[[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
+
 }
 
 // Notification render Callbacks
--(void)inAppDidShow:(BlueShiftInAppNotification *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    
+-(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
 }
 
 @end

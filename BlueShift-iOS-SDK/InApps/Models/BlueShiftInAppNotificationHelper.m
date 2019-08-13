@@ -16,7 +16,8 @@ static NSDictionary *_inAppTypeDictionay;
     _inAppTypeDictionay = @{
                         kInAppNotificationModalHTMLKey: @(BlueShiftInAppTypeHTML),
                         kInAppNotificationTypeCenterPopUpKey: @(BlueShiftInAppTypeModal),
-                        kInAppNotificationTypeSlideBannerKey: @(BlueShiftNotificationSlideBanner)
+                        kInAppNotificationTypeSlideBannerKey: @(BlueShiftNotificationSlideBanner),
+                        kInAppNotificationTypeRatingKey: @(BlueShiftNotificationRating)
                     };
 }
 

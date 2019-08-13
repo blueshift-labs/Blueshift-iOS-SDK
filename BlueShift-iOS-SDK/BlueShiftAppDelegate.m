@@ -227,29 +227,39 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
-    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
-    self.userInfo = userInfo;
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
-    if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
-        [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
-    } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
-        [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
-    } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
-        [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
-    }
-    else {
-        NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-        if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-            if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
-                [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+    /* if there is payload for IAM , give priority to the it */
+    NSDictionary* inAppMsgPayLoad =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+    
+    if (nil != inAppMsgPayLoad) {
+        [[BlueShift sharedInstance] createInAppNotification: inAppMsgPayLoad forApplicationState: UIApplicationStateActive];
+        
+    } else {
+        
+        NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+        self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+        self.userInfo = userInfo;
+        NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+        
+        if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+            [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
+        } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+            [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
+        } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+            [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
+        }
+        else {
+            NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+            if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
+                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                    [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+                } else {
+                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                }
             } else {
-                [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                // Track notification when app is in background and when we click the push notification from tray..
+                [self trackPushClickedWithParameters:pushTrackParameterDictionary];
             }
-        } else {
-            // Track notification when app is in background and when we click the push notification from tray..
-            [self trackPushClickedWithParameters:pushTrackParameterDictionary];
         }
     }
 }
@@ -282,6 +292,7 @@
     
     NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+    
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
         
@@ -294,56 +305,81 @@
             UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
             BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
             pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
+            
             UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
             [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
         } else {
             
-            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-            NSNumber *num = [NSNumber numberWithInt:1];
-            BOOL isSilentPush = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
-            
+            BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
             if (isSilentPush == TRUE) {
                 NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
                 printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
 
-                [[BlueShift sharedInstance] createInAppNotification: dataPayload];
-
+                [[BlueShift sharedInstance] createInAppNotification: dataPayload forApplicationState: applicationState];
             } else {
                // [self scheduleLocalNotification:userInfo];
             }
-            
         }
     } else {
+        BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
+        if (isSilentPush == TRUE) {
+            NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+            printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
+            
+            [[BlueShift sharedInstance] createInAppNotification: dataPayload forApplicationState: applicationState];
+        } else {
         
-        // Handle push notification when the app is in inactive or background state ...
-        if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
-            [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
-        } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
-            [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
-        } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
-            [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
-        }
-        else {
-            NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-            if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
-                    [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+            // Handle push notification when the app is in inactive or background state ...
+            if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+                [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
+            } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+                [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
+            } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+                [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
+            }
+            else {
+                NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+                if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
+                    if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                        [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
+                    } else {
+                        [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
+                    }
                 } else {
-                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
-                }
-            } else {
-                NSString *urlString = [self.userInfo objectForKey:@"deep_link_url"];
-                NSURL *url = [NSURL URLWithString:urlString];
-                if(url) {
-                    [self handleCustomCategory:@"" UsingPushDetailsDictionary:userInfo];
-                } else {
-                    // Track notification when app is in background and when we click the push notification from tray..
-                    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+                    NSString *urlString = [self.userInfo objectForKey:@"deep_link_url"];
+                    NSURL *url = [NSURL URLWithString:urlString];
+                    if(url) {
+                        [self handleCustomCategory:@"" UsingPushDetailsDictionary:userInfo];
+                    } else {
+                        // Track notification when app is in background and when we click the push notification from tray..
+                        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+                    }
                 }
             }
         }
     }
 }
+
+
+-(BOOL) checkIfPayloadHasInAppMessage: (NSDictionary*)userInfo {
+    
+    BOOL isIAMPayloadPresent = false;
+    if (nil != userInfo) {
+        
+        NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+        if (nil != dataPayload) {
+            isIAMPayloadPresent = true;
+        } else {
+        
+            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
+            NSNumber *num = [NSNumber numberWithInt:1];
+            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        }
+    }
+    return isIAMPayloadPresent;
+}
+
+
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
     
@@ -1028,7 +1064,9 @@
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
-    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    //return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    
+    return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.blueshift.readsapp"];
 }
 
 - (NSManagedObjectModel *)managedObjectModel {
