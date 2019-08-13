@@ -51,6 +51,9 @@
 
 - (void)closeButtonDidTapped {
     [self hide:YES];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss: fromViewController:)]) {
+        [self.delegate inAppDidDismiss: self.notification.notificationPayload fromViewController:self];
+    }
 }
 
 - (void)loadNotificationView {
