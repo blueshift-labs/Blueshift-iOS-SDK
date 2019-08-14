@@ -9,6 +9,7 @@
 #define BlueShiftInAppNotificationConstant_h
 
 /* InApp Notification Modal */
+#define kInAppNotificationDataKey                               @"data"
 #define kInAppNotificationKey                                   @"inapp"
 #define kInAppNotificationActionButtonKey                       @"action"
 #define kInAppNotificationModalContentKey                       @"content"
