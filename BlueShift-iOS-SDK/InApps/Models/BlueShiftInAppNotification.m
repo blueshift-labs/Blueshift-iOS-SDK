@@ -278,24 +278,28 @@
             
             self.objectID = appEntity.objectID;
             
-            NSDictionary *inAppDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
-            if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-                NSDictionary *payloadDictionary = [[NSDictionary alloc] init];
-                payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
+            NSDictionary *dictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
+            if ([dictionary objectForKey: kInAppNotificationDataKey]) {
+                self.notificationPayload = dictionary;
+                NSDictionary *inAppDictionary = [dictionary objectForKey: kInAppNotificationDataKey];
+    
+                if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
+                    NSDictionary *payloadDictionary = [[NSDictionary alloc] init];
+                    payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
                 
-                self.notificationPayload = [inAppDictionary objectForKey:@"inapp"];
-                self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+                    self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 
-                self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+                    self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 
-                self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
+                    self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
                 
-                self.showCloseButton = YES;
-                self.position = kInAppNotificationModalPositionCenterKey;
-                self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
-                self.width = 90;
-                self.height = 90;
+                    self.showCloseButton = YES;
+                    self.position = kInAppNotificationModalPositionCenterKey;
+                    self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
+                    self.width = 90;
+                    self.height = 90;
                 
+                }
             }
         } @catch (NSException *e) {
             

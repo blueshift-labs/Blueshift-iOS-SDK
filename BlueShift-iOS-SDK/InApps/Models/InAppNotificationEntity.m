@@ -186,7 +186,13 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     /* parse the payload and save the relevant keys related to presentation of In-App msg */
     
     /* get in-app payload */
-    dictionary = [dictionary objectForKey: kInAppNotificationKey];
+    if ([dictionary objectForKey: kSilentNotificationPayloadIdentifierKey]) {
+        dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
+    }
+    
+    if ([dictionary objectForKey: kInAppNotificationKey]) {
+         dictionary = [dictionary objectForKey: kInAppNotificationKey];
+    }
     
     /* get type of In-App msg */
     if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {

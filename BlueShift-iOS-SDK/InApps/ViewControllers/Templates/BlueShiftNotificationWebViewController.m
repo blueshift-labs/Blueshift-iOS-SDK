@@ -213,7 +213,7 @@
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
-            [self.delegate inAppDidShow:self.notification fromViewController:self];
+            [self.delegate inAppDidShow:self.notification.notificationPayload fromViewController:self];
         }
     };
     if (animated) {
@@ -238,7 +238,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.notificationPayload fromViewController:self];
         }
     };
     
