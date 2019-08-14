@@ -51,9 +51,6 @@
 
 - (void)closeButtonDidTapped {
     [self hide:YES];
-    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss: fromViewController:)]) {
-        [self.delegate inAppDidDismiss: self.notification.notificationPayload fromViewController:self];
-    }
 }
 
 - (void)loadNotificationView {
@@ -228,12 +225,12 @@
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
     if (buttonDetails && buttonDetails.buttonType) {
         if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeOpenKey]) {
-            [self closeButtonDidTapped];
-            
             if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
                 NSDictionary *buttonPayload = [[BlueShiftInAppNotificationButton alloc] convertObjectToDictionary: buttonDetails];
                 [self.delegate inAppActionDidTapped : buttonPayload fromViewController:self];
             }
+            
+            [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             [self shareData: buttonDetails.sharableText ? buttonDetails.sharableText :@""];
             
