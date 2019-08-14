@@ -57,6 +57,14 @@
     self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
 }
 
+- (UIView *)createNotificationWindow{
+    UIView *notificationView = [[UIView alloc] initWithFrame:CGRectZero];
+    notificationView.layer.cornerRadius = 10.0;
+    notificationView.clipsToBounds = YES;
+    
+    return notificationView;
+}
+
 - (void)createWindow {
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
     self.window = [[windowClass alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
@@ -199,13 +207,67 @@
             CFRelease(provider);
         }
     
-        iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: 22.0];
+        CGFloat iconFontSize = 22.0;
+        if (self.notification.contentStyle && self.notification.contentStyle.iconSize) {
+            iconFontSize = self.notification.contentStyle.iconSize.floatValue > 0
+            ? self.notification.contentStyle.iconSize.floatValue : 22.0;
+            
+        }
+        iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
     
         [self setLabelText: iconLabelView andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
     
         iconLabelView.layer.cornerRadius = 10;
         iconLabelView.layer.masksToBounds = YES;
     }
+}
+
+- (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
+    if (buttonDetails && buttonDetails.buttonType) {
+        if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeOpenKey]) {
+            if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
+                NSDictionary *buttonPayload = [[BlueShiftInAppNotificationButton alloc] convertObjectToDictionary: buttonDetails];
+                [self.delegate inAppActionDidTapped : buttonPayload fromViewController:self];
+            }
+            
+            [self closeButtonDidTapped];
+        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
+            [self shareData: buttonDetails.sharableText ? buttonDetails.sharableText :@""];
+            
+        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]){
+            [self closeButtonDidTapped];
+        }
+    }
+}
+
+- (void)shareData:(NSString *)sharableData{
+    UIActivityViewController* activityView = [[UIActivityViewController alloc] initWithActivityItems:@[sharableData] applicationActivities:nil];
+    
+    if (@available(iOS 8.0, *)) {
+        activityView.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            if (completed){
+                [self closeButtonDidTapped];
+            }
+        };
+    }
+    
+    [self presentViewController:activityView animated:YES completion:nil];
+}
+
+- (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {
+    CGSize constraint = CGSizeMake(width, CGFLOAT_MAX);
+    CGSize size;
+    [label setNumberOfLines: 0];
+    
+    NSStringDrawingContext *context = [[NSStringDrawingContext alloc] init];
+    CGSize boundingBox = [label.text boundingRectWithSize:constraint
+                                                  options:NSStringDrawingUsesLineFragmentOrigin
+                                               attributes:@{NSFontAttributeName:label.font}
+                                                  context:context].size;
+    
+    size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
+    
+    return size.height;
 }
 
 @end
