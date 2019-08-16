@@ -121,10 +121,9 @@
                     }
 
                     if ([contentDictionary objectForKey: kInAppNotificationActionButtonKey]) {
-                        NSDictionary *actionButtonDictionary = [contentDictionary objectForKey: kInAppNotificationActionButtonKey];
                         NSMutableArray<BlueShiftInAppNotificationButton *> *actions = [[NSMutableArray alloc] init];
-                        for(id key in actionButtonDictionary){
-                            [actions addObject:[[BlueShiftInAppNotificationButton alloc] initFromDictionary:[actionButtonDictionary objectForKey: key] withType: inAppType]];
+                        for(NSDictionary* button in [contentDictionary objectForKey: kInAppNotificationActionButtonKey]){
+                            [actions addObject:[[BlueShiftInAppNotificationButton alloc] initFromDictionary: button withType: inAppType]];
                         }
                         
                         self.actions = actions;
