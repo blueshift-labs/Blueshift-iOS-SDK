@@ -108,6 +108,11 @@
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        
+        if (width == 100) {
+            size.width = size.width - 20.0;
+        }
+        
     }else {
         
     }
