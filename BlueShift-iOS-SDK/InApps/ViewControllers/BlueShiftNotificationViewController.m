@@ -38,6 +38,10 @@
     }
 }
 
+- (void)viewDidLoad {
+    [self saveContentToFile];
+}
+
 - (void)viewDidDisappear:(BOOL)animated{
     [super viewDidDisappear:animated];
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDisappear)]) {
@@ -186,12 +190,9 @@
 
 - (void)applyIconToLabelView:(UILabel *)iconLabelView {
     if (self.notification.notificationContent.icon) {
-        if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil) {
-            NSString *fontPath = [[NSBundle bundleForClass:[BlueShiftNotificationViewController class]]
-                                  pathForResource: kInAppNotificationModalFontAwesomeFileNameKey
-                                  ofType: kInAppNotificationModalFontExtensionKey];
-            
-            NSData *fontData = [NSData dataWithContentsOfFile:fontPath];
+        if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil
+             && [self checkFontFileExist]) {
+            NSData *fontData = [NSData dataWithContentsOfFile:[self getLocalDirectory]];
             CFErrorRef error;
             CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
             CGFontRef font = CGFontCreateWithDataProvider(provider);
@@ -268,6 +269,30 @@
     size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
     
     return size.height;
+}
+
+- (NSData *)getFontFileContent{
+    NSString *fontPath = [[NSBundle bundleForClass:[BlueShiftNotificationViewController class]]
+                          pathForResource: kInAppNotificationModalFontAwesomeFileNameKey
+                          ofType: kInAppNotificationModalFontExtensionKey];
+    return [NSData dataWithContentsOfFile:fontPath];;
+}
+
+- (void)saveContentToFile{
+    [[self getFontFileContent] writeToFile:[self getLocalDirectory] atomically:YES];
+}
+
+- (NSString *)getLocalDirectory{
+    NSString* tempPath = NSTemporaryDirectory();
+    NSString *fileName = kInAppNotificationModalFontAwesomeFileNameKey;
+    fileName = [fileName stringByAppendingString:@"."];
+    fileName = [fileName stringByAppendingString:kInAppNotificationModalFontExtensionKey];
+    return [tempPath stringByAppendingPathComponent: fileName];
+}
+
+- (BOOL)checkFontFileExist{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    return [fileManager fileExistsAtPath:[self getLocalDirectory]];
 }
 
 @end
