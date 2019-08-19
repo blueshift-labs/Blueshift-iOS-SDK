@@ -228,7 +228,7 @@
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             [self shareData: buttonDetails.sharableText ? buttonDetails.sharableText :@""];
             
-        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeOpenKey]){
+        } else {
             if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]) {
                 NSDictionary *buttonPayload = [[BlueShiftInAppNotificationButton alloc] convertObjectToDictionary: buttonDetails];
                 [self.delegate inAppActionDidTapped : buttonPayload fromViewController:self];
