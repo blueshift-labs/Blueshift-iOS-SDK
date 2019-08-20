@@ -57,6 +57,7 @@
 #define kInAppNotificationModalFontAwesomeFileNameKey           @"FontAwesome"
 #define kInAppNotificationModalFontExtensionKey                 @"otf"
 #define kInAppNotificationModalFontAwesomeNameKey               @"FontAwesome5Free-Solid"
+#define kInAppNotificationModalFontWithExtensionKey             @"FontAwesome.otf"
 
 /* Define Position Modal */
 #define kInAppNotificationModalPositionBottomKey                @"bottom"
