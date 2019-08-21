@@ -23,6 +23,9 @@
 /* In-App message timer for handlin upcoming messages */
 @property (nonatomic, strong, readwrite) NSTimer *inAppMsgTimer;
 
+/* Timer for set gap b/w two in app notificaation*/
+@property (nonatomic, strong, readwrite) NSTimer *inAppScanQueueTimer;
+
 /* private object context */
 @property (nonatomic, strong, readwrite) NSManagedObjectContext *privateObjectContext;
 
@@ -59,6 +62,7 @@
     /* stop the timer once app enters background */
     
     [self stopInAppMessageLoadTimer];
+    [self stopInAppScanQueueTimer];
 }
 
 - (void) OnApplicationEnteringForeground:(NSNotification *)notification {
@@ -299,6 +303,25 @@
     }
 }
 
+// Method to start time gap b/w loading inAppNotification timer
+- (void)startInAppScanQueueTimer {
+    if (self.inAppScanQueueTimer == nil) {
+        self.inAppScanQueueTimer = [NSTimer scheduledTimerWithTimeInterval:[self inAppNotificationTimeInterval]
+                                target:self
+                                selector:@selector(scanNotificationQueue)
+                                userInfo:nil
+                                repeats: YES];
+    }
+}
+
+// Method to stop time gap b/w loading inAppNotification timer
+- (void) stopInAppScanQueueTimer {
+    if (self.inAppScanQueueTimer != nil) {
+        [self.inAppScanQueueTimer invalidate];
+        self.inAppScanQueueTimer = nil;
+    }
+}
+
 
 
 // handle In-App msg.
@@ -313,6 +336,7 @@
         BlueShiftNotificationViewController *notificationController = [self.notificationControllerQueue objectAtIndex:0];
         [self.notificationControllerQueue removeObjectAtIndex:0];
         [self presentInAppNotification:notificationController];
+        [self stopInAppScanQueueTimer];
     }
 }
 
@@ -390,9 +414,10 @@
     /* delete the app entity from core data */
     [self removeInAppNotificationFromDB: entityItem];
     
-    /* scan queue for any pending notification. */
     //TODO:  check app foreground state before scanning.
-    [self scanNotificationQueue];
+    //start timer for sacn the queue
+    [self startInAppScanQueueTimer];
+
     //[[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
 }
 
