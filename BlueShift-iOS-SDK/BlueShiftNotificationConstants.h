@@ -28,7 +28,7 @@
 
 #define kInAppNotificationKey                                           @"inapp"
 #define kInAppNotificationEntityNameKey                                 @"InAppNotificationEntity"
-
+#define kInAppNotificationModalFontWithExtensionKey                     @"FontAwesome.otf"
 
 #define kSilentNotificationPayloadIdentifierKey                            @"data"
 #define kSilentNotificationPayloadTypeKey                                  @"type"
