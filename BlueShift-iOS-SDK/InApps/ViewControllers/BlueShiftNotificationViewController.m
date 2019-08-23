@@ -165,6 +165,12 @@
     imageView.image = newImage;
 }
 
+- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
+    if (filePath) {
+        imageView.image = [UIImage imageWithContentsOfFile: filePath];
+    }
+}
+
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value
           labelColor:(NSString *)labelColorCode
      backgroundColor:(NSString *)backgroundColorCode {
@@ -254,8 +260,8 @@
 }
 
 - (void)createFontFile:(UILabel *)iconLabel {
-    if ([self hasFontFileExist]) {
-        NSData *fontData = [NSData dataWithContentsOfFile: [self getLocalDirectory]];
+    if ([self hasFileExist: kInAppNotificationModalFontWithExtensionKey]) {
+        NSData *fontData = [NSData dataWithContentsOfFile: [self getLocalDirectory :kInAppNotificationModalFontWithExtensionKey]];
         CFErrorRef error;
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
         CGFontRef font = CGFontCreateWithDataProvider(provider);
@@ -281,22 +287,37 @@
         NSData *urlData = [NSData dataWithContentsOfURL:url];
         if (urlData) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [urlData writeToFile:[self getLocalDirectory] atomically:YES];
+                [urlData writeToFile:[self getLocalDirectory: kInAppNotificationModalFontWithExtensionKey] atomically:YES];
                 [self applyIconToLabelView: iconLabel];
             });
         }
     });
 }
 
-- (NSString *)getLocalDirectory{
+- (NSString *)getLocalDirectory:(NSString *)fileName {
     NSString* tempPath = NSTemporaryDirectory();
-    NSString *fileName = kInAppNotificationModalFontWithExtensionKey;
     return [tempPath stringByAppendingPathComponent: fileName];
 }
 
-- (BOOL)hasFontFileExist{
+- (BOOL)hasFileExist:(NSString *)filePath {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory]];
+    return [fileManager fileExistsAtPath: filePath];
+}
+
+- (void)deleteFileFromLocal:(NSString *)fileName{
+    NSString *filePath = [self getLocalDirectory: fileName];
+    if ([self hasFileExist: filePath]) {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+    }
+}
+
+- (NSString *)createFileNameFromURL:(NSString *)imageURL{
+    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: imageURL];
+    NSString *extension = [url pathExtension];
+    fileName = [fileName stringByAppendingString:@"."];
+    return [fileName stringByAppendingString: extension];
 }
 
 @end
