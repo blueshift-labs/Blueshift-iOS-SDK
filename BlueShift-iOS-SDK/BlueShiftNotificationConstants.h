@@ -26,7 +26,8 @@
 #define kNotificationCarouselPreviousIdentifier                         @"previous"
 #define kNotificationCarouselGotoappIdentifier                          @"go_to_app"
 
-
+#define kInAppNotificationKey                                           @"inapp"
+#define kInAppNotificationEntityNameKey                                 @"InAppNotificationEntity"
 
 
 #define kSilentNotificationPayloadIdentifierKey                            @"data"
