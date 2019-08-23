@@ -217,9 +217,9 @@
     self.eventName = @"";
     self.status = @"ready";
     
-    [[UIApplication sharedApplication] applicationState];
-    
-    if ([[self triggerMode] isEqualToString:@"upcoming"]) {
+    if ([[self triggerMode] isEqualToString:@"now"] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+    } else {
         NSString *imageURL = [self fetchImageURLFromString: payload];
         NSString *fileName = [self createFileName: imageURL];
         if (imageURL && ![self hasFontFileExist: fileName ]) {
@@ -227,8 +227,6 @@
         } else {
             self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
         }
-    } else {
-        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     }
 }
 
