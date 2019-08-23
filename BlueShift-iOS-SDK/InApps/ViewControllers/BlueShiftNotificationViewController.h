@@ -47,6 +47,11 @@ controller;
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
+- (void)deleteFileFromLocal:(NSString *)fileName;
+- (BOOL)hasFileExist:(NSString *)filePath;
+- (NSString *)getLocalDirectory:(NSString *)fileName;
+- (NSString *)createFileNameFromURL:(NSString *)imageURL;
+- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
 
 @end
 

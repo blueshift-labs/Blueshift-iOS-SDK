@@ -103,6 +103,14 @@
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
             [self.delegate inAppDidDismiss:self.notification.notificationPayload fromViewController:self];
         }
+        
+        if (self.notification.notificationContent.banner) {
+            NSString *fileName = [self createFileNameFromURL: self.notification.notificationContent.banner];
+            if (fileName && [self hasFileExist: [self getLocalDirectory: fileName]]) {
+                [self deleteFileFromLocal: fileName];
+                NSLog(@"Image file deleted");
+            }
+        }
     };
     
     if (animated) {
@@ -186,9 +194,13 @@
     CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
-    
     if (self.notification.notificationContent.banner) {
-     [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
+        NSString *fileName = [self createFileNameFromURL: self.notification.notificationContent.banner];
+        if (fileName && [self hasFileExist: [self getLocalDirectory: fileName]]) {
+            [self loadImageFromLocal:imageView imageFilePath:[self getLocalDirectory: fileName]];
+        } else{
+            [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
+        }
     }
     
     imageView.contentMode = UIViewContentModeScaleToFill;
