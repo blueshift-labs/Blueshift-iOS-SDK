@@ -1189,7 +1189,7 @@
 }
 
 - (void)downloadFileFromURL {
-    if ([self hasFontFileExist]) {
+    if (![self hasFontFileExist]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSString *urlToDownload = @"https://firebasestorage.googleapis.com/v0/b/cargonex-6251f.appspot.com/o/FontAwesome.otf?alt=media&token=da8d5411-04dd-47a3-a4a8-be76603ca117";
             NSURL  *url = [NSURL URLWithString:urlToDownload];
