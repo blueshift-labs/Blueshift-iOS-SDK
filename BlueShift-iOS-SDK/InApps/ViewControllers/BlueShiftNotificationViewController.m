@@ -225,8 +225,7 @@
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
     if (buttonDetails && buttonDetails.buttonType) {
         if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
-            
-             [self closeButtonDidTapped];
+            [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             [self shareData: buttonDetails.sharableText ? buttonDetails.sharableText :@""];
             
