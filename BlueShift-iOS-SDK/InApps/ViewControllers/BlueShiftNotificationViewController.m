@@ -258,7 +258,7 @@
 }
 
 - (void)createFontFile:(UILabel *)iconLabel {
-    if ([self hasFileExist: kInAppNotificationModalFontWithExtensionKey]) {
+    if ([self hasFileExist: [self getLocalDirectory: kInAppNotificationModalFontWithExtensionKey]]) {
         NSData *fontData = [NSData dataWithContentsOfFile: [self getLocalDirectory :kInAppNotificationModalFontWithExtensionKey]];
         CFErrorRef error;
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
@@ -285,7 +285,7 @@
         NSData *urlData = [NSData dataWithContentsOfURL:url];
         if (urlData) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [urlData writeToFile:[self getLocalDirectory: kInAppNotificationModalFontWithExtensionKey] atomically:YES];
+                [urlData writeToFile: [self getLocalDirectory: kInAppNotificationModalFontWithExtensionKey] atomically:YES];
                 [self applyIconToLabelView: iconLabel];
             });
         }
