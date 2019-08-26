@@ -111,6 +111,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
+    
+    [NSTimer scheduledTimerWithTimeInterval: 15
+                target:self
+                selector:@selector(fetchInAppNotificationFromAPI)
+                userInfo:nil
+                repeats:NO];
 }
 
 - (void)initDeepLinks {
@@ -687,6 +693,20 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
                                  canBacthThisEvent:(BOOL)isBatchEvent {
     [self sendPushAnalytics:@"dismiss" withParams: notificationPayload canBatchThisEvent: isBatchEvent];
+}
+
+- (void)fetchInAppNotificationFromAPI {
+    NSDictionary *context = @{
+                              @"seed_item_ids": @[@"9780307273482"]
+                              };
+    [BlueShiftLiveContent fetchLiveContentByEmail:@"releasecheckinapp" withContext: context success:^(NSDictionary *dictionary) {
+        if ([dictionary objectForKey:kInAppNotificationContentPayloadKey]) {
+            NSMutableArray *notificationArray = [dictionary objectForKey:kInAppNotificationContentPayloadKey];
+            [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray];
+        }
+    } failure:^(NSError *error){
+        NSLog(@"Failed");
+    }];
 }
 
 @end

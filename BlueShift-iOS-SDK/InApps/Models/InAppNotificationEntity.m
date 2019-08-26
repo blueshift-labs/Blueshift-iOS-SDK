@@ -11,6 +11,7 @@
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotification.h"
+#import "../../BlueShiftAppDelegate.h"
 
 @implementation InAppNotificationEntity
 
@@ -66,7 +67,7 @@
             break;
     }
     
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", triggerStr, @"ready"];
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", triggerStr, @"pending"];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     
     @try {
@@ -98,6 +99,7 @@
         
         //TODO: commented the below code. Dont think its required.
         //[notification setValue:@"QUEUE" forKey:@"status"];
+        NSLog(@"tetsing");
     }
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
@@ -111,9 +113,6 @@
         NSLog(@"Caught exception %@", exception);
     }
 }
-
-
-
 
 - (void) insert:(NSDictionary *)dictionary usingPrivateContext: (NSManagedObjectContext*)privateContext
  andMainContext: (NSManagedObjectContext*)masterContext
@@ -134,10 +133,6 @@
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSError *error = nil;
-                    printf("%f InAppNotify:: saving child context ++\n", [[NSDate date] timeIntervalSince1970]);
-                    [context save:&error];
-                    
-                    printf("%f InAppNotify:: saving child context --\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
                         printf("%f InAppNotify:: masterContext perform block --\n", [[NSDate date] timeIntervalSince1970]);
@@ -164,9 +159,63 @@
     }
 }
 
-
-- (void)update:(NSDictionary *)dictionary {
+- (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler{
     
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"id == %@", notificationID];
+    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    
+    @try {
+        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                NSError *error;
+                NSArray *results = [[NSArray alloc]init];
+                results = [context executeFetchRequest:fetchRequest error:&error];
+                if (results && results.count > 0) {
+                    handler(YES, results);
+                } else {
+                    handler(NO, nil);
+                }
+            }];
+        } else {
+            handler(NO, nil);
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
+}
+
+
+
+- (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
+    andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler{
+    if (status) {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", notificationID];
+        [fetchRequest setPredicate:predicate];
+        [fetchRequest setFetchLimit:1];
+        NSError *error;
+        NSArray *arrResult = [context executeFetchRequest:fetchRequest error:&error];
+        InAppNotificationEntity *entity = arrResult[0];
+        [entity setValue: status forKey: @"status"];
+        @try {
+            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                [context performBlock:^{
+                    NSError *error = nil;
+                    printf("%f InAppNotify:: saving child context ++\n", [[NSDate date] timeIntervalSince1970]);
+                    [context save:&error];
+                    handler(YES);
+                }];
+            } else {
+                handler(NO);
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+            handler(NO);
+        }
+    } else {
+        handler(NO);
+    }
 }
 
 - (void)delete {
@@ -175,12 +224,13 @@
 
 - (void)map:(NSDictionary *)dictionary {
     
-    self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
-    
     NSMutableDictionary *payload = [dictionary mutableCopy];
-    [payload setValue:self.id forKey:@"id"];
-    
-    
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+        self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
+    }else {
+        self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
+        [payload setValue:self.id forKey:@"id"];
+    }
     /* parse the payload and save the relevant keys related to presentation of In-App msg */
     
     /* get in-app payload */
@@ -215,7 +265,7 @@
     /* Other properties */
     self.priority = @"medium";
     self.eventName = @"";
-    self.status = @"ready";
+    self.status = @"pending";
     
     if ([[self triggerMode] isEqualToString:@"now"] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];

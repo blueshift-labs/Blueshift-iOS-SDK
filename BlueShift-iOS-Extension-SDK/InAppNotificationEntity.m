@@ -165,7 +165,6 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     }
 }
 
-
 - (void)update:(NSDictionary *)dictionary {
     
 }
