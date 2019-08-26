@@ -115,9 +115,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     
     if (config.BlueshiftInAppNotificationTimeInterval) {
-        _inAppNotificationMananger.inAppNotificationTimeInterval = *(config.BlueshiftInAppNotificationTimeInterval);
+        _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
     } else {
-        _inAppNotificationMananger.inAppNotificationTimeInterval = 50;
+        _inAppNotificationMananger.inAppNotificationTimeInterval = 30;
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
