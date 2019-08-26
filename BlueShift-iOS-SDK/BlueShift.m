@@ -105,6 +105,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
     }
     
+    if (config.BlueshiftInAppNotificationTimeInterval) {
+        _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
+    } else {
+        _inAppNotificationMananger.inAppNotificationTimeInterval = 30;
+    }
+    
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
 }
 
@@ -668,15 +674,20 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    printf("notification delivered\n");
+    [self sendPushAnalytics:@"delivered" withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationShowingWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    printf("notification showed\n");
+    [self sendPushAnalytics:@"view" withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    printf("notification button tapped\n");
+    [self sendPushAnalytics:@"click" withParams: notification canBatchThisEvent: isBatchEvent];
+}
+
+- (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
+                                 canBacthThisEvent:(BOOL)isBatchEvent {
+    [self sendPushAnalytics:@"dismiss" withParams: notificationPayload canBatchThisEvent: isBatchEvent];
 }
 
 @end

@@ -229,10 +229,8 @@
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
     
     /* if there is payload for IAM , give priority to the it */
-    NSDictionary* inAppMsgPayLoad =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
-    
-    if (nil != inAppMsgPayLoad) {
-        [[BlueShift sharedInstance] createInAppNotification: inAppMsgPayLoad forApplicationState: UIApplicationStateActive];
+    if (nil != userInfo) {
+        [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
         
     } else {
         
@@ -312,10 +310,9 @@
             
             BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
             if (isSilentPush == TRUE) {
-                NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
                 printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
 
-                [[BlueShift sharedInstance] createInAppNotification: dataPayload forApplicationState: applicationState];
+                [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
             } else {
                // [self scheduleLocalNotification:userInfo];
             }
@@ -323,10 +320,9 @@
     } else {
         BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
         if (isSilentPush == TRUE) {
-            NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
             printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
             
-            [[BlueShift sharedInstance] createInAppNotification: dataPayload forApplicationState: applicationState];
+            [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
         } else {
         
             // Handle push notification when the app is in inactive or background state ...

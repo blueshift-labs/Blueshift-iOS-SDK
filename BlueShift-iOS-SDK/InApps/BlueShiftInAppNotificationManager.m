@@ -23,6 +23,9 @@
 /* In-App message timer for handlin upcoming messages */
 @property (nonatomic, strong, readwrite) NSTimer *inAppMsgTimer;
 
+/* Timer for set gap b/w two in app notificaation*/
+@property (nonatomic, strong, readwrite) NSTimer *inAppScanQueueTimer;
+
 /* private object context */
 @property (nonatomic, strong, readwrite) NSManagedObjectContext *privateObjectContext;
 
@@ -59,6 +62,7 @@
     /* stop the timer once app enters background */
     
     [self stopInAppMessageLoadTimer];
+    [self stopInAppScanQueueTimer];
 }
 
 - (void) OnApplicationEnteringForeground:(NSNotification *)notification {
@@ -112,7 +116,7 @@
                         printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
                         if (applicationState == UIApplicationStateActive ||
                             applicationState == UIApplicationStateInactive) {
-                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
+                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
                             [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                         } else {
                             NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
@@ -301,6 +305,25 @@
     }
 }
 
+// Method to start time gap b/w loading inAppNotification timer
+- (void)startInAppScanQueueTimer {
+    if (self.inAppScanQueueTimer == nil) {
+        self.inAppScanQueueTimer = [NSTimer scheduledTimerWithTimeInterval:[self inAppNotificationTimeInterval]
+                                target:self
+                                selector:@selector(scanNotificationQueue)
+                                userInfo:nil
+                                repeats: YES];
+    }
+}
+
+// Method to stop time gap b/w loading inAppNotification timer
+- (void) stopInAppScanQueueTimer {
+    if (self.inAppScanQueueTimer != nil) {
+        [self.inAppScanQueueTimer invalidate];
+        self.inAppScanQueueTimer = nil;
+    }
+}
+
 
 
 // handle In-App msg.
@@ -315,6 +338,7 @@
         BlueShiftNotificationViewController *notificationController = [self.notificationControllerQueue objectAtIndex:0];
         [self.notificationControllerQueue removeObjectAtIndex:0];
         [self presentInAppNotification:notificationController];
+        [self stopInAppScanQueueTimer];
     }
 }
 
@@ -385,6 +409,8 @@
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller   {
     
+    [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:YES];
+    
     NSManagedObjectID* entityItem = controller.notification.objectID;
     
     self.currentNotificationController = nil;
@@ -392,16 +418,16 @@
     /* delete the app entity from core data */
     [self removeInAppNotificationFromDB: entityItem];
     
-    /* scan queue for any pending notification. */
     //TODO:  check app foreground state before scanning.
-    [self scanNotificationQueue];
+    //start timer for sacn the queue
+    [self startInAppScanQueueTimer];
     
     //[[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
 
-    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:NULL canBacthThisEvent: NO];
+    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:NULL canBacthThisEvent: YES];
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
         [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
         
@@ -410,7 +436,7 @@
 
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: YES];
 }
 
 @end

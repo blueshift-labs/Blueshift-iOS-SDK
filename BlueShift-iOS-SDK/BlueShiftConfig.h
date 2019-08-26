@@ -38,6 +38,7 @@
 
 @property NSString * _Nonnull blueShiftNotificationName;
 @property NSString * _Nonnull isEnabledPushNotificationKey;
+@property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
 
 - (BOOL)validateConfigDetails;
 

@@ -108,6 +108,11 @@
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        
+        if (width == 100) {
+            size.width = size.width - 20.0;
+        }
+        
     }else {
         
     }
@@ -213,7 +218,7 @@
     [self createWindow];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
-            [self.delegate inAppDidShow:self.notification fromViewController:self];
+            [self.delegate inAppDidShow:self.notification.notificationPayload fromViewController:self];
         }
     };
     if (animated) {
@@ -238,7 +243,7 @@
         [self.window removeFromSuperview];
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
-            [self.delegate inAppDidDismiss:self.notification fromViewController:self];
+            [self.delegate inAppDidDismiss:self.notification.notificationPayload fromViewController:self];
         }
     };
     
