@@ -109,24 +109,130 @@
             
             if(inAppNotificationEntity != nil) {
                 printf("%f NotificationMgr: Inserting the payload \n", [[NSDate date] timeIntervalSince1970]);
+                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
+                [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                 
-                [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext:context handler:^(BOOL status) {
-                    
-                    if(status) {
-                        printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
-                        if (applicationState == UIApplicationStateActive ||
-                            applicationState == UIApplicationStateInactive) {
-                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
-                            [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-                        } else {
-                            NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
-                        }
+//                [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext:context handler:^(BOOL status) {
+//
+//                    if(status) {
+//                        printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
+//                        if (applicationState == UIApplicationStateActive ||
+//                            applicationState == UIApplicationStateInactive) {
+//                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
+//                            [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+//                        } else {
+//                            NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
+//                        }
+//                    }
+//
+//                }];
+            }
+        }
+    }
+}
+
+- (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray {
+    NSNumber *item = [NSNumber numberWithInt:0];
+    [self recuresiveAdding:notificationArray item:item];
+}
+
+- (void)recuresiveAdding:(NSArray *)list item:(NSNumber *)item {
+    [self addInAppNotificationToDataStore:[list objectAtIndex:[item integerValue]] handler:^(BOOL status) {
+        if(status) {
+            NSNumber *nextItem = [NSNumber numberWithLong:[item longLongValue] + 1];
+            if ([nextItem integerValue] < [list count]) {
+                [self recuresiveAdding:list item:nextItem];
+            } else {
+                [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+            }
+        }
+    }];
+}
+
+- (void)checkInAppNotificationExist:(NSDictionary *)payload handler:(void (^)(BOOL))handler{
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    
+    if (masterContext != nil) {
+        NSEntityDescription *entity;
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        @try {
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+            [fetchRequest setEntity:entity];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+        
+        if(entity != nil && fetchRequest.entity != nil) {
+            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
+            if ([payload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+                NSString *notificationID = (NSString *)[payload objectForKey: kInAppNotificationModalMessageUDIDKey];
+                [inAppNotificationEntity fetchNotificationByID:masterContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
+                    if (status) {
+                        handler(NO);
+                    } else {
+                        handler(YES);
                     }
-                    
                 }];
             }
         }
     }
+}
+
+- (void) addInAppNotificationToDataStore: (NSDictionary*)payload handler:(void (^)(BOOL))handler{
+    [self checkInAppNotificationExist: payload handler:^(BOOL status){
+        if (status) {
+            
+            if (nil == self.privateObjectContext) {
+                self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+            }
+            
+            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+            NSManagedObjectContext *masterContext;
+            if (appDelegate) {
+                @try {
+                    masterContext = appDelegate.managedObjectContext;
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Caught exception %@", exception);
+                }
+            }
+            if(masterContext) {
+                NSEntityDescription *entity;
+                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+                @try {
+                    entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+                    [fetchRequest setEntity:entity];
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Caught exception %@", exception);
+                }
+                if(entity != nil && fetchRequest.entity != nil) {
+                    InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
+                    
+                    if(inAppNotificationEntity != nil) {
+                        [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
+                            
+                            if(status) {
+                                printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
+                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
+                                handler(YES);
+                            }
+                        }];
+                    }
+                }
+            }
+        }
+    }];
 }
 
 
@@ -214,6 +320,43 @@
     }];
 }
 
+- (void)updateInAppNotification:(NSDictionary *)notificationPayload {
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    if(masterContext) {
+        NSEntityDescription *entity;
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        @try {
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+            [fetchRequest setEntity:entity];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+        
+        InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
+        
+        if(inAppNotificationEntity != nil) {
+            if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+                NSString *notificationID = (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
+                [inAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
+                    if (status) {
+                        [self startInAppScanQueueTimer];
+                        [self stopInAppMessageLoadTimer];
+                    }
+                }];
+            }
+        }
+    }
+}
 
 
 - (NSArray *) filterInAppNotificationResults: (NSArray*) results withTriggerMode:(BlueShiftInAppTriggerMode) triggerMode {
@@ -289,7 +432,7 @@
 // Method to start In-App message loading timer
 - (void)startInAppMessageLoadTimer {
     if (nil == self.inAppMsgTimer) {
-        self.inAppMsgTimer = [NSTimer scheduledTimerWithTimeInterval:10
+        self.inAppMsgTimer = [NSTimer scheduledTimerWithTimeInterval: 10
                                                           target:self
                                                         selector:@selector(handlePendingInAppMessage)
                                                         userInfo:nil
@@ -312,7 +455,7 @@
                                 target:self
                                 selector:@selector(scanNotificationQueue)
                                 userInfo:nil
-                                repeats: YES];
+                                repeats: NO];
     }
 }
 
@@ -328,7 +471,7 @@
 
 // handle In-App msg.
 - (void) handlePendingInAppMessage {
-    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerUpComing];
+   // [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerUpComing];
 }
 
 
@@ -411,18 +554,12 @@
     
     [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:YES];
     
-    NSManagedObjectID* entityItem = controller.notification.objectID;
+   // NSManagedObjectID* entityItem = controller.notification.objectID;
     
     self.currentNotificationController = nil;
     
-    /* delete the app entity from core data */
-    [self removeInAppNotificationFromDB: entityItem];
-    
-    //TODO:  check app foreground state before scanning.
-    //start timer for sacn the queue
-    [self startInAppScanQueueTimer];
-    
-    //[[self inAppNotificationDelegate] dismissButtonDidTapped: notificationPayload];
+    /* update the app entity from core data */
+    [self updateInAppNotification: notificationPayload];
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
@@ -437,6 +574,8 @@
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
     [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: YES];
+    
+    [self stopInAppMessageLoadTimer];
 }
 
 @end
