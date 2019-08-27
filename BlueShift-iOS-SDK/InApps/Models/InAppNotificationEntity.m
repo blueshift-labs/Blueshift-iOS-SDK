@@ -24,6 +24,7 @@
 @dynamic triggerMode;
 @dynamic eventName;
 @dynamic status;
+@dynamic createdAt;
 
 - (void)fetchBy:(NSString *)key withValue:(NSString *)value {
 }
@@ -99,7 +100,6 @@
         
         //TODO: commented the below code. Dont think its required.
         //[notification setValue:@"QUEUE" forKey:@"status"];
-        NSLog(@"tetsing");
     }
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
@@ -135,10 +135,8 @@
                     NSError *error = nil;
                     [context save:&error];
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        printf("%f InAppNotify:: masterContext perform block --\n", [[NSDate date] timeIntervalSince1970]);
                         [masterContext performBlock:^{
                             NSError *error = nil;
-                            printf("%f InAppNotify:: saving parent context \n", [[NSDate date] timeIntervalSince1970]);
                             [masterContext save:&error];
                             handler(YES);
                         }];
@@ -185,7 +183,31 @@
     }
 }
 
-
+- (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
+    
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"status == %@", status];
+    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    
+    @try {
+        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                NSError *error;
+                NSArray *results = [[NSArray alloc]init];
+                results = [context executeFetchRequest:fetchRequest error:&error];
+                if (results && results.count > 0) {
+                    handler(YES, results);
+                } else {
+                    handler(NO, nil);
+                }
+            }];
+        } else {
+            handler(NO, nil);
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
+}
 
 - (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
     andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler{
@@ -201,7 +223,6 @@
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSError *error = nil;
-                    printf("%f InAppNotify:: saving child context ++\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     handler(YES);
                 }];
@@ -266,6 +287,7 @@
     self.priority = @"medium";
     self.eventName = @"";
     self.status = @"pending";
+    self.createdAt = [NSNumber numberWithDouble: (double)([[NSDate date] timeIntervalSince1970] * 1000.0)];
     
     if ([[self triggerMode] isEqualToString:@"now"] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];

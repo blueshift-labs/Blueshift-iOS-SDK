@@ -75,70 +75,16 @@
     
 }
 
-
-- (void) addInAppNotificationToDataStore: (NSDictionary*)payload forApplicationState:(UIApplicationState)applicationState {
-    
-    /* creating a private context */
-    if (nil == self.privateObjectContext) {
-        self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    }
-    
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
-        }
-    }
-    if(masterContext) {
-        NSEntityDescription *entity;
-        @try {
-            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
-        }
-        if(entity != nil) {
-            
-            NSManagedObjectContext *context = appDelegate.managedObjectContext;
-            
-            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
-            
-            if(inAppNotificationEntity != nil) {
-                printf("%f NotificationMgr: Inserting the payload \n", [[NSDate date] timeIntervalSince1970]);
-                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
-                [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-//                [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext:context handler:^(BOOL status) {
-//
-//                    if(status) {
-//                        printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
-//                        if (applicationState == UIApplicationStateActive ||
-//                            applicationState == UIApplicationStateInactive) {
-//                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
-//                            [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-//                        } else {
-//                            NSLog(@"NotificationMgr:: Saving in-app msg just saved in CoreDataApp. AppState = %d" , applicationState);
-//                        }
-//                    }
-//
-//                }];
-            }
-        }
-    }
-}
-
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray {
     NSNumber *item = [NSNumber numberWithInt:0];
     [self recuresiveAdding:notificationArray item:item];
+    [self deleteExpireInAppNotificationFromDataStore];
 }
 
 - (void)recuresiveAdding:(NSArray *)list item:(NSNumber *)item {
     [self addInAppNotificationToDataStore:[list objectAtIndex:[item integerValue]] handler:^(BOOL status) {
         if(status) {
-            NSNumber *nextItem = [NSNumber numberWithLong:[item longLongValue] + 1];
+            NSNumber *nextItem = [NSNumber numberWithLong:[item longValue] + 1];
             if ([nextItem integerValue] < [list count]) {
                 [self recuresiveAdding:list item:nextItem];
             } else {
@@ -187,10 +133,92 @@
     }
 }
 
+- (void) deleteExpireInAppNotificationFromDataStore {
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    
+    if (masterContext != nil) {
+        NSEntityDescription *entity;
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        @try {
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+            [fetchRequest setEntity:entity];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+        
+        if(entity != nil && fetchRequest.entity != nil) {
+            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
+            [inAppNotificationEntity fetchInAppNotificationByStatus: masterContext forNotificatioID: @"Displayed" request: fetchRequest handler:^(BOOL status , NSArray *results){
+                if (status && results != nil && [results count] > 0) {
+                    for(int i = 0; i < results.count; i++) {
+                        InAppNotificationEntity *notification = [results objectAtIndex:i];
+                        double timeDifferenceInDay = [self checkInAppNotificationExpired: [notification.createdAt doubleValue]];
+                        if (timeDifferenceInDay > 30) {
+                            if (nil == self.privateObjectContext) {
+                                self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                            }
+                            
+                            NSManagedObjectContext *context = self.privateObjectContext;
+                            context.parentContext = masterContext;
+                            
+                            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                [context performBlock:^{
+                                    NSManagedObject* pManagedObject =  [context objectWithID: notification.objectID];
+                                    @try {
+                                        [context deleteObject: pManagedObject];
+                                    }
+                                    @catch (NSException *exception) {
+                                        NSLog(@"Caught exception %@", exception);
+                                    }
+                                    [context performBlock:^{
+                                        NSError *saveError = nil;
+                                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                                            [context save:&saveError];
+                                            
+                                            if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                                [masterContext performBlock:^{
+                                                    NSError *error = nil;
+                                                    [masterContext save:&error];
+                                                }];
+                                            }
+                                        }
+                                    }];
+                                }];
+                            }
+                        }
+                    }
+                }
+            }];
+        }
+    }
+}
+
+- (double)checkInAppNotificationExpired:(double)createdTime {
+    double currentTime =  [[NSDate date] timeIntervalSince1970] * 1000;
+    NSDate *createdDate = [self convertMillisecondToDate: createdTime];
+    NSDate *currentDate = [self convertMillisecondToDate:currentTime];
+    
+    NSTimeInterval timeDifference = [currentDate timeIntervalSinceDate: createdDate];
+    return (timeDifference / 3600 * 24);
+}
+
+- (NSDate *)convertMillisecondToDate:(double)milliseonds {
+    return [NSDate dateWithTimeIntervalSince1970:(milliseonds / 1000.0)];
+}
+
 - (void) addInAppNotificationToDataStore: (NSDictionary*)payload handler:(void (^)(BOOL))handler{
     [self checkInAppNotificationExist: payload handler:^(BOOL status){
         if (status) {
-            
             if (nil == self.privateObjectContext) {
                 self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
             }
@@ -222,7 +250,6 @@
                         [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
                             
                             if(status) {
-                                printf("%f NotificationMgr: Insert Done. Loading from DB \n", [[NSDate date] timeIntervalSince1970]);
                                 [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
                                 handler(YES);
                             }
@@ -341,8 +368,7 @@
             NSLog(@"Caught exception %@", exception);
         }
         
-        InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
-        
+        InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
         if(inAppNotificationEntity != nil) {
             if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
                 NSString *notificationID = (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
@@ -379,16 +405,11 @@
                 /* discard notification if its expired. */
     
                 [self removeInAppNotificationFromDB: entity.objectID];
-                printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
                 
             } else if (startTime > currentTime) {
                 /* Wait for (startTime-currentTime) before IAM is shown */
                 
-                printf("\nUpcoming:: Wait further Current time of IAM = %f startTime = %f", currentTime, startTime);
             } else {
-                
-                printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
-                
                 [filteredResults addObject:entity];
             }
         }
@@ -409,12 +430,8 @@
                 /* discard notification if its expired. */
                 
                 [self removeInAppNotificationFromDB: entity.objectID];
-                
-                printf("\nUpcoming:: Discarded Current time of IAM = %f endTime = %f", currentTime, endTime);
             } else {
                 /* For 'Now' category msg show it if time is not expired */
-                
-                printf("\nUpcoming:: Display Current time of IAM = %f startTime = %f", currentTime, startTime);
                 [filteredResults addObject:entity];
             }
         }

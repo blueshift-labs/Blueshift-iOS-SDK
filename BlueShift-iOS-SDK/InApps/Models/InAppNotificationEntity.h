@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *triggerMode;
 @property (nonatomic, retain) NSString *eventName;
 @property (nonatomic, retain) NSString *status;
+@property (nonatomic, retain) NSNumber* createdAt;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
@@ -38,6 +39,8 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 
 - (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
                        andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler;
+
+- (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
 
 NS_ASSUME_NONNULL_END
 
