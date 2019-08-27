@@ -163,7 +163,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    [_inAppNotificationMananger addInAppNotificationToDataStore:dictionary forApplicationState:applicationState];
+   
 }
 
 
