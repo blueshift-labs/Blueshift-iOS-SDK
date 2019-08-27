@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) double inAppNotificationTimeInterval;
 
 - (void) load;
-- (void) addInAppNotificationToDataStore: (NSDictionary*)payload forApplicationState:(UIApplicationState)applicationState;
 
 - (void) createNotificationFromDictionary:(NSDictionary *)dictionary;
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)payload;
