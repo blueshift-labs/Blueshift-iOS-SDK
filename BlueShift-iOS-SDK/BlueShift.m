@@ -734,6 +734,24 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+- (void)registerForInAppMessage:(NSString *)displayPage {
+    if (_inAppNotificationMananger) {
+        if (displayPage) {
+            _inAppNotificationMananger.inAppNotificationDisplayOnPage = displayPage;
+        } else {
+            _inAppNotificationMananger.inAppNotificationDisplayOnPage = @"";
+        }
+    
+        [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    }
+}
+
+- (void)unregisterForInAppMessage {
+    if (_inAppNotificationMananger) {
+        _inAppNotificationMananger.inAppNotificationDisplayOnPage = @"";
+    }
+}
+
 - (void)fetchInAppNotificationFromAPI {
     if (_config.enableInAppNotification == YES) {
         NSDictionary *context = @{

@@ -31,15 +31,16 @@
 #define kInAppNotificationModalFontWithExtensionKey                     @"FontAwesome.otf"
 #define kInAppNotificationModalMessageUDIDKey                           @"bsft_message_uuid"
 
-#define kSilentNotificationPayloadIdentifierKey                            @"data"
-#define kSilentNotificationPayloadTypeKey                                  @"type"
-#define kInAppNotificationContentPayloadKey                                @"content"
+#define kSilentNotificationPayloadIdentifierKey                         @"data"
+#define kSilentNotificationPayloadTypeKey                               @"type"
+#define kInAppNotificationContentPayloadKey                             @"content"
+#define kInAppNotificationPayloadDisplayOnKey                           @"display_on"
 
-#define kSilentNotificationTriggerKey                                      @"trigger"
-#define kSilentNotificationTriggerStartTimeKey                             @"at"
-#define kSilentNotificationTriggerModeKey                                  @"on_event"
+#define kSilentNotificationTriggerKey                                   @"trigger"
+#define kSilentNotificationTriggerStartTimeKey                          @"at"
+#define kSilentNotificationTriggerModeKey                               @"on_event"
 
 
-#define kSilentNotificationTriggerEndTimeKey                               @"expires_at"
+#define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 
 #endif

@@ -22,6 +22,7 @@
 @dynamic eventName;
 @dynamic status;
 @dynamic createdAt;
+@dynamic displayOn;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
@@ -122,6 +123,10 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     /* get type of In-App msg */
     if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {
         self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
+    }
+    
+    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey]) {
+        self.displayOn = [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey];
     }
     
     /* get start and end Time */

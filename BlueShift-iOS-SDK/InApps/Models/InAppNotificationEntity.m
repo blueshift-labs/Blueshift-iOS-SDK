@@ -25,11 +25,12 @@
 @dynamic eventName;
 @dynamic status;
 @dynamic createdAt;
+@dynamic displayOn;
 
 - (void)fetchBy:(NSString *)key withValue:(NSString *)value {
 }
 
-+ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler {
++ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode forDisplayPage:(NSString *)displayOn context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler {
     
     if (nil != masterContext) {
         
@@ -41,7 +42,7 @@
             NSLog(@"Caught exception %@", exception);
         }
         if(fetchRequest.entity != nil) {
-            [self fetchFromCoreDataFromContext: masterContext forTriggerMode:triggerMode request: fetchRequest handler: handler];
+            [self fetchFromCoreDataFromContext: masterContext forTriggerMode: triggerMode forDisplayPage: displayOn request: fetchRequest handler: handler];
         } else {
             handler(NO, nil);
         }
@@ -50,7 +51,7 @@
     }
 }
 
-+ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
++ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode forDisplayPage:(NSString *)displayOn request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     
     //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
     
@@ -68,7 +69,9 @@
             break;
     }
     
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", triggerStr, @"pending"];
+    displayOn =  (displayOn ? displayOn: @"");
+    
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@ AND displayOn == %@", triggerStr, @"pending", displayOn];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     
     @try {
@@ -266,6 +269,10 @@
     /* get type of In-App msg */
     if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {
         self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
+    }
+
+    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey]) {
+        self.displayOn = [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey];
     }
     
     /* get start and end Time */
