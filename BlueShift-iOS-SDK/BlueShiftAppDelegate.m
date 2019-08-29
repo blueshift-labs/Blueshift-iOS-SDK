@@ -249,7 +249,7 @@
     /* if there is payload for IAM , give priority to the it */
     if (nil != userInfo) {
         [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
-        
+
     } else {
         
         NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];

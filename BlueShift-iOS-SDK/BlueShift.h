@@ -41,6 +41,8 @@
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
 @property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification;
 @property (nonatomic, strong) BlueShiftUserNotificationSettings *userNotification;
+@property (nonatomic, strong, readwrite) NSTimer *inAppMsgAPITimer;
+@property (nonatomic, strong, readwrite) NSTimer *inAppDBTimer;
 @property NSString *deviceToken;
 
 + (instancetype)sharedInstance;
