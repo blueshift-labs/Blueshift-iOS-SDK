@@ -8,6 +8,7 @@
 #import "BlueshiftInAppEntityAppDelegate.h"
 #import "InAppNotificationEntity.h"
 #import <CoreData/CoreData.h>
+#include "BlueShiftNotificationConstants.h"
 
 @interface BlueshiftInAppEntityAppDelegate ()
 
@@ -21,38 +22,66 @@
 
 @implementation BlueshiftInAppEntityAppDelegate
 
-- (void)addInAppNotificationToDataStore:(NSDictionary *)notificationPayload {
-    if (notificationPayload != nil) {
+- (void)checkInAppNotificationExist:(NSDictionary *)payload handler:(void (^)(BOOL))handler{
+    if (payload) {
         NSEntityDescription *entity;
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         @try {
-            entity = [NSEntityDescription entityForName: @"InAppNotificationEntity" inManagedObjectContext: self.managedObjectContext];
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: self.managedObjectContext];
+            [fetchRequest setEntity:entity];
         }
         @catch (NSException *exception) {
             NSLog(@"Caught exception %@", exception);
         }
-        
-        
-        
-        if(entity != nil) {
-            InAppNotificationEntity *inAppEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: self.managedObjectContext];
-            if (nil != inAppEntity)
-            {
-                @try {
-                    
-                    NSManagedObjectContext* privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                    
-                    [inAppEntity insert:notificationPayload  usingPrivateContext: privateObjectContext andMainContext:self.managedObjectContext handler:^(BOOL done) {
-                    }];
-                    
-                }
-                @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
-                }
-            } else {
-                printf("\n App entity is nil");
+
+        if(entity != nil && fetchRequest.entity != nil) {
+            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
+            if ([payload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+                NSString *notificationID = (NSString *)[payload objectForKey: kInAppNotificationModalMessageUDIDKey];
+                [inAppNotificationEntity fetchNotificationByID: self.managedObjectContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
+                    if (status) {
+                        handler(NO);
+                    } else {
+                        handler(YES);
+                    }
+                }];
             }
         }
     }
+}
+
+- (void)addInAppNotificationToDataStore:(NSDictionary *)notificationPayload {
+    [self checkInAppNotificationExist: notificationPayload handler:^(BOOL status){
+        if (status) {
+            NSEntityDescription *entity;
+            @try {
+                entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: self.managedObjectContext];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
+            
+            if(entity != nil) {
+                InAppNotificationEntity *inAppEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: self.managedObjectContext];
+                if (nil != inAppEntity){
+                    @try {
+                        NSManagedObjectContext* privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                        
+                        [inAppEntity insert:notificationPayload  usingPrivateContext: privateObjectContext andMainContext:self.managedObjectContext handler:^(BOOL done) {
+                            if (done) {
+                               
+                            }
+                        }];
+                    }
+                    @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
+                } else {
+                    printf("\n App entity is nil");
+                }
+            }
+        }
+    }];
 }
 
 @synthesize managedObjectContext = _managedObjectContext;

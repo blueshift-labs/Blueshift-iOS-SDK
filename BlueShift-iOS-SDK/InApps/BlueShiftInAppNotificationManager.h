@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) createNotificationFromDictionary:(NSDictionary *)dictionary;
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)payload;
 - (void) recuresiveAdding:(NSArray *)list item:(NSNumber *)item;
+- (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
 
 @end
 

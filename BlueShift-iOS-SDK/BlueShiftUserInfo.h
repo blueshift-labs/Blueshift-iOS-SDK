@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#include "BlueShiftConfig.h"
 
 @interface BlueShiftUserInfo : NSObject
 
