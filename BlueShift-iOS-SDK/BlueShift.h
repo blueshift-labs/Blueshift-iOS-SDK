@@ -53,6 +53,8 @@
 - (NSString *) getDeviceToken;
 - (void) setDeviceToken;
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
+- (void)registerForInAppMessage:(NSString *)displayPage;
+- (void)unregisterForInAppMessage;
 
 @property BlueShiftAppDelegate *appDelegate;
 @property BlueShiftUserNotificationCenterDelegate *userNotificationDelegate;

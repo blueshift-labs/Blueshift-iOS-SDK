@@ -333,13 +333,18 @@
         }
     }
     
-    [InAppNotificationEntity fetchAll:triggerMode context:masterContext withHandler:^(BOOL status, NSArray *results) {
+    [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
         if (status) {
             NSArray* filteredResults = [self filterInAppNotificationResults:results withTriggerMode:triggerMode];
             
             for(int i = 0; i < [filteredResults count]; i++) {
                 InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
                 [self createNotificationFromDictionary: entity];
+            }
+        } else {
+            if ([self inAppNotificationDisplayOnPage] && ![[self inAppNotificationDisplayOnPage] isEqualToString:@""]) {
+                [[BlueShift sharedInstance] unregisterForInAppMessage];
+                [self fetchInAppNotificationsFromDataStore: triggerMode];
             }
         }
     }];
