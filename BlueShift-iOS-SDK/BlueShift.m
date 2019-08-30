@@ -719,7 +719,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)startInAppMessageLoadFromaDBTimer {
     if (nil == self.inAppDBTimer) {
-        self.inAppDBTimer =  [NSTimer scheduledTimerWithTimeInterval: 12
+        self.inAppDBTimer =  [NSTimer scheduledTimerWithTimeInterval: 8
                                                                   target:self
                                                                 selector:@selector(fetchInAppNotificationFromDB)
                                                                 userInfo:nil

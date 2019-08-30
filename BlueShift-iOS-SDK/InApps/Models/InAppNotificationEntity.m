@@ -71,7 +71,7 @@
     
     displayOn =  (displayOn ? displayOn: @"");
     
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @""];
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     
     @try {
