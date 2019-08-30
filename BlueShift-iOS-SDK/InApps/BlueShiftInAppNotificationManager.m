@@ -341,11 +341,6 @@
                 InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
                 [self createNotificationFromDictionary: entity];
             }
-        } else {
-            if ([self inAppNotificationDisplayOnPage] && ![[self inAppNotificationDisplayOnPage] isEqualToString:@""]) {
-                [[BlueShift sharedInstance] unregisterForInAppMessage];
-                [self fetchInAppNotificationsFromDataStore: triggerMode];
-            }
         }
     }];
 }
