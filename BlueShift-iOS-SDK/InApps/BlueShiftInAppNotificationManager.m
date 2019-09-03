@@ -55,7 +55,7 @@
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
     
-    
+     [self deleteExpireInAppNotificationFromDataStore];
 }
 
 - (void) OnApplicationEnteringBackground:(NSNotification *)notification {
@@ -72,13 +72,11 @@
     
     /* show any now messages if saved earlier */
     [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-    
 }
 
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray {
     NSNumber *item = [NSNumber numberWithInt:0];
     [self recuresiveAdding:notificationArray item:item];
-    [self deleteExpireInAppNotificationFromDataStore];
 }
 
 - (void)recuresiveAdding:(NSArray *)list item:(NSNumber *)item {
@@ -206,9 +204,12 @@
     if (masterContext != nil) {
         NSEntityDescription *entity;
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSInteger count;
         @try {
+            NSError *error;
             entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
             [fetchRequest setEntity:entity];
+            count = [masterContext countForFetchRequest: fetchRequest error:&error];
         }
         @catch (NSException *exception) {
             NSLog(@"Caught exception %@", exception);
@@ -221,43 +222,47 @@
                     for(int i = 0; i < results.count; i++) {
                         InAppNotificationEntity *notification = [results objectAtIndex:i];
                         double timeDifferenceInDay = [self checkInAppNotificationExpired: [notification.createdAt doubleValue]];
-                        if (timeDifferenceInDay > 30) {
-                            if (nil == self.privateObjectContext) {
-                                self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                            }
-                            
-                            NSManagedObjectContext *context = self.privateObjectContext;
-                            context.parentContext = masterContext;
-                            
-                            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                [context performBlock:^{
-                                    NSManagedObject* pManagedObject =  [context objectWithID: notification.objectID];
-                                    @try {
-                                        [context deleteObject: pManagedObject];
-                                    }
-                                    @catch (NSException *exception) {
-                                        NSLog(@"Caught exception %@", exception);
-                                    }
-                                    [context performBlock:^{
-                                        NSError *saveError = nil;
-                                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                                            [context save:&saveError];
-                                            
-                                            if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                                [masterContext performBlock:^{
-                                                    NSError *error = nil;
-                                                    [masterContext save:&error];
-                                                }];
-                                            }
-                                        }
-                                    }];
-                                }];
-                            }
+                        if (timeDifferenceInDay > 30 || count > 40) {
+                            [self deleteNotification: notification context: masterContext];
                         }
                     }
                 }
             }];
         }
+    }
+}
+
+- (void)deleteNotification:(InAppNotificationEntity *)notification context:(NSManagedObjectContext *)masterContext{
+    if (nil == self.privateObjectContext) {
+        self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    }
+    
+    NSManagedObjectContext *context = self.privateObjectContext;
+    context.parentContext = masterContext;
+    
+    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+        [context performBlock:^{
+            NSManagedObject* pManagedObject =  [context objectWithID: notification.objectID];
+            @try {
+                [context deleteObject: pManagedObject];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
+            [context performBlock:^{
+                NSError *saveError = nil;
+                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    [context save:&saveError];
+                    
+                    if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                        [masterContext performBlock:^{
+                            NSError *error = nil;
+                            [masterContext save:&error];
+                        }];
+                    }
+                }
+            }];
+        }];
     }
 }
 

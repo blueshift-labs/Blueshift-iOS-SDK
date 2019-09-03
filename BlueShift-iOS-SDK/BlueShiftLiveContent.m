@@ -86,7 +86,7 @@
 + (void) fetchLiveContentByEmail:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *email = [BlueShiftUserInfo sharedInstance].email;
+    NSString *email =  [BlueShiftUserInfo sharedInstance].email;
     if(email) {
         if(!context) {
             context = @{};

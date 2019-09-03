@@ -190,6 +190,7 @@
     
     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"status == %@", status];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    [fetchRequest setFetchLimit: 10];
     
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
