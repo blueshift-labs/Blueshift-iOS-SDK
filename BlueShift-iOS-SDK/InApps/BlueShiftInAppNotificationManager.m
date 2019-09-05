@@ -340,7 +340,9 @@
     
     [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
         if (status) {
-            NSArray* filteredResults = [self filterInAppNotificationResults:results withTriggerMode:triggerMode];
+            
+            NSArray *sortedArray = [self sortedInAppNotification: results];
+            NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray withTriggerMode:triggerMode];
             
             for(int i = 0; i < [filteredResults count]; i++) {
                 InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
@@ -348,6 +350,31 @@
             }
         }
     }];
+}
+
+- (NSArray *)sortedInAppNotification:(NSArray *)inAppNotificationArray {
+    NSArray *sortedArrayList = [[NSArray alloc] init];
+    
+    if (inAppNotificationArray != nil && [inAppNotificationArray count] > 0) {
+        NSArray *reversedArray = [[[inAppNotificationArray reverseObjectEnumerator] allObjects] mutableCopy];
+        NSArray *displayOnArray = [[NSArray alloc] init];
+        NSArray *displayOnEmptyArray = [[NSArray alloc] init];
+        
+        for (int i = 0;  i< [reversedArray count];  i++) {
+            InAppNotificationEntity *entity = [reversedArray objectAtIndex: i];
+            NSString *displayOn = entity.displayOn;
+            if (displayOn && ![displayOn isEqualToString: @""]) {
+                displayOnArray = [displayOnArray arrayByAddingObject: entity];
+            } else if (displayOn == nil || [displayOn isEqualToString:@""]){
+                displayOnEmptyArray = [displayOnEmptyArray arrayByAddingObject: entity];
+            }
+        }
+        
+        sortedArrayList = [sortedArrayList arrayByAddingObjectsFromArray: displayOnArray];
+        sortedArrayList = [sortedArrayList arrayByAddingObjectsFromArray: displayOnEmptyArray];
+    }
+    
+    return sortedArrayList;
 }
 
 - (void)updateInAppNotification:(NSDictionary *)notificationPayload {
