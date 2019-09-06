@@ -11,7 +11,7 @@
 /* InApp Notification Modal */
 #define kInAppNotificationDataKey                               @"data"
 #define kInAppNotificationKey                                   @"inapp"
-#define kInAppNotificationActionButtonKey                       @"action"
+#define kInAppNotificationActionButtonKey                       @"actions"
 #define kInAppNotificationModalContentKey                       @"content"
 #define kInAppNotificationModalHTMLKey                          @"html"
 #define kInAppNotificationModalURLKey                           @"url"
@@ -44,7 +44,6 @@
 #define kInAppNotificationModalPositionKey                      @"position"
 #define kInAppNotificationModalWidthKey                         @"width"
 #define kInAppNotificationModalHeightKey                        @"height"
-#define kInAppNotificationModalFullScreenKey                    @"fullscreen"
 #define kInAppNotificationModalBackgroundActionKey              @"enable_background_action"
 
 #define kInAppNotificationModalTextKey                          @"text"
