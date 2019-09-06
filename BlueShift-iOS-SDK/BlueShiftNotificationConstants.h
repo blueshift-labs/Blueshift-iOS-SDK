@@ -37,10 +37,6 @@
 #define kInAppNotificationPayloadDisplayOnKey                           @"display_on"
 
 #define kSilentNotificationTriggerKey                                   @"trigger"
-#define kSilentNotificationTriggerStartTimeKey                          @"at"
-#define kSilentNotificationTriggerModeKey                               @"on_event"
-
-
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 
 #endif

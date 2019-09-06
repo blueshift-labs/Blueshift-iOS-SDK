@@ -96,7 +96,6 @@
     }
 }
 
-
 + (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
     for(int i = 0; i < notifications.count; i++) {
         InAppNotificationEntity *notification = [notifications objectAtIndex:i];
@@ -281,14 +280,14 @@
         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
     }
     
+    self.triggerMode = @"now";
     if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
-        NSDictionary *triggerDictionaryNode = [dictionary objectForKey: kSilentNotificationTriggerKey];
-        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey]) {
-            self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
-        }
-        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey]) {
-            self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
-        }
+//        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey]) {
+//            self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
+//        }
+//        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey]) {
+//            self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
+//        }
     }
     
     /* Other properties */
@@ -362,6 +361,11 @@
     NSString *extension = [url pathExtension];
     fileName = [fileName stringByAppendingString:@"."];
     return [fileName stringByAppendingString: extension];
+}
+
+- (BOOL)hasDigits:(NSString *)digits {
+    NSCharacterSet *notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    return ([digits rangeOfCharacterFromSet: notDigits].location == NSNotFound);
 }
 
 @end
