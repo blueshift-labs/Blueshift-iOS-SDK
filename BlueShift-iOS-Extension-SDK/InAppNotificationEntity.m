@@ -134,13 +134,16 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
     }
     
+    self.triggerMode = @"now";
     if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
-        NSDictionary *triggerDictionaryNode = [dictionary objectForKey: kSilentNotificationTriggerKey];
-        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey]) {
-            self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
-        }
-        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey]) {
-            self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
+        NSString *trigger = (NSString *)[dictionary objectForKey: kSilentNotificationTriggerKey];
+        if (![trigger isEqualToString: @""]) {
+            if ([self hasDigits: trigger] == YES) {
+                self.triggerMode = @"upcoming";
+                self.startTime = [NSNumber numberWithDouble: [trigger doubleValue]];
+            } else {
+                self.triggerMode = trigger;
+            }
         }
     }
     
@@ -151,6 +154,11 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     self.createdAt = [NSNumber numberWithDouble: (double)([[NSDate date] timeIntervalSince1970] * 1000.0)];
 
     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+}
+
+- (BOOL)hasDigits:(NSString *)digits {
+    NSCharacterSet *notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    return ([digits rangeOfCharacterFromSet: notDigits].location == NSNotFound);
 }
 
 @end
