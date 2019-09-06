@@ -109,7 +109,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         if (config.BlueshiftInAppNotificationTimeInterval) {
             _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
         } else {
-            _inAppNotificationMananger.inAppNotificationTimeInterval = 30;
+            _inAppNotificationMananger.inAppNotificationTimeInterval = 60;
         }
         
         [self startInAppMessageLoadFromaAPITimer];
