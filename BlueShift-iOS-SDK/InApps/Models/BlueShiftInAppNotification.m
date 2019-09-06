@@ -173,9 +173,6 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalHeightKey]) {
                         self.height = [[templateStyleDictionary objectForKey: kInAppNotificationModalHeightKey] floatValue];
                     }
-                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalFullScreenKey]) {
-                        self.fullScreen = [[templateStyleDictionary objectForKey: kInAppNotificationModalFullScreenKey] boolValue];
-                    }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey]) {
                         self.enableBackgroundAction = [[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey] boolValue];
                     }
