@@ -282,12 +282,15 @@
     
     self.triggerMode = @"now";
     if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
-//        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey]) {
-//            self.triggerMode = (NSString *)[triggerDictionaryNode objectForKey:kSilentNotificationTriggerModeKey];
-//        }
-//        if ([triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey]) {
-//            self.startTime = [NSNumber numberWithDouble: [[triggerDictionaryNode objectForKey:kSilentNotificationTriggerStartTimeKey] doubleValue]];
-//        }
+        NSString *trigger = (NSString *)[dictionary objectForKey: kSilentNotificationTriggerKey];
+        if (![trigger isEqualToString:@""]) {
+            if ([self hasDigits: trigger] == YES) {
+                self.triggerMode = @"upcoming";
+                self.startTime = [NSNumber numberWithDouble: [trigger doubleValue]];
+            } else {
+                self.triggerMode = trigger;
+            }
+        }
     }
     
     /* Other properties */

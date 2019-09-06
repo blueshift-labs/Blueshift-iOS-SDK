@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite, nullable) Rect *margin;
 @property (nonatomic, assign, readwrite) float height;
 @property (nonatomic, assign, readwrite) float width;;
-@property (nonatomic, assign, readwrite) BOOL fullScreen;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *actionButtonCount;
 
