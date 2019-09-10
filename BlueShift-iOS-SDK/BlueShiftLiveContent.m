@@ -176,4 +176,27 @@
     }
 }
 
++ (void) fetchInAppNotificationByDeviceID:(NSString *)lastMessageID success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
+    NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
+    if (deviceID) {
+        NSString *url = [NSString stringWithFormat:@"%@%@%@", kBaseURL, kInAppMessageURL, deviceID];
+        
+        NSDictionary *parameters = @{
+                                        @"bsft_message_uuid" : lastMessageID
+                                    };
+        
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+            if (status) {
+                success(data);
+            } else {
+                failure(error);
+            }
+        }];
+    } else {
+        NSLog(@"Device ID is not there");
+        NSError *error = (NSError*)@"Device ID not set";
+        failure(error);
+    }
+}
+
 @end
