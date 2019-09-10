@@ -266,6 +266,42 @@
     }
 }
 
+- (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *))handler {
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+    }
+    
+    if (masterContext != nil) {
+        NSEntityDescription *entity;
+        NSError *error;
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        @try {
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+            [fetchRequest setEntity:entity];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
+        
+        if(entity != nil && fetchRequest.entity != nil) {
+            NSArray *results = [masterContext executeFetchRequest: fetchRequest error:&error];
+            if (results != nil && [results count] > 0 && results[[results count] - 1]) {
+                InAppNotificationEntity *notification = results[[results count] -1];
+                handler(YES, notification.id);
+            } else {
+                handler(YES, @"");
+            }
+        }
+    }
+}
+
 - (void)removeInAppNotificationFromDB:(NSManagedObjectID *) entityItem {
     
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
