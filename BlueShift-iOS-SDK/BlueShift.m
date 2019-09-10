@@ -751,6 +751,19 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+- (void)fetchLastInAppMessageID {
+    if (_config.enableInAppNotification == YES) {
+        [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID) {
+            if (status) {
+                
+            } else {
+                NSLog(@"Failed");
+                [self stopInAppMessageLoadAPITimer];
+            }
+        }];
+    }
+}
+
 - (void)fetchInAppNotificationFromAPI {
     if (_config.enableInAppNotification == YES) {
         NSDictionary *context = @{
