@@ -26,4 +26,17 @@
 #define kNotificationCarouselPreviousIdentifier                         @"previous"
 #define kNotificationCarouselGotoappIdentifier                          @"go_to_app"
 
+#define kInAppNotificationKey                                           @"inapp"
+#define kInAppNotificationEntityNameKey                                 @"InAppNotificationEntity"
+#define kInAppNotificationModalFontWithExtensionKey                     @"FontAwesome.otf"
+#define kInAppNotificationModalMessageUDIDKey                           @"bsft_message_uuid"
+
+#define kSilentNotificationPayloadIdentifierKey                         @"data"
+#define kSilentNotificationPayloadTypeKey                               @"type"
+#define kInAppNotificationContentPayloadKey                             @"content"
+#define kInAppNotificationPayloadDisplayOnKey                           @"display_on"
+
+#define kSilentNotificationTriggerKey                                   @"trigger"
+#define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
+
 #endif
