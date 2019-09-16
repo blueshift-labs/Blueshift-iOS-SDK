@@ -14,6 +14,6 @@
 #define kBatchUploadURL         @"api/v1/bulkevents"
 #define kPushEventsUploadURL    @"track"
 #define kLiveContent            @"live"
-#define kInAppMessageURL        @"/inappmsg/"
+#define kInAppMessageURL        @"/inapp/msg"
 
 #endif
