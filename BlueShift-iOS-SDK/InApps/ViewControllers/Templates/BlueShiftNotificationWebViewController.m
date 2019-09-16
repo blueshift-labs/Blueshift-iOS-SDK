@@ -88,7 +88,7 @@
 }
 
 - (void)loadFromURL {
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.notification.notificationContent.url]]];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.notification.notificationContent.url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0]];
     webView.navigationDelegate = nil;
 }
 

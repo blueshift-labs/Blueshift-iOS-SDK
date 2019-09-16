@@ -4,13 +4,11 @@
 //
 //  Created by shahas kp on 12/07/19.
 //
+
 #import "InAppNotificationEntity.h"
 #import "NSNumber+BlueShiftHelpers.h"
 #import "NSDate+BlueShiftDateHelpers.h"
-#import "../BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationConstants.h"
-#import "BlueShiftInAppTriggerMode.h"
-#import "BlueShiftInAppNotification.h"
 
 @implementation InAppNotificationEntity
 
@@ -26,6 +24,8 @@
 
 - (void)fetchBy:(NSString *)key withValue:(NSString *)value {
 }
+
+
 
 + (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler {
     
@@ -115,7 +115,8 @@
 
 
 
-- (void) insert:(NSDictionary *)dictionary usingPrivateContext: (NSManagedObjectContext*)privateContext
+- (void) insert:(NSDictionary *)dictionary
+usingPrivateContext: (NSManagedObjectContext*)privateContext
  andMainContext: (NSManagedObjectContext*)masterContext
         handler:(void (^)(BOOL))handler {
     
@@ -217,71 +218,7 @@
     self.eventName = @"";
     self.status = @"ready";
     
-    if ([[self triggerMode] isEqualToString:@"now"] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
-    } else {
-        NSString *imageURL = [self fetchImageURLFromString: payload];
-        NSString *fileName = [self createFileName: imageURL];
-        if (imageURL && ![self hasFontFileExist: fileName ]) {
-            [self downloadFileFromURL: imageURL andNotifcationPayload: payload];
-        } else {
-            self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
-        }
-    }
-}
-
-- (NSString *)fetchImageURLFromString:(NSDictionary *)payload{
-    NSString *imageURL = NULL;
-    
-    if ([payload objectForKey: kInAppNotificationDataKey]) {
-        NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
-        if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-            NSDictionary *payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
-            if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]) {
-                 NSDictionary *contentDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
-                if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey]) {
-                    imageURL = [contentDictionary objectForKey: kInAppNotificationModalBannerKey];
-                }
-            }
-        }
-    }
-    
-    return imageURL;
-}
-
-- (void)downloadFileFromURL:(NSString *)imageURL andNotifcationPayload:(NSDictionary *)payload{
-    NSString *fileName = [self createFileName: imageURL];
-    if (![self hasFontFileExist: fileName]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL  *url = [NSURL URLWithString: imageURL];
-            NSData *urlData = [NSData dataWithContentsOfURL:url];
-            if (urlData) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory: fileName] atomically:YES];
-                    self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
-                    NSLog(@"image file saved");
-                });
-            }
-        });
-    }
-}
-
-- (NSString *)getLocalDirectory:(NSString *)fileName{
-    NSString* tempPath = NSTemporaryDirectory();
-    return [tempPath stringByAppendingPathComponent: fileName];
-}
-
-- (BOOL)hasFontFileExist:(NSString *)fileName{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory: fileName]];
-}
-
-- (NSString *)createFileName:(NSString *)imageURL{
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
-    NSString *extension = [url pathExtension];
-    fileName = [fileName stringByAppendingString:@"."];
-    return [fileName stringByAppendingString: extension];
+    self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }
 
 @end

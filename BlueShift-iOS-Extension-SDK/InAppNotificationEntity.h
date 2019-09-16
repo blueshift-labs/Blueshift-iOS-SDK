@@ -5,7 +5,6 @@
 //  Created by shahas kp on 12/07/19.
 //
 
-#import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "BlueShiftInAppTriggerMode.h"
 

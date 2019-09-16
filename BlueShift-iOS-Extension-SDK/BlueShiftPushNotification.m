@@ -8,6 +8,7 @@
 
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
+#import "BlueshiftInAppEntityAppDelegate.h"
 
 
 static BlueShiftPushNotification *_sharedInstance = nil;
@@ -38,10 +39,19 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
+- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request {
+    if ([self hasBlueshiftInAppNotification: request]) {
+        NSDictionary *payload = request.content.userInfo;
+        BlueshiftInAppEntityAppDelegate *blueshiftInAppentityDelegate = [[BlueshiftInAppEntityAppDelegate alloc] init];
+        [blueshiftInAppentityDelegate addInAppNotificationToDataStore: payload];
+    }
+}
+
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self trackPushViewedWithRequest:request];
     });
+    
     if ([request.content.categoryIdentifier isEqualToString: @"carousel"] || [request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
         return [self carouselAttachmentsDownload:request];
     } else {
@@ -185,6 +195,24 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         }
     }
     return attachments;
+}
+
+- (BOOL)hasBlueshiftInAppNotification: (UNNotificationRequest *)request {
+    NSDictionary *userInfo = request.content.userInfo;
+    BOOL isIAMPayloadPresent = false;
+    if (nil != userInfo) {
+        
+        NSDictionary *dataPayload =  [userInfo objectForKey: @"data"];
+        if (nil != dataPayload) {
+            isIAMPayloadPresent = true;
+        } else {
+            
+            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
+            NSNumber *num = [NSNumber numberWithInt:1];
+            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        }
+    }
+    return isIAMPayloadPresent;
 }
 
 @end

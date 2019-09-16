@@ -165,6 +165,12 @@
     imageView.image = newImage;
 }
 
+- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
+    if (filePath) {
+        imageView.image = [UIImage imageWithContentsOfFile: filePath];
+    }
+}
+
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value
           labelColor:(NSString *)labelColorCode
      backgroundColor:(NSString *)backgroundColorCode {
@@ -181,44 +187,6 @@
         }
     }else {
         label.hidden = YES;
-    }
-}
-
-- (void)applyIconToLabelView:(UILabel *)iconLabelView {
-    if (self.notification.notificationContent.icon) {
-        if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil) {
-            NSString *fontPath = [[NSBundle bundleForClass:[BlueShiftNotificationViewController class]]
-                                  pathForResource: kInAppNotificationModalFontAwesomeFileNameKey
-                                  ofType: kInAppNotificationModalFontExtensionKey];
-            
-            NSData *fontData = [NSData dataWithContentsOfFile:fontPath];
-            CFErrorRef error;
-            CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
-            CGFontRef font = CGFontCreateWithDataProvider(provider);
-            BOOL failedToRegisterFont = NO;
-            if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
-                CFStringRef errorDescription = CFErrorCopyDescription(error);
-                NSLog(@"Error: Cannot load Font Awesome");
-                CFBridgingRelease(errorDescription);
-                failedToRegisterFont = YES;
-            }
-            
-            CFRelease(font);
-            CFRelease(provider);
-        }
-    
-        CGFloat iconFontSize = 22.0;
-        if (self.notification.contentStyle && self.notification.contentStyle.iconSize) {
-            iconFontSize = self.notification.contentStyle.iconSize.floatValue > 0
-            ? self.notification.contentStyle.iconSize.floatValue : 22.0;
-            
-        }
-        iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
-    
-        [self setLabelText: iconLabelView andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
-    
-        iconLabelView.layer.cornerRadius = 10;
-        iconLabelView.layer.masksToBounds = YES;
     }
 }
 
@@ -268,6 +236,88 @@
     size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
     
     return size.height;
+}
+
+- (void)applyIconToLabelView:(UILabel *)iconLabelView {
+    if (self.notification.notificationContent.icon) {
+        if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil) {
+            [self createFontFile: iconLabelView];
+        }
+    
+        CGFloat iconFontSize = 22.0;
+        if (self.notification.contentStyle && self.notification.contentStyle.iconSize) {
+            iconFontSize = self.notification.contentStyle.iconSize.floatValue > 0
+            ? self.notification.contentStyle.iconSize.floatValue : 22.0;
+            
+        }
+        iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
+    
+        [self setLabelText: iconLabelView andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
+    
+        iconLabelView.layer.cornerRadius = 10;
+        iconLabelView.layer.masksToBounds = YES;
+    }
+}
+
+- (void)createFontFile:(UILabel *)iconLabel {
+    if ([self hasFileExist: [self getLocalDirectory: kInAppNotificationModalFontWithExtensionKey]]) {
+        NSData *fontData = [NSData dataWithContentsOfFile: [self getLocalDirectory :kInAppNotificationModalFontWithExtensionKey]];
+        CFErrorRef error;
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
+        CGFontRef font = CGFontCreateWithDataProvider(provider);
+        BOOL failedToRegisterFont = NO;
+        if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
+            CFStringRef errorDescription = CFErrorCopyDescription(error);
+            NSLog(@"Error: Cannot load Font Awesome");
+            CFBridgingRelease(errorDescription);
+            failedToRegisterFont = YES;
+        }
+        
+        CFRelease(font);
+        CFRelease(provider);
+    }else {
+        [self downloadFileFromURL: iconLabel];
+    }
+}
+
+- (void)downloadFileFromURL:(UILabel *)iconLabel {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *urlToDownload = @"https://firebasestorage.googleapis.com/v0/b/cargonex-6251f.appspot.com/o/FontAwesome.otf?alt=media&token=da8d5411-04dd-47a3-a4a8-be76603ca117";
+        NSURL  *url = [NSURL URLWithString:urlToDownload];
+        NSData *urlData = [NSData dataWithContentsOfURL:url];
+        if (urlData) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [urlData writeToFile: [self getLocalDirectory: kInAppNotificationModalFontWithExtensionKey] atomically:YES];
+                [self applyIconToLabelView: iconLabel];
+            });
+        }
+    });
+}
+
+- (NSString *)getLocalDirectory:(NSString *)fileName {
+    NSString* tempPath = NSTemporaryDirectory();
+    return [tempPath stringByAppendingPathComponent: fileName];
+}
+
+- (BOOL)hasFileExist:(NSString *)filePath {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    return [fileManager fileExistsAtPath: filePath];
+}
+
+- (void)deleteFileFromLocal:(NSString *)fileName{
+    NSString *filePath = [self getLocalDirectory: fileName];
+    if ([self hasFileExist: filePath]) {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+    }
+}
+
+- (NSString *)createFileNameFromURL:(NSString *)imageURL{
+    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: imageURL];
+    NSString *extension = [url pathExtension];
+    fileName = [fileName stringByAppendingString:@"."];
+    return [fileName stringByAppendingString: extension];
 }
 
 @end
