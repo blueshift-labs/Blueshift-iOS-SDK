@@ -19,7 +19,5 @@
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
 - (BOOL)hasBlueShiftAttachments;
 - (void)trackPushViewedWithRequest:(UNNotificationRequest *)request;
-- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request;
-- (BOOL)hasBlueshiftInAppNotification:(UNNotificationRequest *)request;
 
 @end

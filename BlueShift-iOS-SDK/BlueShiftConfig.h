@@ -10,9 +10,6 @@
 #import "BlueShiftDeepLink.h"
 #import "BlueShiftUserInfo.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftInAppNotificationDelegate.h"
-
-@class BlueShiftInAppNotificationDelegate;
 
 @interface BlueShiftConfig : NSObject
 
@@ -27,7 +24,6 @@
 @property BOOL enableLocationAccess;
 @property BOOL enableAnalytics;
 @property BOOL enableAppOpenTrackEvent;
-@property BOOL enableInAppNotification;
 
 @property NSSet * _Nullable customCategories;
 
@@ -35,11 +31,9 @@
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
-@property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;
 
 @property NSString * _Nonnull blueShiftNotificationName;
 @property NSString * _Nonnull isEnabledPushNotificationKey;
-@property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
 
 - (BOOL)validateConfigDetails;
 

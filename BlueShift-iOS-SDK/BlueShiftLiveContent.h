@@ -17,6 +17,5 @@
 + (void) fetchLiveContentByEmail:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
 + (void) fetchLiveContentByCustomerID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
-+ (void) fetchInAppNotificationByDeviceID:(NSString *)deviceID success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
 
 @end
