@@ -568,7 +568,6 @@
 
 - (void)handleInAppMessageFromDB {
     [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-    
     [self stopInAppMessageFetchTimer];
 }
 
