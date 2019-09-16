@@ -80,7 +80,11 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
+<<<<<<< HEAD
   s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "1.0.2" }
+=======
+  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "1.0.1-beta" }
+>>>>>>> releasing 1.0.1 beta version
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
