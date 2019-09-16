@@ -93,7 +93,7 @@
         // Fallback on earlier versions
     }
 
-    NSString *deviceTokenString = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
     NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
@@ -104,6 +104,20 @@
     } else if (deviceTokenString) {
         [self fireIdentifyCall];
     }
+}
+
+- (NSString *)hexadecimalStringFromData:(NSData *)data {
+    NSUInteger dataLength = data.length;
+    if (dataLength == 0) {
+        return nil;
+    }
+    
+    const unsigned char *dataBuffer = data.bytes;
+    NSMutableString *hexString  = [NSMutableString stringWithCapacity:(dataLength * 2)];
+    for (int i = 0; i < dataLength; ++i) {
+        [hexString appendFormat:@"%02x", dataBuffer[i]];
+    }
+    return [hexString copy];
 }
 
 - (void)fireIdentifyCall {

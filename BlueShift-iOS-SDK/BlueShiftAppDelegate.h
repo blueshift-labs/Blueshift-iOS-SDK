@@ -46,6 +46,7 @@
 - (void) registerForNotification;
 - (BOOL) handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *_Nullable)launchOptions;
 - (void)registerLocationService;
+- (NSString *)hexadecimalStringFromData:(NSData *)data;
 
 - (void) registerForRemoteNotification:(NSData *_Nullable)deviceToken;
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *_Nonnull)error;
