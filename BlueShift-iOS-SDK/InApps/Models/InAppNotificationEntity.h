@@ -8,6 +8,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "BlueShiftInAppTriggerMode.h"
+#import "../../BlueShiftAppDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *triggerMode;
 @property (nonatomic, retain) NSString *eventName;
 @property (nonatomic, retain) NSString *status;
+@property (nonatomic, retain) NSNumber* createdAt;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
@@ -33,6 +35,12 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 
 + (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler;
 
+- (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
+
+- (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
+                       andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler;
+
+- (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
 
 NS_ASSUME_NONNULL_END
 

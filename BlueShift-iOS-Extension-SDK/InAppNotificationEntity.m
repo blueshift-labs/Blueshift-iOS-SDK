@@ -21,99 +21,7 @@
 @dynamic triggerMode;
 @dynamic eventName;
 @dynamic status;
-
-- (void)fetchBy:(NSString *)key withValue:(NSString *)value {
-}
-
-
-
-+ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler {
-    
-    if (nil != masterContext) {
-        
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        @try {
-            [fetchRequest setEntity:[NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: masterContext]];
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
-        }
-        if(fetchRequest.entity != nil) {
-            [self fetchFromCoreDataFromContext: masterContext forTriggerMode:triggerMode request: fetchRequest handler: handler];
-        } else {
-            handler(NO, nil);
-        }
-    } else {
-        handler(NO, nil);
-    }
-}
-
-+ (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
-    
-    //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    
-    NSString* triggerStr;
-    
-    switch (triggerMode) {
-        case BlueShiftInAppTriggerNow:
-            triggerStr = @"now";
-            break;
-        case BlueShiftInAppTriggerUpComing:
-            triggerStr = @"upcoming";
-            break;
-        case BlueShiftInAppTriggerEvent:
-            triggerStr = @"event";
-            break;
-    }
-    
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"triggerMode == %@ AND status == %@", triggerStr, @"ready"];
-    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
-    
-    @try {
-        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *error;
-                NSArray *results = [[NSArray alloc]init];
-                results = [context executeFetchRequest:fetchRequest error:&error];
-                if (results && results.count > 0) {
-                    [self updateNotificationsInQueue:context notifications:results];
-                    handler(YES, results);
-                } else {
-                    handler(NO, nil);
-                }
-            }];
-        } else {
-            handler(NO, nil);
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
-    }
-}
-
-
-+ (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
-    for(int i = 0; i < notifications.count; i++) {
-        InAppNotificationEntity *notification = [notifications objectAtIndex:i];
-        
-        //TODO: commented the below code. Dont think its required.
-        //[notification setValue:@"QUEUE" forKey:@"status"];
-    }
-    @try {
-        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *error = nil;
-                [context save:&error];
-            }];
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
-    }
-}
-
-
-
+@dynamic createdAt;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
@@ -165,23 +73,41 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     }
 }
 
-
-- (void)update:(NSDictionary *)dictionary {
+- (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler{
     
-}
-
-- (void)delete {
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"id == %@", notificationID];
+    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     
+    @try {
+        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+            [context performBlock:^{
+                NSError *error;
+                NSArray *results = [[NSArray alloc]init];
+                results = [context executeFetchRequest:fetchRequest error:&error];
+                if (results && results.count > 0) {
+                    handler(YES, results);
+                } else {
+                    handler(NO, nil);
+                }
+            }];
+        } else {
+            handler(NO, nil);
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
 }
 
 - (void)map:(NSDictionary *)dictionary {
     
-    self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
-    
     NSMutableDictionary *payload = [dictionary mutableCopy];
-    [payload setValue:self.id forKey:@"id"];
-    
-    
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+        self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
+    }else {
+        self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
+        [payload setValue:self.id forKey:@"id"];
+    }
     /* parse the payload and save the relevant keys related to presentation of In-App msg */
     
     /* get in-app payload */
@@ -190,7 +116,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     }
     
     if ([dictionary objectForKey: kInAppNotificationKey]) {
-         dictionary = [dictionary objectForKey: kInAppNotificationKey];
+        dictionary = [dictionary objectForKey: kInAppNotificationKey];
     }
     
     /* get type of In-App msg */
@@ -216,8 +142,9 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     /* Other properties */
     self.priority = @"medium";
     self.eventName = @"";
-    self.status = @"ready";
-    
+    self.status = @"pending";
+    self.createdAt = [NSNumber numberWithDouble: (double)([[NSDate date] timeIntervalSince1970] * 1000.0)];
+
     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }
 

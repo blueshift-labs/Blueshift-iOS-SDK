@@ -97,18 +97,22 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     
     // Initialize In App Manager
-    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
-    [_inAppNotificationMananger load];
-    if (config.inAppNotificationDelegate) {
-        _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
-    }else{
-        _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
-    }
-    
-    if (config.BlueshiftInAppNotificationTimeInterval) {
-        _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
-    } else {
-        _inAppNotificationMananger.inAppNotificationTimeInterval = 30;
+    if (config.enableInAppNotification == YES) {
+        _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+        [_inAppNotificationMananger load];
+        if (config.inAppNotificationDelegate) {
+            _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
+        }else{
+            _inAppNotificationMananger.inAppNotificationDelegate = oldDelegate;
+        }
+        
+        if (config.BlueshiftInAppNotificationTimeInterval) {
+            _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
+        } else {
+            _inAppNotificationMananger.inAppNotificationTimeInterval = 30;
+        }
+        
+        [self startInAppMessageLoadFromaAPITimer];
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
@@ -155,9 +159,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    [_inAppNotificationMananger addInAppNotificationToDataStore:dictionary forApplicationState:applicationState];
+    if (_config.enableInAppNotification == YES) {
+        [self startInAppMessageLoadFromaDBTimer];
+    }
+}
+
+- (void) fetchInAppNotificationFromDB{
+    [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    [self stopInAppMessageLoadDBTimer];
 }
 
 
@@ -688,6 +698,58 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
                                  canBacthThisEvent:(BOOL)isBatchEvent {
     [self sendPushAnalytics:@"dismiss" withParams: notificationPayload canBatchThisEvent: isBatchEvent];
+}
+
+- (void)startInAppMessageLoadFromaAPITimer {
+    if (nil == self.inAppMsgAPITimer) {
+        self.inAppMsgAPITimer =  [NSTimer scheduledTimerWithTimeInterval: 15
+                                                                  target:self
+                                                                selector:@selector(fetchInAppNotificationFromAPI)
+                                                                userInfo:nil
+                                                                 repeats:NO];
+    }
+}
+
+- (void) stopInAppMessageLoadAPITimer {
+    if (nil != self.inAppMsgAPITimer) {
+        [self.inAppMsgAPITimer invalidate];
+        self.inAppMsgAPITimer = nil;
+    }
+}
+
+- (void)startInAppMessageLoadFromaDBTimer {
+    if (nil == self.inAppDBTimer) {
+        self.inAppDBTimer =  [NSTimer scheduledTimerWithTimeInterval: 12
+                                                                  target:self
+                                                                selector:@selector(fetchInAppNotificationFromDB)
+                                                                userInfo:nil
+                                                                 repeats:NO];
+    }
+}
+
+- (void) stopInAppMessageLoadDBTimer {
+    if (nil != self.inAppDBTimer) {
+        [self.inAppDBTimer invalidate];
+        self.inAppDBTimer = nil;
+    }
+}
+
+- (void)fetchInAppNotificationFromAPI {
+    if (_config.enableInAppNotification == YES) {
+        NSDictionary *context = @{
+                                  @"seed_item_ids": @[@"9780307273482"]
+                                  };
+        [BlueShiftLiveContent fetchLiveContentByEmail:@"releasecheckinapp" withContext: context success:^(NSDictionary *dictionary) {
+            if ([dictionary objectForKey:kInAppNotificationContentPayloadKey]) {
+                NSMutableArray *notificationArray = [dictionary objectForKey:kInAppNotificationContentPayloadKey];
+                [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray];
+                [self stopInAppMessageLoadAPITimer];
+            }
+        } failure:^(NSError *error){
+            NSLog(@"Failed");
+            [self stopInAppMessageLoadAPITimer];
+        }];
+    }
 }
 
 @end

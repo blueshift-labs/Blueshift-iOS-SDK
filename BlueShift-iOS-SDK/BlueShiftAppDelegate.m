@@ -8,6 +8,8 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
+#import "BlueShiftLiveContent.h"
+#import "InApps/BlueShiftInAppNotificationManager.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -233,7 +235,7 @@
     /* if there is payload for IAM , give priority to the it */
     if (nil != userInfo) {
         [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
-        
+
     } else {
         
         NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
@@ -791,7 +793,6 @@
     
     // Will have to handled by SDK .....
 }
-
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [self.oldDelegate applicationWillEnterForeground:application];
