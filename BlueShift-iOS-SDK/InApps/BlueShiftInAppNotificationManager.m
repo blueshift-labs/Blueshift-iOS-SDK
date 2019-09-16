@@ -26,6 +26,8 @@
 /* Timer for set gap b/w two in app notificaation*/
 @property (nonatomic, strong, readwrite) NSTimer *inAppScanQueueTimer;
 
+@property (nonatomic, strong, readwrite) NSTimer *inAppMessageFetchTimer;
+
 /* private object context */
 @property (nonatomic, strong, readwrite) NSManagedObjectContext *privateObjectContext;
 
@@ -39,10 +41,6 @@
     
     /* create timer for upcoming events */
     [self startInAppMessageLoadTimer];
-    
-    /* show any now messages if saved earlier */
-    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-    
     
     /* register for app background / foreground notification */
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -71,7 +69,7 @@
     [self startInAppMessageLoadTimer];
     
     /* show any now messages if saved earlier */
-    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    [self startInAppMessageFetchTimer];
 }
 
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray {
@@ -550,7 +548,29 @@
     }
 }
 
+- (void)startInAppMessageFetchTimer {
+    if (self.inAppMessageFetchTimer == nil) {
+        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: 2
+                                                                    target:self
+                                                                  selector:@selector(handleInAppMessageFromDB)
+                                                                  userInfo:nil
+                                                                   repeats: NO];
+    }
+}
 
+// Method to stop time gap b/w loading inAppNotification timer
+- (void) stopInAppMessageFetchTimer {
+    if (self.inAppMessageFetchTimer != nil) {
+        [self.inAppMessageFetchTimer invalidate];
+        self.inAppMessageFetchTimer = nil;
+    }
+}
+
+- (void)handleInAppMessageFromDB {
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+    
+    [self stopInAppMessageFetchTimer];
+}
 
 // handle In-App msg.
 - (void) handlePendingInAppMessage {
