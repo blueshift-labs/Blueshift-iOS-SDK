@@ -92,4 +92,11 @@
 #define kInAppNotificationSlideBannerActionButtonWidth          35.0
 #define kInAppNotificationSlideBannerActionButtonHeight         35.0
 
+/* In App Message Layout Margin */
+#define kInAppNotificationModalLayoutMarginKey                  @"margin"
+#define kInAppNotificationModalLayoutMarginLeftKey              @"left"
+#define kInAppNotificationModalLayoutMarginRightKey             @"right"
+#define kInAppNotificationModalLayoutMarginTopKey               @"top"
+#define kInAppNotificationModalLayoutMarginBottomKey            @"bottom"
+
 #endif /* BlueShiftInAppNotificationConstant_h */

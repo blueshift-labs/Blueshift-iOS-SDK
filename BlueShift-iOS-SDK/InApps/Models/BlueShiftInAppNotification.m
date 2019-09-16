@@ -147,6 +147,38 @@
 
 @end
 
+@implementation BlueShiftInAppLayoutMargin
+
+- (instancetype)initFromDictionary: (NSDictionary *) templateStyleDictionary {
+    if (self = [super init]) {
+        
+        NSDictionary *marginDictionary = [templateStyleDictionary objectForKey: kInAppNotificationModalLayoutMarginKey];
+        
+        @try {
+            if([marginDictionary objectForKey: kInAppNotificationModalLayoutMarginTopKey]){
+                self.top = [[marginDictionary objectForKey: kInAppNotificationModalLayoutMarginTopKey] floatValue];
+            }
+            if ([marginDictionary objectForKey: kInAppNotificationModalLayoutMarginBottomKey]) {
+                self.bottom = [[marginDictionary objectForKey: kInAppNotificationModalLayoutMarginBottomKey] floatValue];
+            }
+            if ([marginDictionary objectForKey: kInAppNotificationModalLayoutMarginLeftKey]) {
+                self.left = [[marginDictionary objectForKey: kInAppNotificationModalLayoutMarginLeftKey] floatValue];
+            }
+            if ([marginDictionary objectForKey: kInAppNotificationModalLayoutMarginRightKey]) {
+                self.right = [[marginDictionary objectForKey: kInAppNotificationModalLayoutMarginRightKey] floatValue];
+            }
+        } @catch (NSException *e) {
+            
+        }
+    }
+    
+    return self;
+}
+
+
+@end
+
+
 @implementation BlueShiftInAppNotificationLayout
 
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
@@ -175,6 +207,9 @@
                     }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey]) {
                         self.enableBackgroundAction = [[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundActionKey] boolValue];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalLayoutMarginKey]) {
+                        self.margin = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary :templateStyleDictionary];
                     }
                     
                     break;

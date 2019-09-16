@@ -11,20 +11,28 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/* margin rect of the In-App UI */
+@interface BlueShiftInAppLayoutMargin :  NSObject
+
+@property (nonatomic, assign, readwrite) float left;
+@property (nonatomic, assign, readwrite) float right;
+@property (nonatomic, assign, readwrite) float top;
+@property (nonatomic, assign, readwrite) float bottom;
+
+@end
+
 /* notification Layout (presentation details) */
 @interface BlueShiftInAppNotificationLayout : NSObject
 
-/* margin rect of the In-App UI */
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *position;
-@property (nonatomic, assign, readwrite, nullable) Rect *margin;
 @property (nonatomic, assign, readwrite) float height;
 @property (nonatomic, assign, readwrite) float width;;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *actionButtonCount;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;
 
 @end
-
 
 /* notification contentStyle */
 @interface BlueShiftInAppNotificationContentStyle : NSObject

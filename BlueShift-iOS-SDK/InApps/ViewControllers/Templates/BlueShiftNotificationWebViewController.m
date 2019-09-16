@@ -100,19 +100,48 @@
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
+    float topMargin = 0.0;
+    float bottomMargin = 0.0;
+    float leftMargin = 0.0;
+    float rightMargin = 0.0;
+    if (self.notification.templateStyle && self.notification.templateStyle.margin) {
+        if (self.notification.templateStyle.margin.top > 0) {
+            topMargin = self.notification.templateStyle.margin.top;
+        }
+        if (self.notification.templateStyle.margin.bottom > 0) {
+            bottomMargin = self.notification.templateStyle.margin.bottom;
+        }
+        if (self.notification.templateStyle.margin.left > 0) {
+            leftMargin = self.notification.templateStyle.margin.left;
+        }
+        if (self.notification.templateStyle.margin.right > 0) {
+            rightMargin = self.notification.templateStyle.margin.right;
+        }
+    }
+    
     CGSize size = CGSizeZero;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
         // Ignore Constants.INAPP_X_PERCENT
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        size.width = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
-        size.height = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         
-        if (width == 100) {
-            size.width = size.width - 20.0;
+        if (self.notification.inAppType == BlueShiftNotificationSlideBanner && itemHeight < 80.0) {
+            itemHeight = 80.0;
         }
         
+        if (width == 100) {
+            itemWidth = itemWidth - (leftMargin + rightMargin);
+        }
+        
+        if (height == 100) {
+            itemHeight = itemHeight - (topMargin + bottomMargin);
+        }
+        
+        size.width = itemWidth;
+        size.height = itemHeight;
     }else {
         
     }
@@ -139,9 +168,7 @@
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
-        frame.origin.y = height == 100
-            ? (screenSize.height - size.height) / 2.0f + 20.0
-            :(screenSize.height - size.height) / 2.0f;
+        frame.origin.y = (screenSize.height - size.height) / 2.0f;
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
