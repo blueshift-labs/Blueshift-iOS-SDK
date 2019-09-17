@@ -702,11 +702,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)startInAppMessageLoadFromaAPITimer {
     if (nil == self.inAppMsgAPITimer) {
-//        self.inAppMsgAPITimer =  [NSTimer scheduledTimerWithTimeInterval: 15
-//                                                                  target:self
-//                                                                selector:@selector(fetchInAppNotificationFromAPI)
-//                                                                userInfo:nil
-//                                                                 repeats:NO];
+        self.inAppMsgAPITimer =  [NSTimer scheduledTimerWithTimeInterval: 15
+                                                                  target:self
+                                                                selector:@selector(fetchInAppNotificationFromAPI)
+                                                                userInfo:nil
+                                                                 repeats:NO];
     }
 }
 
@@ -752,7 +752,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-- (void)fetchInAppNotificationFromAPI {
+- (void) fetchInAppNotificationFromAPI {
     if (_config.enableInAppNotification == YES) {
         [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID) {
             if (status) {
@@ -773,23 +773,5 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         }];
     }
 }
-
-//- (void)fetchInAppNotificationFromAPI {
-//    if (_config.enableInAppNotification == YES) {
-//        NSDictionary *context = @{
-//                                  @"seed_item_ids": @[@"9780307273482"]
-//                                  };
-//        [BlueShiftLiveContent fetchLiveContentByEmail:@"releasecheckinapp" withContext: context success:^(NSDictionary *dictionary) {
-//            if ([dictionary objectForKey:kInAppNotificationContentPayloadKey]) {
-//                NSMutableArray *notificationArray = [dictionary objectForKey:kInAppNotificationContentPayloadKey];
-//                [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray];
-//                [self stopInAppMessageLoadAPITimer];
-//            }
-//        } failure:^(NSError *error){
-//            NSLog(@"Failed");
-//            [self stopInAppMessageLoadAPITimer];
-//        }];
-//    }
-//}
 
 @end
