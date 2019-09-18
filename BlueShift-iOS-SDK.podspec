@@ -21,7 +21,6 @@ Pod::Spec.new do |s|
 
   s.description  = <<-DESC
                    A longer description of BlueShift-iOS-SDK in Markdown format.
-
                    * Think: Why did you write this? What is the focus? What does it do?
                    * CocoaPods will be using this to generate tags, and improve search results.
                    * Try to keep it short, snappy and to the point.
@@ -96,10 +95,10 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |ss|
     ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
-    ss.public_header_files = "BlueShift-iOS-SDK/**/*.h"
+    ss.public_header_files = "BlueShift-iOS-SDK/*.h"
     ss.exclude_files = "Classes/Exclude"
-    ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,otf}"
-    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,otf}' }
+    ss.resources = "BlueShift-iOS-SDK/*.{xcdatamodeld,xcdatamodel}"
+    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/*.{xcdatamodeld,xcdatamodel}' }
 
     ss.subspec 'InApps' do |ia|
       ia.source_files = "Blueshift-iOS-SDK/InApps/*.{h,m}"
@@ -112,24 +111,14 @@ Pod::Spec.new do |s|
         m.public_header_files = "Blueshift-iOS-SDK/InApps/Models/*.h"
       end
 
-      ia.subspec 'Resources' do |r|
-        r.source_files = "Blueshift-iOS-SDK/InApps/Resources/*.{h,m}"
-        r.exclude_files = "Classes/Exclude"
-        r.public_header_files = "Blueshift-iOS-SDK/InApps/Resources/*.h"
-      end
-
       ia.subspec 'UI' do |ui|
         ui.source_files = "Blueshift-iOS-SDK/InApps/UI/*.{h,m}"
         ui.exclude_files = "Classes/Exclude"
         ui.public_header_files = "Blueshift-iOS-SDK/InApps/UI/*.h"
-		    ui.subspec 'Images' do |is|
-			   is.resources = 'Blueshift-iOS-SDK/InApps/Images/*.{png}'
-			   is.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/Images/*.{png}' }
-		  end
-		  ui.subspec 'IBFiles' do |ib|
-			 ib.resources = "Blueshift-iOS-SDK/InApps/UI/IBFiles/*.{xib}"
-			 ib.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/UI/IBFiles/*.{xib}' }
-		  end
+        ui.subspec 'Images' do |is|
+         is.resources = 'Blueshift-iOS-SDK/InApps/Images/*.{png}'
+         is.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/InApps/Images/*.{png}' }
+      end
     end
 
       ia.subspec 'ViewControllers' do |vc|

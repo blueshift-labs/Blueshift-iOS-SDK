@@ -6,8 +6,6 @@
 //
 
 #import "InAppNotificationEntity.h"
-#import "NSNumber+BlueShiftHelpers.h"
-#import "NSDate+BlueShiftDateHelpers.h"
 #import "BlueShiftNotificationConstants.h"
 
 @implementation InAppNotificationEntity
