@@ -6,9 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Models/BlueShiftInAppNotification.h"
-#import "ViewControllers/BlueShiftNotificationViewController.h"
-#import "../BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftInAppNotification.h"
+#import "BlueShiftNotificationViewController.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -10,7 +10,10 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
+<<<<<<< HEAD:BlueShift-iOS-SDK/InApps/ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.m
 #import "BlueShiftInAppNotificationConstant.h"
+=======
+>>>>>>> change the project structure:BlueShift-iOS-SDK/BlueShiftNotificationSlideBannerViewController.m
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
