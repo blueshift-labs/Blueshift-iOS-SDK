@@ -7,11 +7,11 @@
 
 #import <WebKit/WebKit.h>
 #import "BlueShiftNotificationWebViewController.h"
-#import "../../UI/BlueShiftNotificationCloseButton.h"
-#import "../BlueShiftNotificationView.h"
-#import "../BlueShiftNotificationWindow.h"
-#import "../../BlueShiftInAppNotificationConstant.h"
-#import "../../../BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftNotificationCloseButton.h"
+#import "BlueShiftNotificationView.h"
+#import "BlueShiftNotificationWindow.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 #define INAPP_CLOSE_BUTTON_WIDTH 40
 

@@ -6,7 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "../Models/BlueShiftInAppNotification.h"
+#import "BlueShiftInAppNotification.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

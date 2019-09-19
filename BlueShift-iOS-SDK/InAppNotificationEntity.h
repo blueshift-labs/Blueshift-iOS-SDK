@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "BlueShiftInAppTriggerMode.h"
-#import "../../BlueShiftAppDelegate.h"
+#import "BlueShiftAppDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

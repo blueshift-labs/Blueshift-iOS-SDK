@@ -7,7 +7,7 @@
 
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
-#import "../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationConstant.h"
 
 @implementation BlueShiftInAppNotificationButton
 

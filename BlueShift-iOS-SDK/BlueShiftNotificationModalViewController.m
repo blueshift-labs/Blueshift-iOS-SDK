@@ -6,11 +6,11 @@
 //
 
 #import "BlueShiftNotificationModalViewController.h"
-#import "../BlueShiftNotificationView.h"
-#import "../BlueShiftNotificationWindow.h"
-#import "../../Models/BlueShiftInAppNotificationHelper.h"
-#import "../../BlueShiftInAppNotificationConstant.h"
-#import "../../../BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftNotificationView.h"
+#import "BlueShiftNotificationWindow.h"
+#import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;

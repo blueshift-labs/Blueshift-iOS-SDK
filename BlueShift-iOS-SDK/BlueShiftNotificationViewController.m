@@ -9,8 +9,8 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
-#import "../BlueShiftInAppNotificationConstant.h"
-#import "../../BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationViewController ()
 

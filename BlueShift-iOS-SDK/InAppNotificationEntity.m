@@ -5,13 +5,11 @@
 //  Created by shahas kp on 12/07/19.
 //
 #import "InAppNotificationEntity.h"
-#import "NSNumber+BlueShiftHelpers.h"
-#import "NSDate+BlueShiftDateHelpers.h"
-#import "../BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotification.h"
-#import "../../BlueShiftAppDelegate.h"
+#import "BlueShiftAppDelegate.h"
 
 @implementation InAppNotificationEntity
 

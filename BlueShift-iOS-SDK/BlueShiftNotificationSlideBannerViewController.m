@@ -6,10 +6,10 @@
 //
 
 #import "BlueShiftNotificationSlideBannerViewController.h"
-#import "../BlueShiftNotificationView.h"
-#import "../BlueShiftNotificationWindow.h"
-#import "../../BlueShiftInAppNotificationConstant.h"
-#import "../../../BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftNotificationView.h"
+#import "BlueShiftNotificationWindow.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;

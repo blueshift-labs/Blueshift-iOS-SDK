@@ -7,14 +7,14 @@
 
 #import <StoreKit/StoreKit.h>
 #import "BlueShiftInAppNotificationManager.h"
-#import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
-#import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
-#import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
-#import "Models/InAppNotificationEntity.h"
+#import "BlueShiftNotificationWebViewController.h"
+#import "BlueShiftNotificationModalViewController.h"
+#import "BlueShiftNotificationSlideBannerViewController.h"
+#import "InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
-#import "Models/BlueShiftInAppTriggerMode.h"
+#import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
-#import "../BlueShift.h"
+#import "BlueShift.h"
 
 #define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
 

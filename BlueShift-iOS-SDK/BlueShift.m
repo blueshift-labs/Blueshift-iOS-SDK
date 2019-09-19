@@ -7,7 +7,7 @@
 
 #import "BlueShift.h"
 #import <UserNotifications/UserNotifications.h>
-#import "InApps/BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationManager.h"
 
 BlueShiftAppDelegate *_newDelegate;
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
