@@ -97,8 +97,8 @@ Pod::Spec.new do |s|
     ss.source_files  = "BlueShift-iOS-SDK/*.{h,m}"
     ss.public_header_files = "BlueShift-iOS-SDK/*.h"
     ss.exclude_files = "Classes/Exclude"
-    ss.resources = "BlueShift-iOS-SDK/*.{xcdatamodeld,xcdatamodel}"
-    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/*.{xcdatamodeld,xcdatamodel}' }
+    ss.resources = "BlueShift-iOS-SDK/*.{xcdatamodeld,xcdatamodel,png}"
+    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/*.{xcdatamodeld,xcdatamodel,png}' }
 
   end
 
