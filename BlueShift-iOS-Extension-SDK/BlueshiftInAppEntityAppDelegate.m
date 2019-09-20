@@ -17,6 +17,7 @@
 @property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
+@property (readwrite, strong, nonatomic) NSString * _Nullable appGroupID;
 
 @end
 
@@ -50,7 +51,9 @@
     }
 }
 
-- (void)addInAppNotificationToDataStore:(NSDictionary *)notificationPayload {
+- (void)addInAppNotificationToDataStore:(NSDictionary *)notificationPayload andAppGroupID:(NSString *)appGroupID {
+    self.appGroupID = appGroupID;
+    
     [self checkInAppNotificationExist: notificationPayload handler:^(BOOL status){
         if (status) {
             NSEntityDescription *entity;
@@ -93,7 +96,7 @@
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
     //[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-    return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.blueshift.readsapp"];
+    return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier: self.appGroupID != nil ? self.appGroupID : @""];
     
 }
 
