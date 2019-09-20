@@ -236,7 +236,11 @@
         if (urlData) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [urlData writeToFile: [self getLocalDirectory: [self createFontFileName]] atomically:YES];
+<<<<<<< HEAD:BlueShift-iOS-SDK/BlueShiftNotificationViewController.m
                 [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
+=======
+                [self applyIconToLabelView: iconLabel];
+>>>>>>> change the project structure:BlueShift-iOS-SDK/InApps/Viewcontrollers/BlueShiftNotificationViewController.m
             });
         }
     });
@@ -255,6 +259,7 @@
 - (NSString *)createFontFileName{
     NSString *fontDownloadURL = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
     return [self createFileNameFromURL: fontDownloadURL];
+<<<<<<< HEAD:BlueShift-iOS-SDK/BlueShiftNotificationViewController.m
 }
 
 - (void)deleteFileFromLocal:(NSString *)fileName{
@@ -263,6 +268,8 @@
         NSError *error = nil;
         [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
     }
+=======
+>>>>>>> change the project structure:BlueShift-iOS-SDK/InApps/Viewcontrollers/BlueShiftNotificationViewController.m
 }
 
 - (NSString *)createFileNameFromURL:(NSString *)imageURL{

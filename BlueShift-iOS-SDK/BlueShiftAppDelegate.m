@@ -1203,29 +1203,37 @@
 }
 
 - (void)downloadFileFromURL {
-    if (![self hasFontFileExist]) {
+    NSString *urlToDownload = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
+    if (![self hasFontFileExist: urlToDownload]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSString *urlToDownload = @"https://firebasestorage.googleapis.com/v0/b/cargonex-6251f.appspot.com/o/FontAwesome.otf?alt=media&token=da8d5411-04dd-47a3-a4a8-be76603ca117";
             NSURL  *url = [NSURL URLWithString:urlToDownload];
             NSData *urlData = [NSData dataWithContentsOfURL:url];
             if (urlData) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory] atomically:YES];
+                    [urlData writeToFile:[self getLocalDirectory: urlToDownload] atomically:YES];
                 });
             }
         });
     }
 }
 
-- (NSString *)getLocalDirectory{
+- (NSString *)getLocalDirectory:(NSString *)fontURL{
     NSString* tempPath = NSTemporaryDirectory();
-    NSString *fileName = kInAppNotificationModalFontWithExtensionKey;
+    NSString *fileName =[self createFileName: fontURL];
     return [tempPath stringByAppendingPathComponent: fileName];
 }
 
-- (BOOL)hasFontFileExist{
+- (NSString *)createFileName:(NSString *)imageURL{
+    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: imageURL];
+    NSString *extension = [url pathExtension];
+    fileName = [fileName stringByAppendingString:@"."];
+    return [fileName stringByAppendingString: extension];
+}
+
+- (BOOL)hasFontFileExist:(NSString *)fontURL{
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory]];
+    return [fileManager fileExistsAtPath: [self getLocalDirectory: fontURL]];
 }
 
 @end
