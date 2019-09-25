@@ -29,21 +29,24 @@
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
-            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-            center.delegate = self.userNotificationDelegate;
-            [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
-            [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
-                if(!error){
-                    dispatch_async(dispatch_get_main_queue(), ^(void) {
-                        [[UIApplication sharedApplication] registerForRemoteNotifications];
-                    });
-                }
-            }];
+            if (@available(iOS 10.0, *)) {
+                UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+                center.delegate = self.userNotificationDelegate;
+                [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+                [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
+                    if(!error){
+                        dispatch_async(dispatch_get_main_queue(), ^(void) {
+                            [[UIApplication sharedApplication] registerForRemoteNotifications];
+                        });
+                    }
+                }];
+            }
         } else {
-            UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
-            [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
-            
+            if (@available(iOS 8.0, *)) {
+                UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
+                [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
+                [[UIApplication sharedApplication] registerForRemoteNotifications];
+            }
 //            NSSet *categories = [[[BlueShift sharedInstance] pushNotification] notificationCategories];
 //            NSSet *customCategories = [[[BlueShift sharedInstance] config] customCategories];
 //            NSMutableSet *categoriesWithCustomCategory = [[NSMutableSet alloc] init];
@@ -185,7 +188,9 @@
     localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:600];
     localNotification.alertBody = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     localNotification.timeZone = [NSTimeZone defaultTimeZone];
-    localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    if (@available(iOS 8.0, *)) {
+        localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    }
     localNotification.soundName = [[userInfo objectForKey:@"aps"] objectForKey:@"sound"];
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
     dictionary = [userInfo mutableCopy];
@@ -201,10 +206,10 @@
     //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
 
     // Handle push notification when the app is in active state...
-    UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+    //UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
     BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
     pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-    UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+    //UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
     //[topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
 }
 
@@ -321,8 +326,10 @@
             BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
             pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
             
-            UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-            [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+            if (@available(iOS 8.0, *)) {
+                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+            }
         } else {
             
             BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];

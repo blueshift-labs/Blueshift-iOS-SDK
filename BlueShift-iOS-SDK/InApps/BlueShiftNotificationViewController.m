@@ -272,6 +272,14 @@
 >>>>>>> change the project structure:BlueShift-iOS-SDK/InApps/Viewcontrollers/BlueShiftNotificationViewController.m
 }
 
+- (void)deleteFileFromLocal:(NSString *)fileName{
+    NSString *filePath = [self getLocalDirectory: fileName];
+    if ([self hasFileExist: filePath]) {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+    }
+}
+
 - (NSString *)createFileNameFromURL:(NSString *)imageURL{
     NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
     NSURL *url = [NSURL URLWithString: imageURL];

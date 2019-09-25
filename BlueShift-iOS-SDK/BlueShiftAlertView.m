@@ -9,7 +9,7 @@
 
 @implementation BlueShiftAlertView
 
-- (UIAlertController *)alertViewWithPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
+- (UIAlertController *)alertViewWithPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary  API_AVAILABLE(ios(8.0)){
     
     NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushCategory = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"category"];
