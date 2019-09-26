@@ -180,14 +180,15 @@
     
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kInAppMessageURL];
     NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
+    deviceID = [deviceID lowercaseString];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
     if (deviceID && email) {
         NSDictionary *parameters = @{
                                         @"email":email,
                                         @"bsft_message_uuid" : lastMessageID,
-                                        @"api_key":apiKey,
-                                        @"device_id":deviceID
+                                        @"api_key" : apiKey,
+                                        @"device_id": deviceID
                                     };
         
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {

@@ -114,6 +114,10 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
         dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
     }
     
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+        self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
+    }
+    
     if ([dictionary objectForKey: kInAppNotificationKey]) {
         dictionary = [dictionary objectForKey: kInAppNotificationKey];
     }
