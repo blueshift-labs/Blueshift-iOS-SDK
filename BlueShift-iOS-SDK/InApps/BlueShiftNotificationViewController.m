@@ -160,6 +160,10 @@
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString: buttonDetails.iosLink]];
             }
             
+            if (buttonDetails.iosLink != nil && ![buttonDetails.iosLink isEqualToString:@""]) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString: buttonDetails.iosLink]];
+            }
+            
             [self closeButtonDidTapped];
         }
     }

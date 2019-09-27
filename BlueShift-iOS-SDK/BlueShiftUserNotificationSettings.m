@@ -7,6 +7,7 @@
 
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftNotificationConstants.h"
+#import <UserNotificationsUI/UserNotificationsUI.h>
 
 @implementation BlueShiftUserNotificationSettings
 
