@@ -56,6 +56,13 @@
     [self.view addGestureRecognizer:singleFingerTap];
 }
 
+- (void)enableSingleTap {
+    UITapGestureRecognizer *singleFingerTap =
+      [[UITapGestureRecognizer alloc] initWithTarget:self
+                                              action:@selector(onOkayButtonTapped:)];
+    [self.view addGestureRecognizer:singleFingerTap];
+}
+
 - (void)presentAnimationView {
     CATransition *transition = [CATransition animation];
     transition.duration = 1.0;
