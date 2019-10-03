@@ -10,10 +10,7 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
-<<<<<<< HEAD:BlueShift-iOS-SDK/InApps/ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.m
 #import "BlueShiftInAppNotificationConstant.h"
-=======
->>>>>>> change the project structure:BlueShift-iOS-SDK/BlueShiftNotificationSlideBannerViewController.m
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
@@ -47,13 +44,6 @@
     [self configureBackground];
     [self createNotificationView];
     [self initializeNotificationView];
-}
-
-- (void)enableSingleTap {
-    UITapGestureRecognizer *singleFingerTap =
-      [[UITapGestureRecognizer alloc] initWithTarget:self
-                                              action:@selector(onOkayButtonTapped:)];
-    [self.view addGestureRecognizer:singleFingerTap];
 }
 
 - (void)enableSingleTap {
