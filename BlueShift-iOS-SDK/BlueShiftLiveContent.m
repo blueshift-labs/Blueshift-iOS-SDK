@@ -188,7 +188,8 @@
                                         @"email":email,
                                         @"bsft_message_uuid" : lastMessageID,
                                         @"api_key" : apiKey,
-                                        @"device_id": deviceID
+                                        @"device_id": deviceID,
+                                        @"last_timestamp":@0
                                     };
         
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {

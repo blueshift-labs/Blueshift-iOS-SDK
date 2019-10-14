@@ -904,13 +904,12 @@
 
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-
-    NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
-    NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"bsft_message_uuid"];
-    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"bsft_transaction_uuid"];
+    
+    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_experiment_uuid"];
+    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_user_uuid"];
+    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
+    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
@@ -928,6 +927,19 @@
         [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
     }
     return [pushTrackParametersMutableDictionary copy];
+}
+
+- (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
+    if (notificationPayload && key && ![key isEqualToString:@""]) {
+        if ([notificationPayload objectForKey: key]) {
+            return (NSString *)[notificationPayload objectForKey: key];
+        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
+            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
+            return (NSString *)[notificationPayload objectForKey: key];
+        }
+    }
+    
+    return @"";
 }
 
 - (BOOL)isSendPushAnalytics {
@@ -1083,9 +1095,11 @@
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
-    //return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
     
-    return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.blueshift.readsapp"];
+    if([[[BlueShift sharedInstance] config] appGroupID] != nil)
+        return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:[[[BlueShift sharedInstance] config] appGroupID]];
+    else
+        return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
 - (NSManagedObjectModel *)managedObjectModel {
