@@ -67,7 +67,12 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     } else {
                         context = appDelegate.realEventManagedObjectContext;
                     }
-                    HttpRequestOperationEntity *httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
+                    HttpRequestOperationEntity *httpRequestOperationEntity;
+                    @try {
+                        httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
+                    } @catch (NSException *exception) {
+                        NSLog(@"Caught exception %@", exception);
+                    }
                     if(httpRequestOperationEntity != nil) {
                         [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
                         

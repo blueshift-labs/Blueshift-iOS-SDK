@@ -80,8 +80,9 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:@"os_name"];
     }
     
-    if (self.networkCarrierName) {
-        [deviceMutableDictionary setObject:self.networkCarrierName forKey:@"network_carrier"];
+    NSString *networkCarrier = self.networkCarrierName;
+    if (networkCarrier) {
+        [deviceMutableDictionary setObject: networkCarrier forKey:@"network_carrier"];
     }
     
     if (self.currentLocation) {
