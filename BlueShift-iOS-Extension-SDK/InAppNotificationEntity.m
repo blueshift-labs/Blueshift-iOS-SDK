@@ -21,6 +21,7 @@
 @dynamic status;
 @dynamic createdAt;
 @dynamic displayOn;
+@dynamic timestamp;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
@@ -116,6 +117,10 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     
     if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
+    }
+    
+    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey]) {
+        self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
     }
     
     if ([dictionary objectForKey: kInAppNotificationKey]) {

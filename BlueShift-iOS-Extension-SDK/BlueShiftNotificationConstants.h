@@ -30,6 +30,7 @@
 #define kInAppNotificationEntityNameKey                                 @"InAppNotificationEntity"
 #define kInAppNotificationModalFontWithExtensionKey                     @"FontAwesome.otf"
 #define kInAppNotificationModalMessageUDIDKey                           @"bsft_message_uuid"
+#define kInAppNotificationModalTimestampKey                             @"timestamp"
 
 #define kSilentNotificationPayloadIdentifierKey                         @"data"
 #define kSilentNotificationPayloadTypeKey                               @"type"

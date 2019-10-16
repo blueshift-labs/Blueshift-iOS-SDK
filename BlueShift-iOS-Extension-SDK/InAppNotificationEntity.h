@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *status;
 @property (nonatomic, retain) NSNumber* createdAt;
 @property (nonatomic, retain) NSString* displayOn;
+@property (nonatomic, retain) NSString *timestamp;
 
 - (void) insert:(NSDictionary *)dictionary
 usingPrivateContext: (NSManagedObjectContext*)privateContext
