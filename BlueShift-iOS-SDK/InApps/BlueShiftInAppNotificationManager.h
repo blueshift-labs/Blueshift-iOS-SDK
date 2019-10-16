@@ -20,10 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) double inAppNotificationTimeInterval;
 @property (nonatomic) NSString *inAppNotificationDisplayOnPage;
 
-@property (nonatomic, weak) id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
-@property (nonatomic) double inAppNotificationTimeInterval;
-@property (nonatomic) NSString *inAppNotificationDisplayOnPage;
-
 - (void) load;
 
 - (void) createNotificationFromDictionary:(NSDictionary *)dictionary;
