@@ -7,10 +7,11 @@
 
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftNotificationConstants.h"
+#import <UserNotificationsUI/UserNotificationsUI.h>
 
 @implementation BlueShiftUserNotificationSettings
 
-- (UNNotificationCategory *)buyCategory {
+- (UNNotificationCategory *)buyCategory  API_AVAILABLE(ios(10.0)){
     UNNotificationAction *buyAction = [UNNotificationAction actionWithIdentifier:kNotificationActionBuyIdentifier title:@"Buy" options:UNNotificationActionOptionForeground];
     UNNotificationAction *viewAction = [UNNotificationAction actionWithIdentifier:kNotificationActionViewIdentifier title:@"View" options:UNNotificationActionOptionForeground];
     
@@ -19,7 +20,7 @@
     return buyCategory;
 }
 
-- (UNNotificationCategory *)viewCartCategory {
+- (UNNotificationCategory *)viewCartCategory  API_AVAILABLE(ios(10.0)){
     UNNotificationAction *openCartAction = [UNNotificationAction actionWithIdentifier:kNotificationActionOpenCartIdentifier title:@"Open Cart" options:UNNotificationActionOptionForeground];
     
     UNNotificationCategory *viewCartCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCategoryViewCartIdentifier actions:@[openCartAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
@@ -27,13 +28,13 @@
     return viewCartCategory;
 }
 
-- (UNNotificationCategory *)oneButtonAlertCategory {
+- (UNNotificationCategory *)oneButtonAlertCategory  API_AVAILABLE(ios(10.0)){
     UNNotificationCategory *oneButtonAlertCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationOneButtonAlertIdentifier actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
     
     return oneButtonAlertCategory;
 }
 
-- (UNNotificationCategory *)twoButtonAlertCategory {
+- (UNNotificationCategory *)twoButtonAlertCategory  API_AVAILABLE(ios(10.0)){
     UNNotificationAction *viewAction = [UNNotificationAction actionWithIdentifier:kNotificationActionViewIdentifier title:@"View" options:UNNotificationActionOptionForeground];
     
     UNNotificationCategory *twoButtonAlertCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationTwoButtonAlertIdentifier actions:@[viewAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
@@ -41,7 +42,7 @@
     return twoButtonAlertCategory;
 }
 
-- (UNNotificationCategory *)carouselCategory {
+- (UNNotificationCategory *)carouselCategory  API_AVAILABLE(ios(10.0)){
     NSString *nextHtmlString = @"&#9654;&#9654;";
     NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -72,7 +73,7 @@
     return carouselCategory;
 }
 
-- (UNNotificationCategory *)carouselAnimationCategory {
+- (UNNotificationCategory *)carouselAnimationCategory  API_AVAILABLE(ios(10.0)){
     NSString *nextHtmlString = @"&#9654;&#9654;";
     NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -107,7 +108,7 @@
     return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.oneButtonAlertCategory, self.twoButtonAlertCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
 }
 
-- (UNAuthorizationOptions)notificationTypes {
+- (UNAuthorizationOptions)notificationTypes  API_AVAILABLE(ios(10.0)){
     return (UNAuthorizationOptionAlert|
             UNAuthorizationOptionSound|
             UNAuthorizationOptionBadge);

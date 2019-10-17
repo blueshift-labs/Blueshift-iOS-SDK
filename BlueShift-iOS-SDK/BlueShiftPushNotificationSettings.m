@@ -10,7 +10,7 @@
 
 @implementation BlueShiftPushNotificationSettings
 
-- (UIMutableUserNotificationCategory *)buyCategory {
+- (UIMutableUserNotificationCategory *)buyCategory  API_AVAILABLE(ios(8.0)){
     UIMutableUserNotificationAction *buyAction;
     buyAction = [[UIMutableUserNotificationAction alloc] init];
     [buyAction setActivationMode:UIUserNotificationActivationModeForeground];
@@ -36,7 +36,7 @@
     return buyCategory;
 }
 
-- (UIMutableUserNotificationCategory *)viewCartCategory {
+- (UIMutableUserNotificationCategory *)viewCartCategory  API_AVAILABLE(ios(8.0)){
     UIMutableUserNotificationAction *openCartAction;
     openCartAction = [[UIMutableUserNotificationAction alloc] init];
     [openCartAction setActivationMode:UIUserNotificationActivationModeForeground];
@@ -54,7 +54,7 @@
     return viewCartCategory;
 }
 
-- (UIMutableUserNotificationCategory *)oneButtonAlertCategory {
+- (UIMutableUserNotificationCategory *)oneButtonAlertCategory  API_AVAILABLE(ios(8.0)){
     UIMutableUserNotificationCategory *oneButtonAlertCategory;
     oneButtonAlertCategory = [[UIMutableUserNotificationCategory alloc] init];
     [oneButtonAlertCategory setIdentifier:kNotificationOneButtonAlertIdentifier];
@@ -64,7 +64,7 @@
     return oneButtonAlertCategory;
 }
 
-- (UIMutableUserNotificationCategory *)twoButtonAlertCategory {
+- (UIMutableUserNotificationCategory *)twoButtonAlertCategory  API_AVAILABLE(ios(8.0)){
     UIMutableUserNotificationAction *viewAction;
     viewAction = [[UIMutableUserNotificationAction alloc] init];
     [viewAction setActivationMode:UIUserNotificationActivationModeForeground];
@@ -82,7 +82,7 @@
     return twoButtonAlertCategory;
 }
 
-- (UIMutableUserNotificationCategory *)carouselCategory {
+- (UIMutableUserNotificationCategory *)carouselCategory  API_AVAILABLE(ios(8.0)){
     NSString *nextHtmlString = @"&#9654;&#9654;";
     NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -134,7 +134,7 @@
     return carouselCategory;
 }
 
-- (UIMutableUserNotificationCategory *)carouselAnimationCategory {
+- (UIMutableUserNotificationCategory *)carouselAnimationCategory  API_AVAILABLE(ios(8.0)){
     NSString *nextHtmlString = @"&#9654;&#9654;";
     NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -190,13 +190,13 @@
     return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.oneButtonAlertCategory, self.twoButtonAlertCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
 }
 
-- (UIUserNotificationType)notificationTypes {
+- (UIUserNotificationType)notificationTypes  API_AVAILABLE(ios(8.0)){
     return (UIUserNotificationTypeAlert|
             UIUserNotificationTypeSound|
             UIUserNotificationTypeBadge);
 }
 
-- (UIUserNotificationSettings *)notificationSettings {
+- (UIUserNotificationSettings *)notificationSettings  API_AVAILABLE(ios(8.0)){
     return [UIUserNotificationSettings settingsForTypes:self.notificationTypes categories:self.notificationCategories];
 }
 

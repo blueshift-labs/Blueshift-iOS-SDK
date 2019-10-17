@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UserNotificationsUI/UserNotificationsUI.h>
 
 @interface BlueShiftPushNotificationSettings : NSObject
 
