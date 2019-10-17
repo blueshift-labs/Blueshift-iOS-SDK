@@ -47,10 +47,7 @@
 }
 
 - (void)closeButtonDidTapped {
-    if (self.notification) {
-        [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:self.notification.notificationPayload canBacthThisEvent:NO];
-    }
-    
+    [self sendActionEventAnalytics: kInAppNotificationButtonTypeDismissKey];
     [self hide:YES];
 }
 
@@ -140,12 +137,7 @@
 }
 
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
-    
-    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]
-        && self.notification) {
-        [self.delegate inAppActionDidTapped : self.notification.notificationPayload fromViewController:self];
-    }
-    
+    [self sendActionEventAnalytics: buttonDetails.text];
     if (buttonDetails && buttonDetails.buttonType) {
         if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
@@ -162,6 +154,15 @@
             
             [self closeButtonDidTapped];
         }
+    }
+}
+
+- (void)sendActionEventAnalytics:(NSString *)elementType {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]
+        && self.notification) {
+        NSMutableDictionary *notificationPayload = [self.notification.notificationPayload mutableCopy];
+        [notificationPayload setObject: elementType forKey: kInAppNotificationModalElementsKey];
+        [self.delegate inAppActionDidTapped : notificationPayload fromViewController:self];
     }
 }
 

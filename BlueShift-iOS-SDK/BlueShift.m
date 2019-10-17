@@ -637,6 +637,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
     NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
+    NSString *element = [self getValueBykey: pushDetailsDictionary andKey: @"element"];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
@@ -653,6 +654,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (sdkVersion) {
         [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
     }
+    if (element) {
+        [pushTrackParametersMutableDictionary setObject:element forKey:@"element"];
+    }
+    
     return [pushTrackParametersMutableDictionary copy];
 }
 

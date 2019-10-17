@@ -186,6 +186,8 @@ API_AVAILABLE(ios(8.0))
     
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
         NSURL *url = navigationAction.request.URL;
+        [self sendActionEventAnalytics: url.absoluteString];
+        
         if (@available(iOS 10.0, *)) {
             [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
                 if (success) {

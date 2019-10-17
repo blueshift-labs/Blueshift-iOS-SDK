@@ -101,4 +101,6 @@
 #define kInAppNotificationModalLayoutMarginTopKey               @"top"
 #define kInAppNotificationModalLayoutMarginBottomKey            @"bottom"
 
+#define kInAppNotificationModalElementsKey                      @"element"
+
 #endif /* BlueShiftInAppNotificationConstant_h */

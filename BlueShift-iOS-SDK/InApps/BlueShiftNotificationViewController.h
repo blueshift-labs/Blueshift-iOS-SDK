@@ -51,6 +51,7 @@ controller;
 - (NSString *)createFileNameFromURL:(NSString *)imageURL;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
 - (CGFloat)convertHeightToPercentage:(UIView *)notificationView;
+- (void)sendActionEventAnalytics:(NSString *)elementType;
 
 @end
 
