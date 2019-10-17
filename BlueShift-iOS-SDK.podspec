@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "BlueShift-iOS-SDK"
-  s.version      = "1.0.2-beta1"
+  s.version      = "2.0.0"
   s.summary      = "iOS SDK for integrating push notification and analytics"
 
   s.description  = <<-DESC
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.license      = { :type => "MIT", :file => "LICENSE.md" }
   s.author             = { "Blueshift" => "success@getblueshift.com" }
   s.platform     = :ios, "7.0"
-  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "1.0.2-beta1", :branch => "beta_release"}
+  s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "2.0.0" }
   s.exclude_files = "Classes/Exclude"
   s.subspec 'Core' do |ss|
     ss.source_files  = "BlueShift-iOS-SDK/**/*.{h,m}"
