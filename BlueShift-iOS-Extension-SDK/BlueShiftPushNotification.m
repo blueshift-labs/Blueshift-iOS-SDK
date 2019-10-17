@@ -39,16 +39,16 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request {
+- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID{
     if ([self hasBlueshiftInAppNotification: request]) {
         NSDictionary *payload = request.content.userInfo;
         BlueshiftInAppEntityAppDelegate *blueshiftInAppentityDelegate = [[BlueshiftInAppEntityAppDelegate alloc] init];
-        [blueshiftInAppentityDelegate addInAppNotificationToDataStore: payload];
+        [blueshiftInAppentityDelegate addInAppNotificationToDataStore: payload andAppGroupID:(NSString *)appGroupID];
     }
 }
 
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
-    [[BlueShiftPushNotification sharedInstance] setBlueshiftInAppNotification: request];
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
+    [[BlueShiftPushNotification sharedInstance] setBlueshiftInAppNotification: request andAppGroupID: appGroupID];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self trackPushViewedWithRequest:request];

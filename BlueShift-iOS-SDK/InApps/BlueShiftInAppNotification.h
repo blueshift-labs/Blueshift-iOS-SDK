@@ -29,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite) float height;
 @property (nonatomic, assign, readwrite) float width;;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
-@property (nonatomic, assign, readwrite, nullable) NSNumber *actionButtonCount;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;
 
 @end
@@ -51,6 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *iconBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *iconBackgroundRadius;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *actionsOrientation;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *secondaryIconSize;
+@property (nonatomic, copy, readwrite, nullable) NSString *secondaryIconColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *secondaryIconBackgroundColor;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *secondaryIconBackgroundRadius;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *actionsPadding;
 
 @end
 
@@ -60,13 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *text;
 @property (nonatomic, copy, readwrite, nullable) NSString *textColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
-@property (nonatomic, copy, readwrite, nullable) NSString *page;
-@property (nonatomic, copy, readwrite, nullable) NSDictionary *extra;
-@property (nonatomic, copy, readwrite, nullable) NSString *productID;
-@property (nonatomic, copy, readwrite, nullable) NSDictionary *content;
-@property (nonatomic, copy, readwrite, nullable) NSString *image;
+@property (nonatomic, copy, readwrite, nullable) NSString *iosLink;
 @property (nonatomic, copy, readwrite, nullable) NSString *sharableText;
 @property (nonatomic, copy, readwrite, nullable) NSString* buttonType;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 
 - (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails;
 
@@ -77,16 +78,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readwrite, nullable) NSString *content;
 @property (nonatomic, copy, readwrite, nullable) NSString *url;
-
 @property (nonatomic, copy, readwrite, nullable) NSString *title;
 @property (nonatomic, copy, readwrite, nullable) NSString *subTitle;
-@property (nonatomic, copy, readwrite, nullable) NSString *descriptionText;
-@property (nonatomic, copy, readwrite, nullable) NSString *backgroundImage;
-@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *message;
 @property (nonatomic, copy, readwrite, nullable) NSString *icon;
 @property (nonatomic, readwrite) NSMutableArray<BlueShiftInAppNotificationButton *>* actions;
 @property (nonatomic, copy, readwrite, nullable) NSString *banner;
+@property (nonatomic, copy, readwrite, nullable) NSString *secondarIcon;
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;

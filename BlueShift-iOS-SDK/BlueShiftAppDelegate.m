@@ -8,8 +8,7 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
-#import "BlueShiftLiveContent.h"
-#import "InApps/BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationManager.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -30,21 +29,24 @@
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
-            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-            center.delegate = self.userNotificationDelegate;
-            [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
-            [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
-                if(!error){
-                    dispatch_async(dispatch_get_main_queue(), ^(void) {
-                        [[UIApplication sharedApplication] registerForRemoteNotifications];
-                    });
-                }
-            }];
+            if (@available(iOS 10.0, *)) {
+                UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+                center.delegate = self.userNotificationDelegate;
+                [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+                [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
+                    if(!error){
+                        dispatch_async(dispatch_get_main_queue(), ^(void) {
+                            [[UIApplication sharedApplication] registerForRemoteNotifications];
+                        });
+                    }
+                }];
+            }
         } else {
-            UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
-            [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
-            
+            if (@available(iOS 8.0, *)) {
+                UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
+                [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
+                [[UIApplication sharedApplication] registerForRemoteNotifications];
+            }
 //            NSSet *categories = [[[BlueShift sharedInstance] pushNotification] notificationCategories];
 //            NSSet *customCategories = [[[BlueShift sharedInstance] config] customCategories];
 //            NSMutableSet *categoriesWithCustomCategory = [[NSMutableSet alloc] init];
@@ -186,7 +188,9 @@
     localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:600];
     localNotification.alertBody = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     localNotification.timeZone = [NSTimeZone defaultTimeZone];
-    localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    if (@available(iOS 8.0, *)) {
+        localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+    }
     localNotification.soundName = [[userInfo objectForKey:@"aps"] objectForKey:@"sound"];
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
     dictionary = [userInfo mutableCopy];
@@ -202,10 +206,10 @@
     //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
 
     // Handle push notification when the app is in active state...
-    UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+    //UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
     BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
     pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-    UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+    //UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
     //[topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
 }
 
@@ -322,8 +326,10 @@
             BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
             pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
             
-            UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-            [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+            if (@available(iOS 8.0, *)) {
+                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+            }
         } else {
             
             BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
@@ -898,13 +904,12 @@
 
 
 - (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-
-    NSString *bsft_experiment_uuid = [pushDetailsDictionary objectForKey:@"bsft_experiment_uuid"];
-    NSString *bsft_user_uuid = [pushDetailsDictionary objectForKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [pushDetailsDictionary objectForKey:@"bsft_message_uuid"];
-    NSString *transactional_uuid = [pushDetailsDictionary objectForKey:@"bsft_transaction_uuid"];
+    
+    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_experiment_uuid"];
+    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_user_uuid"];
+    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
+    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
@@ -922,6 +927,19 @@
         [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
     }
     return [pushTrackParametersMutableDictionary copy];
+}
+
+- (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
+    if (notificationPayload && key && ![key isEqualToString:@""]) {
+        if ([notificationPayload objectForKey: key]) {
+            return (NSString *)[notificationPayload objectForKey: key];
+        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
+            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
+            return (NSString *)[notificationPayload objectForKey: key];
+        }
+    }
+    
+    return @"";
 }
 
 - (BOOL)isSendPushAnalytics {
@@ -1077,9 +1095,11 @@
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
-    //return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
     
-    return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:@"group.blueshift.readsapp"];
+    if([[[BlueShift sharedInstance] config] appGroupID] != nil)
+        return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:[[[BlueShift sharedInstance] config] appGroupID]];
+    else
+        return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
 - (NSManagedObjectModel *)managedObjectModel {
@@ -1100,6 +1120,9 @@
     
     //NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
     NSString * path = @"";
+    if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"] != nil) {
+        path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"];
+    }
     
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"];
@@ -1204,29 +1227,37 @@
 }
 
 - (void)downloadFileFromURL {
-    if (![self hasFontFileExist]) {
+    NSString *urlToDownload = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
+    if (![self hasFontFileExist: urlToDownload]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSString *urlToDownload = @"https://firebasestorage.googleapis.com/v0/b/cargonex-6251f.appspot.com/o/FontAwesome.otf?alt=media&token=da8d5411-04dd-47a3-a4a8-be76603ca117";
             NSURL  *url = [NSURL URLWithString:urlToDownload];
             NSData *urlData = [NSData dataWithContentsOfURL:url];
             if (urlData) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory] atomically:YES];
+                    [urlData writeToFile:[self getLocalDirectory: urlToDownload] atomically:YES];
                 });
             }
         });
     }
 }
 
-- (NSString *)getLocalDirectory{
+- (NSString *)getLocalDirectory:(NSString *)fontURL{
     NSString* tempPath = NSTemporaryDirectory();
-    NSString *fileName = kInAppNotificationModalFontWithExtensionKey;
+    NSString *fileName =[self createFileName: fontURL];
     return [tempPath stringByAppendingPathComponent: fileName];
 }
 
-- (BOOL)hasFontFileExist{
+- (NSString *)createFileName:(NSString *)imageURL{
+    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: imageURL];
+    NSString *extension = [url pathExtension];
+    fileName = [fileName stringByAppendingString:@"."];
+    return [fileName stringByAppendingString: extension];
+}
+
+- (BOOL)hasFontFileExist:(NSString *)fontURL{
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory]];
+    return [fileManager fileExistsAtPath: [self getLocalDirectory: fontURL]];
 }
 
 @end

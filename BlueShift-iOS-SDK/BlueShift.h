@@ -33,6 +33,8 @@
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
 @class BlueShiftUserNotificationCenterDelegate;
+@class BlueShiftUserInfo;
+@class BlueShiftConfig;
 @interface BlueShift : NSObject
 
 @property (nonatomic, strong) BlueShiftConfig *config;
@@ -58,6 +60,7 @@
 
 @property BlueShiftAppDelegate *appDelegate;
 @property BlueShiftUserNotificationCenterDelegate *userNotificationDelegate;
+
 
 
 // track events functions ...

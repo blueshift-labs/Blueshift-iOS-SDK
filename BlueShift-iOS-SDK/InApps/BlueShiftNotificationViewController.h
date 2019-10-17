@@ -6,15 +6,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "../Models/BlueShiftInAppNotification.h"
+#import "BlueShiftInAppNotification.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class BlueShiftNotificationViewController;
 
 @protocol BlueShiftNotificationDelegate <NSObject>
-- (void)inAppDidDismiss:(BlueShiftInAppNotification*)notification fromViewController:(BlueShiftNotificationViewController*)controller;
 @optional
+- (void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
 - (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload fromViewController:(BlueShiftNotificationViewController *)
 controller;
 - (void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
@@ -36,13 +36,12 @@ controller;
 
 - (void)closeButtonDidTapped;
 - (void)createWindow;
-- (CGRect)positionNotificationView:(UIView *) notificationView;
 - (void)configureBackground;
 - (UIColor *)colorWithHexString:(NSString *)str;
 - (void)loadNotificationView;
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL;
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
-- (void)applyIconToLabelView:(UILabel *)iconLabelView;
+- (void)applyIconToLabelView:(UILabel *)iconLabelView andFontIconSize:(NSNumber *)fontSize;
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
@@ -51,6 +50,7 @@ controller;
 - (NSString *)getLocalDirectory:(NSString *)fileName;
 - (NSString *)createFileNameFromURL:(NSString *)imageURL;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
+- (CGFloat)convertHeightToPercentage:(UIView *)notificationView;
 
 @end
 

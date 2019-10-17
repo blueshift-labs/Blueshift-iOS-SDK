@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftInAppEntityAppDelegate : NSObject
 
-- (void)addInAppNotificationToDataStore:(NSDictionary *)notificationPayload;
+- (void)addInAppNotificationToDataStore:(NSDictionary *)notificationPayload andAppGroupID:(NSString *)appGroupID;
 
 @end
 

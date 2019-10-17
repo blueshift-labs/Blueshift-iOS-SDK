@@ -7,14 +7,14 @@
 
 #import <StoreKit/StoreKit.h>
 #import "BlueShiftInAppNotificationManager.h"
-#import "ViewControllers/Templates/BlueShiftNotificationWebViewController.h"
-#import "ViewControllers/Templates/BlueShiftNotificationModalViewController.h"
-#import "ViewControllers/Templates/BlueShiftNotificationSlideBannerViewController.h"
-#import "Models/InAppNotificationEntity.h"
+#import "BlueShiftNotificationWebViewController.h"
+#import "BlueShiftNotificationModalViewController.h"
+#import "BlueShiftNotificationSlideBannerViewController.h"
+#import "InAppNotificationEntity.h"
 #import "BlueShiftAppDelegate.h"
-#import "Models/BlueShiftInAppTriggerMode.h"
+#import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
-#import "../BlueShift.h"
+#import "BlueShift.h"
 
 #define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
 
@@ -73,8 +73,10 @@
 }
 
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray {
-    NSNumber *item = [NSNumber numberWithInt:0];
-    [self recuresiveAdding:notificationArray item:item];
+    if (notificationArray !=nil && notificationArray.count > 0) {
+        NSNumber *item = [NSNumber numberWithInt:0];
+        [self recuresiveAdding:notificationArray item:item];
+    }
 }
 
 - (void)recuresiveAdding:(NSArray *)list item:(NSNumber *)item {
@@ -115,8 +117,8 @@
         
         if(entity != nil && fetchRequest.entity != nil) {
             InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
-            if ([payload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
-                NSString *notificationID = (NSString *)[payload objectForKey: kInAppNotificationModalMessageUDIDKey];
+            NSString *notificationID = [self getInAppMessageID: payload];
+            if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
                 [inAppNotificationEntity fetchNotificationByID:masterContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
                     if (status) {
                         handler(NO);
@@ -129,13 +131,28 @@
     }
 }
 
+-(NSString *)getInAppMessageID:(NSDictionary *)notificationPayload {
+    if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+        return (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
+    } else {
+        if([notificationPayload objectForKey:kInAppNotificationDataKey]) {
+            notificationPayload = [notificationPayload objectForKey:kInAppNotificationDataKey];
+            if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+                return (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
+            }
+        }
+    }
+    
+    return @"";
+}
+
 - (double)checkInAppNotificationExpired:(double)createdTime {
     double currentTime =  [[NSDate date] timeIntervalSince1970] * 1000;
     NSDate *createdDate = [self convertMillisecondToDate: createdTime];
     NSDate *currentDate = [self convertMillisecondToDate:currentTime];
     
     NSTimeInterval timeDifference = [currentDate timeIntervalSinceDate: createdDate];
-    return (timeDifference / 3600 * 24);
+    return (timeDifference / (3600 * 24));
 }
 
 - (NSDate *)convertMillisecondToDate:(double)milliseonds {
@@ -174,9 +191,8 @@
                     
                     if(inAppNotificationEntity != nil) {
                         [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
-                            
                             if(status) {
-                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: YES];
+                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
                                 handler(YES);
                             }
                         }];
@@ -264,7 +280,7 @@
     }
 }
 
-- (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *))handler {
+- (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     if (appDelegate) {
@@ -292,9 +308,9 @@
             NSArray *results = [masterContext executeFetchRequest: fetchRequest error:&error];
             if (results != nil && [results count] > 0 && results[[results count] - 1]) {
                 InAppNotificationEntity *notification = results[[results count] -1];
-                handler(YES, notification.id);
+                handler(YES, notification.id, notification.timestamp);
             } else {
-                handler(YES, @"");
+                handler(YES, @"", @"");
             }
         }
     }
@@ -382,6 +398,11 @@
                 InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
                 [self createNotificationFromDictionary: entity];
             }
+        } else {
+            if ([self inAppNotificationDisplayOnPage] && ![[self inAppNotificationDisplayOnPage] isEqualToString:@""]) {
+                [[BlueShift sharedInstance] unregisterForInAppMessage];
+                [self fetchInAppNotificationsFromDataStore: triggerMode];
+            }
         }
     }];
 }
@@ -435,8 +456,8 @@
         
         InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
         if(inAppNotificationEntity != nil) {
-            if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
-                NSString *notificationID = (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
+            NSString *notificationID = [self getInAppMessageID: notificationPayload];
+            if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
                 [inAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
                     if (status) {
                         [self startInAppScanQueueTimer];
@@ -489,7 +510,7 @@
             InAppNotificationEntity *entity = [results objectAtIndex:i];
             
             double endTime = [entity.endTime doubleValue];
-            double startTime = [entity.startTime doubleValue];
+            //double startTime = [entity.startTime doubleValue];
             
             if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
                 /* discard notification if its expired. */
@@ -652,7 +673,7 @@
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     
-    [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:YES];
+    [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:NO];
     
     self.currentNotificationController = nil;
     
@@ -661,7 +682,7 @@
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: YES];
+    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: NO];
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
         [[self inAppNotificationDelegate] actionButtonDidTapped: notificationPayload];
     }
@@ -669,7 +690,7 @@
 
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: YES];
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
     
     [self stopInAppMessageLoadTimer];
 }
