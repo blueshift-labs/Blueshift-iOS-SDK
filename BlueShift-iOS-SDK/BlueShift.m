@@ -699,7 +699,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)trackInAppNotificationShowingWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"view" withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendPushAnalytics:@"open" withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
