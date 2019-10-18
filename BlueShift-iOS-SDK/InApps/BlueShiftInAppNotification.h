@@ -69,8 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString* buttonType;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 
-- (NSDictionary *)convertObjectToDictionary:(BlueShiftInAppNotificationButton *)buttonDetails;
-
 @end
 
 /* notification content , either be html link/ html source / layout props */

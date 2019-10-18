@@ -13,6 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueShiftInAppNotificationHelper : NSObject
 
 + (BlueShiftInAppType)inAppTypeFromString:(NSString*_Nonnull)inAppType;
++ (NSString *)getLocalDirectory:(NSString *)fileName;
++ (BOOL)hasFileExist:(NSString *)fileName;
++ (NSString *)createFileNameFromURL:(NSString *)imageURL;
++ (BOOL)hasDigits:(NSString *)digits;
++ (void)deleteFileFromLocal:(NSString *) fileName;
++ (CGFloat)convertHeightToPercentage:(UIView *) notificationView;
 
 @end
 

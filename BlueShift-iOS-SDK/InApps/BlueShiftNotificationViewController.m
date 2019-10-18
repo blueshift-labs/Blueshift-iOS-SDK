@@ -209,8 +209,11 @@
 }
 
 - (void)createFontFile:(UILabel *)iconLabel {
-    if ([self hasFileExist: [self getLocalDirectory: [self createFontFileName]]]) {
-        NSData *fontData = [NSData dataWithContentsOfFile: [self getLocalDirectory :[self createFontFileName]]];
+    NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+    
+    if ([BlueShiftInAppNotificationHelper hasFileExist: fontFileName]) {
+        NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
+        NSData *fontData = [NSData dataWithContentsOfFile: fontFilePath];
         CFErrorRef error;
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
         CGFontRef font = CGFontCreateWithDataProvider(provider);
@@ -231,53 +234,17 @@
 
 - (void)downloadFileFromURL:(UILabel *)iconLabel {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSString *urlToDownload = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
-        NSURL  *url = [NSURL URLWithString:urlToDownload];
+        NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
         NSData *urlData = [NSData dataWithContentsOfURL:url];
         if (urlData) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [urlData writeToFile: [self getLocalDirectory: [self createFontFileName]] atomically:YES];
+                NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+                NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
+                [urlData writeToFile: fontFilePath  atomically:YES];
                 [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
             });
         }
     });
-}
-
-- (NSString *)getLocalDirectory:(NSString *)fileName {
-    NSString* tempPath = NSTemporaryDirectory();
-    return [tempPath stringByAppendingPathComponent: fileName];
-}
-
-- (BOOL)hasFileExist:(NSString *)filePath {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: filePath];
-}
-    
-- (NSString *)createFontFileName{
-    NSString *fontDownloadURL = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
-    return [self createFileNameFromURL: fontDownloadURL];
-}
-
-- (void)deleteFileFromLocal:(NSString *)fileName{
-    NSString *filePath = [self getLocalDirectory: fileName];
-    if ([self hasFileExist: filePath]) {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
-    }
-}
-
-- (NSString *)createFileNameFromURL:(NSString *)imageURL{
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
-    NSString *extension = [url pathExtension];
-    fileName = [fileName stringByAppendingString:@"."];
-    return [fileName stringByAppendingString: extension];
-}
-
-- (CGFloat)convertHeightToPercentage:(UIView *)notificationView {
-    CGFloat screenHeight = [[UIScreen mainScreen] bounds].size.height;
-    CGFloat viewHeight = notificationView.frame.size.height;
-    return ((viewHeight/screenHeight) * 100);
 }
 
 @end

@@ -291,7 +291,7 @@
     if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
         NSString *trigger = (NSString *)[dictionary objectForKey: kSilentNotificationTriggerKey];
         if (![trigger isEqualToString:@""]) {
-            if ([self hasDigits: trigger] == YES) {
+            if ([BlueShiftInAppNotificationHelper hasDigits: trigger] == YES) {
                 self.triggerMode = @"upcoming";
                 self.startTime = [NSNumber numberWithDouble: [trigger doubleValue]];
             } else {
@@ -310,8 +310,8 @@
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     } else {
         NSString *imageURL = [self fetchImageURLFromString: payload];
-        NSString *fileName = [self createFileName: imageURL];
-        if (imageURL && ![self hasFontFileExist: fileName ]) {
+        NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: imageURL];
+        if (imageURL && ![BlueShiftInAppNotificationHelper hasFileExist: fileName ]) {
             [self downloadFileFromURL: imageURL andNotifcationPayload: payload];
         } else {
             self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
@@ -321,11 +321,10 @@
 
 - (NSString *)fetchImageURLFromString:(NSDictionary *)payload{
     NSString *imageURL = NULL;
-    
     if ([payload objectForKey: kInAppNotificationDataKey]) {
         NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
         if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-            NSDictionary *payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
+            NSDictionary *payloadDictionary = [inAppDictionary objectForKey: kInAppNotificationKey];
             if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]) {
                  NSDictionary *contentDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
                 if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey]) {
@@ -339,43 +338,20 @@
 }
 
 - (void)downloadFileFromURL:(NSString *)imageURL andNotifcationPayload:(NSDictionary *)payload{
-    NSString *fileName = [self createFileName: imageURL];
-    if (![self hasFontFileExist: fileName]) {
+    NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: imageURL];
+    if (![BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSURL  *url = [NSURL URLWithString: imageURL];
             NSData *urlData = [NSData dataWithContentsOfURL:url];
             if (urlData) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory: fileName] atomically:YES];
+                    [urlData writeToFile:[BlueShiftInAppNotificationHelper getLocalDirectory: fileName] atomically:YES];
                     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
                     NSLog(@"image file saved");
                 });
             }
         });
     }
-}
-
-- (NSString *)getLocalDirectory:(NSString *)fileName{
-    NSString* tempPath = NSTemporaryDirectory();
-    return [tempPath stringByAppendingPathComponent: fileName];
-}
-
-- (BOOL)hasFontFileExist:(NSString *)fileName{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory: fileName]];
-}
-
-- (NSString *)createFileName:(NSString *)imageURL{
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
-    NSString *extension = [url pathExtension];
-    fileName = [fileName stringByAppendingString:@"."];
-    return [fileName stringByAppendingString: extension];
-}
-
-- (BOOL)hasDigits:(NSString *)digits {
-    NSCharacterSet *notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-    return ([digits rangeOfCharacterFromSet: notDigits].location == NSNotFound);
 }
 
 @end

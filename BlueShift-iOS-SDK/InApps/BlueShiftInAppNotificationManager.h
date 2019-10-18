@@ -21,8 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *inAppNotificationDisplayOnPage;
 
 - (void) load;
-
-- (void) createNotificationFromDictionary:(NSDictionary *)dictionary;
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)payload;
 - (void) recuresiveAdding:(NSArray *)list item:(NSNumber *)item;
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;

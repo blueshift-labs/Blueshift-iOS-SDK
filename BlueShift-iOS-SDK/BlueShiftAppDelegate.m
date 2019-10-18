@@ -9,6 +9,8 @@
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationHelper.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -1187,37 +1189,19 @@
 }
 
 - (void)downloadFileFromURL {
-    NSString *urlToDownload = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
-    if (![self hasFontFileExist: urlToDownload]) {
+    NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+    if (![BlueShiftInAppNotificationHelper hasFileExist: fontFileName]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL  *url = [NSURL URLWithString:urlToDownload];
+            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
             NSData *urlData = [NSData dataWithContentsOfURL:url];
             if (urlData) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory: urlToDownload] atomically:YES];
+                    NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
+                    [urlData writeToFile: fontFilePath atomically:YES];
                 });
             }
         });
     }
-}
-
-- (NSString *)getLocalDirectory:(NSString *)fontURL{
-    NSString* tempPath = NSTemporaryDirectory();
-    NSString *fileName =[self createFileName: fontURL];
-    return [tempPath stringByAppendingPathComponent: fileName];
-}
-
-- (NSString *)createFileName:(NSString *)imageURL{
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
-    NSString *extension = [url pathExtension];
-    fileName = [fileName stringByAppendingString:@"."];
-    return [fileName stringByAppendingString: extension];
-}
-
-- (BOOL)hasFontFileExist:(NSString *)fontURL{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory: fontURL]];
 }
 
 @end

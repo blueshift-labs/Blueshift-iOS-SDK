@@ -11,6 +11,7 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftInAppNotificationHelper.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -100,9 +101,9 @@
         }
         
         if (self.notification.notificationContent.banner) {
-            NSString *fileName = [self createFileNameFromURL: self.notification.notificationContent.banner];
-            if (fileName && [self hasFileExist: [self getLocalDirectory: fileName]]) {
-                [self deleteFileFromLocal: fileName];
+            NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: self.notification.notificationContent.banner];
+            if (fileName && [BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
+                [BlueShiftInAppNotificationHelper deleteFileFromLocal: fileName];
                 NSLog(@"Image file deleted");
             }
         }
@@ -203,9 +204,10 @@
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.banner) {
-        NSString *fileName = [self createFileNameFromURL: self.notification.notificationContent.banner];
-        if (fileName && [self hasFileExist: [self getLocalDirectory: fileName]]) {
-            [self loadImageFromLocal:imageView imageFilePath:[self getLocalDirectory: fileName]];
+        NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: self.notification.notificationContent.banner];
+        if (fileName && [BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
+            NSString *filePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fileName];
+            [self loadImageFromLocal:imageView imageFilePath: filePath];
         } else{
             [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
         }
@@ -403,7 +405,7 @@
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[self convertHeightToPercentage: notificationView];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertHeightToPercentage: notificationView];
     
     float topMargin = 0.0;
     float bottomMargin = 0.0;
