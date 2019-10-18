@@ -11,6 +11,7 @@
 #import "BlueshiftInAppEntityAppDelegate.h"
 
 
+API_AVAILABLE(ios(10.0))
 static BlueShiftPushNotification *_sharedInstance = nil;
 
 @implementation BlueShiftPushNotification

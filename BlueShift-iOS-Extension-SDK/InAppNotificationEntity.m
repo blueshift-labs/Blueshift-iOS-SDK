@@ -43,16 +43,12 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSError *error = nil;
-                    printf("%f InAppNotify:: saving child context ++\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     
-                    printf("%f InAppNotify:: saving child context --\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        printf("%f InAppNotify:: masterContext perform block --\n", [[NSDate date] timeIntervalSince1970]);
                         [masterContext performBlock:^{
                             NSError *error = nil;
-                            printf("%f InAppNotify:: saving parent context \n", [[NSDate date] timeIntervalSince1970]);
                             [masterContext save:&error];
                             handler(YES);
                         }];

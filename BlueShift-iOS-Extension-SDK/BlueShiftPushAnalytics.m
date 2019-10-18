@@ -29,11 +29,13 @@
 }
 
 + (void)fireAPICallWithURL:(NSString *)url data:(NSDictionary *)params andRetryCount:(NSInteger)count {
-    [self getRequestWithURL:url andParams:params completetionHandler:^(BOOL status, NSDictionary *response, NSError *error) {
-        if (!status && count > 0) {
-            [self fireAPICallWithURL:url data:params andRetryCount:count-1];
-        }
-    }];
+    if (@available(iOS 10.0, *)) {
+        [self getRequestWithURL:url andParams:params completetionHandler:^(BOOL status, NSDictionary *response, NSError *error) {
+            if (!status && count > 0) {
+                [self fireAPICallWithURL:url data:params andRetryCount:count-1];
+            }
+        }];
+    }
 }
 
 + (NSURLSessionConfiguration *)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
@@ -55,7 +57,7 @@
     return defaultConfigObject;
 }
 
-+ (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
++ (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler API_AVAILABLE(ios(10.0)){
     NSURLSessionConfiguration* sessionConfiguraion = [self addBasicAuthenticationRequestHeaderForUsername:[[BlueShiftPushNotification sharedInstance] apiKey] andPassword:@""];
     NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     
