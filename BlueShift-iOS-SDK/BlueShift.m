@@ -629,54 +629,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-
-- (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    
-    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_experiment_uuid"];
-    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
-    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
-    NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSString *element = [self getValueBykey: pushDetailsDictionary andKey: @"element"];
-    NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (bsft_user_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
-    }
-    if(bsft_experiment_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"eid"];
-    }
-    if (message_uuid) {
-        [pushTrackParametersMutableDictionary setObject:message_uuid forKey:@"mid"];
-    }
-    if (transactional_uuid) {
-        [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey:@"txnid"];
-    }
-    if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
-    }
-    if (element) {
-        [pushTrackParametersMutableDictionary setObject:element forKey:@"element"];
-    }
-    
-    return [pushTrackParametersMutableDictionary copy];
-}
-
-- (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
-    if (notificationPayload && key && ![key isEqualToString:@""]) {
-        if ([notificationPayload objectForKey: key]) {
-            return (NSString *)[notificationPayload objectForKey: key];
-        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
-            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
-            return (NSString *)[notificationPayload objectForKey: key];
-        }
-    }
-    
-    return @"";
-}
-
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
     if ([self isSendPushAnalytics:userInfo]) {
-        NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (pushTrackParameterDictionary) {

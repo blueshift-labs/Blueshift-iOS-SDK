@@ -29,6 +29,7 @@
 #import "BlueShiftPushNotificationSettings.h"
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftUserNotificationCenterDelegate.h"
+#import "BlueshiftEventAnalyticsHelper.h"
 
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
