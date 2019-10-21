@@ -44,7 +44,7 @@
                 }];
             }
         } else {
-            if (@available(iOS 8.0, *)) {
+           if (@available(iOS 10.0, *)) {
                 UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
                 [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
                 [[UIApplication sharedApplication] registerForRemoteNotifications];
@@ -176,13 +176,9 @@
     [self application:application handleRemoteNotification:userInfo];
 }
 
-- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UILocalNotification *)notification {
-    self.userInfo = notification.userInfo;
+- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UNNotificationRequest *)notification  API_AVAILABLE(ios(10.0)){
+    self.userInfo = notification.content.userInfo;
     [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
-}
-
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(nonnull UILocalNotification *)notification {
-    [self application:application handleLocalNotification:notification];
 }
 
 - (void)scheduleLocalNotification:(NSDictionary *)userInfo {
@@ -753,7 +749,7 @@
     }
 }
 
-- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)()) completionHandler {
+- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
     // Handles the scenario when a push message action is selected ...
     // Differentiation is done on the basis of identifier of the push notification ...
     
@@ -790,7 +786,7 @@
 }
 
 - (void)application:(UIApplication *) application handleActionWithIdentifier: (NSString *) identifier forRemoteNotification: (NSDictionary *) notification
-  completionHandler: (void (^)()) completionHandler {
+  completionHandler: (void (^)(void)) completionHandler {
     
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
@@ -1028,7 +1024,9 @@
     [BlueShiftDeviceData currentDeviceData].locationManager = [[CLLocationManager alloc] init];
     
     if ([[BlueShiftDeviceData currentDeviceData].locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-        [[BlueShiftDeviceData currentDeviceData].locationManager requestWhenInUseAuthorization];
+        if (@available(iOS 8.0, *)) {
+            [[BlueShiftDeviceData currentDeviceData].locationManager requestWhenInUseAuthorization];
+        }
     } else {
         if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
             [[[UIAlertView alloc] initWithTitle:@"No GPS" message:@"Please Enable GPS in you device" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];

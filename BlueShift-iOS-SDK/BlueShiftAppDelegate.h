@@ -26,7 +26,7 @@
 @property NSDictionary * _Nullable pushAlertDictionary;
 
 @property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
-@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
+@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
 
@@ -47,16 +47,16 @@
 - (void) registerForNotification;
 - (BOOL) handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *_Nullable)launchOptions;
 - (void)registerLocationService;
-- (NSString *)hexadecimalStringFromData:(NSData *)data;
+- (NSString *_Nullable)hexadecimalStringFromData:(NSData *_Nullable)data;
 
 - (void) registerForRemoteNotification:(NSData *_Nullable)deviceToken;
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *_Nonnull)error;
 - (void) handleRemoteNotification:(NSDictionary *_Nonnull)userInfo forApplication:(UIApplication *_Nonnull)application fetchCompletionHandler:(void (^_Nonnull)(UIBackgroundFetchResult result))handler;
 - (void) application:(UIApplication *_Nonnull)application handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
 - (void)handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
-- (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UILocalNotification *)notification;
+- (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UNNotificationRequest *)notification API_AVAILABLE(ios(10.0));
 - (void)presentInAppAlert:(NSDictionary *_Nonnull)userInfo;
-- (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)()) completionHandler;
+- (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)(void)) completionHandler;
 - (void)appDidEnterBackground:(UIApplication *_Nonnull)application;
 - (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
 

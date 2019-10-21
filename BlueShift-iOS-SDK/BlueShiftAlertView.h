@@ -28,6 +28,6 @@
 
 @property (nonatomic, weak) id<BlueShiftAlertControllerDelegate> _Nullable alertControllerDelegate;
 
-- (UIAlertController *_Nonnull)alertViewWithPushDetailsDictionary:(NSDictionary *_Nonnull)pushDetailsDictionary;
+- (UIAlertController *_Nonnull)alertViewWithPushDetailsDictionary:(NSDictionary *_Nonnull)pushDetailsDictionary API_AVAILABLE(ios(8.0));
 
 @end

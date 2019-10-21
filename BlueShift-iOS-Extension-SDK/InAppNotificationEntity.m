@@ -154,7 +154,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     self.priority = @"medium";
     self.eventName = @"";
     self.status = @"pending";
-    self.createdAt = [NSNumber numberWithDouble: (double)([[NSDate date] timeIntervalSince1970] * 1000.0)];
+    self.createdAt = [NSNumber numberWithDouble: (double)[[NSDate date] timeIntervalSince1970]];
 
     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }

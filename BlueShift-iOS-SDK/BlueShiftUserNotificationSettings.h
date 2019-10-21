@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
 
+API_AVAILABLE(ios(10.0))
 @interface BlueShiftUserNotificationSettings : NSObject
 
 @property (nonatomic, strong) UNNotificationCategory *buyCategory;

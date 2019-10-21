@@ -42,8 +42,8 @@
 @property BlueShiftDeviceData *deviceData;
 @property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
-@property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification;
-@property (nonatomic, strong) BlueShiftUserNotificationSettings *userNotification;
+@property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification API_AVAILABLE(ios(10.0));
+@property (nonatomic, strong) BlueShiftUserNotificationSettings *userNotification API_AVAILABLE(ios(10.0));
 @property (nonatomic, strong, readwrite) NSTimer *inAppMsgAPITimer;
 @property (nonatomic, strong, readwrite) NSTimer *inAppDBTimer;
 @property NSString *deviceToken;

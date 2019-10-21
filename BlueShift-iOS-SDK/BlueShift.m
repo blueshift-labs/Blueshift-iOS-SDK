@@ -58,8 +58,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     _sharedBlueShiftInstance.config = config;
     _sharedBlueShiftInstance.deviceData = [[BlueShiftDeviceData alloc] init];
     _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
-    _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
-    _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
+    if (@available(iOS 10.0, *)) {
+        _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
+        _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
+    }
     // Initialize deeplinks ...
     [self initDeepLinks];
     
@@ -75,11 +77,14 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;
-    if(config.userNotificationDelegate) {
-        blueShiftAppDelegate.userNotificationDelegate = config.userNotificationDelegate;
-    } else {
-        blueShiftAppDelegate.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
+    if (@available(iOS 10.0, *)) {
+        if(config.userNotificationDelegate) {
+            blueShiftAppDelegate.userNotificationDelegate = config.userNotificationDelegate;
+        } else {
+            blueShiftAppDelegate.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
+        }
     }
+    
     if(config.blueShiftPushDelegate) {
         blueShiftAppDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
     }

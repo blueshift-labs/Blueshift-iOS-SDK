@@ -80,13 +80,14 @@
 }
 
 - (void)recuresiveAdding:(NSArray *)list item:(NSNumber *)item {
+    __weak typeof(self) weakSelf = self;
     [self addInAppNotificationToDataStore:[list objectAtIndex:[item integerValue]] handler:^(BOOL status) {
         if(status) {
             NSNumber *nextItem = [NSNumber numberWithLong:[item longValue] + 1];
             if ([nextItem integerValue] < [list count]) {
-                [self recuresiveAdding:list item:nextItem];
+                [weakSelf recuresiveAdding: list item:nextItem];
             } else {
-                [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+                [weakSelf fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
             }
         }
     }];
@@ -147,7 +148,7 @@
 }
 
 - (double)checkInAppNotificationExpired:(double)createdTime {
-    double currentTime =  [[NSDate date] timeIntervalSince1970] * 1000;
+    double currentTime =  [[NSDate date] timeIntervalSince1970];
     NSDate *createdDate = [self convertMillisecondToDate: createdTime];
     NSDate *currentDate = [self convertMillisecondToDate:currentTime];
     
@@ -155,8 +156,8 @@
     return (timeDifference / (3600 * 24));
 }
 
-- (NSDate *)convertMillisecondToDate:(double)milliseonds {
-    return [NSDate dateWithTimeIntervalSince1970:(milliseonds / 1000.0)];
+- (NSDate *)convertMillisecondToDate:(double)seconds {
+    return [NSDate dateWithTimeIntervalSince1970:seconds];
 }
 
 - (void) addInAppNotificationToDataStore: (NSDictionary*)payload handler:(void (^)(BOOL))handler{
@@ -194,11 +195,17 @@
                             if(status) {
                                 [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
                                 handler(YES);
+                            } else {
+                                handler(NO);
                             }
                         }];
+                    } else {
+                        handler(NO);
                     }
                 }
             }
+        } else {
+            handler(NO);
         }
     }];
 }
@@ -689,8 +696,8 @@
 
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
     
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
     [self stopInAppMessageLoadTimer];
 }
 
