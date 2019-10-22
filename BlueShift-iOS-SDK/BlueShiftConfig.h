@@ -28,6 +28,7 @@
 @property BOOL enableAnalytics;
 @property BOOL enableAppOpenTrackEvent;
 @property BOOL enableInAppNotification;
+@property BOOL inAppManualTriggerEnabled;
 
 @property NSSet * _Nullable customCategories;
 

@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) recuresiveAdding:(NSArray *)list item:(NSNumber *)item;
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler;
+- (void) deleteExpireInAppNotificationFromDataStore;
 
 @end
 

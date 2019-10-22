@@ -396,7 +396,6 @@
     
     [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
         if (status) {
-            
             NSArray *sortedArray = [self sortedInAppNotification: results];
             NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray withTriggerMode:triggerMode];
             
@@ -465,7 +464,7 @@
             NSString *notificationID = [self getInAppMessageID: notificationPayload];
             if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
                 [inAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
-                    if (status) {
+                    if (status && [[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
                         [self startInAppScanQueueTimer];
                         [self stopInAppMessageLoadTimer];
                     }

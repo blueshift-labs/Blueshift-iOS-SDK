@@ -52,8 +52,6 @@
 
 + (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode forDisplayPage:(NSString *)displayOn request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     
-    //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    
     NSString* triggerStr;
     
     switch (triggerMode) {
@@ -66,11 +64,14 @@
         case BlueShiftInAppTriggerEvent:
             triggerStr = @"event";
             break;
+        case BlueShiftInAppNoTriggerEvent:
+            triggerStr = @"";
+            break;
     }
     
     displayOn =  (displayOn ? displayOn: @"");
     
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [self getPredicates: triggerStr andDisplayOn: displayOn];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     
     @try {
@@ -92,6 +93,14 @@
     }
     @catch (NSException *exception) {
         NSLog(@"Caught exception %@", exception);
+    }
+}
+
++ (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
+    if (triggerStr && ![triggerStr isEqualToString: @""]) {
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
+    } else {
+        return [NSPredicate predicateWithFormat:@"status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"pending", displayOn, @"", nil];
     }
 }
 

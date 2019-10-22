@@ -103,8 +103,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     
     // Initialize In App Manager
-    if (config.enableInAppNotification == YES) {
-        _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+    _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+    if (config.enableInAppNotification == YES && config.inAppManualTriggerEnabled == NO) {
         [_inAppNotificationMananger load];
         if (config.inAppNotificationDelegate) {
             _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
@@ -164,7 +164,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    if (_config.enableInAppNotification == YES && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+    if (_config.enableInAppNotification == YES && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive && _config.inAppManualTriggerEnabled == NO) {
         [self startInAppMessageLoadFromaDBTimer];
     }
 }
@@ -694,7 +694,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)registerForInAppMessage:(NSString *)displayPage {
-    if (_inAppNotificationMananger) {
+    if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == NO) {
         if (displayPage) {
             _inAppNotificationMananger.inAppNotificationDisplayOnPage = displayPage;
         } else {
@@ -706,12 +706,19 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)unregisterForInAppMessage {
-    if (_inAppNotificationMananger) {
+    if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == NO) {
         _inAppNotificationMananger.inAppNotificationDisplayOnPage = @"";
     }
 }
 
-- (void)fetchInAppNotificationFromAPI{
+- (void)triggerInAppNotification {
+    if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == YES) {
+        [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppNoTriggerEvent];
+        [_inAppNotificationMananger deleteExpireInAppNotificationFromDataStore];
+    }
+}
+
+- (void)fetchInAppNotificationFromAPI {
     if (_config.enableInAppNotification == YES) {
         [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID, NSString *lastTimestamp) {
             if (status) {

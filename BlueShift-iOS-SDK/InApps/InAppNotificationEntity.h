@@ -44,6 +44,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
                        andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler;
 
 - (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
++ (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn;
 
 NS_ASSUME_NONNULL_END
 

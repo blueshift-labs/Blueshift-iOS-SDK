@@ -143,5 +143,8 @@
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
                                  canBacthThisEvent:(BOOL)isBatchEvent;
+- (void)triggerInAppNotification;
+
+- (void)fetchInAppNotificationFromAPI;
 
 @end
