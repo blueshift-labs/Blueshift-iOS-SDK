@@ -72,25 +72,14 @@
     [self startInAppMessageFetchTimer];
 }
 
-- (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray {
+- (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
     if (notificationArray !=nil && notificationArray.count > 0) {
-        NSNumber *item = [NSNumber numberWithInt:0];
-        [self recuresiveAdding:notificationArray item:item];
-    }
-}
-
-- (void)recuresiveAdding:(NSArray *)list item:(NSNumber *)item {
-    __weak typeof(self) weakSelf = self;
-    [self addInAppNotificationToDataStore:[list objectAtIndex:[item integerValue]] handler:^(BOOL status) {
-        if(status) {
-            NSNumber *nextItem = [NSNumber numberWithLong:[item longValue] + 1];
-            if ([nextItem integerValue] < [list count]) {
-                [weakSelf recuresiveAdding: list item:nextItem];
-            } else {
-                [weakSelf fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-            }
+        for (int i = 0; i < notificationArray.count ; i++) {
+            [self addInAppNotificationToDataStore: [notificationArray objectAtIndex: i]];
         }
-    }];
+        
+        handler(YES);
+    }
 }
 
 - (void)checkInAppNotificationExist:(NSDictionary *)payload handler:(void (^)(BOOL))handler{
@@ -160,7 +149,7 @@
     return [NSDate dateWithTimeIntervalSince1970:seconds];
 }
 
-- (void) addInAppNotificationToDataStore: (NSDictionary*)payload handler:(void (^)(BOOL))handler{
+- (void) addInAppNotificationToDataStore: (NSDictionary *) payload {
     [self checkInAppNotificationExist: payload handler:^(BOOL status){
         if (status) {
             if (nil == self.privateObjectContext) {
@@ -194,18 +183,11 @@
                         [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
                             if(status) {
                                 [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
-                                handler(YES);
-                            } else {
-                                handler(NO);
                             }
                         }];
-                    } else {
-                        handler(NO);
                     }
                 }
             }
-        } else {
-            handler(NO);
         }
     }];
 }

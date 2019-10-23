@@ -116,7 +116,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             _inAppNotificationMananger.inAppNotificationTimeInterval = 60;
         }
         
-        [self fetchInAppNotificationFromAPI];
+        [self fetchInAppNotificationFromAPI:^(){
+            [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+        }];
     }
     
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
@@ -711,27 +713,31 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-- (void)triggerInAppNotification {
+- (void)displayInAppNotification {
     if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == YES) {
         [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppNoTriggerEvent];
         [_inAppNotificationMananger deleteExpireInAppNotificationFromDataStore];
     }
 }
 
-- (void)fetchInAppNotificationFromAPI {
+- (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))handler {
     if (_config.enableInAppNotification == YES) {
         [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID, NSString *lastTimestamp) {
             if (status) {
                 [BlueShiftLiveContent fetchInAppNotificationByDeviceID: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
                     if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
                         NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
-                        [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray];
+                        [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status){
+                            handler();
+                        }];
                     }
                 } failure:^(NSError *error){
                     NSLog(@"Failed");
+                    handler();
                 }];
             } else {
                 NSLog(@"Failed");
+                handler();
             }
         }];
     }

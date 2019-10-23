@@ -148,7 +148,7 @@
                 [self closeButtonDidTapped];
             }
         } else {
-            if (buttonDetails.iosLink != nil && ![buttonDetails.iosLink isEqualToString:@""]) {
+            if (buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString: buttonDetails.iosLink]];
             }
             

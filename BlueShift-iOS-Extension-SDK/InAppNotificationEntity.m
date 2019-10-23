@@ -98,7 +98,8 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 - (void)map:(NSDictionary *)dictionary {
     
     NSMutableDictionary *payload = [dictionary mutableCopy];
-    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] &&
+        [dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] != [NSNull null]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
     }else {
         self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
@@ -111,11 +112,13 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
         dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] &&
+        [dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] != [NSNull null]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey] &&
+        [dictionary objectForKey: kInAppNotificationModalTimestampKey] != [NSNull null]) {
         self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
     }
     
@@ -124,16 +127,19 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     }
     
     /* get type of In-App msg */
-    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey] &&
+        [dictionary objectForKey: kSilentNotificationPayloadTypeKey] != [NSNull null]) {
         self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey]) {
+    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey] &&
+        [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey] != [NSNull null]) {
         self.displayOn = [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey];
     }
     
     /* get start and end Time */
-    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] &&
+        [dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] != [NSNull null]) {
         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
     }
     
