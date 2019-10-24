@@ -10,7 +10,6 @@
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftInAppNotificationManager.h"
 #import "BlueShiftInAppNotificationConstant.h"
-#import "BlueShiftInAppNotificationHelper.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 

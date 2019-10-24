@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import "BlueShiftInAppType.h"
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

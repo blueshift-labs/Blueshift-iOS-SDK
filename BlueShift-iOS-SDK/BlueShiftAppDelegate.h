@@ -19,6 +19,7 @@
 #import "BlueShiftTrackEvents.h"
 #import "BlueShiftAlertView.h"
 #import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueShiftInAppNotificationHelper.h"
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, CLLocationManagerDelegate, BlueShiftAlertControllerDelegate>
 
