@@ -899,14 +899,6 @@
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
-- (BOOL)isSendPushAnalytics {
-    if (self.userInfo && self.userInfo[@"bsft_seed_list_send"] && [self.userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
-        return NO;
-    } else {
-        return YES;
-    }
-}
-
 - (void)trackAppOpen {
     if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
         [self trackAppOpenWithParameters:nil];
@@ -931,7 +923,7 @@
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
-    if ([self isSendPushAnalytics]) {
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (parameters) {
@@ -948,7 +940,7 @@
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
-    if ([self isSendPushAnalytics]) {
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (parameters) {

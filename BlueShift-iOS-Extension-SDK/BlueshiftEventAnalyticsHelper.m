@@ -52,4 +52,12 @@
     return @"";
 }
 
++ (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo {
+    if (userInfo && userInfo[@"bsft_seed_list_send"] && [userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
+
 @end

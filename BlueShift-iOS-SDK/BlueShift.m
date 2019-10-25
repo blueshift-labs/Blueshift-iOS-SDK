@@ -628,16 +628,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [BlueShiftRequestQueue addRequestOperation:requestOperation];
 }
 
-- (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo {
-    if (userInfo && userInfo[@"bsft_seed_list_send"] && [userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
-        return NO;
-    } else {
-        return YES;
-    }
-}
-
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
-    if ([self isSendPushAnalytics:userInfo]) {
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics:userInfo]) {
         NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         

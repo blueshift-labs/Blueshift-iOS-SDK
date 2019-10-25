@@ -18,14 +18,16 @@
 @implementation BlueShiftPushAnalytics
 
 + (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo {
-    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    if (pushTrackParameterDictionary) {
-        [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: userInfo]) {
+        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        if (pushTrackParameterDictionary) {
+            [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+        }
+        [parameterMutableDictionary setObject:type forKey:@"a"];
+        NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+        [self fireAPICallWithURL:url data:parameterMutableDictionary andRetryCount:3];
     }
-    [parameterMutableDictionary setObject:type forKey:@"a"];
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-    [self fireAPICallWithURL:url data:parameterMutableDictionary andRetryCount:3];
 }
 
 + (void)fireAPICallWithURL:(NSString *)url data:(NSDictionary *)params andRetryCount:(NSInteger)count {
