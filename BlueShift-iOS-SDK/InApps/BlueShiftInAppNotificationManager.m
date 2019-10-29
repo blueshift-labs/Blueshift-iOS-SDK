@@ -106,10 +106,9 @@
         }
         
         if(entity != nil && fetchRequest.entity != nil) {
-            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
             NSString *notificationID = [self getInAppMessageID: payload];
             if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-                [inAppNotificationEntity fetchNotificationByID:masterContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
+                [InAppNotificationEntity fetchNotificationByID:masterContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
                     if (status) {
                         handler(NO);
                     } else {
@@ -219,8 +218,7 @@
         }
         
         if(entity != nil && fetchRequest.entity != nil) {
-            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
-            [inAppNotificationEntity fetchInAppNotificationByStatus: masterContext forNotificatioID: @"Displayed" request: fetchRequest handler:^(BOOL status , NSArray *results){
+            [InAppNotificationEntity fetchInAppNotificationByStatus: masterContext forNotificatioID: @"Displayed" request: fetchRequest handler:^(BOOL status , NSArray *results){
                 if (status && results != nil && [results count] > 0) {
                     for(int i = 0; i < results.count; i++) {
                         InAppNotificationEntity *notification = [results objectAtIndex:i];
@@ -441,17 +439,14 @@
             NSLog(@"Caught exception %@", exception);
         }
         
-        InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
-        if(inAppNotificationEntity != nil) {
-            NSString *notificationID = [self getInAppMessageID: notificationPayload];
-            if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-                [inAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
-                    if (status && [[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
-                        [self startInAppScanQueueTimer];
-                        [self stopInAppMessageLoadTimer];
-                    }
-                }];
-            }
+        NSString *notificationID = [self getInAppMessageID: notificationPayload];
+        if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
+        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
+                if (status && [[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+                    [self startInAppScanQueueTimer];
+                    [self stopInAppMessageLoadTimer];
+                }
+            }];
         }
     }
 }

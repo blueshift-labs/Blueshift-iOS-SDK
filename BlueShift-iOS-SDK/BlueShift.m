@@ -104,11 +104,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     // Initialize In App Manager
     _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
+    if (config.inAppNotificationDelegate) {
+        _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
+    }
+    
     if (config.enableInAppNotification == YES && config.inAppManualTriggerEnabled == NO) {
         [_inAppNotificationMananger load];
-        if (config.inAppNotificationDelegate) {
-            _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
-        }
         
         if (config.BlueshiftInAppNotificationTimeInterval) {
             _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;

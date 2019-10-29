@@ -32,7 +32,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
  andMainContext: (NSManagedObjectContext*)masterContext
         handler:(void (^)(BOOL))handler;
 
-- (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
++ (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
 
 
 NS_ASSUME_NONNULL_END

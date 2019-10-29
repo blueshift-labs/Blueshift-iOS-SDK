@@ -48,9 +48,9 @@
 
 - (void)enableSingleTap {
     UITapGestureRecognizer *singleFingerTap =
-      [[UITapGestureRecognizer alloc] initWithTarget:self
+    [[UITapGestureRecognizer alloc] initWithTarget:self
                                               action:@selector(onOkayButtonTapped:)];
-    [self.view addGestureRecognizer:singleFingerTap];
+    [slideBannerView addGestureRecognizer:singleFingerTap];
 }
 
 - (void)presentAnimationView {
