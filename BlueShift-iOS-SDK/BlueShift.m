@@ -717,7 +717,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (_config.enableInAppNotification == YES) {
         [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID, NSString *lastTimestamp) {
             if (status) {
-                [BlueShiftLiveContent fetchInAppNotificationByDeviceID: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
+                [BlueshiftInAppNotificationRequest fetchInAppNotification: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
                     if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
                         NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
                         [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status){

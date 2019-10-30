@@ -94,17 +94,15 @@ API_AVAILABLE(ios(8.0))
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
-    float topMargin = 0.0;
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    float topMargin = statusBarFrame.size.height;
     float bottomMargin = 0.0;
     float leftMargin = 0.0;
     float rightMargin = 0.0;
     if (self.notification.templateStyle && self.notification.templateStyle.margin) {
         if (self.notification.templateStyle.margin.top > 0) {
-            topMargin = self.notification.templateStyle.margin.top;
-        } else if(height == 100){
-            topMargin = 15.0;
+            topMargin = topMargin + self.notification.templateStyle.margin.top;
         }
-        
         if (self.notification.templateStyle.margin.bottom > 0) {
             bottomMargin = self.notification.templateStyle.margin.bottom;
         }

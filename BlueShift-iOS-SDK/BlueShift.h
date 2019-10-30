@@ -25,11 +25,12 @@
 #import "BlueShiftBatchUploadConfig.h"
 #import "BlueShiftAppData.h"
 #import "SDKVersion.h"
-#import "BlueShiftLiveContent.h"
 #import "BlueShiftPushNotificationSettings.h"
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftUserNotificationCenterDelegate.h"
 #import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueshiftInAppNotificationRequest.h"
+#import "BlueShiftLiveContent.h"
 
 @class BlueShiftDeviceData;
 @class BlueShiftAppDelegate;
