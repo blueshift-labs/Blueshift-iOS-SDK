@@ -9,6 +9,7 @@
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationConstant.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -42,7 +43,7 @@
                 }];
             }
         } else {
-            if (@available(iOS 8.0, *)) {
+           if (@available(iOS 10.0, *)) {
                 UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
                 [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
                 [[UIApplication sharedApplication] registerForRemoteNotifications];
@@ -174,13 +175,9 @@
     [self application:application handleRemoteNotification:userInfo];
 }
 
-- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UILocalNotification *)notification {
-    self.userInfo = notification.userInfo;
+- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UNNotificationRequest *)notification  API_AVAILABLE(ios(10.0)){
+    self.userInfo = notification.content.userInfo;
     [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
-}
-
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(nonnull UILocalNotification *)notification {
-    [self application:application handleLocalNotification:notification];
 }
 
 - (void)scheduleLocalNotification:(NSDictionary *)userInfo {
@@ -217,7 +214,7 @@
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     self.userInfo = userInfo;
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
@@ -259,7 +256,7 @@
         NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
         self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
         self.userInfo = userInfo;
-        NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
         
         if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
             [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
@@ -310,7 +307,7 @@
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     self.userInfo = userInfo;
     
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     [self trackAppOpenWithParameters:pushTrackParameterDictionary];
     
     // Way to handle push notification in three states
@@ -403,7 +400,7 @@
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
     
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
 
     
@@ -439,7 +436,7 @@
 
 - (void)handleCategoryForBuyUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when  buy category push notification is clicked ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(buyCategoryPushClickedWithDetails:)]) {
@@ -472,7 +469,7 @@
 
 - (void)handleCategoryForViewCartUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when open cart action is selected for push message of cart category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(cartViewCategoryPushClickedWithDetails:)]) {
@@ -502,7 +499,7 @@
 
 - (void)handleCategoryForPromotionUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // Track notification when the page is deeplinked ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(promotionCategoryPushClickedWithDetails:)]) {
         // User already implemented the promotionCategoryPushClickedWithDetails: in App Delegate...
@@ -528,7 +525,7 @@
 
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     NSString *bundleIdentifier = [BlueShift sharedInstance].config.appGroupID;
     if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
@@ -576,7 +573,7 @@
 
 - (void)handleCustomCategory:(NSString *)categoryName UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCustomCategory:clickedWithDetails:)]) {
@@ -617,7 +614,7 @@
 
 - (void)handleActionForBuyUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when buy action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(buyPushActionWithDetails:)]) {
@@ -652,7 +649,7 @@
 
 - (void)handleActionForViewUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when view action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(viewPushActionWithDetails:)]) {
@@ -683,7 +680,7 @@
 
 - (void)handleActionForCustomPageForIdentifier:(NSString *)identifier UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(handlePushActionForIdentifier:withDetails:)]) {
@@ -723,7 +720,7 @@
 
 - (void)handleActionForOpenCartUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when open cart action is selected for push message of cart category ...
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(openCartPushActionWithDetails:)]) {
@@ -751,7 +748,7 @@
     }
 }
 
-- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)()) completionHandler {
+- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
     // Handles the scenario when a push message action is selected ...
     // Differentiation is done on the basis of identifier of the push notification ...
     
@@ -788,7 +785,7 @@
 }
 
 - (void)application:(UIApplication *) application handleActionWithIdentifier: (NSString *) identifier forRemoteNotification: (NSDictionary *) notification
-  completionHandler: (void (^)()) completionHandler {
+  completionHandler: (void (^)(void)) completionHandler {
     
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
@@ -902,54 +899,6 @@
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
-
-- (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    
-    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_experiment_uuid"];
-    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
-    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
-    NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (bsft_user_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
-    }
-    if(bsft_experiment_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"eid"];
-    }
-    if (message_uuid) {
-        [pushTrackParametersMutableDictionary setObject:message_uuid forKey:@"mid"];
-    }
-    if (transactional_uuid) {
-        [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey:@"txnid"];
-    }
-    if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
-    }
-    return [pushTrackParametersMutableDictionary copy];
-}
-
-- (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
-    if (notificationPayload && key && ![key isEqualToString:@""]) {
-        if ([notificationPayload objectForKey: key]) {
-            return (NSString *)[notificationPayload objectForKey: key];
-        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
-            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
-            return (NSString *)[notificationPayload objectForKey: key];
-        }
-    }
-    
-    return @"";
-}
-
-- (BOOL)isSendPushAnalytics {
-    if (self.userInfo && self.userInfo[@"bsft_seed_list_send"] && [self.userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
-        return NO;
-    } else {
-        return YES;
-    }
-}
-
 - (void)trackAppOpen {
     if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
         [self trackAppOpenWithParameters:nil];
@@ -974,7 +923,7 @@
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
-    if ([self isSendPushAnalytics]) {
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (parameters) {
@@ -991,7 +940,7 @@
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
-    if ([self isSendPushAnalytics]) {
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (parameters) {
@@ -1066,7 +1015,9 @@
     [BlueShiftDeviceData currentDeviceData].locationManager = [[CLLocationManager alloc] init];
     
     if ([[BlueShiftDeviceData currentDeviceData].locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-        [[BlueShiftDeviceData currentDeviceData].locationManager requestWhenInUseAuthorization];
+        if (@available(iOS 8.0, *)) {
+            [[BlueShiftDeviceData currentDeviceData].locationManager requestWhenInUseAuthorization];
+        }
     } else {
         if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
             [[[UIAlertView alloc] initWithTitle:@"No GPS" message:@"Please Enable GPS in you device" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
@@ -1227,37 +1178,19 @@
 }
 
 - (void)downloadFileFromURL {
-    NSString *urlToDownload = @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf";
-    if (![self hasFontFileExist: urlToDownload]) {
+    NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+    if (![BlueShiftInAppNotificationHelper hasFileExist: fontFileName]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL  *url = [NSURL URLWithString:urlToDownload];
+            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
             NSData *urlData = [NSData dataWithContentsOfURL:url];
             if (urlData) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory: urlToDownload] atomically:YES];
+                    NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
+                    [urlData writeToFile: fontFilePath atomically:YES];
                 });
             }
         });
     }
-}
-
-- (NSString *)getLocalDirectory:(NSString *)fontURL{
-    NSString* tempPath = NSTemporaryDirectory();
-    NSString *fileName =[self createFileName: fontURL];
-    return [tempPath stringByAppendingPathComponent: fileName];
-}
-
-- (NSString *)createFileName:(NSString *)imageURL{
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
-    NSString *extension = [url pathExtension];
-    fileName = [fileName stringByAppendingString:@"."];
-    return [fileName stringByAppendingString: extension];
-}
-
-- (BOOL)hasFontFileExist:(NSString *)fontURL{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory: fontURL]];
 }
 
 @end

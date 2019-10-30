@@ -61,7 +61,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification {
+- (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification  API_AVAILABLE(ios(10.0)){
     if ([notification.request.content.categoryIdentifier isEqualToString: @"carousel"] || [notification.request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
         return YES;
     } else {
@@ -69,7 +69,7 @@
     }
 }
 
-- (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response {
+- (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response  API_AVAILABLE(ios(10.0)){
     if(response.actionIdentifier && ([response.actionIdentifier isEqualToString:@"next"] || [response.actionIdentifier isEqualToString:@"previous"] || [response.actionIdentifier isEqualToString:@"go_to_app"])) {
         return YES;
     } else {
@@ -317,20 +317,14 @@
     carousel.dataSource = nil;
 }
 
-
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
     self.carousel = nil;
 }
 
-
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(__unused UIInterfaceOrientation)interfaceOrientation {
+- (BOOL)shouldAutorotate {
     return YES;
 }
-
-
 
 - (NSInteger)numberOfItemsInCarousel:(__unused iCarousel *)carousel {
     return (NSInteger)[self.items count];
@@ -367,7 +361,7 @@
 
 
 
-- (void)showCarouselForNotfication:(UNNotification *)notification {
+- (void)showCarouselForNotfication:(UNNotification *)notification  API_AVAILABLE(ios(10.0)){
     [self getImages:notification];
     [self createPageIndicator:self.items.count];
     [self setCarouselTheme:[notification.request.content.userInfo  objectForKey:@"carousel_theme"]];
@@ -388,7 +382,7 @@
 }
 
 
-- (void)getImages:(UNNotification *)notification {
+- (void)getImages:(UNNotification *)notification  API_AVAILABLE(ios(10.0)){
     NSArray <UNNotificationAttachment *> *attachments = notification.request.content.attachments;
     [self fetchAttachmentsToImageArray:attachments];
     self.carouselElements = [notification.request.content.userInfo objectForKey:@"carousel_elements"];
@@ -424,18 +418,22 @@
 
 - (void)fetchAttachmentsToImageArray:(NSArray *)attachments {
     NSMutableArray *itemsArray = [[NSMutableArray alloc]init];
-    for(UNNotificationAttachment *attachment in attachments) {
-        if (attachment.URL.startAccessingSecurityScopedResource) {
-            UIImage *image = [UIImage imageWithContentsOfFile:attachment.URL.path];
-            if(image != nil) {
-                [itemsArray addObject:image];
+    if (@available(iOS 10.0, *)) {
+        for(UNNotificationAttachment *attachment in attachments) {
+            if (attachment.URL.startAccessingSecurityScopedResource) {
+                UIImage *image = [UIImage imageWithContentsOfFile:attachment.URL.path];
+                if(image != nil) {
+                    [itemsArray addObject:image];
+                }
             }
         }
+    } else {
+        // Fallback on earlier versions
     }
     self.items = itemsArray;
 }
 
-- (void)setCarouselActionsForResponse:(UNNotificationResponse *)response completionHandler:(void (^)(UNNotificationContentExtensionResponseOption))completion {
+- (void)setCarouselActionsForResponse:(UNNotificationResponse *)response completionHandler:(void (^)(UNNotificationContentExtensionResponseOption))completion API_AVAILABLE(ios(10.0)){
     if([response.actionIdentifier isEqualToString:@"next"]) {
         [carousel scrollToItemAtIndex:carousel.currentItemIndex + 1 animated:YES];
         completion(UNNotificationContentExtensionResponseOptionDoNotDismiss);

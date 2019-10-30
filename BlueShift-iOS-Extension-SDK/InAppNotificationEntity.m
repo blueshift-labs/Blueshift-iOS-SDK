@@ -43,16 +43,12 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSError *error = nil;
-                    printf("%f InAppNotify:: saving child context ++\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     
-                    printf("%f InAppNotify:: saving child context --\n", [[NSDate date] timeIntervalSince1970]);
                     [context save:&error];
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        printf("%f InAppNotify:: masterContext perform block --\n", [[NSDate date] timeIntervalSince1970]);
                         [masterContext performBlock:^{
                             NSError *error = nil;
-                            printf("%f InAppNotify:: saving parent context \n", [[NSDate date] timeIntervalSince1970]);
                             [masterContext save:&error];
                             handler(YES);
                         }];
@@ -73,7 +69,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     }
 }
 
-- (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler{
++ (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler{
     
     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"id == %@", notificationID];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
@@ -102,7 +98,8 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 - (void)map:(NSDictionary *)dictionary {
     
     NSMutableDictionary *payload = [dictionary mutableCopy];
-    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] &&
+        [dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] != [NSNull null]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
     }else {
         self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
@@ -115,11 +112,13 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
         dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] &&
+        [dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] != [NSNull null]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey] &&
+        [dictionary objectForKey: kInAppNotificationModalTimestampKey] != [NSNull null]) {
         self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
     }
     
@@ -128,16 +127,19 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     }
     
     /* get type of In-App msg */
-    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey] &&
+        [dictionary objectForKey: kSilentNotificationPayloadTypeKey] != [NSNull null]) {
         self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey]) {
+    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey] &&
+        [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey] != [NSNull null]) {
         self.displayOn = [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey];
     }
     
     /* get start and end Time */
-    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] &&
+        [dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] != [NSNull null]) {
         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
     }
     
@@ -158,7 +160,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
     self.priority = @"medium";
     self.eventName = @"";
     self.status = @"pending";
-    self.createdAt = [NSNumber numberWithDouble: (double)([[NSDate date] timeIntervalSince1970] * 1000.0)];
+    self.createdAt = [NSNumber numberWithDouble: (double)[[NSDate date] timeIntervalSince1970]];
 
     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }

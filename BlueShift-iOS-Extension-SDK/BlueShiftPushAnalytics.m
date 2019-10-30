@@ -9,6 +9,7 @@
 #import "SDKVersion.h"
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftNotificationConstants.h"
+#import "BlueshiftEventAnalyticsHelper.h"
 
 #define kBaseURL                        @"https://api.getblueshift.com/"
 #define kPushEventsUploadURL            @"track"
@@ -17,61 +18,26 @@
 @implementation BlueShiftPushAnalytics
 
 + (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo {
-    NSDictionary *pushTrackParameterDictionary = [self pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    if (pushTrackParameterDictionary) {
-        [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: userInfo]) {
+        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        if (pushTrackParameterDictionary) {
+            [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+        }
+        [parameterMutableDictionary setObject:type forKey:@"a"];
+        NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+        [self fireAPICallWithURL:url data:parameterMutableDictionary andRetryCount:3];
     }
-    [parameterMutableDictionary setObject:type forKey:@"a"];
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-    [self fireAPICallWithURL:url data:parameterMutableDictionary andRetryCount:3];
 }
 
 + (void)fireAPICallWithURL:(NSString *)url data:(NSDictionary *)params andRetryCount:(NSInteger)count {
-    [self getRequestWithURL:url andParams:params completetionHandler:^(BOOL status, NSDictionary *response, NSError *error) {
-        if (!status && count > 0) {
-            [self fireAPICallWithURL:url data:params andRetryCount:count-1];
-        }
-    }];
-}
-
-+ (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    
-    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_experiment_uuid"];
-    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_user_uuid"];
-    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_message_uuid"];
-    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey:@"bsft_transaction_uuid"];
-    NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (bsft_user_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey:@"uid"];
+    if (@available(iOS 10.0, *)) {
+        [self getRequestWithURL:url andParams:params completetionHandler:^(BOOL status, NSDictionary *response, NSError *error) {
+            if (!status && count > 0) {
+                [self fireAPICallWithURL:url data:params andRetryCount:count-1];
+            }
+        }];
     }
-    if(bsft_experiment_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey:@"eid"];
-    }
-    if (message_uuid) {
-        [pushTrackParametersMutableDictionary setObject:message_uuid forKey:@"mid"];
-    }
-    if (transactional_uuid) {
-        [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey:@"txnid"];
-    }
-    if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey:@"bsft_sdk_version"];
-    }
-    return [pushTrackParametersMutableDictionary copy];
-}
-
-+ (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
-    if (notificationPayload && key && ![key isEqualToString:@""]) {
-        if ([notificationPayload objectForKey: key]) {
-            return (NSString *)[notificationPayload objectForKey: key];
-        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
-            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
-            return (NSString *)[notificationPayload objectForKey: key];
-        }
-    }
-    
-    return @"";
 }
 
 + (NSURLSessionConfiguration *)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
@@ -93,7 +59,7 @@
     return defaultConfigObject;
 }
 
-+ (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
++ (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler API_AVAILABLE(ios(10.0)){
     NSURLSessionConfiguration* sessionConfiguraion = [self addBasicAuthenticationRequestHeaderForUsername:[[BlueShiftPushNotification sharedInstance] apiKey] andPassword:@""];
     NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     

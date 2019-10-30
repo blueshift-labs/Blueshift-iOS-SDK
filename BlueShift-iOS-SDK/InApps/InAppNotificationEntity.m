@@ -52,8 +52,6 @@
 
 + (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode forDisplayPage:(NSString *)displayOn request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     
-    //NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    
     NSString* triggerStr;
     
     switch (triggerMode) {
@@ -66,11 +64,14 @@
         case BlueShiftInAppTriggerEvent:
             triggerStr = @"event";
             break;
+        case BlueShiftInAppNoTriggerEvent:
+            triggerStr = @"";
+            break;
     }
     
     displayOn =  (displayOn ? displayOn: @"");
     
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
+    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [self getPredicates: triggerStr andDisplayOn: displayOn];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
     
     @try {
@@ -92,6 +93,14 @@
     }
     @catch (NSException *exception) {
         NSLog(@"Caught exception %@", exception);
+    }
+}
+
++ (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
+    if (triggerStr && ![triggerStr isEqualToString: @""]) {
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
+    } else {
+        return [NSPredicate predicateWithFormat:@"status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"pending", displayOn, @"", nil];
     }
 }
 
@@ -158,7 +167,7 @@
     }
 }
 
-- (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler{
++ (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler{
     
     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"id == %@", notificationID];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
@@ -184,7 +193,7 @@
     }
 }
 
-- (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
++ (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     
     NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"status == %@", status];
     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
@@ -211,7 +220,7 @@
     }
 }
 
-- (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
++ (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
     andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler{
     if (status) {
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", notificationID];
@@ -248,7 +257,8 @@
 - (void)map:(NSDictionary *)dictionary {
     
     NSMutableDictionary *payload = [dictionary mutableCopy];
-    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] &&
+        [dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] != [NSNull null]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
     } else {
         self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
@@ -261,11 +271,13 @@
         dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] &&
+        [dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] != [NSNull null]) {
         self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
     }
     
-    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey]) {
+    if ([dictionary objectForKey: kInAppNotificationModalTimestampKey] &&
+        [dictionary objectForKey: kInAppNotificationModalTimestampKey] != [NSNull null]) {
         self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
     }
     
@@ -274,16 +286,19 @@
     }
     
     /* get type of In-App msg */
-    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey] &&
+        [dictionary objectForKey: kSilentNotificationPayloadTypeKey] != [NSNull null]) {
         self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
     }
 
-    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey]) {
+    if ([dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey] &&
+        [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey] != [NSNull null]) {
         self.displayOn = [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey];
     }
     
     /* get start and end Time */
-    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey]) {
+    if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] &&
+        [dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] != [NSNull null]) {
         self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
     }
     
@@ -291,7 +306,7 @@
     if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
         NSString *trigger = (NSString *)[dictionary objectForKey: kSilentNotificationTriggerKey];
         if (![trigger isEqualToString:@""]) {
-            if ([self hasDigits: trigger] == YES) {
+            if ([BlueShiftInAppNotificationHelper hasDigits: trigger] == YES) {
                 self.triggerMode = @"upcoming";
                 self.startTime = [NSNumber numberWithDouble: [trigger doubleValue]];
             } else {
@@ -304,14 +319,14 @@
     self.priority = @"medium";
     self.eventName = @"";
     self.status = @"pending";
-    self.createdAt = [NSNumber numberWithDouble: (double)([[NSDate date] timeIntervalSince1970] * 1000.0)];
+    self.createdAt = [NSNumber numberWithDouble: (double)[[NSDate date] timeIntervalSince1970]];
     
     if ([[self triggerMode] isEqualToString:@"now"] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     } else {
         NSString *imageURL = [self fetchImageURLFromString: payload];
-        NSString *fileName = [self createFileName: imageURL];
-        if (imageURL && ![self hasFontFileExist: fileName ]) {
+        NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: imageURL];
+        if (imageURL && ![BlueShiftInAppNotificationHelper hasFileExist: fileName ]) {
             [self downloadFileFromURL: imageURL andNotifcationPayload: payload];
         } else {
             self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
@@ -321,11 +336,10 @@
 
 - (NSString *)fetchImageURLFromString:(NSDictionary *)payload{
     NSString *imageURL = NULL;
-    
     if ([payload objectForKey: kInAppNotificationDataKey]) {
         NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
         if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-            NSDictionary *payloadDictionary = [inAppDictionary objectForKey:@"inapp"];
+            NSDictionary *payloadDictionary = [inAppDictionary objectForKey: kInAppNotificationKey];
             if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]) {
                  NSDictionary *contentDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
                 if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey]) {
@@ -339,43 +353,20 @@
 }
 
 - (void)downloadFileFromURL:(NSString *)imageURL andNotifcationPayload:(NSDictionary *)payload{
-    NSString *fileName = [self createFileName: imageURL];
-    if (![self hasFontFileExist: fileName]) {
+    NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: imageURL];
+    if (![BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSURL  *url = [NSURL URLWithString: imageURL];
             NSData *urlData = [NSData dataWithContentsOfURL:url];
             if (urlData) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[self getLocalDirectory: fileName] atomically:YES];
+                    [urlData writeToFile:[BlueShiftInAppNotificationHelper getLocalDirectory: fileName] atomically:YES];
                     self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
                     NSLog(@"image file saved");
                 });
             }
         });
     }
-}
-
-- (NSString *)getLocalDirectory:(NSString *)fileName{
-    NSString* tempPath = NSTemporaryDirectory();
-    return [tempPath stringByAppendingPathComponent: fileName];
-}
-
-- (BOOL)hasFontFileExist:(NSString *)fileName{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    return [fileManager fileExistsAtPath: [self getLocalDirectory: fileName]];
-}
-
-- (NSString *)createFileName:(NSString *)imageURL{
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
-    NSString *extension = [url pathExtension];
-    fileName = [fileName stringByAppendingString:@"."];
-    return [fileName stringByAppendingString: extension];
-}
-
-- (BOOL)hasDigits:(NSString *)digits {
-    NSCharacterSet *notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-    return ([digits rangeOfCharacterFromSet: notDigits].location == NSNotFound);
 }
 
 @end

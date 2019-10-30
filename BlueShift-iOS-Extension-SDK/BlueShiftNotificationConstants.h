@@ -28,15 +28,21 @@
 
 #define kInAppNotificationKey                                           @"inapp"
 #define kInAppNotificationEntityNameKey                                 @"InAppNotificationEntity"
-#define kInAppNotificationModalFontWithExtensionKey                     @"FontAwesome.otf"
 #define kInAppNotificationModalMessageUDIDKey                           @"bsft_message_uuid"
+#define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
+#define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
+#define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
+#define kInAppNotificationModalElementKey                               @"element"
+#define kInAppNotificationModalUIDKey                                   @"uid"
+#define kInAppNotificationModalEIDKey                                   @"eid"
+#define kInAppNotificationModalMIDKey                                   @"mid"
+#define kInAppNotificationModalTXNIDKey                                 @"txnid"
+#define kInAppNotificationModalSDKVersionKey                            @"bsft_sdk_version"
 #define kInAppNotificationModalTimestampKey                             @"timestamp"
-
 #define kSilentNotificationPayloadIdentifierKey                         @"data"
 #define kSilentNotificationPayloadTypeKey                               @"type"
 #define kInAppNotificationContentPayloadKey                             @"content"
 #define kInAppNotificationPayloadDisplayOnKey                           @"display_on_ios"
-
 #define kSilentNotificationTriggerKey                                   @"trigger"
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 

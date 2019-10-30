@@ -36,10 +36,9 @@
         }
 
         if(entity != nil && fetchRequest.entity != nil) {
-            InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] init];
             if ([payload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
                 NSString *notificationID = (NSString *)[payload objectForKey: kInAppNotificationModalMessageUDIDKey];
-                [inAppNotificationEntity fetchNotificationByID: self.managedObjectContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
+                [InAppNotificationEntity fetchNotificationByID: self.managedObjectContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
                     if (status) {
                         handler(NO);
                     } else {

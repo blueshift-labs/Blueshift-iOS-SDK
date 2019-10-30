@@ -28,12 +28,13 @@
 @property BOOL enableAnalytics;
 @property BOOL enableAppOpenTrackEvent;
 @property BOOL enableInAppNotification;
+@property BOOL inAppManualTriggerEnabled;
 
 @property NSSet * _Nullable customCategories;
 
 @property NSString * _Nullable appGroupID;
 
-@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate;
+@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;
 
