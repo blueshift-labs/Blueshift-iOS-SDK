@@ -812,8 +812,9 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [self.oldDelegate applicationWillEnterForeground:application];
-    
+    if (self.oldDelegate && [self.oldDelegate respondsToSelector:@selector(applicationWillEnterForeground:)]) {
+        [self.oldDelegate applicationWillEnterForeground:application];
+    }
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {

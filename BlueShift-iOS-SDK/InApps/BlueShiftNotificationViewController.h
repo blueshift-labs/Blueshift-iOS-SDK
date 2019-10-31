@@ -7,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "BlueShiftInAppNotification.h"
+#import "BlueShiftInAppNotificationDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,6 +27,7 @@ controller;
 @property (nonatomic, strong, readwrite) BlueShiftInAppNotification *notification;
 @property (nonatomic, assign) BOOL canTouchesPassThroughWindow;
 @property (nonatomic, weak) id <BlueShiftNotificationDelegate> delegate;
+@property (nonatomic, weak) id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (instancetype)initWithNotification:(BlueShiftInAppNotification *)notification;
 

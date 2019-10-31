@@ -17,7 +17,6 @@
     UIView *notificationView;
 }
 
-@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;

@@ -19,7 +19,6 @@
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
-@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 - (IBAction)onOkayButtonTapped:(id)sender;
 

@@ -10,11 +10,8 @@
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
-#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationViewController ()
-
-@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
@@ -138,7 +135,10 @@
 
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
     [self sendActionEventAnalytics: buttonDetails.text];
-    if (buttonDetails && buttonDetails.buttonType) {
+    
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
+        [[self inAppNotificationDelegate] actionButtonDidTapped: self.notification.notificationPayload];
+    } else if (buttonDetails && buttonDetails.buttonType) {
         if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){

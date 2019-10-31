@@ -28,6 +28,8 @@
         email = [BlueShiftUserInfo sharedInstance].email;
     }
     
+    deviceID = @"ade9bc2d-3315-4519-bf03-886eee979797";
+    
     if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
         NSDictionary *parameters = @{
                                         @"email":email,
