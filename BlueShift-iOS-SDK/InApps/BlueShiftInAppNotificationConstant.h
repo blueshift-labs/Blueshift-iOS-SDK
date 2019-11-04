@@ -104,4 +104,9 @@
 #define kInAppNotificationModalElementsKey                      @"element"
 #define kInAppNotificationFontFileDownlaodURL                   @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf"
 
+#define kInAppNotificationModalMessagePaddingKey                @"message_padding"
+#define kInAppNotificationModalIconPaddingKey                   @"icon_padding"
+#define kInAppNotificationModalTitlePaddingKey                  @"title_padding"
+#define kInAppNotificationModalBannerPaddingKey                 @"banner_padding"
+
 #endif /* BlueShiftInAppNotificationConstant_h */

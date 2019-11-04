@@ -133,28 +133,37 @@
 - (void)initializeNotificationView{
     if (self.notification && self.notification.notificationContent) {
         CGFloat yPadding = 0.0;
-        CGFloat viewHeight = 0;
         
         UIImageView *imageView;
         if (self.notification.notificationContent.banner) {
+            BlueShiftInAppLayoutMargin *bannerImagePadding = [self fetchNotificationBannerImagePadding];
+            yPadding = (bannerImagePadding && bannerImagePadding.top > 0) ? bannerImagePadding.top : 0.0;
             imageView = [self createImageView];
-            yPadding = imageView.layer.frame.size.height + (2 * kInAppNotificationModalYPadding);
-            viewHeight = yPadding;
+            
+            CGFloat bannerBottomPadding = (bannerImagePadding && bannerImagePadding.bottom > 0) ? bannerImagePadding.bottom : 0.0;
+            yPadding = yPadding + imageView.layer.frame.size.height + bannerBottomPadding;
         }
         
         UILabel *iconLabel;
         if (self.notification.notificationContent.icon) {
-            yPadding = yPadding > 0.0 ? yPadding : (2 * kInAppNotificationModalYPadding);
+            BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
+            CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
+            CGFloat iconBottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
+            
+            yPadding = yPadding + iconTopPadding;
             iconLabel = [self createIconLabel: yPadding];
-            yPadding = (2 * kInAppNotificationModalYPadding) + yPadding;
-            viewHeight = viewHeight + iconLabel.frame.size.height + (2 * kInAppNotificationModalYPadding);
+            yPadding = yPadding + iconBottomPadding + iconLabel.frame.size.height;
         }
         
         UILabel *titleLabel;
         if (self.notification.notificationContent.title) {
-            yPadding = yPadding + iconLabel.layer.frame.size.height;
+            BlueShiftInAppLayoutMargin *titlePadding = [self fetchNotificationTitlePadding];
+            CGFloat titleTopPadding = (titlePadding && titlePadding.top > 0) ? titlePadding.top : 0.0 ;
+            CGFloat titleBottomPadding = (titlePadding && titlePadding.bottom > 0)? titlePadding.bottom : 0.0;
+            
+            yPadding = yPadding + titleTopPadding;
             titleLabel = [self createTitleLabel: yPadding];
-            viewHeight = viewHeight + titleLabel.frame.size.height + (2 * kInAppNotificationModalYPadding);
+            yPadding = yPadding + titleLabel.frame.size.height + titleBottomPadding;
         }
         
         UILabel *subTitleLabel;
@@ -165,11 +174,13 @@
         
         UILabel *descriptionLabel;
         if (self.notification.notificationContent.message) {
-            yPadding = titleLabel.layer.frame.size.height > 0
-                ? (yPadding + titleLabel.layer.frame.size.height + 2 * kInAppNotificationModalYPadding)
-                : (2 * kInAppNotificationModalYPadding);
+            BlueShiftInAppLayoutMargin *messagePadding = [self fetchNotificationMessagePadding];
+            CGFloat messageTopPadding = (messagePadding && messagePadding.top > 0) ? messagePadding.top : 0.0;
+            CGFloat messageBottomPadding = (messagePadding && messagePadding.bottom > 0) ? messagePadding.bottom : 0.0;
+            
+            yPadding = yPadding + messageTopPadding;
             descriptionLabel = [self createDescriptionLabel:yPadding];
-            viewHeight = viewHeight + descriptionLabel.frame.size.height + (2 * kInAppNotificationModalYPadding);
+            yPadding = yPadding + descriptionLabel.frame.size.height + messageBottomPadding;
         }
         
         if (self.notification.contentStyle) {
@@ -179,7 +190,7 @@
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
             CGRect frame = notificationView.frame;
-            frame.size.height = viewHeight + [self calculateTotalButtonHeight];
+            frame.size.height = yPadding + [self calculateTotalButtonHeight];
             notificationView.frame = frame;
             
             [self createNotificationView];
@@ -195,9 +206,12 @@
 }
 
 - (UIImageView *)createImageView {
-    CGFloat xPosition = 0.0;
-    CGFloat yPosition = 0.0;
-    CGFloat imageViewWidth = notificationView.frame.size.width;
+    BlueShiftInAppLayoutMargin *bannerImagePadding = [self fetchNotificationBannerImagePadding];
+    CGFloat rightPadding = (bannerImagePadding && bannerImagePadding.right > 0) ? bannerImagePadding.right : 0.0;
+    CGFloat xPosition = (bannerImagePadding && bannerImagePadding.left > 0) ? bannerImagePadding.left : 0.0;
+    CGFloat yPosition = (bannerImagePadding && bannerImagePadding.top > 0) ? bannerImagePadding.top : 0.0;
+    
+    CGFloat imageViewWidth = notificationView.frame.size.width - (xPosition + rightPadding);
     CGFloat imageViewHeight = notificationView.frame.size.width / 2;
     CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
     
@@ -248,9 +262,13 @@
 }
 
 - (UILabel *)createTitleLabel:(CGFloat)yPosition {
-    CGFloat titleLabelWidth = notificationView.frame.size.width;
+    BlueShiftInAppLayoutMargin *titlePadding = [self fetchNotificationTitlePadding];
+    CGFloat titleLeftPadding = (titlePadding && titlePadding.left > 0) ? titlePadding.left : 0.0;
+    CGFloat titleRightPadding = (titlePadding && titlePadding.right > 0)? titlePadding.right : 0.0;
+    
+    CGFloat titleLabelWidth = notificationView.frame.size.width - (titleLeftPadding + titleRightPadding);
     CGFloat titleLabelHeight = kInAppNotificationModalTitleHeight;
-    CGRect cgRect = CGRectMake(1.0, yPosition, titleLabelWidth, titleLabelHeight);
+    CGRect cgRect = CGRectMake(titleLeftPadding, yPosition, titleLabelWidth, titleLabelHeight);
     
     UILabel *titlelabel = [[UILabel alloc] initWithFrame: cgRect];
     CGFloat fontSize = 18.0;
@@ -290,7 +308,11 @@
 }
 
 - (UILabel *)createDescriptionLabel:(CGFloat)yPosition {
-    CGFloat descriptionLabelWidth = notificationView.frame.size.width - 20;
+    BlueShiftInAppLayoutMargin *messagePadding = [self fetchNotificationMessagePadding];
+    CGFloat messageLeftPadding = (messagePadding && messagePadding.left > 0) ? messagePadding.left : 0.0;
+    CGFloat messageRightPadding = (messagePadding && messagePadding.right > 0)? messagePadding.right : 0.0;
+    
+    CGFloat descriptionLabelWidth = notificationView.frame.size.width - (messageLeftPadding + messageRightPadding);
     CGFloat xPosition = [self getCenterXPosition: notificationView childWidth: descriptionLabelWidth];
     
     UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
@@ -300,7 +322,7 @@
     if (self.notification.contentStyle) {
         [self setLabelText: descriptionLabel andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
         fontSize = self.notification.contentStyle.messageSize.floatValue > 0
-        ? self.notification.contentStyle.messageSize.floatValue : 18.0;
+        ? self.notification.contentStyle.messageSize.floatValue : 14.0;
     }
     
     [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];
@@ -478,20 +500,46 @@
     if (self.notification.notificationContent.actions != nil && self.notification.notificationContent.actions.count > 0) {
     
         CGFloat bottomPadding = 0;
+        CGFloat topPadding = 0.0;
         CGFloat buttonCount = [self.notification.notificationContent.actions count];
         
-        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsPadding != nil && self.notification.contentStyle.actionsPadding.bottom > 0) {
-            bottomPadding = self.notification.contentStyle.actionsPadding.bottom;
+        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsPadding != nil) {
+            if (self.notification.contentStyle.actionsPadding.bottom > 0)
+                bottomPadding = self.notification.contentStyle.actionsPadding.bottom;
+            
+            if (self.notification.contentStyle.actionsPadding.top > 0) {
+                topPadding = self.notification.contentStyle.actionsPadding.top;
+            }
         }
         
         if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsOrientation != nil && self.notification.contentStyle.actionsOrientation.intValue > 0) {
-                return ((buttonCount * 40) + ((buttonCount * bottomPadding) + 20));
+                return ((buttonCount * 40) + (buttonCount * bottomPadding)) + topPadding;
         } else {
-            return (bottomPadding + 40 + 20);
+            return (bottomPadding + 40) + topPadding;
         }
     }
     
     return 0;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationBannerImagePadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.bannerPadding)
+    ? self.notification.contentStyle.bannerPadding : NULL;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationIconPadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.iconPadding)
+       ? self.notification.contentStyle.iconPadding : NULL;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationTitlePadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.titlePadding)
+       ? self.notification.contentStyle.titlePadding : NULL;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationMessagePadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.messagePadding)
+       ? self.notification.contentStyle.messagePadding : NULL;
 }
 
 @end

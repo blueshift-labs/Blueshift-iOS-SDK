@@ -312,6 +312,26 @@
                         NSDictionary *marginDictionary = [contenStyletDictionary objectForKey: kInAppNotificationModalActionsPaddingKey];
                         self.actionsPadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary :marginDictionary];
                     }
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconPaddingKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalIconPaddingKey] != [NSNull null]) {
+                        NSDictionary *iconPadding = [contenStyletDictionary objectForKey: kInAppNotificationModalIconPaddingKey];
+                        self.iconPadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary: iconPadding];
+                    }
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalTitlePaddingKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalTitlePaddingKey] != [NSNull null]) {
+                        NSDictionary *titlePadding = [contenStyletDictionary objectForKey: kInAppNotificationModalTitlePaddingKey];
+                        self.titlePadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary:titlePadding];
+                    }
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalMessagePaddingKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalMessagePaddingKey] != [NSNull null]) {
+                        NSDictionary *messagePadding = [contenStyletDictionary objectForKey: kInAppNotificationModalMessagePaddingKey];
+                        self.messagePadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary: messagePadding];
+                    }
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalBannerPaddingKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalBannerPaddingKey] != [NSNull null] ) {
+                        NSDictionary *bannerPadding = [contenStyletDictionary objectForKey: kInAppNotificationModalBannerPaddingKey];
+                        self.bannerPadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary:bannerPadding];
+                    }
                     
                     break;
                     
