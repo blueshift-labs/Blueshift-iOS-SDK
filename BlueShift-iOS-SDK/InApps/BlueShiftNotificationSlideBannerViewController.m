@@ -122,13 +122,18 @@
 
 - (void)initializeNotificationView {
     if (self.notification && self.notification.notificationContent) {
-        CGFloat xPadding = 2 * kInAppNotificationModalYPadding;
+        CGFloat xPadding = 0.0;
         
         UILabel *iconLabel;
+        BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
         if (self.notification.notificationContent.icon) {
+            xPadding = (iconPadding && iconPadding.left > 0) ? iconPadding.left : 1.0;
+            CGFloat iconRightPadding = (iconPadding && iconPadding.right > 0) ? iconPadding.right : 0.0;
+            
             iconLabel = [self createIconLabel: xPadding];
-            xPadding = (2 * xPadding) + iconLabel.layer.frame.size.width;
             [slideBannerView addSubview: iconLabel];
+            
+            xPadding = xPadding + iconLabel.frame.size.width + iconRightPadding;
         }
         
         UILabel *actionButtonLabel;
@@ -138,8 +143,18 @@
         }
         
         UILabel *descriptionLabel;
+        BlueShiftInAppLayoutMargin *messagePadding = [self fetchNotificationMessagePadding];
         if (self.notification.notificationContent.message) {
-            CGFloat descriptionLabelWidth = slideBannerView.frame.size.width - (xPadding + actionButtonLabel.frame.size.width + kInAppNotificationModalYPadding);
+            BlueShiftInAppLayoutMargin *actionButtonPadding = [self fetchNotificationActionButtonPadding];
+            CGFloat actionButtonRightPadding = (actionButtonPadding && actionButtonPadding.right > 0) ? actionButtonPadding.right : 0.0;
+            CGFloat actionButtonLeftPadding = (actionButtonPadding && actionButtonPadding.left > 0) ? actionButtonPadding.left : 0.0;
+            CGFloat actionButtonPosition = actionButtonLabel.frame.size.width + actionButtonLeftPadding + actionButtonRightPadding;
+            
+            CGFloat messageLeftPadding = (messagePadding && messagePadding.left > 0) ? messagePadding.left :0.0;
+            CGFloat messageRightPadding = (messagePadding && messagePadding.right > 0) ? messagePadding.right : 0.0;
+    
+            CGFloat descriptionLabelWidth = slideBannerView.frame.size.width - (xPadding + messageLeftPadding + messageRightPadding + actionButtonPosition);
+            xPadding = xPadding + messageLeftPadding;
             descriptionLabel = [self createDescriptionLabel:xPadding andLabelWidth:descriptionLabelWidth];
             [slideBannerView addSubview: descriptionLabel];
         }
@@ -150,10 +165,14 @@
         }
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
-            CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabel.frame.size.width] + 30;
+            CGFloat messageTopPadding = (messagePadding && messagePadding.top > 0) ? messagePadding.top :0.0;
+            CGFloat messageBottomPadding = (messagePadding && messagePadding.bottom > 0) ? messagePadding.right : 0.0;
+            CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabel.frame.size.width] + (messageTopPadding + messageBottomPadding);
             
             if (descriptionLabelHeight < 50) {
-                descriptionLabelHeight = 80;
+                CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
+                CGFloat iconBottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
+                descriptionLabelHeight = 50 + iconTopPadding + iconBottomPadding;
             }
             
             CGRect frame = slideBannerView.frame;
@@ -181,7 +200,7 @@
     
     [self setLabelText: label andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
     
-    CGFloat iconRadius = 5;
+    CGFloat iconRadius = 0.0;
     if (self.notification.contentStyle && self.notification.contentStyle.iconBackgroundRadius) {
         iconRadius = self.notification.contentStyle.iconBackgroundRadius.floatValue;
     }
@@ -218,8 +237,11 @@
 }
 
 - (UILabel *)createActionButtonLabel {
+    BlueShiftInAppLayoutMargin *actionButtonPadding = [self fetchNotificationActionButtonPadding];
+    CGFloat rightPadding = (actionButtonPadding && actionButtonPadding.right > 0) ? actionButtonPadding.right : 0.0;
+    
     CGFloat yPosition = [self getCenterYPosition: kInAppNotificationSlideBannerActionButtonHeight];
-    CGFloat xPosition = slideBannerView.frame.size.width - kInAppNotificationSlideBannerActionButtonWidth;
+    CGFloat xPosition = slideBannerView.frame.size.width - (kInAppNotificationSlideBannerActionButtonWidth + rightPadding);
     CGRect cgrect = CGRectMake(xPosition, yPosition, kInAppNotificationSlideBannerActionButtonWidth, kInAppNotificationSlideBannerActionButtonHeight);
     
     UILabel *actionButtonlabel = [[UILabel alloc] initWithFrame:cgrect];
@@ -234,7 +256,7 @@
     
     [self setLabelText: actionButtonlabel andString: self.notification.notificationContent.secondarIcon labelColor:self.notification.contentStyle.secondaryIconColor backgroundColor:self.notification.contentStyle.secondaryIconBackgroundColor];
     
-    CGFloat iconRadius = 5;
+    CGFloat iconRadius = 0.0;
     if (self.notification.contentStyle && self.notification.contentStyle.secondaryIconBackgroundRadius) {
         iconRadius = self.notification.contentStyle.secondaryIconBackgroundRadius.floatValue;
     }
@@ -338,6 +360,20 @@
     _originalCenter = frame.origin.x + frame.size.width / 2.0f;
     
     return frame;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationIconPadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.iconPadding)
+       ? self.notification.contentStyle.iconPadding : NULL;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationMessagePadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.messagePadding)
+       ? self.notification.contentStyle.messagePadding : NULL;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationActionButtonPadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.actionsPadding) ? self.notification.contentStyle.actionsPadding : NULL;
 }
 
 @end

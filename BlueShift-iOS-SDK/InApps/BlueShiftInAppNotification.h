@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *messagePadding;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *titlePadding;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *bannerPadding;
-
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *subTitlePadding;
 
 @end
 

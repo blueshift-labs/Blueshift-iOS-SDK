@@ -332,6 +332,11 @@
                         NSDictionary *bannerPadding = [contenStyletDictionary objectForKey: kInAppNotificationModalBannerPaddingKey];
                         self.bannerPadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary:bannerPadding];
                     }
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalSubTitlePaddingKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalSubTitlePaddingKey] != [NSNull null]) {
+                        NSDictionary *subTitlePadding = [contenStyletDictionary objectForKey: kInAppNotificationModalSubTitlePaddingKey];
+                        self.subTitlePadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary: subTitlePadding];
+                    }
                     
                     break;
                     

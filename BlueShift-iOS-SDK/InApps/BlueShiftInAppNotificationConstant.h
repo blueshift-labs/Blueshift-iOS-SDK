@@ -108,5 +108,6 @@
 #define kInAppNotificationModalIconPaddingKey                   @"icon_padding"
 #define kInAppNotificationModalTitlePaddingKey                  @"title_padding"
 #define kInAppNotificationModalBannerPaddingKey                 @"banner_padding"
+#define kInAppNotificationModalSubTitlePaddingKey               @"sub_title_padding"
 
 #endif /* BlueShiftInAppNotificationConstant_h */

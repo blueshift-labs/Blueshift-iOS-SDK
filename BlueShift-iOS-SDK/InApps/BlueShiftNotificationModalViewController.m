@@ -168,8 +168,13 @@
         
         UILabel *subTitleLabel;
         if (self.notification.notificationContent.subTitle) {
-            yPadding = yPadding + iconLabel.layer.frame.size.height;
+            BlueShiftInAppLayoutMargin *subTitlePadding = [self fetchNotificationSubTitlePadding];
+            CGFloat subTitleTopPadding = (subTitlePadding && subTitlePadding.top > 0) ? subTitlePadding.top : 0.0;
+            CGFloat subTitleBottomPadding = (subTitlePadding && subTitlePadding.bottom > 0) ? subTitlePadding.bottom : 0.0;
+            
+            yPadding = yPadding + subTitleTopPadding;
             subTitleLabel = [self createSubTitleLabel: yPadding];
+            yPadding = yPadding + subTitleLabel.frame.size.height + subTitleBottomPadding;
         }
         
         UILabel *descriptionLabel;
@@ -249,7 +254,7 @@
     
     [self setLabelText: label andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
     
-    CGFloat iconRadius = 5;
+    CGFloat iconRadius = 0.0;
     if (self.notification.contentStyle && self.notification.contentStyle.iconBackgroundRadius) {
         iconFontSize = self.notification.contentStyle.iconBackgroundRadius.floatValue;
     }
@@ -287,8 +292,11 @@
 }
 
 - (UILabel *)createSubTitleLabel:(CGFloat)yPosition {
-    CGFloat subTitleLabelWidth = notificationView.frame.size.width;
+    BlueShiftInAppLayoutMargin *subTitlePadding = [self fetchNotificationSubTitlePadding];
+    CGFloat subTitleLeftPadding = (subTitlePadding && subTitlePadding.left > 0) ? subTitlePadding.left : 0.0;
+    CGFloat subTitleRightPadding = (subTitlePadding && subTitlePadding.right > 0)? subTitlePadding.right : 0.0;
     
+    CGFloat subTitleLabelWidth = notificationView.frame.size.width - (subTitleLeftPadding + subTitleRightPadding);
     UILabel *subTitleLabel = [[UILabel alloc] initWithFrame: CGRectZero];
     [subTitleLabel setNumberOfLines: 0];
     [subTitleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:16]];
@@ -540,6 +548,11 @@
 - (BlueShiftInAppLayoutMargin *)fetchNotificationMessagePadding {
     return (self.notification && self.notification.contentStyle && self.notification.contentStyle.messagePadding)
        ? self.notification.contentStyle.messagePadding : NULL;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationSubTitlePadding {
+     return (self.notification && self.notification.contentStyle && self.notification.contentStyle.subTitlePadding)
+          ? self.notification.contentStyle.subTitlePadding : NULL;
 }
 
 @end
