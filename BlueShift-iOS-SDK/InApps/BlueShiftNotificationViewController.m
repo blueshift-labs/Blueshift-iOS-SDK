@@ -136,9 +136,7 @@
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
     [self sendActionEventAnalytics: buttonDetails.text];
     
-    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
-        [[self inAppNotificationDelegate] actionButtonDidTapped: self.notification.notificationPayload];
-    } else if (buttonDetails && buttonDetails.buttonType) {
+    if (buttonDetails && buttonDetails.buttonType) {
         if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
@@ -148,7 +146,9 @@
                 [self closeButtonDidTapped];
             }
         } else {
-            if (buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
+            if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
+                [[self inAppNotificationDelegate] actionButtonDidTapped: self.notification.notificationPayload];
+            } else if (buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString: buttonDetails.iosLink]];
             }
             
