@@ -231,7 +231,9 @@
     
     descriptionLabel.frame = cgRect;
     descriptionLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    [descriptionLabel setTextAlignment: NSTextAlignmentLeft];
+    
+    int textAlignment = (self.notification.contentStyle && self.notification.contentStyle.messageGravity) ? [self getTextAlignement: self.notification.contentStyle.messageGravity] : NSTextAlignmentCenter;
+    [descriptionLabel setTextAlignment: textAlignment];
     
     return descriptionLabel;
 }

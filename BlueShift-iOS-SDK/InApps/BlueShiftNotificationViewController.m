@@ -247,4 +247,20 @@
     });
 }
 
+- (int)getTextAlignement:(NSString *)alignmentString {
+    if (alignmentString && ![alignmentString isEqualToString:@""]) {
+        if ([alignmentString isEqualToString: kInAppNotificationModalLayoutMarginLeftKey] ||
+            [alignmentString isEqualToString: kInAppNotificationModalGravityStartKey])
+            return NSTextAlignmentLeft;
+        else if([alignmentString isEqualToString: kInAppNotificationModalGravityEndKey] ||
+                  [alignmentString isEqualToString: kInAppNotificationModalLayoutMarginRightKey])
+            return NSTextAlignmentRight;
+        else
+            return NSTextAlignmentCenter;
+        
+    }
+    
+    return NSTextAlignmentCenter;
+}
+
 @end

@@ -286,7 +286,9 @@
 
     [titlelabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size: fontSize]];
     titlelabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    [titlelabel setTextAlignment: NSTextAlignmentCenter];
+    
+    int textAlignment = (self.notification.contentStyle && self.notification.contentStyle.titleGravity) ? [self getTextAlignement: self.notification.contentStyle.titleGravity] : NSTextAlignmentCenter;
+    [titlelabel setTextAlignment: textAlignment];
     
     return titlelabel;
 }
@@ -310,7 +312,9 @@
     
     subTitleLabel.frame = cgRect;
     subTitleLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    [subTitleLabel setTextAlignment: NSTextAlignmentCenter];
+    
+    int textAlignment = (self.notification.contentStyle && self.notification.contentStyle.titleGravity) ? [self getTextAlignement: self.notification.contentStyle.titleGravity] : NSTextAlignmentCenter;
+    [subTitleLabel setTextAlignment: textAlignment];
     
     return subTitleLabel;
 }
@@ -339,7 +343,9 @@
     
     descriptionLabel.frame = cgRect;
     descriptionLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    [descriptionLabel setTextAlignment: NSTextAlignmentCenter];
+    
+    int textAlignment = (self.notification.contentStyle && self.notification.contentStyle.messageGravity) ? [self getTextAlignement: self.notification.contentStyle.messageGravity] : NSTextAlignmentCenter;
+    [descriptionLabel setTextAlignment: textAlignment];
     
     return descriptionLabel;
 }
