@@ -225,8 +225,8 @@
     
     [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];
     CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: labelWidth];
-    CGFloat yPosition = [self getCenterYPosition: descriptionLabelHeight];
     
+    CGFloat yPosition = [self getCenterYPosition: descriptionLabelHeight];
     CGRect cgRect = CGRectMake(xPosition, yPosition, labelWidth, descriptionLabelHeight);
     
     descriptionLabel.frame = cgRect;

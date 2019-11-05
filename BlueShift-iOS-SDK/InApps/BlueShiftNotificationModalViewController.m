@@ -308,7 +308,7 @@
     }
     
     CGFloat descriptionLabelHeight = [self getLabelHeight: subTitleLabel labelWidth: subTitleLabelWidth] + 10.0;
-    CGRect cgRect = CGRectMake(1.0, yPosition, subTitleLabelWidth, descriptionLabelHeight);
+    CGRect cgRect = CGRectMake(subTitleLeftPadding, yPosition, subTitleLabelWidth, descriptionLabelHeight);
     
     subTitleLabel.frame = cgRect;
     subTitleLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
@@ -325,7 +325,6 @@
     CGFloat messageRightPadding = (messagePadding && messagePadding.right > 0)? messagePadding.right : 0.0;
     
     CGFloat descriptionLabelWidth = notificationView.frame.size.width - (messageLeftPadding + messageRightPadding);
-    CGFloat xPosition = [self getCenterXPosition: notificationView childWidth: descriptionLabelWidth];
     
     UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
     [descriptionLabel setNumberOfLines: 0];
@@ -339,7 +338,7 @@
     
     [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];
     CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabelWidth];
-    CGRect cgRect = CGRectMake(xPosition, yPosition, descriptionLabelWidth, descriptionLabelHeight);
+    CGRect cgRect = CGRectMake(messageLeftPadding, yPosition, descriptionLabelWidth, descriptionLabelHeight);
     
     descriptionLabel.frame = cgRect;
     descriptionLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
