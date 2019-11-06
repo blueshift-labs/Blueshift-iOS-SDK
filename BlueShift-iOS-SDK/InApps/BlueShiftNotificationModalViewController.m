@@ -355,7 +355,7 @@
         
         CGFloat xPadding = 0.0;
         CGFloat yPadding = 0.0;
-        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsPadding !=nil) {
+        if (self.notification.contentStyle != nil && self.notification.contentStyle.actionsPadding != nil) {
             if (self.notification.contentStyle.actionsPadding.left > 0) {
                 xPadding = self.notification.contentStyle.actionsPadding.left;
             }

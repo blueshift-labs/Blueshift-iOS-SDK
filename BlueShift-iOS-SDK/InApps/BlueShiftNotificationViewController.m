@@ -137,7 +137,9 @@
     [self sendActionEventAnalytics: buttonDetails.text];
     
     if (buttonDetails && buttonDetails.buttonType) {
-        if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification && ! [buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
+            [self sendActionButtonTappedDelegate: buttonDetails];
+        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             if (buttonDetails.sharableText != nil && ![buttonDetails.sharableText isEqualToString:@""]) {
@@ -146,15 +148,29 @@
                 [self closeButtonDidTapped];
             }
         } else {
-            if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
-                [[self inAppNotificationDelegate] actionButtonDidTapped: self.notification.notificationPayload];
-            } else if (buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
+            if (buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString: buttonDetails.iosLink]];
             }
             
             [self closeButtonDidTapped];
         }
     }
+}
+
+- (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {
+    NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
+    if (actionButton.buttonType && [actionButton.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]) {
+        NSString *sharableLink = actionButton.sharableText ? actionButton.sharableText : @"";
+        [actionPayload setObject: sharableLink forKey: kInAppNotificationModalSharableTextKey];
+    } else {
+        NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
+        [actionPayload setObject: iosLink forKey: kInAppNotificationModalPageKey];
+    }
+
+    NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
+    [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
+    [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
+    [self closeButtonDidTapped];
 }
 
 - (void)sendActionEventAnalytics:(NSString *)elementType {
