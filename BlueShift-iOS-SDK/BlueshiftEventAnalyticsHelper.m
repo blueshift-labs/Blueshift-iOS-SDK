@@ -60,4 +60,14 @@
     }
 }
 
++ (BOOL)isSilentPushNotification:(NSDictionary *)userInfo {
+    if (userInfo && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey]
+        && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey] != [NSNull null]) {
+        userInfo = [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+        return (userInfo && [userInfo objectForKey: kInAppNotificationModalSilentPushKey] && [userInfo objectForKey: kInAppNotificationModalSilentPushKey] != [NSNull null]);
+    } else {
+        return NO;
+    }
+}
+
 @end

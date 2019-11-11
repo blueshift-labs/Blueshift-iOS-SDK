@@ -387,7 +387,6 @@
         if (nil != dataPayload) {
             isIAMPayloadPresent = true;
         } else {
-        
             NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
             NSNumber *num = [NSNumber numberWithInt:1];
             isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];

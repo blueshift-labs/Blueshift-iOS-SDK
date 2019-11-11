@@ -40,8 +40,6 @@
         
         self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
         
-        // will only archive parameters if they are present to prevent crash ...
-        
         if (parameters) {
             self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
         }

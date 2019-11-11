@@ -58,10 +58,14 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     _sharedBlueShiftInstance.config = config;
     _sharedBlueShiftInstance.deviceData = [[BlueShiftDeviceData alloc] init];
     _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
-    if (@available(iOS 10.0, *)) {
+    if (@available(iOS 8.0, *)) {
         _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
+    }
+    
+    if (@available(iOS 10.0, *)) {
         _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
     }
+    
     // Initialize deeplinks ...
     [self initDeepLinks];
     
@@ -168,7 +172,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     if (_config.enableInAppNotification == YES && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive && _config.inAppManualTriggerEnabled == NO) {
-        [self startInAppMessageLoadFromaDBTimer];
+        if ([BlueshiftEventAnalyticsHelper isSilentPushNotification: dictionary]) {
+            [self fetchInAppNotificationFromAPI:^(void) {
+                
+            }];
+        } else {
+          [self startInAppMessageLoadFromaDBTimer];
+        }
     }
 }
 

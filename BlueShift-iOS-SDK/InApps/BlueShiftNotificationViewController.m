@@ -137,7 +137,7 @@
     [self sendActionEventAnalytics: buttonDetails.text];
     
     if (buttonDetails && buttonDetails.buttonType) {
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification && ! [buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
