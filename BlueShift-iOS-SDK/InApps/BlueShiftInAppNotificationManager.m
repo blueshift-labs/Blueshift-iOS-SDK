@@ -79,6 +79,8 @@
         }
         
         handler(YES);
+    } else {
+        handler(YES);
     }
 }
 
