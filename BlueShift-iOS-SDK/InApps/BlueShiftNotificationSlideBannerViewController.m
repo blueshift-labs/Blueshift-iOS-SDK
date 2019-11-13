@@ -131,15 +131,12 @@
             CGFloat iconRightPadding = (iconPadding && iconPadding.right > 0) ? iconPadding.right : 0.0;
             
             iconLabel = [self createIconLabel: xPadding];
-            [slideBannerView addSubview: iconLabel];
-            
             xPadding = xPadding + iconLabel.frame.size.width + iconRightPadding;
         }
         
         UILabel *actionButtonLabel;
         if (self.notification.notificationContent.secondarIcon) {
             actionButtonLabel = [self createActionButtonLabel];
-            [slideBannerView addSubview: actionButtonLabel];
         }
         
         UILabel *descriptionLabel;
@@ -156,7 +153,6 @@
             CGFloat descriptionLabelWidth = slideBannerView.frame.size.width - (xPadding + messageLeftPadding + messageRightPadding + actionButtonPosition);
             xPadding = xPadding + messageLeftPadding;
             descriptionLabel = [self createDescriptionLabel:xPadding andLabelWidth:descriptionLabelWidth];
-            [slideBannerView addSubview: descriptionLabel];
         }
         
         if (self.notification.templateStyle) {
@@ -166,8 +162,8 @@
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
             CGFloat messageTopPadding = (messagePadding && messagePadding.top > 0) ? messagePadding.top :0.0;
-            CGFloat messageBottomPadding = (messagePadding && messagePadding.bottom > 0) ? messagePadding.right : 0.0;
-            CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: descriptionLabel.frame.size.width] + (messageTopPadding + messageBottomPadding);
+            CGFloat messageBottomPadding = (messagePadding && messagePadding.bottom > 0) ? messagePadding.bottom : 0.0;
+            CGFloat descriptionLabelHeight = descriptionLabel.frame.size.height + (messageTopPadding + messageBottomPadding);
             
             if (descriptionLabelHeight < 50) {
                 CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
@@ -181,11 +177,16 @@
             
             [self createNotificationView];
         }
+        
+        [slideBannerView addSubview: iconLabel];
+        [slideBannerView addSubview: actionButtonLabel];
+        [slideBannerView addSubview: descriptionLabel];
     }
 }
 
 - (UILabel *)createIconLabel:(CGFloat)xPosition {
-    CGFloat yPosition = [self getCenterYPosition: kInAppNotificationModalIconHeight];
+    BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
+    CGFloat yPosition = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
     CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
     
     UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
@@ -226,7 +227,8 @@
     [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];
     CGFloat descriptionLabelHeight = [self getLabelHeight: descriptionLabel labelWidth: labelWidth];
     
-    CGFloat yPosition = [self getCenterYPosition: descriptionLabelHeight];
+    BlueShiftInAppLayoutMargin *descriptionPadding = [self fetchNotificationMessagePadding];
+    CGFloat yPosition = (descriptionPadding && descriptionPadding.top > 0) ? descriptionPadding.top :0.0;
     CGRect cgRect = CGRectMake(xPosition, yPosition, labelWidth, descriptionLabelHeight);
     
     descriptionLabel.frame = cgRect;
@@ -242,7 +244,7 @@
     BlueShiftInAppLayoutMargin *actionButtonPadding = [self fetchNotificationActionButtonPadding];
     CGFloat rightPadding = (actionButtonPadding && actionButtonPadding.right > 0) ? actionButtonPadding.right : 0.0;
     
-    CGFloat yPosition = [self getCenterYPosition: kInAppNotificationSlideBannerActionButtonHeight];
+    CGFloat yPosition = (actionButtonPadding && actionButtonPadding.top > 0) ? actionButtonPadding.top : 0.0;
     CGFloat xPosition = slideBannerView.frame.size.width - (kInAppNotificationSlideBannerActionButtonWidth + rightPadding);
     CGRect cgrect = CGRectMake(xPosition, yPosition, kInAppNotificationSlideBannerActionButtonWidth, kInAppNotificationSlideBannerActionButtonHeight);
     
