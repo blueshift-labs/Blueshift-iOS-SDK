@@ -37,7 +37,7 @@
         [pushTrackParametersMutableDictionary setObject:element forKey: kInAppNotificationModalElementKey];
     }
     if (lastTimestamp) {
-        [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationModalTimestampKey];
+        [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationCreatedTimestampKey];
     }
     
     return [pushTrackParametersMutableDictionary copy];

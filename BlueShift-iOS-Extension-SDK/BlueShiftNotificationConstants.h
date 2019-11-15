@@ -45,5 +45,6 @@
 #define kInAppNotificationPayloadDisplayOnKey                           @"display_on_ios"
 #define kSilentNotificationTriggerKey                                   @"trigger"
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
+#define kInAppNotificationCreatedTimestampKey                           @"created_at"
 
 #endif
