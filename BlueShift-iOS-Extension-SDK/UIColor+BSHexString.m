@@ -5,9 +5,9 @@
 //  Created by shahas kp on 02/03/18.
 //
 
-#import "UIColor+HexString.h"
+#import "UIColor+BSHexString.h"
 
-@implementation UIColor(HexString)
+@implementation UIColor(BSHexString)
 
 + (UIColor *) colorWithHexString: (NSString *) hexString {
     NSString *colorString = [[hexString stringByReplacingOccurrencesOfString: @"#" withString: @""] uppercaseString];

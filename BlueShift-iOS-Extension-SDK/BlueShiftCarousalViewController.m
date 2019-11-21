@@ -7,7 +7,7 @@
 
 
 #import "BlueShiftCarousalViewController.h"
-#import "UIColor+HexString.h"
+#import "UIColor+BSHexString.h"
 
 #define kPaddingLeft            0
 #define kpaddingRight           0

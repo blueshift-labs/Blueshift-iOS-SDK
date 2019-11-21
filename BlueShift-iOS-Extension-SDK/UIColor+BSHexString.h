@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface UIColor(HexString)
+@interface UIColor(BSHexString)
 
 + (UIColor *) colorWithHexString: (NSString *) hexString;
 + (CGFloat) colorComponentFrom: (NSString *) string start: (NSUInteger) start length: (NSUInteger) length;
