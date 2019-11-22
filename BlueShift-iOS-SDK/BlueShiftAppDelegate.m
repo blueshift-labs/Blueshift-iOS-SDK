@@ -531,6 +531,7 @@
                                       initWithSuiteName:bundleIdentifier];
         NSNumber *selectedIndex = [myDefaults objectForKey:@"selected_index"];
         NSInteger index = [selectedIndex integerValue];
+        index = (index > 0) ? index : 0;
         NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_elements"];
         NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
         NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
