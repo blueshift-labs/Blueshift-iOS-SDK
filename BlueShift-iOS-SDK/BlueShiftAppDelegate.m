@@ -246,11 +246,10 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
-    
     /* if there is payload for IAM , give priority to the it */
-    if (nil != userInfo) {
+    BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
+    if (isSilentPush == TRUE) {
         [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
-
     } else {
         
         NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
