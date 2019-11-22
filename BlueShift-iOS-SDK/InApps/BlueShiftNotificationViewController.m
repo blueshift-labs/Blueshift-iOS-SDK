@@ -10,11 +10,8 @@
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
-#import "BlueShiftInAppNotificationDelegate.h"
 
 @interface BlueShiftNotificationViewController ()
-
-@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
@@ -138,8 +135,11 @@
 
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
     [self sendActionEventAnalytics: buttonDetails.text];
+    
     if (buttonDetails && buttonDetails.buttonType) {
-        if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
+            [self sendActionButtonTappedDelegate: buttonDetails];
+        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             if (buttonDetails.sharableText != nil && ![buttonDetails.sharableText isEqualToString:@""]) {
@@ -155,6 +155,22 @@
             [self closeButtonDidTapped];
         }
     }
+}
+
+- (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {
+    NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
+    if (actionButton.buttonType && [actionButton.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]) {
+        NSString *sharableLink = actionButton.sharableText ? actionButton.sharableText : @"";
+        [actionPayload setObject: sharableLink forKey: kInAppNotificationModalSharableTextKey];
+    } else {
+        NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
+        [actionPayload setObject: iosLink forKey: kInAppNotificationModalPageKey];
+    }
+
+    NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
+    [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
+    [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
+    [self closeButtonDidTapped];
 }
 
 - (void)sendActionEventAnalytics:(NSString *)elementType {
@@ -245,6 +261,22 @@
             });
         }
     });
+}
+
+- (int)getTextAlignement:(NSString *)alignmentString {
+    if (alignmentString && ![alignmentString isEqualToString:@""]) {
+        if ([alignmentString isEqualToString: kInAppNotificationModalLayoutMarginLeftKey] ||
+            [alignmentString isEqualToString: kInAppNotificationModalGravityStartKey])
+            return NSTextAlignmentLeft;
+        else if([alignmentString isEqualToString: kInAppNotificationModalGravityEndKey] ||
+                  [alignmentString isEqualToString: kInAppNotificationModalLayoutMarginRightKey])
+            return NSTextAlignmentRight;
+        else
+            return NSTextAlignmentCenter;
+        
+    }
+    
+    return NSTextAlignmentCenter;
 }
 
 @end

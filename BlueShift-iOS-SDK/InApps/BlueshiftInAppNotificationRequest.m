@@ -6,7 +6,6 @@
 //
 
 #import "BlueshiftInAppNotificationRequest.h"
-#import "BlueShiftRequestOperationManager.h"
 
 @implementation BlueshiftInAppNotificationRequest
 

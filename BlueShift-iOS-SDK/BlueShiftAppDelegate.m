@@ -246,11 +246,10 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
-    
     /* if there is payload for IAM , give priority to the it */
-    if (nil != userInfo) {
+    BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
+    if (isSilentPush == TRUE) {
         [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
-
     } else {
         
         NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
@@ -387,7 +386,6 @@
         if (nil != dataPayload) {
             isIAMPayloadPresent = true;
         } else {
-        
             NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
             NSNumber *num = [NSNumber numberWithInt:1];
             isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
@@ -533,6 +531,7 @@
                                       initWithSuiteName:bundleIdentifier];
         NSNumber *selectedIndex = [myDefaults objectForKey:@"selected_index"];
         NSInteger index = [selectedIndex integerValue];
+        index = (index > 0) ? index : 0;
         NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_elements"];
         NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
         NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
@@ -812,8 +811,9 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [self.oldDelegate applicationWillEnterForeground:application];
-    
+    if (self.oldDelegate && [self.oldDelegate respondsToSelector:@selector(applicationWillEnterForeground:)]) {
+        [self.oldDelegate applicationWillEnterForeground:application];
+    }
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {

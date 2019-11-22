@@ -55,6 +55,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *secondaryIconBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *secondaryIconBackgroundRadius;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *actionsPadding;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *iconPadding;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *messagePadding;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *titlePadding;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *bannerPadding;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *subTitlePadding;
 
 @end
 

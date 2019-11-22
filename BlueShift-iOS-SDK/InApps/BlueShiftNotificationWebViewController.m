@@ -25,7 +25,6 @@ API_AVAILABLE(ios(8.0))
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
-@property id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 
 @end
 
@@ -238,6 +237,7 @@ API_AVAILABLE(ios(8.0))
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
+    
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
         [[self inAppNotificationDelegate] inAppNotificationWillAppear];
     }
