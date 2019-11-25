@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol iCarouselDataSource, iCarouselDelegate;
 
-@interface iCarousel : UIView
+@interface BlueShiftiCarousel : UIView
 
 @property (nonatomic, weak_delegate) IBOutlet __nullable id<iCarouselDataSource> dataSource;
 @property (nonatomic, weak_delegate) IBOutlet __nullable id<iCarouselDelegate> delegate;
@@ -165,13 +165,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol iCarouselDataSource <NSObject>
 
-- (NSInteger)numberOfItemsInCarousel:(iCarousel *)carousel;
-- (UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(nullable UIView *)view;
+- (NSInteger)numberOfItemsInCarousel:(BlueShiftiCarousel *)carousel;
+- (UIView *)carousel:(BlueShiftiCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(nullable UIView *)view;
 
 @optional
 
-- (NSInteger)numberOfPlaceholdersInCarousel:(iCarousel *)carousel;
-- (UIView *)carousel:(iCarousel *)carousel placeholderViewAtIndex:(NSInteger)index reusingView:(nullable UIView *)view;
+- (NSInteger)numberOfPlaceholdersInCarousel:(BlueShiftiCarousel *)carousel;
+- (UIView *)carousel:(BlueShiftiCarousel *)carousel placeholderViewAtIndex:(NSInteger)index reusingView:(nullable UIView *)view;
 
 @end
 
@@ -179,21 +179,21 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol iCarouselDelegate <NSObject>
 @optional
 
-- (void)carouselWillBeginScrollingAnimation:(iCarousel *)carousel;
-- (void)carouselDidEndScrollingAnimation:(iCarousel *)carousel;
-- (void)carouselDidScroll:(iCarousel *)carousel;
-- (void)carouselCurrentItemIndexDidChange:(iCarousel *)carousel;
-- (void)carouselWillBeginDragging:(iCarousel *)carousel;
-- (void)carouselDidEndDragging:(iCarousel *)carousel willDecelerate:(BOOL)decelerate;
-- (void)carouselWillBeginDecelerating:(iCarousel *)carousel;
-- (void)carouselDidEndDecelerating:(iCarousel *)carousel;
+- (void)carouselWillBeginScrollingAnimation:(BlueShiftiCarousel *)carousel;
+- (void)carouselDidEndScrollingAnimation:(BlueShiftiCarousel *)carousel;
+- (void)carouselDidScroll:(BlueShiftiCarousel *)carousel;
+- (void)carouselCurrentItemIndexDidChange:(BlueShiftiCarousel *)carousel;
+- (void)carouselWillBeginDragging:(BlueShiftiCarousel *)carousel;
+- (void)carouselDidEndDragging:(BlueShiftiCarousel *)carousel willDecelerate:(BOOL)decelerate;
+- (void)carouselWillBeginDecelerating:(BlueShiftiCarousel *)carousel;
+- (void)carouselDidEndDecelerating:(BlueShiftiCarousel *)carousel;
 
-- (BOOL)carousel:(iCarousel *)carousel shouldSelectItemAtIndex:(NSInteger)index;
-- (void)carousel:(iCarousel *)carousel didSelectItemAtIndex:(NSInteger)index;
+- (BOOL)carousel:(BlueShiftiCarousel *)carousel shouldSelectItemAtIndex:(NSInteger)index;
+- (void)carousel:(BlueShiftiCarousel *)carousel didSelectItemAtIndex:(NSInteger)index;
 
-- (CGFloat)carouselItemWidth:(iCarousel *)carousel;
-- (CATransform3D)carousel:(iCarousel *)carousel itemTransformForOffset:(CGFloat)offset baseTransform:(CATransform3D)transform;
-- (CGFloat)carousel:(iCarousel *)carousel valueForOption:(iCarouselOption)option withDefault:(CGFloat)value;
+- (CGFloat)carouselItemWidth:(BlueShiftiCarousel *)carousel;
+- (CATransform3D)carousel:(BlueShiftiCarousel *)carousel itemTransformForOffset:(CGFloat)offset baseTransform:(CATransform3D)transform;
+- (CGFloat)carousel:(BlueShiftiCarousel *)carousel valueForOption:(iCarouselOption)option withDefault:(CGFloat)value;
 
 @end
 
