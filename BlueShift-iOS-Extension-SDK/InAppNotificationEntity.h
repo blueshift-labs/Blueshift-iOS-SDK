@@ -6,6 +6,7 @@
 //
 
 #import <CoreData/CoreData.h>
+#import "BlueShiftNotificationConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
