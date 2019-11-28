@@ -121,8 +121,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             _inAppNotificationMananger.inAppNotificationTimeInterval = 60;
         }
         
-        [self fetchInAppNotificationFromAPI:^(){
-            [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+        [self fetchInAppNotificationFromAPI:^(void) {
+                [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+            } failure:^(NSError *error){
+                NSLog(@"%@", error);
         }];
     }
     
@@ -174,9 +176,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (_config.enableInAppNotification == YES && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
         if ([BlueshiftEventAnalyticsHelper isSilentPushNotification: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
-                if (self->_config.inAppManualTriggerEnabled == NO) {
-                   [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-                }
+                    if (self->_config.inAppManualTriggerEnabled == NO) {
+                        [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
+                    }
+                } failure:^(NSError *error){
+                    NSLog(@"%@", error);
             }];
         } else if(_config.inAppManualTriggerEnabled == NO){
           [self startInAppMessageLoadFromaDBTimer];
@@ -725,24 +729,25 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-- (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))handler {
+- (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)(NSError*))failure {
     if (_config.enableInAppNotification == YES) {
         [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID, NSString *lastTimestamp) {
             if (status) {
                 [BlueshiftInAppNotificationRequest fetchInAppNotification: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
                     if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
                         NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
-                        [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status){
-                            handler();
+                        [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status) {
+                            success();
                         }];
                     }
                 } failure:^(NSError *error){
-                    NSLog(@"Failed");
-                    handler();
+                    NSLog(@"InApp Message API failed");
+                    failure(error);
                 }];
             } else {
-                NSLog(@"Failed");
-                handler();
+                NSLog(@"Unable to fetch the data from core data");
+                NSError *error = (NSError *)@"Unable to fetch the data from core data";
+                failure(error);
             }
         }];
     }

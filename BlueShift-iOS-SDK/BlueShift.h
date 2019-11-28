@@ -146,6 +146,6 @@
                                  canBacthThisEvent:(BOOL)isBatchEvent;
 - (void)displayInAppNotification;
 
-- (void)fetchInAppNotificationFromAPI:(void (^)(void))handler;
+- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
 
 @end
