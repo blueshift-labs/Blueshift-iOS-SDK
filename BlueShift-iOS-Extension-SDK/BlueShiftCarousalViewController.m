@@ -79,7 +79,7 @@
 
 - (void)createAndConfigCarousel {
     // Initialize and configure the carousel
-    carousel = [[iCarousel alloc] initWithFrame:CGRectMake(kPaddingLeft, kPaddingTop, self.view.frame.size.width - (kPaddingLeft + kpaddingRight), self.view.frame.size.height - (kPaddingTop + kPaddingBottom))];
+    carousel = [[BlueShiftiCarousel alloc] initWithFrame:CGRectMake(kPaddingLeft, kPaddingTop, self.view.frame.size.width - (kPaddingLeft + kpaddingRight), self.view.frame.size.height - (kPaddingTop + kPaddingBottom))];
     carousel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     carousel.type = iCarouselTypeLinear;
     carousel.delegate = self;
@@ -326,7 +326,7 @@
     return YES;
 }
 
-- (NSInteger)numberOfItemsInCarousel:(__unused iCarousel *)carousel {
+- (NSInteger)numberOfItemsInCarousel:(__unused BlueShiftiCarousel *)carousel {
     return (NSInteger)[self.items count];
 }
 
@@ -343,7 +343,7 @@
 }
 
 
-- (UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view {
+- (UIView *)carousel:(BlueShiftiCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view {
     //create new view if no view is available for recycling
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(kPaddingLeft, kPaddingTop, self.view.frame.size.width - (kPaddingLeft + kpaddingRight), self.view.frame.size.height - (kPaddingTop + kPaddingBottom))];
     NSDictionary *carouselElement = [self.carouselElements objectAtIndex:index];
@@ -446,7 +446,7 @@
 }
 
 
-- (CATransform3D)carousel:(__unused iCarousel *)carousel itemTransformForOffset:(CGFloat)offset baseTransform:(CATransform3D)transform {
+- (CATransform3D)carousel:(__unused BlueShiftiCarousel *)carousel itemTransformForOffset:(CGFloat)offset baseTransform:(CATransform3D)transform {
     //implement 'flip3D' style carousel
     transform = CATransform3DRotate(transform, M_PI / 8.0f, 0.0f, 1.0f, 0.0f);
     return CATransform3DTranslate(transform, 0.0f, 0.0f, offset * self.carousel.itemWidth);
@@ -454,7 +454,7 @@
 
 
 
-- (CGFloat)carousel:(__unused iCarousel *)icarousel valueForOption:(iCarouselOption)option withDefault:(CGFloat)value {
+- (CGFloat)carousel:(__unused BlueShiftiCarousel *)icarousel valueForOption:(iCarouselOption)option withDefault:(CGFloat)value {
     //customize carousel display
     switch (option)
     {
@@ -499,7 +499,7 @@
 }
 
 
-- (void)carouselCurrentItemIndexDidChange:(iCarousel *)icarousel {
+- (void)carouselCurrentItemIndexDidChange:(BlueShiftiCarousel *)icarousel {
     pageControl.currentPage = icarousel.currentItemIndex;
     
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc]

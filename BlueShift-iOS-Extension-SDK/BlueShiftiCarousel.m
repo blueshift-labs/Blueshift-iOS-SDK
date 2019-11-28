@@ -30,7 +30,7 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
-#import "iCarousel.h"
+#import "BlueShiftiCarousel.h"
 #import <objc/message.h>
 
 
@@ -70,34 +70,34 @@
 #endif
 
 
-@implementation NSObject (iCarousel)
+@implementation NSObject (BlueShiftiCarousel)
 
-- (NSUInteger)numberOfPlaceholdersInCarousel:(__unused iCarousel *)carousel { return 0; }
-- (void)carouselWillBeginScrollingAnimation:(__unused iCarousel *)carousel {}
-- (void)carouselDidEndScrollingAnimation:(__unused iCarousel *)carousel {}
-- (void)carouselDidScroll:(__unused iCarousel *)carousel {}
+- (NSUInteger)numberOfPlaceholdersInCarousel:(__unused BlueShiftiCarousel *)carousel { return 0; }
+- (void)carouselWillBeginScrollingAnimation:(__unused BlueShiftiCarousel *)carousel {}
+- (void)carouselDidEndScrollingAnimation:(__unused BlueShiftiCarousel *)carousel {}
+- (void)carouselDidScroll:(__unused BlueShiftiCarousel *)carousel {}
 
-- (void)carouselCurrentItemIndexDidChange:(__unused iCarousel *)carousel {}
-- (void)carouselWillBeginDragging:(__unused iCarousel *)carousel {}
-- (void)carouselDidEndDragging:(__unused iCarousel *)carousel willDecelerate:(__unused BOOL)decelerate {}
-- (void)carouselWillBeginDecelerating:(__unused iCarousel *)carousel {}
-- (void)carouselDidEndDecelerating:(__unused iCarousel *)carousel {}
+- (void)carouselCurrentItemIndexDidChange:(__unused BlueShiftiCarousel *)carousel {}
+- (void)carouselWillBeginDragging:(__unused BlueShiftiCarousel *)carousel {}
+- (void)carouselDidEndDragging:(__unused BlueShiftiCarousel *)carousel willDecelerate:(__unused BOOL)decelerate {}
+- (void)carouselWillBeginDecelerating:(__unused BlueShiftiCarousel *)carousel {}
+- (void)carouselDidEndDecelerating:(__unused BlueShiftiCarousel *)carousel {}
 
-- (BOOL)carousel:(__unused iCarousel *)carousel shouldSelectItemAtIndex:(__unused NSInteger)index { return YES; }
-- (void)carousel:(__unused iCarousel *)carousel didSelectItemAtIndex:(__unused NSInteger)index {}
+- (BOOL)carousel:(__unused BlueShiftiCarousel *)carousel shouldSelectItemAtIndex:(__unused NSInteger)index { return YES; }
+- (void)carousel:(__unused BlueShiftiCarousel *)carousel didSelectItemAtIndex:(__unused NSInteger)index {}
 
-- (CGFloat)carouselItemWidth:(__unused iCarousel *)carousel { return 0; }
-- (CATransform3D)carousel:(__unused iCarousel *)carousel
+- (CGFloat)carouselItemWidth:(__unused BlueShiftiCarousel *)carousel { return 0; }
+- (CATransform3D)carousel:(__unused BlueShiftiCarousel *)carousel
    itemTransformForOffset:(__unused CGFloat)offset
             baseTransform:(CATransform3D)transform { return transform; }
-- (CGFloat)carousel:(__unused iCarousel *)carousel
+- (CGFloat)carousel:(__unused BlueShiftiCarousel *)carousel
      valueForOption:(__unused iCarouselOption)option
         withDefault:(CGFloat)value { return value; }
 
 @end
 
 
-@interface iCarousel ()
+@interface BlueShiftiCarousel ()
 
 @property (nonatomic, strong) UIView *contentView;
 @property (nonatomic, strong) NSMutableDictionary *itemViews;
@@ -124,12 +124,12 @@
 @property (nonatomic, assign) BOOL didDrag;
 @property (nonatomic, assign) NSTimeInterval toggleTime;
 
-NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *self);
+NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, BlueShiftiCarousel *self);
 
 @end
 
 
-@implementation iCarousel
+@implementation BlueShiftiCarousel
 
 #pragma mark -
 #pragma mark Initialisation
@@ -691,7 +691,7 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *sel
     }
 }
 
-NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *self)
+NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, BlueShiftiCarousel *self)
 {
     //compare depths
     CATransform3D t1 = view1.superview.layer.transform;

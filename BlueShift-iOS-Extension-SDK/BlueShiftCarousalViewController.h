@@ -8,12 +8,12 @@
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 #import <UserNotificationsUI/UserNotificationsUI.h>
-#import "iCarousel.h"
+#import "BlueShiftiCarousel.h"
 
 @interface BlueShiftCarousalViewController : UIViewController<iCarouselDataSource, iCarouselDelegate>
 
 @property UIImageView *backgroundImageView;
-@property iCarousel *carousel;
+@property BlueShiftiCarousel *carousel;
 @property UIPageControl *pageControl;
 
 @property NSString *appGroupID;

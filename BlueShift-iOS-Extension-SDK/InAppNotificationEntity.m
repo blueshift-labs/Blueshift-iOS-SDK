@@ -6,7 +6,6 @@
 //
 
 #import "InAppNotificationEntity.h"
-#import "BlueShiftNotificationConstants.h"
 
 @implementation InAppNotificationEntity
 
