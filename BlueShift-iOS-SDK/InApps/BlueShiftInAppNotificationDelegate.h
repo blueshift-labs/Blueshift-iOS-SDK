@@ -14,11 +14,11 @@
 
 @optional
 
-- (void)actionButtonDidTapped:(NSDictionary *)payloadDictionary;
-- (void)inAppNotificationWillAppear;
-- (void)inAppNotificationDidAppear;
-- (void)inAppNotificationWillDisappear;
-- (void)inAppNotificationDidDisappear;
+- (void)actionButtonDidTapped:(NSDictionary *)notificationDictionary;
+- (void)inAppNotificationWillAppear:(NSDictionary *)notificationDictionary;
+- (void)inAppNotificationDidAppear:(NSDictionary *)notificationDictionary;
+- (void)inAppNotificationWillDisappear:(NSDictionary *)notificationDictionary;
+- (void)inAppNotificationDidDisappear:(NSDictionary *)notificationDictionary;
 
 @end
 

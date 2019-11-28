@@ -238,8 +238,8 @@ API_AVAILABLE(ios(8.0))
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
     
-    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear)]) {
-        [[self inAppNotificationDelegate] inAppNotificationWillAppear];
+    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear:)]) {
+        [[self inAppNotificationDelegate] inAppNotificationWillAppear:self.notification.notificationPayload];
     }
     
     [self createWindow];
@@ -262,8 +262,8 @@ API_AVAILABLE(ios(8.0))
 
 -(void)hideFromWindow:(BOOL)animated {
     void (^completionBlock)(void) = ^ {
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear)]) {
-            [[self inAppNotificationDelegate] inAppNotificationWillDisappear];
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear:)]) {
+            [[self inAppNotificationDelegate] inAppNotificationWillDisappear : self.notification.notificationPayload];
         }
         
         [self.window setHidden:YES];
