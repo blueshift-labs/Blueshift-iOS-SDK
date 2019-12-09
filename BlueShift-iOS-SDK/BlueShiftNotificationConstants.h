@@ -47,6 +47,5 @@
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 #define kInAppNotificationModalSilentPushKey                            @"silent_push"
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
-#define kInAppNotificationTriggerTypeKey                                @"trigger_type"
 
 #endif
