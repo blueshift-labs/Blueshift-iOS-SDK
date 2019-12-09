@@ -40,6 +40,10 @@
         [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationCreatedTimestampKey];
     }
     
+    if ([self isInAppMessagePayload: pushDetailsDictionary]) {
+        [pushTrackParametersMutableDictionary setObject:@"in-app" forKey: kInAppNotificationTriggerTypeKey];
+    }
+    
     return [pushTrackParametersMutableDictionary copy];
 }
 
