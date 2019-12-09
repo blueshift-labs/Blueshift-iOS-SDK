@@ -70,15 +70,16 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     HttpRequestOperationEntity *httpRequestOperationEntity;
                     @try {
                         httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
+                    
+                        if(httpRequestOperationEntity != nil) {
+                            [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
+                        
+                            if(!isBatchEvent) {
+                                [BlueShiftRequestQueue processRequestsInQueue];
+                            }
+                        }
                     } @catch (NSException *exception) {
                         NSLog(@"Caught exception %@", exception);
-                    }
-                    if(httpRequestOperationEntity != nil) {
-                        [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
-                        
-                        if(!isBatchEvent) {
-                            [BlueShiftRequestQueue processRequestsInQueue];
-                        }
                     }
                 }
             }

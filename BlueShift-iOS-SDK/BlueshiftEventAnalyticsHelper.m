@@ -74,4 +74,20 @@
     }
 }
 
++ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo {
+    BOOL isIAMPayloadPresent = false;
+    if (nil != userInfo) {
+        NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
+        if (nil != dataPayload) {
+            isIAMPayloadPresent = true;
+        } else {
+            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
+            NSNumber *num = [NSNumber numberWithInt:1];
+            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        }
+    }
+    
+    return isIAMPayloadPresent;
+}
+
 @end

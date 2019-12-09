@@ -247,11 +247,9 @@
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
     /* if there is payload for IAM , give priority to the it */
-    BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
-    if (isSilentPush == TRUE) {
+    if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
         [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
     } else {
-        
         NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
         self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
         self.userInfo = userInfo;
@@ -301,7 +299,6 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
-    
     NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
     self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
     self.userInfo = userInfo;
@@ -311,12 +308,10 @@
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
-        
         // Track notification view when app is open ...
         [self trackPushViewedWithParameters:pushTrackParameterDictionary];
         
         if([[userInfo objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
-            
             // Handle push notification when the app is in active state...
             UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
             BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
@@ -327,9 +322,7 @@
                 [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
             }
         } else {
-            
-            BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
-            if (isSilentPush == TRUE) {
+            if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
                 printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
 
                 [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
@@ -338,13 +331,11 @@
             }
         }
     } else {
-        BOOL isSilentPush = [self checkIfPayloadHasInAppMessage: userInfo];
-        if (isSilentPush == TRUE) {
+        if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
             printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
             
             [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
         } else {
-        
             // Handle push notification when the app is in inactive or background state ...
             if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
                 [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
@@ -375,26 +366,6 @@
         }
     }
 }
-
-
--(BOOL) checkIfPayloadHasInAppMessage: (NSDictionary*)userInfo {
-    
-    BOOL isIAMPayloadPresent = false;
-    if (nil != userInfo) {
-        
-        NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
-        if (nil != dataPayload) {
-            isIAMPayloadPresent = true;
-        } else {
-            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-            NSNumber *num = [NSNumber numberWithInt:1];
-            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
-        }
-    }
-    return isIAMPayloadPresent;
-}
-
-
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
     

@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
 + (BOOL)isSilentPushNotification:(NSDictionary *)userInfo;
++ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo;
 
 @end
 
