@@ -48,21 +48,6 @@
                 [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
                 [[UIApplication sharedApplication] registerForRemoteNotifications];
             }
-//            NSSet *categories = [[[BlueShift sharedInstance] pushNotification] notificationCategories];
-//            NSSet *customCategories = [[[BlueShift sharedInstance] config] customCategories];
-//            NSMutableSet *categoriesWithCustomCategory = [[NSMutableSet alloc] init];
-//            // Adding custom category to categories
-//            [categoriesWithCustomCategory setByAddingObjectsFromSet:customCategories];
-//            [categoriesWithCustomCategory unionSet:categories];
-//            if (@available(iOS 8.0, *)) {
-//                UIUserNotificationType types = [[[BlueShift sharedInstance] pushNotification] notificationTypes];
-//                UIUserNotificationSettings *notificationSettings = [UIUserNotificationSettings settingsForTypes:types categories:categoriesWithCustomCategory];
-//                [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
-//                [[UIApplication sharedApplication] registerForRemoteNotifications];
-//            } else {
-//                // Fallback on earlier versions
-//            }
-
         }
         
         [self downloadFileFromURL];
@@ -72,7 +57,7 @@
 // Handles the push notification payload when the app is killed and lauched from push notification tray ...
 - (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
     NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    
+
     if (userInfo) {
         // Handling the push notification if we get the userInfo from launchOptions ...
         // It's the only way to track notification payload while app is on launch (i.e after the app is killed) ...
@@ -275,6 +260,19 @@
                 [self trackPushClickedWithParameters:pushTrackParameterDictionary];
             }
         }
+        
+        [self setupPushNotificationDeeplink: userInfo];
+    }
+}
+
+- (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo {
+    if (userInfo != nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] != [NSNull null]) {
+        NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
+        if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+            if (@available(iOS 9.0, *)) {
+                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
+            }
+        }
     }
 }
 
@@ -368,7 +366,6 @@
 }
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
-    
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
 
@@ -513,12 +510,6 @@
             self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
             [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithIndex:index withDetails:pushDetailsDictionary];
         } else {
-            // Handle the View Action in SDK ...
-            
-            //NSString *urlString = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"url"];
-            //NSURL *url = [NSURL URLWithString:urlString];
-            
-            
             if(url != nil) {
                 // map newly allocated deeplink instance to product page route ...
                 BlueShiftDeepLink *deepLink;
@@ -537,6 +528,8 @@
                 }
             }
         }
+        
+        [self setupPushNotificationDeeplink: selectedItem];
     }
     
 }
@@ -750,6 +743,8 @@
         }
     }
     
+    [self setupPushNotificationDeeplink: notification];
+    
     // Must be called when finished
     completionHandler();
 }
@@ -768,6 +763,8 @@
     if ([self.oldDelegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
         canOpenURLStatus = [self.oldDelegate application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
     }
+    
+
     return canOpenURLStatus;
 }
 
@@ -1087,7 +1084,6 @@
     
     return _persistentStoreCoordinator;
 }
-
 
 - (NSManagedObjectContext *)managedObjectContext {
     // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
