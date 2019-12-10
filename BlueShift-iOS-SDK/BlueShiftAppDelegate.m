@@ -363,6 +363,8 @@
             }
         }
     }
+    
+    [self setupPushNotificationDeeplink: userInfo];
 }
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
