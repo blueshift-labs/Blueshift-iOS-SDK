@@ -9,6 +9,7 @@
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
 #import "BlueshiftInAppEntityAppDelegate.h"
+#import "BlueshiftEventAnalyticsHelper.h"
 
 
 API_AVAILABLE(ios(10.0))
@@ -41,7 +42,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID{
-    if ([self hasBlueshiftInAppNotification: request]) {
+    if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: request.content.userInfo]) {
         NSDictionary *payload = request.content.userInfo;
         BlueshiftInAppEntityAppDelegate *blueshiftInAppentityDelegate = [[BlueshiftInAppEntityAppDelegate alloc] init];
         [blueshiftInAppentityDelegate addInAppNotificationToDataStore: payload andAppGroupID:(NSString *)appGroupID];
@@ -198,24 +199,6 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         }
     }
     return attachments;
-}
-
-- (BOOL)hasBlueshiftInAppNotification: (UNNotificationRequest *)request {
-    NSDictionary *userInfo = request.content.userInfo;
-    BOOL isIAMPayloadPresent = false;
-    if (nil != userInfo) {
-        
-        NSDictionary *dataPayload =  [userInfo objectForKey: @"data"];
-        if (nil != dataPayload) {
-            isIAMPayloadPresent = true;
-        } else {
-            
-            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-            NSNumber *num = [NSNumber numberWithInt:1];
-            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
-        }
-    }
-    return isIAMPayloadPresent;
 }
 
 @end
