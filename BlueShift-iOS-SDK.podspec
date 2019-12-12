@@ -26,12 +26,6 @@ Pod::Spec.new do |s|
 
   end
 
-  s.subspec 'AppExtension' do |ss|
-    ss.source_files  = "BlueShift-iOS-Extension-SDK", "BlueShift-iOS-Extension-SDK/**/*.{h,m}"
-    ss.exclude_files = "Classes/Exclude"
-    ss.public_header_files = "BlueShift-iOS-Extension-SDK/**/*.h"
-  end
-
   s.default_subspecs = 'Core'
   s.framework  = "CoreData"
   s.requires_arc = true

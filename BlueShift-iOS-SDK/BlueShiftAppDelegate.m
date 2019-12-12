@@ -27,7 +27,6 @@
 }
 
 - (void) registerForNotification {
-    
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
             if (@available(iOS 10.0, *)) {
@@ -576,7 +575,6 @@
     }
 }
 
-
 - (void)handleActionForBuyUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when buy action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
@@ -611,7 +609,6 @@
     }
 }
 
-
 - (void)handleActionForViewUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when view action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
@@ -641,7 +638,6 @@
         }
     }
 }
-
 
 - (void)handleActionForCustomPageForIdentifier:(NSString *)identifier UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
@@ -682,7 +678,6 @@
     }
 }
 
-
 - (void)handleActionForOpenCartUsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when open cart action is selected for push message of cart category ...
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
@@ -719,9 +714,6 @@
     
     NSDictionary *pushAlertDictionary = [notification objectForKey:@"aps"];
     NSDictionary *pushDetailsDictionary = nil;
-    //if ([pushAlertDictionary isKindOfClass:[NSDictionary class]]) {
-    //  pushDetailsDictionary = pushAlertDictionary;
-    //}
     pushDetailsDictionary = notification;
     self.userInfo = notification;
     if ([identifier isEqualToString: kNotificationActionBuyIdentifier]) {
@@ -755,19 +747,6 @@
   completionHandler: (void (^)(void)) completionHandler {
     
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
-}
-
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    
-    BOOL canOpenURLStatus = NO;
-    canOpenURLStatus = [self trackOpenURLWithCampaignURLString:[url absoluteString] andParameters:nil];
-    
-    if ([self.oldDelegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
-        canOpenURLStatus = [self.oldDelegate application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-    }
-    
-
-    return canOpenURLStatus;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

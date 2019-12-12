@@ -185,14 +185,11 @@ API_AVAILABLE(ios(8.0))
         NSURL *url = navigationAction.request.URL;
         [self sendActionEventAnalytics: url.absoluteString];
         
-        if (@available(iOS 10.0, *)) {
-            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
-                if (success) {
-                    NSLog(@"Opened url");
-                }
-            }];
-        } else {
-            [[UIApplication sharedApplication] openURL:url];
+        if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+            if (@available(iOS 9.0, *)) {
+                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:@{}];
+                [self closeButtonDidTapped];
+            }
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
