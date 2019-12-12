@@ -188,10 +188,13 @@
             yPadding = yPadding + descriptionLabel.frame.size.height + messageBottomPadding;
         }
         
-        if (self.notification.contentStyle) {
-            notificationView.backgroundColor = self.notification.contentStyle.messageBackgroundColor ? [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor]
-                : UIColor.whiteColor;
+        UIColor *backgroundColor = UIColor.whiteColor;
+        if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor && ![self.notification.contentStyle.messageBackgroundColor isEqualToString:@""]) {
+            backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
+        } else if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
+            backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
         }
+        notificationView.backgroundColor = backgroundColor;
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
             CGRect frame = notificationView.frame;

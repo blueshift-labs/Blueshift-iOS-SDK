@@ -155,10 +155,13 @@
             descriptionLabel = [self createDescriptionLabel:xPadding andLabelWidth:descriptionLabelWidth];
         }
         
-        if (self.notification.templateStyle) {
-            slideBannerView.backgroundColor = self.notification.templateStyle.backgroundColor ? [self colorWithHexString: self.notification.templateStyle.backgroundColor]
-            : UIColor.blueColor;
+        UIColor *backgroundColor = UIColor.blueColor;
+        if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor && ![self.notification.contentStyle.messageBackgroundColor isEqualToString:@""]) {
+            backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
+        } else if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
+            backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
         }
+        slideBannerView.backgroundColor = backgroundColor;
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
             CGFloat messageTopPadding = (messagePadding && messagePadding.top > 0) ? messagePadding.top :0.0;

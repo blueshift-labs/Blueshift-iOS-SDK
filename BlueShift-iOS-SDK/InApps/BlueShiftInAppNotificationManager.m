@@ -295,8 +295,9 @@
         
         if(entity != nil && fetchRequest.entity != nil) {
             NSArray *results = [masterContext executeFetchRequest: fetchRequest error:&error];
-            if (results != nil && [results count] > 0 && results[[results count] - 1]) {
-                InAppNotificationEntity *notification = results[[results count] -1];
+            NSArray *sortedList = [self sortedInAppMessageWithDate: results];
+            if (sortedList != nil && [sortedList count] > 0 && sortedList[[sortedList count] - 1]) {
+                InAppNotificationEntity *notification = results[[sortedList count] -1];
                 handler(YES, notification.id, notification.timestamp);
             } else {
                 handler(YES, @"", @"");
@@ -305,11 +306,26 @@
     }
 }
 
+- (NSArray *)sortedInAppMessageWithDate:(NSArray *)messageList {
+    if (messageList != nil && messageList.count > 0) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat: kInAppNotificationModalTimestampDateFormat];
+        NSArray *sortedArray = [messageList sortedArrayUsingComparator:^NSComparisonResult(InAppNotificationEntity *message1, InAppNotificationEntity *message2) {
+            NSDate *d1 = [dateFormatter dateFromString: message1.timestamp];
+            NSDate *d2 = [dateFormatter dateFromString: message2.timestamp];
+            return [d1 compare: d2];
+        }];
+        
+        return sortedArray;
+    }
+    
+    return [[NSArray alloc] init];
+}
+
 - (void)removeInAppNotificationFromDB:(NSManagedObjectID *) entityItem {
-    
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    
     NSManagedObjectContext *masterContext;
+    
     if (appDelegate) {
         @try {
             masterContext = appDelegate.managedObjectContext;
@@ -320,7 +336,6 @@
     }
     
     if (entityItem != nil) {
-        
         /* creating a private context */
         if (nil == self.privateObjectContext) {
             self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
@@ -354,7 +369,6 @@
                         }
                     }];
                 }];
-            } else {
             }
         }
         @catch (NSException *exception) {
