@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary;
 + (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
++ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo;
 
 @end
 

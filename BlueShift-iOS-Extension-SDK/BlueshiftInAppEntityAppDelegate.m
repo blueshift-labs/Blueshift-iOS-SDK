@@ -8,7 +8,7 @@
 #import "BlueshiftInAppEntityAppDelegate.h"
 #import "InAppNotificationEntity.h"
 #import <CoreData/CoreData.h>
-#include "BlueShiftNotificationConstants.h"
+#import "BlueShiftNotificationConstants.h"
 
 @interface BlueshiftInAppEntityAppDelegate ()
 

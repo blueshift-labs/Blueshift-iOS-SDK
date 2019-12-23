@@ -148,8 +148,12 @@
                 [self closeButtonDidTapped];
             }
         } else {
-            if (buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString: buttonDetails.iosLink]];
+            if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
+                    && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
+                NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
+                if (@available(iOS 9.0, *)) {
+                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
+                }
             }
             
             [self closeButtonDidTapped];

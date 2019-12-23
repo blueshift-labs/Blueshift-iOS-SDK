@@ -112,4 +112,6 @@
 #define kInAppNotificationModalBannerPaddingKey                 @"banner_padding"
 #define kInAppNotificationModalSubTitlePaddingKey               @"sub_title_padding"
 
+#define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+
 #endif /* BlueShiftInAppNotificationConstant_h */
