@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "2.0.4" }
   s.exclude_files = "Classes/Exclude"
   s.subspec 'Core' do |ss|
-    ss.source_files  = "BlueShift-iOS-SDK/**/*.{h,m}"
+    ss.source_files  = "BlueShift-iOS-SDK/","BlueShift-iOS-SDK/**/*.{h,m}"
     ss.public_header_files = "BlueShift-iOS-SDK/**/*.h"
     ss.exclude_files = "Classes/Exclude"
     ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png}"

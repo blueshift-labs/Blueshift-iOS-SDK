@@ -499,38 +499,40 @@
         NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                       initWithSuiteName:bundleIdentifier];
         NSNumber *selectedIndex = [myDefaults objectForKey:@"selected_index"];
-        NSInteger index = [selectedIndex integerValue];
-        index = (index > 0) ? index : 0;
-        NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_elements"];
-        NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
-        NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
-        NSURL *url = [NSURL URLWithString:urlString];
-        if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
-            // User already implemented the viewPushActionWithDetails in App Delegate...
+        if (selectedIndex != nil) {
+            NSInteger index = [selectedIndex integerValue];
+            index = (index > 0) ? index : 0;
+            NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_elements"];
+            NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
+            NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
+            NSURL *url = [NSURL URLWithString:urlString];
+            if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
+                // User already implemented the viewPushActionWithDetails in App Delegate...
             
-            self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
-            [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithIndex:index withDetails:pushDetailsDictionary];
-        } else {
-            if(url != nil) {
-                // map newly allocated deeplink instance to product page route ...
-                BlueShiftDeepLink *deepLink;
-                deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkCustomePage andNSURL:url];
-                [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
-                self.deepLinkToCustomPage = deepLink;
-                self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
-                [self.deepLinkToCustomPage performCustomDeepLinking:url];
-                self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
+                self.blueShiftPushDelegate = (id<BlueShiftPushDelegate>)self.blueShiftPushDelegate;
+                [self.blueShiftPushDelegate handleCarouselPushForCategory:categoryName clickedWithIndex:index withDetails:pushDetailsDictionary];
+            } else {
+                if(url != nil) {
+                    // map newly allocated deeplink instance to product page route ...
+                    BlueShiftDeepLink *deepLink;
+                    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkCustomePage andNSURL:url];
+                    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkCustomePage];
+                    self.deepLinkToCustomPage = deepLink;
+                    self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
+                    [self.deepLinkToCustomPage performCustomDeepLinking:url];
+                    self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
                 
-                // Track notification when the page is deeplinked ...
-                [self trackAppOpenWithParameters:pushTrackParameterDictionary];
+                    // Track notification when the page is deeplinked ...
+                    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
                 
-                if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handleCarouselPushDictionary: withSelectedIndex:)]) {
-                    [self.blueShiftPushParamDelegate handleCarouselPushDictionary:pushDetailsDictionary withSelectedIndex:index];
+                    if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handleCarouselPushDictionary: withSelectedIndex:)]) {
+                        [self.blueShiftPushParamDelegate handleCarouselPushDictionary:pushDetailsDictionary withSelectedIndex:index];
+                    }
                 }
             }
+            
+            [self setupPushNotificationDeeplink: selectedItem];
         }
-        
-        [self setupPushNotificationDeeplink: selectedItem];
     }
     
 }
