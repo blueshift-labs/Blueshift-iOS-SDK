@@ -167,16 +167,16 @@
 - (void)scheduleLocalNotification:(NSDictionary *)userInfo {
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
     localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:600];
-    localNotification.alertBody = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+    localNotification.alertBody = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationAlertIdentifierKey];
     localNotification.timeZone = [NSTimeZone defaultTimeZone];
     if (@available(iOS 8.0, *)) {
-        localNotification.category = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+        localNotification.category = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
     }
-    localNotification.soundName = [[userInfo objectForKey:@"aps"] objectForKey:@"sound"];
+    localNotification.soundName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationSoundIdentifierKey];
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
     dictionary = [userInfo mutableCopy];
-    if([dictionary objectForKey:@"bsft_message_uuid"] == (id)[NSNull null]) {
-        [dictionary removeObjectForKey:@"bsft_message_uuid"];
+    if([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] == (id)[NSNull null]) {
+        [dictionary removeObjectForKey: kInAppNotificationModalMessageUDIDKey];
     }
     localNotification.userInfo = dictionary;
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
@@ -195,8 +195,8 @@
 }
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
-    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+    self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
     self.userInfo = userInfo;
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
@@ -214,9 +214,9 @@
             [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
         }
         else {
-            NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+            NSString *categoryName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
             if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
                     [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
                 } else {
                     [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
@@ -234,8 +234,8 @@
     if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
         [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
     } else {
-        NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-        self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+        NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+        self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
         self.userInfo = userInfo;
         NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
         
@@ -247,9 +247,9 @@
             [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
         }
         else {
-            NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+            NSString *categoryName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
             if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
                     [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
                 } else {
                     [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
@@ -260,7 +260,9 @@
             }
         }
         
-        [self setupPushNotificationDeeplink: userInfo];
+        if (![BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
+            [self setupPushNotificationDeeplink: userInfo];
+        }
     }
 }
 
@@ -296,8 +298,8 @@
 }
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
-    NSString *pushCategory = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
-    self.pushAlertDictionary = [userInfo objectForKey:@"aps"];
+    NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+    self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
     self.userInfo = userInfo;
     
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
@@ -308,7 +310,7 @@
         // Track notification view when app is open ...
         [self trackPushViewedWithParameters:pushTrackParameterDictionary];
         
-        if([[userInfo objectForKey:@"notification_type"] isEqualToString:@"alert"]) {
+        if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
             // Handle push notification when the app is in active state...
             UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
             BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
@@ -342,15 +344,15 @@
                 [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
             }
             else {
-                NSString *categoryName = [[userInfo objectForKey:@"aps"] objectForKey:@"category"];
+                NSString *categoryName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
                 if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                    if([categoryName isEqualToString:@"carousel"] || [categoryName isEqualToString:@"carousel_animation"]) {
+                    if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
                         [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
                     } else {
                         [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
                     }
                 } else {
-                    NSString *urlString = [self.userInfo objectForKey:@"deep_link_url"];
+                    NSString *urlString = [self.userInfo objectForKey: kPushNotificationDeepLinkURLKey];
                     NSURL *url = [NSURL URLWithString:urlString];
                     if(url) {
                         [self handleCustomCategory:@"" UsingPushDetailsDictionary:userInfo];
@@ -360,10 +362,12 @@
                     }
                 }
             }
+            
+            if (![BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
+                [self setupPushNotificationDeeplink: userInfo];
+            }
         }
     }
-    
-    [self setupPushNotificationDeeplink: userInfo];
 }
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
@@ -371,7 +375,7 @@
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
 
     
-    NSString *urlString = [self.userInfo objectForKey:@"deep_link_url"];
+    NSString *urlString = [self.userInfo objectForKey: kPushNotificationDeepLinkURLKey];
     NSURL *url = [NSURL URLWithString:urlString];
     
     if(url != nil) {
@@ -392,7 +396,7 @@
                 [self.blueShiftPushParamDelegate handlePushDictionary:self.userInfo];
             }
             if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(fetchProductID:)]) {
-                NSString *productID = [self.userInfo objectForKey:@"product_id"];
+                NSString *productID = [self.userInfo objectForKey: kNotificationProductIDIdenfierKey];
                 [self.blueShiftPushParamDelegate fetchProductID:productID];
             }
             return true;
@@ -425,7 +429,7 @@
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(fetchProductID:)]) {
-                    NSString *productID = [pushDetailsDictionary objectForKey:@"product_id"];
+                    NSString *productID = [pushDetailsDictionary objectForKey: kNotificationProductIDIdenfierKey];
                     [self.blueShiftPushParamDelegate fetchProductID:productID];
                 }
             }
@@ -498,13 +502,13 @@
     if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
         NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                       initWithSuiteName:bundleIdentifier];
-        NSNumber *selectedIndex = [myDefaults objectForKey:@"selected_index"];
+        NSNumber *selectedIndex = [myDefaults objectForKey: kNotificationSelectedIndexKey];
         if (selectedIndex != nil) {
             NSInteger index = [selectedIndex integerValue];
             index = (index > 0) ? index : 0;
-            NSArray *carouselItems = [pushDetailsDictionary objectForKey:@"carousel_elements"];
+            NSArray *carouselItems = [pushDetailsDictionary objectForKey: kNotificationCarouselElementIdentifierKey];
             NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
-            NSString *urlString = [selectedItem objectForKey:@"deep_link_url"];
+            NSString *urlString = [selectedItem objectForKey: kPushNotificationDeepLinkURLKey];
             NSURL *url = [NSURL URLWithString:urlString];
             if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
                 // User already implemented the viewPushActionWithDetails in App Delegate...
@@ -550,7 +554,7 @@
     } else {
         // Handle the View Action in SDK ...
         
-        NSString *urlString = [pushDetailsDictionary objectForKey:@"deep_link_url"];
+        NSString *urlString = [pushDetailsDictionary objectForKey: kPushNotificationDeepLinkURLKey];
         NSURL *url = [NSURL URLWithString:urlString];
         
         if(url != nil) {
@@ -601,7 +605,7 @@
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(fetchProductID:)]) {
-                    NSString *productID = [pushDetailsDictionary objectForKey:@"product_id"];
+                    NSString *productID = [pushDetailsDictionary objectForKey: kNotificationProductIDIdenfierKey];
                     [self.blueShiftPushParamDelegate fetchProductID:productID];
                 }
             } else {
@@ -654,7 +658,7 @@
     } else {
         // Handle the View Action in SDK ...
         
-        NSString *urlString = [pushDetailsDictionary objectForKey:@"deep_link_url"];
+        NSString *urlString = [pushDetailsDictionary objectForKey: kPushNotificationDeepLinkURLKey];
         NSURL *url = [NSURL URLWithString:urlString];
         
         if(url != nil) {

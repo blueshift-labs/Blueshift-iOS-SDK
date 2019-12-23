@@ -90,4 +90,15 @@
     return isIAMPayloadPresent;
 }
 
++ (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo {
+    if (userInfo != nil) {
+        NSString *categoryName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+        if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
+            return ([categoryName isEqualToString: kNotificationCarouselIdentifier] || [categoryName isEqualToString: kNotificationCarouselAnimationIdentifier]);
+        }
+    }
+    
+    return false;
+}
+
 @end
