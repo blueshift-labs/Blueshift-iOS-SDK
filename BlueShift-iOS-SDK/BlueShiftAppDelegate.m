@@ -500,10 +500,12 @@
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     NSString *bundleIdentifier = [BlueShift sharedInstance].config.appGroupID;
     if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
-        NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
+        NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
                                       initWithSuiteName:bundleIdentifier];
-        NSNumber *selectedIndex = [myDefaults objectForKey: kNotificationSelectedIndexKey];
+        NSNumber *selectedIndex = [userDefaults objectForKey: kNotificationSelectedIndexKey];
         if (selectedIndex != nil) {
+            [self resetUserDefaults: userDefaults];
+            
             NSInteger index = [selectedIndex integerValue];
             index = (index > 0) ? index : 0;
             NSArray *carouselItems = [pushDetailsDictionary objectForKey: kNotificationCarouselElementIdentifierKey];
@@ -536,9 +538,20 @@
             }
             
             [self setupPushNotificationDeeplink: selectedItem];
+        } else {
+            
+            [self setupPushNotificationDeeplink: pushDetailsDictionary];
         }
     }
+}
+
+- (void)resetUserDefaults:(NSUserDefaults *)userDefaults {
+    NSDictionary * dict = [userDefaults dictionaryRepresentation];
+    for (id key in dict) {
+        [userDefaults removeObjectForKey:key];
+    }
     
+    [userDefaults synchronize];
 }
 
 - (void)handleCustomCategory:(NSString *)categoryName UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
