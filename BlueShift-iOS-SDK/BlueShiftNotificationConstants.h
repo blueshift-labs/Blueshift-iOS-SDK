@@ -8,6 +8,13 @@
 #ifndef BlueShift_iOS_SDK_BlueShiftNotificationConstants_h
 #define BlueShift_iOS_SDK_BlueShiftNotificationConstants_h
 
+#define kNotificationAPSIdentifierKey                                   @"aps"
+#define kNotificationAlertIdentifierKey                                 @"alert"
+#define kNotificationCategoryIdentifierKey                              @"category"
+#define kNotificationSoundIdentifierKey                                 @"sound"
+#define kNotificationTypeIdentifierKey                                  @"notification_type"
+#define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
+
 #define kNotificationCategoryBuyIdentifier                              @"buy"
 #define kNotificationActionBuyIdentifier                                @"buy"
 #define kNotificationActionViewIdentifier                               @"view"
@@ -16,6 +23,8 @@
 #define kNotificationActionOpenCartIdentifier                           @"open_cart"
 
 #define kNotificationCategoryOfferIdentifier                            @"promotion"
+#define kNotificationProductIDIdenfierKey                               @"product_id"
+#define kNotificationSelectedIndexKey                                   @"selected_index"
 
 #define kNotificationOneButtonAlertIdentifier                           @"alert_box_1_button"
 #define kNotificationTwoButtonAlertIdentifier                           @"alert_box"

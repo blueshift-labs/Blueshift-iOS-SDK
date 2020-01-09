@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
 + (BOOL)isSilentPushNotification:(NSDictionary *)userInfo;
 + (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo;
++ (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo;
 
 @end
 
