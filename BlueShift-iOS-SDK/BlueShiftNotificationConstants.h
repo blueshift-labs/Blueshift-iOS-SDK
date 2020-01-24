@@ -45,6 +45,7 @@
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"
+#define kInAppNotificationModalCIDKey                                   @"cid"
 #define kInAppNotificationModalTXNIDKey                                 @"txnid"
 #define kInAppNotificationModalSDKVersionKey                            @"bsft_sdk_version"
 #define kInAppNotificationModalTimestampKey                             @"timestamp"
@@ -57,5 +58,6 @@
 #define kInAppNotificationModalSilentPushKey                            @"silent_push"
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
 #define kPushNotificationDeepLinkURLKey                                 @"deep_link_url"
+#define kUniversalLinkRedirectURLKey                                    @"redir"
 
 #endif

@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isSilentPushNotification:(NSDictionary *)userInfo;
 + (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo;
 + (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo;
++ (NSMutableDictionary *)getQueriesFromURL:(NSURL *)url;
++ (BOOL)isBlueshiftDeepLinkURL:(NSMutableDictionary *)payload;
 
 @end
 

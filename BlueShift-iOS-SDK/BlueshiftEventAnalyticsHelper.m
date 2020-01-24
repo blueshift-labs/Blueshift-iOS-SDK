@@ -101,4 +101,29 @@
     return false;
 }
 
++ (BOOL)isBlueshiftDeepLinkURL:(NSMutableDictionary *)payload {
+    if (payload && [payload objectForKey: kInAppNotificationModalUIDKey]
+        && [payload objectForKey: kInAppNotificationModalTXNIDKey] && [payload objectForKey: kInAppNotificationModalMIDKey] && [payload objectForKey: kInAppNotificationModalCIDKey]) {
+        return true;
+    }
+    
+    return false;
+}
+
++ (NSMutableDictionary *)getQueriesFromURL:(NSURL *)URL {
+    NSMutableDictionary *queryDictionary =[[NSMutableDictionary alloc] init];
+    if (URL !=  nil && [URL absoluteString] != nil && ![URL.absoluteString isEqualToString:@""]) {
+        NSURLComponents *URLComponents =[[NSURLComponents alloc] initWithString: URL.absoluteString];
+         if (@available(iOS 8.0, *)) {
+             if (URLComponents != nil && [URLComponents queryItems] != nil && [URLComponents.queryItems count] > 0) {
+                 for (NSURLQueryItem *queryItem in URLComponents.queryItems) {
+                    [queryDictionary setObject:queryItem.value forKey:queryItem.name];
+                }
+             }
+         }
+    }
+    
+    return queryDictionary;
+}
+
 @end

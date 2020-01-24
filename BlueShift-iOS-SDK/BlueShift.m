@@ -655,9 +655,14 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         }
         
         [parameterMutableDictionary setObject:type forKey:@"a"];
-        
+        [self performRequestQueue:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
+    }
+}
+
+- (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (parameters != nil) {
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameterMutableDictionary copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
         [BlueShiftRequestQueue addRequestOperation:requestOperation];
     }
 }
@@ -750,6 +755,21 @@ static BlueShift *_sharedBlueShiftInstance = nil;
                 failure(error);
             }
         }];
+    }
+}
+
+- (void)setupDeepLinks:(NSURL *)URL handler:(void (^)(NSURL *))handler {
+    NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:URL];
+    if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
+        [self performRequestQueue:queriesPayload canBatchThisEvent:YES];
+        if ([queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
+            NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
+            handler(redirectURL);
+        } else {
+            handler(URL);
+        }
+    } else {
+        handler(URL);
     }
 }
 
