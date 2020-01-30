@@ -24,6 +24,7 @@
 #define kInAppNotificationModalSecondaryIconKey                 @"secondary_icon"
 
 #define kInAppNotificationModalContentStyleKey                  @"content_style"
+#define kInAppNotificationModalContentStyleDarkKey              @"content_style_dark"
 #define kInAppNotificationModalTitleColorKey                    @"title_color"
 #define kInAppNotificationModalTitleBackgroundColorKey          @"title_background_color"
 #define kInAppNotificationModalTitleGravityKey                  @"title_gravity"
@@ -45,6 +46,7 @@
 #define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
 
 #define kInAppNotificationModalTemplateStyleKey                 @"template_style"
+#define kInAppNotificationModalTemplateStyleDarkKey             @"template_style_dark"
 #define kInAppNotificationModalPositionKey                      @"position"
 #define kInAppNotificationModalWidthKey                         @"width"
 #define kInAppNotificationModalHeightKey                        @"height"

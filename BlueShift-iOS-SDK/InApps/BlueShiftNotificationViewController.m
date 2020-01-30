@@ -20,6 +20,8 @@
 - (instancetype)initWithNotification:(BlueShiftInAppNotification *)notification {
     self = [super init];
     if (self) {
+        notification.contentStyle = ([self isDarkThemeEnabled] && notification.contentStyleDark) ? notification.contentStyleDark : notification.contentStyle;
+        notification.templateStyle = ([self isDarkThemeEnabled] && notification.templateStyleDark) ? notification.templateStyleDark : notification.templateStyle;
         _notification = notification;
     }
     return self;
@@ -128,7 +130,7 @@
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             label.backgroundColor = [self colorWithHexString:backgroundColorCode];
         }
-    }else {
+    } else {
         label.hidden = YES;
     }
 }
@@ -281,6 +283,14 @@
     }
     
     return NSTextAlignmentCenter;
+}
+
+- (BOOL)isDarkThemeEnabled {
+    if (@available(iOS 12.0, *)) {
+        return self.traitCollection.userInterfaceStyle == 2;
+    }
+    
+    return FALSE;
 }
 
 @end

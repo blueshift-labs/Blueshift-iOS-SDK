@@ -50,6 +50,7 @@ controller;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
 - (void)sendActionEventAnalytics:(NSString *)elementType;
 - (int)getTextAlignement:(NSString *)alignmentString;
+- (BOOL)isDarkThemeEnabled;
 
 @end
 

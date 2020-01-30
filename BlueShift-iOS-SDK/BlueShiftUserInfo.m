@@ -89,8 +89,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 }
 
 
-- (void)save
-{
+- (void)save {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary *userInfoDictionary = [self toDictionary];
     [defaults setObject:userInfoDictionary forKey:@"savedBlueShiftUserInfoDictionary"];
@@ -100,8 +99,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     }
 }
 
-+ (void)removeCurrentUserInfo
-{
++ (void)removeCurrentUserInfo {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if ([BlueShiftUserInfo isCurrentUserInfoSavedInUserDefaults]==YES) {
         [defaults removeObjectForKey:@"savedBlueShiftUserInfoDictionary"];
@@ -112,8 +110,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     }
 }
 
-+ (BOOL)isCurrentUserInfoSavedInUserDefaults
-{
++ (BOOL)isCurrentUserInfoSavedInUserDefaults {
     BOOL status = NO;
     if ([BlueShiftUserInfo currentUserInfo]) {
         status = YES;
@@ -121,8 +118,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     return status;
 }
 
-+ (BlueShiftUserInfo *)currentUserInfo
-{
++ (BlueShiftUserInfo *)currentUserInfo {
     if (_sharedUserInfo==nil) {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         NSDictionary *currentUserInfoDictionary = (NSDictionary *)[defaults objectForKey:@"savedBlueShiftUserInfoDictionary"];
@@ -132,8 +128,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     return _sharedUserInfo;
 }
 
-+ (BlueShiftUserInfo *)parseUserInfoDictionary:(NSDictionary *)currentUserInfoDictionary
-{
++ (BlueShiftUserInfo *)parseUserInfoDictionary:(NSDictionary *)currentUserInfoDictionary {
     BlueShiftUserInfo *blueShiftUserInfo = nil;
     if (currentUserInfoDictionary) {
         blueShiftUserInfo = [[BlueShiftUserInfo alloc] init];

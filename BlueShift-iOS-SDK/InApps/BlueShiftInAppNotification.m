@@ -170,13 +170,10 @@
 
 @implementation BlueShiftInAppNotificationLayout
 
-- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
+- (instancetype)initFromDictionary: (NSDictionary *)templateStyleDictionary withType: (BlueShiftInAppType)inAppType {
     if (self = [super init]) {
         
         @try {
-            
-            NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey];
-            
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
@@ -224,13 +221,10 @@
 
 @implementation BlueShiftInAppNotificationContentStyle
 
-- (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType {
+- (instancetype)initFromDictionary: (NSDictionary *) contenStyletDictionary withType: (BlueShiftInAppType)inAppType {
     if (self = [super init]) {
         
         @try {
-            
-            NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey];
-    
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
                 case BlueShiftInAppTypeModal:
@@ -374,9 +368,29 @@
                 
                     self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
                 
-                    self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey] &&
+                        [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey] != [NSNull null]) {
+                        NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey];
+                        self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: contenStyletDictionary withType: self.inAppType];
+                    }
+                    
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey] &&
+                        [payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey] != [NSNull null]) {
+                        NSDictionary *contentStyleDarkDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey];
+                        self.contentStyleDark = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: contentStyleDarkDictionary withType: self.inAppType];
+                    }
                 
-                    self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:payloadDictionary withType: self.inAppType];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey] &&
+                        [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey] != [NSNull null]) {
+                        NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey];
+                        self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary: templateStyleDictionary withType: self.inAppType];
+                    }
+                    
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey] &&
+                        [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey] != [NSNull null]){
+                        NSDictionary *templateStyleDarkDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey];
+                        self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
+                    }
                     
                     self.showCloseButton = YES;
                     self.position = kInAppNotificationModalPositionCenterKey;
