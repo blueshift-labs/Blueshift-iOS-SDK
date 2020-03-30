@@ -320,53 +320,7 @@
     self.eventName = @"";
     self.status = @"pending";
     self.createdAt = [NSNumber numberWithDouble: (double)[[NSDate date] timeIntervalSince1970]];
-    
-    if ([[self triggerMode] isEqualToString:@"now"] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
-    } else {
-        NSString *imageURL = [self fetchImageURLFromString: payload];
-        NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: imageURL];
-        if (imageURL && ![BlueShiftInAppNotificationHelper hasFileExist: fileName ]) {
-            [self downloadFileFromURL: imageURL andNotifcationPayload: payload];
-        } else {
-            self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
-        }
-    }
-}
-
-- (NSString *)fetchImageURLFromString:(NSDictionary *)payload{
-    NSString *imageURL = NULL;
-    if ([payload objectForKey: kInAppNotificationDataKey]) {
-        NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
-        if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-            NSDictionary *payloadDictionary = [inAppDictionary objectForKey: kInAppNotificationKey];
-            if ([payloadDictionary objectForKey: kInAppNotificationModalContentKey]) {
-                 NSDictionary *contentDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentKey];
-                if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey]) {
-                    imageURL = [contentDictionary objectForKey: kInAppNotificationModalBannerKey];
-                }
-            }
-        }
-    }
-    
-    return imageURL;
-}
-
-- (void)downloadFileFromURL:(NSString *)imageURL andNotifcationPayload:(NSDictionary *)payload{
-    NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: imageURL];
-    if (![BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL  *url = [NSURL URLWithString: imageURL];
-            NSData *urlData = [NSData dataWithContentsOfURL:url];
-            if (urlData) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [urlData writeToFile:[BlueShiftInAppNotificationHelper getLocalDirectory: fileName] atomically:YES];
-                    self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
-                    NSLog(@"image file saved");
-                });
-            }
-        });
-    }
+    self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
 }
 
 @end

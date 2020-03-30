@@ -759,18 +759,22 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)setupDeepLinks:(NSURL *)URL handler:(void (^)(NSURL *))handler {
-    NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:URL];
-    if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
-        [self performRequestQueue:queriesPayload canBatchThisEvent:YES];
-        
-        if ([queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
-            NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
-            handler(redirectURL);
-        } else {
-            handler(URL);
-        }
-    } else {
-        handler(URL);
+    @try {
+         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:URL];
+           if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
+               [self performRequestQueue:queriesPayload canBatchThisEvent:YES];
+               
+               if ([queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
+                   NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
+                   handler(redirectURL);
+               } else {
+                   handler(NULL);
+               }
+           } else {
+               handler(URL);
+           }
+    } @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
     }
 }
 

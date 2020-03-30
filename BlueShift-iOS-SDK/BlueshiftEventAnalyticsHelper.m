@@ -102,8 +102,7 @@
 }
 
 + (BOOL)isBlueshiftDeepLinkURL:(NSMutableDictionary *)payload {
-    if (payload && [payload objectForKey: kInAppNotificationModalUIDKey]
-        && [payload objectForKey: kInAppNotificationModalTXNIDKey] && [payload objectForKey: kInAppNotificationModalMIDKey] && [payload objectForKey: kInAppNotificationModalCIDKey]) {
+    if (payload && [payload objectForKey: kInAppNotificationModalUIDKey] && [payload objectForKey: kInAppNotificationModalMIDKey]) {
         return true;
     }
     

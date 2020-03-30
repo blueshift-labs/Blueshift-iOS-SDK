@@ -68,7 +68,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         context = appDelegate.realEventManagedObjectContext;
                     }
                     HttpRequestOperationEntity *httpRequestOperationEntity;
-                    @try {
+                @try {
                         httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
                     
                         if(httpRequestOperationEntity != nil) {
