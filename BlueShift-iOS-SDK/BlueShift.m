@@ -759,7 +759,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)setupDeepLinks:(NSURL *)URL handler:(void (^)(NSURL *))handler {
-    if (URL != nil && URL != [NSNull null]) {
+    if (URL != nil) {
         @try {
              NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:URL];
                if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
