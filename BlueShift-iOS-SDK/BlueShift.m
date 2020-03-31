@@ -759,22 +759,24 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)setupDeepLinks:(NSURL *)URL handler:(void (^)(NSURL *))handler {
-    @try {
-         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:URL];
-           if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
-               [self performRequestQueue:queriesPayload canBatchThisEvent:YES];
-               
-               if ([queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
-                   NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
-                   handler(redirectURL);
+    if (URL != nil && URL != [NSNull null]) {
+        @try {
+             NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:URL];
+               if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
+                   [self performRequestQueue:queriesPayload canBatchThisEvent:YES];
+                   
+                   if ([queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
+                       NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
+                       handler(redirectURL);
+                   } else {
+                       handler(NULL);
+                   }
                } else {
-                   handler(NULL);
+                   handler(URL);
                }
-           } else {
-               handler(URL);
-           }
-    } @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        } @catch (NSException *exception) {
+            NSLog(@"Caught exception %@", exception);
+        }
     }
 }
 
