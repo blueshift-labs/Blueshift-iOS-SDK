@@ -247,20 +247,19 @@
         
     UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
     
-    CGFloat iconFontSize = 22;
-    if (self.notification.contentStyle && self.notification.contentStyle.iconSize) {
-        iconFontSize = self.notification.contentStyle.iconSize.floatValue > 0
-        ? self.notification.contentStyle.iconSize.floatValue : 22;
-    }
+    CGFloat iconFontSize = (self.notification.contentStyle && self.notification.contentStyle.iconSize
+                            && self.notification.contentStyle.iconSize.floatValue > 0) ?
+        self.notification.contentStyle.iconSize.floatValue: 22;
     
     [self applyIconToLabelView:label andFontIconSize:[NSNumber numberWithFloat:iconFontSize]];
     
-    [self setLabelText: label andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
-    
-    CGFloat iconRadius = 0.0;
-    if (self.notification.contentStyle && self.notification.contentStyle.iconBackgroundRadius) {
-        iconFontSize = self.notification.contentStyle.iconBackgroundRadius.floatValue;
+    if (self.notification.contentStyle) {
+        [self setLabelText: label andString: self.notification.notificationContent.icon labelColor:self.notification.contentStyle.iconColor backgroundColor:self.notification.contentStyle.iconBackgroundColor];
     }
+    
+    CGFloat iconRadius = (self.notification.contentStyle && self.notification.contentStyle.iconBackgroundRadius
+                          && self.notification.contentStyle.iconBackgroundRadius.floatValue > 0)
+        ? self.notification.contentStyle.iconBackgroundRadius.floatValue : 0.0;
     
     label.layer.cornerRadius = iconRadius;
     label.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
@@ -279,12 +278,12 @@
     CGRect cgRect = CGRectMake(titleLeftPadding, yPosition, titleLabelWidth, titleLabelHeight);
     
     UILabel *titlelabel = [[UILabel alloc] initWithFrame: cgRect];
-    CGFloat fontSize = 18.0;
+    
+    CGFloat fontSize = (self.notification.contentStyle && self.notification.contentStyle.titleSize && self.notification.contentStyle.titleSize.floatValue > 0)
+        ? self.notification.contentStyle.titleSize.floatValue :  18.0;
     
     if (self.notification.contentStyle) {
         [self setLabelText: titlelabel andString:self.notification.notificationContent.title labelColor:self.notification.contentStyle.titleColor backgroundColor:self.notification.contentStyle.titleBackgroundColor];
-        fontSize = self.notification.contentStyle.titleSize.floatValue > 0
-        ? self.notification.contentStyle.titleSize.floatValue : 18.0;
     }
 
     [titlelabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size: fontSize]];
@@ -331,12 +330,12 @@
     
     UILabel *descriptionLabel = [[UILabel alloc] initWithFrame: CGRectZero];
     [descriptionLabel setNumberOfLines: 0];
-     CGFloat fontSize = 14.0;
+    
+    CGFloat fontSize = (self.notification.contentStyle && self.notification.contentStyle.messageSize && self.notification.contentStyle.messageSize.floatValue > 0)
+        ? self.notification.contentStyle.messageSize.floatValue : 14.0;
     
     if (self.notification.contentStyle) {
         [self setLabelText: descriptionLabel andString:self.notification.notificationContent.message labelColor:self.notification.contentStyle.messageColor backgroundColor:self.notification.contentStyle.messageBackgroundColor];
-        fontSize = self.notification.contentStyle.messageSize.floatValue > 0
-        ? self.notification.contentStyle.messageSize.floatValue : 14.0;
     }
     
     [descriptionLabel setFont:[UIFont fontWithName:@"Helvetica" size: fontSize]];

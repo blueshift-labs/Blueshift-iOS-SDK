@@ -128,7 +128,7 @@
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             label.backgroundColor = [self colorWithHexString:backgroundColorCode];
         }
-    }else {
+    } else {
         label.hidden = YES;
     }
 }
