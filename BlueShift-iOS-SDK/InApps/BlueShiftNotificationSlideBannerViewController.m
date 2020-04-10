@@ -215,9 +215,17 @@
         [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.iconImage];
     }
     
+    if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
+        NSString *backgroundColorCode = self.notification.contentStyle.iconImageBackgroundColor;
+        imageView.backgroundColor = [self colorWithHexString:backgroundColorCode];
+    }
+    
+    CGFloat backgroundRadius = (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundRadius && self.notification.contentStyle.iconImageBackgroundRadius.floatValue > 0) ? self.notification.contentStyle.iconImageBackgroundRadius.floatValue : 0.0;
+    
+    imageView.layer.cornerRadius = backgroundRadius;
+    imageView.clipsToBounds = YES;
     imageView.contentMode = UIViewContentModeScaleToFill;
     imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    
     
     return imageView;
 }
@@ -282,7 +290,7 @@
     
     UILabel *actionButtonlabel = [[UILabel alloc] initWithFrame:cgrect];
     
-    CGFloat iconFontSize = (self.notification.contentStyle && self.notification.contentStyle.secondaryIconSize && self.notification.contentStyle.secondaryIconSize.floatValue > 0) ? self.notification.contentStyle.secondaryIconSize.floatValue > 0 : 22;
+    CGFloat iconFontSize = (self.notification.contentStyle && self.notification.contentStyle.secondaryIconSize && self.notification.contentStyle.secondaryIconSize.floatValue > 0) ? self.notification.contentStyle.secondaryIconSize.floatValue : 22;
     
     [self applyIconToLabelView: actionButtonlabel andFontIconSize:[NSNumber numberWithFloat:iconFontSize]];
     

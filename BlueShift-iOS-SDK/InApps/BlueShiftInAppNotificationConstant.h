@@ -44,7 +44,8 @@
 #define kInAppNotificationModalSecondaryIconColorKey            @"secondary_icon_color"
 #define kInAppNotificationModalSecondaryIconBackgroundColorKey  @"secondary_icon_background_color"
 #define kInAppNotificationModalSecondaryIconRadiusKey           @"secondary_icon_background_color"
-#define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
+#define kInAppNotificationModalIconImageBackgroundColorKey      @"icon_image_background_color"
+#define kInAppNotificationModalIconImageBackgroundRadiusKey     @"icon_image_background_radius"
 
 #define kInAppNotificationModalTemplateStyleKey                 @"template_style"
 #define kInAppNotificationModalTemplateStyleDarkKey             @"template_style_dark"
@@ -115,6 +116,7 @@
 #define kInAppNotificationModalBannerPaddingKey                 @"banner_padding"
 #define kInAppNotificationModalSubTitlePaddingKey               @"sub_title_padding"
 #define kInAppNotificationModalIconImagePaddingKey              @"icon_image_padding"
+#define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 

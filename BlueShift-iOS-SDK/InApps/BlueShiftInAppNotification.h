@@ -36,31 +36,40 @@ NS_ASSUME_NONNULL_BEGIN
 /* notification contentStyle */
 @interface BlueShiftInAppNotificationContentStyle : NSObject
 
+
 @property (nonatomic, copy, readwrite, nullable) NSString *titleColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *titleBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *titleSize;
+@property (nonatomic, copy, readwrite, nullable) NSString *titleGravity;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *titlePadding;
+
 @property (nonatomic, copy, readwrite, nullable) NSString *messageColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *messageSize;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageAlign;
-@property (nonatomic, copy, readwrite, nullable) NSString *titleGravity;
 @property (nonatomic, copy, readwrite, nullable) NSString *messageGravity;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *messagePadding;
+
 @property (nonatomic, assign, readwrite, nullable) NSNumber *iconSize;
 @property (nonatomic, copy, readwrite, nullable) NSString *iconColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *iconBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *iconBackgroundRadius;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *iconPadding;
+
 @property (nonatomic, assign, readwrite, nullable) NSNumber *actionsOrientation;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *actionsPadding;
+
 @property (nonatomic, assign, readwrite, nullable) NSNumber *secondaryIconSize;
 @property (nonatomic, copy, readwrite, nullable) NSString *secondaryIconColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *secondaryIconBackgroundColor;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *secondaryIconBackgroundRadius;
-@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *actionsPadding;
-@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *iconPadding;
-@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *messagePadding;
-@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *titlePadding;
+
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *bannerPadding;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *subTitlePadding;
+
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *iconImagePadding;
+@property (nonatomic, copy, readwrite, nullable) NSString *iconImageBackgroundColor;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *iconImageBackgroundRadius;
 
 @end
 

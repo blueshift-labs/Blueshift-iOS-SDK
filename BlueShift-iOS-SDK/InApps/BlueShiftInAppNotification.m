@@ -341,6 +341,15 @@
                         self.iconImagePadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary: iconImagePadding];
                     }
                     
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundColorKey] && [contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundColorKey] != [NSNull null]) {
+                        self.iconImageBackgroundColor = (NSString *) [contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundColorKey];
+                    }
+                    
+                    if ([contenStyletDictionary objectForKey:kInAppNotificationModalIconImageBackgroundRadiusKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundRadiusKey] != [NSNull null]) {
+                        self.iconImageBackgroundRadius =(NSNumber *)[contenStyletDictionary objectForKey:kInAppNotificationModalIconImageBackgroundRadiusKey];
+                    }
+                    
                     break;
                     
                 default:
