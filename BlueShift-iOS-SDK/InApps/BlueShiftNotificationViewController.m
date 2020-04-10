@@ -54,7 +54,6 @@
 
 - (UIView *)createNotificationWindow{
     UIView *notificationView = [[UIView alloc] initWithFrame:CGRectZero];
-    notificationView.layer.cornerRadius = 10.0;
     notificationView.clipsToBounds = YES;
     
     return notificationView;
@@ -95,9 +94,10 @@
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL{
     NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
     UIImage *image = [[UIImage alloc] initWithData:imageData];
+//    UIImage *image = [[UIImage alloc] initWithData:imageData];
     
     // resize image
-    CGSize newSize = CGSizeMake(imageView.layer.frame.size.width, imageView.layer.frame.size.width);
+    CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.width);
     UIGraphicsBeginImageContext(newSize);// a CGSize that has the size you want
     [image drawInRect:CGRectMake(0.0, 0.0, newSize.width, newSize.height)];
     

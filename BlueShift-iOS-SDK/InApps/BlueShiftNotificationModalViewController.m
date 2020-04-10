@@ -225,13 +225,7 @@
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.banner) {
-        NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: self.notification.notificationContent.banner];
-        if (fileName && [BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
-            NSString *filePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fileName];
-            [self loadImageFromLocal:imageView imageFilePath: filePath];
-        } else{
-            [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
-        }
+        [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
     }
     
     imageView.contentMode = UIViewContentModeScaleToFill;

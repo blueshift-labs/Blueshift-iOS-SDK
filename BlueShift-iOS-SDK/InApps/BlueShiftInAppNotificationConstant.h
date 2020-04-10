@@ -22,6 +22,7 @@
 #define kInAppNotificationModalBannerKey                        @"banner"
 #define kInAppNotificationModalImageFileNameKey                 @"file_name"
 #define kInAppNotificationModalSecondaryIconKey                 @"secondary_icon"
+#define kInAppNotificationModalIconImageKey                     @"icon_image"
 
 #define kInAppNotificationModalContentStyleKey                  @"content_style"
 #define kInAppNotificationModalContentStyleDarkKey              @"content_style_dark"
@@ -113,6 +114,7 @@
 #define kInAppNotificationModalTitlePaddingKey                  @"title_padding"
 #define kInAppNotificationModalBannerPaddingKey                 @"banner_padding"
 #define kInAppNotificationModalSubTitlePaddingKey               @"sub_title_padding"
+#define kInAppNotificationModalIconImagePaddingKey              @"icon_image_padding"
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 

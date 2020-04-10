@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *titlePadding;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *bannerPadding;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *subTitlePadding;
+@property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *iconImagePadding;
 
 @end
 
@@ -88,6 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) NSMutableArray<BlueShiftInAppNotificationButton *>* actions;
 @property (nonatomic, copy, readwrite, nullable) NSString *banner;
 @property (nonatomic, copy, readwrite, nullable) NSString *secondarIcon;
+@property (nonatomic, copy, readwrite, nullable) NSString *iconImage;
 
 /* configure In-App Entity */
 - (instancetype)initFromDictionary: (NSDictionary *) payloadDictionary withType: (BlueShiftInAppType)inAppType;
