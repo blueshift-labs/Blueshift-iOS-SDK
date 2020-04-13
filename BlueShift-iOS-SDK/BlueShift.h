@@ -147,6 +147,6 @@
 
 - (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
 
-- (void)setupDeepLinks:(NSURL *)URL handler:(void (^)(NSURL *))handler;
+- (void)handleBlueshiftLink:(NSURL *)URL handler:(void (^)(NSURL *))handler;
 
 @end
