@@ -134,6 +134,17 @@
             xPadding = xPadding + iconLabel.frame.size.width + iconRightPadding;
         }
         
+        UIImageView *imageView;
+        BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
+        if (self.notification.notificationContent.iconImage) {
+            BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
+            xPadding = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
+            imageView = [self createImageView];
+            
+            CGFloat iconImageRightPadding = (iconImagePadding && iconImagePadding.right > 0) ? iconImagePadding.right : 0.0;
+            xPadding = xPadding + imageView.layer.frame.size.width + iconImageRightPadding;
+        }
+        
         UILabel *actionButtonLabel;
         if (self.notification.notificationContent.secondarIcon) {
             actionButtonLabel = [self createActionButtonLabel];
@@ -171,7 +182,9 @@
             if (descriptionLabelHeight < 50) {
                 CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
                 CGFloat iconBottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
-                descriptionLabelHeight = 50 + iconTopPadding + iconBottomPadding;
+                CGFloat iconImageTopPadding = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
+                CGFloat iconImageBottomPadding = (iconImagePadding && iconImagePadding.bottom > 0) ? iconImagePadding.bottom : 0.0;
+                descriptionLabelHeight = 50 + iconTopPadding + iconBottomPadding + iconImageTopPadding + iconImageBottomPadding;
             }
             
             CGRect frame = slideBannerView.frame;
@@ -182,9 +195,39 @@
         }
         
         [slideBannerView addSubview: iconLabel];
+        [slideBannerView addSubview: imageView];
         [slideBannerView addSubview: actionButtonLabel];
         [slideBannerView addSubview: descriptionLabel];
     }
+}
+
+- (UIImageView *)createImageView {
+    BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
+    CGFloat xPosition = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
+    CGFloat yPosition = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
+    
+    CGFloat imageViewWidth = kInAppNotificationModalIconWidth;
+    CGFloat imageViewHeight = kInAppNotificationModalIconHeight;
+    CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
+    
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
+    if (self.notification.notificationContent.iconImage) {
+        [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.iconImage];
+    }
+    
+    if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
+        NSString *backgroundColorCode = self.notification.contentStyle.iconImageBackgroundColor;
+        imageView.backgroundColor = [self colorWithHexString:backgroundColorCode];
+    }
+    
+    CGFloat backgroundRadius = (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundRadius && self.notification.contentStyle.iconImageBackgroundRadius.floatValue > 0) ? self.notification.contentStyle.iconImageBackgroundRadius.floatValue : 0.0;
+    
+    imageView.layer.cornerRadius = backgroundRadius;
+    imageView.clipsToBounds = YES;
+    imageView.contentMode = UIViewContentModeScaleToFill;
+    imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    
+    return imageView;
 }
 
 - (UILabel *)createIconLabel:(CGFloat)xPosition {
@@ -247,7 +290,7 @@
     
     UILabel *actionButtonlabel = [[UILabel alloc] initWithFrame:cgrect];
     
-    CGFloat iconFontSize = (self.notification.contentStyle && self.notification.contentStyle.secondaryIconSize && self.notification.contentStyle.secondaryIconSize.floatValue > 0) ? self.notification.contentStyle.secondaryIconSize.floatValue > 0 : 22;
+    CGFloat iconFontSize = (self.notification.contentStyle && self.notification.contentStyle.secondaryIconSize && self.notification.contentStyle.secondaryIconSize.floatValue > 0) ? self.notification.contentStyle.secondaryIconSize.floatValue : 22;
     
     [self applyIconToLabelView: actionButtonlabel andFontIconSize:[NSNumber numberWithFloat:iconFontSize]];
     
@@ -356,6 +399,11 @@
     _originalCenter = frame.origin.x + frame.size.width / 2.0f;
     
     return frame;
+}
+
+- (BlueShiftInAppLayoutMargin *)fetchNotificationIconImagePadding {
+    return (self.notification && self.notification.contentStyle && self.notification.contentStyle.iconImagePadding)
+    ? self.notification.contentStyle.iconImagePadding : NULL;
 }
 
 - (BlueShiftInAppLayoutMargin *)fetchNotificationIconPadding {

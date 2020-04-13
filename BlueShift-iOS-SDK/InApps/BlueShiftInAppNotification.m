@@ -119,6 +119,10 @@
                         [contentDictionary objectForKey: kInAppNotificationModalSecondaryIconKey] != [NSNull null]) {
                         self.secondarIcon = (NSString *)[contentDictionary objectForKey: kInAppNotificationModalSecondaryIconKey];
                     }
+                    
+                    if ([contentDictionary objectForKey: kInAppNotificationModalIconImageKey] && [contentDictionary objectForKey: kInAppNotificationModalIconImageKey] != [NSNull null]) {
+                        self.iconImage = (NSString *)[contentDictionary objectForKey: kInAppNotificationModalIconImageKey];
+                    }
 
                     break;
                     
@@ -330,6 +334,20 @@
                         [contenStyletDictionary objectForKey: kInAppNotificationModalSubTitlePaddingKey] != [NSNull null]) {
                         NSDictionary *subTitlePadding = [contenStyletDictionary objectForKey: kInAppNotificationModalSubTitlePaddingKey];
                         self.subTitlePadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary: subTitlePadding];
+                    }
+                    
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconImagePaddingKey] && [contenStyletDictionary objectForKey: kInAppNotificationModalIconImagePaddingKey] != [NSNull null]) {
+                        NSDictionary *iconImagePadding = [contenStyletDictionary objectForKey: kInAppNotificationModalIconImagePaddingKey];
+                        self.iconImagePadding = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary: iconImagePadding];
+                    }
+                    
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundColorKey] && [contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundColorKey] != [NSNull null]) {
+                        self.iconImageBackgroundColor = (NSString *) [contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundColorKey];
+                    }
+                    
+                    if ([contenStyletDictionary objectForKey:kInAppNotificationModalIconImageBackgroundRadiusKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationModalIconImageBackgroundRadiusKey] != [NSNull null]) {
+                        self.iconImageBackgroundRadius =(NSNumber *)[contenStyletDictionary objectForKey:kInAppNotificationModalIconImageBackgroundRadiusKey];
                     }
                     
                     break;
