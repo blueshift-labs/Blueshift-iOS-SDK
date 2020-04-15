@@ -125,7 +125,6 @@
         CGFloat xPadding = 0.0;
         
         UILabel *iconLabel;
-        BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
         if ([self isValidString: self.notification.notificationContent.icon]) {
             iconLabel = [self createIconLabel: xPadding];
             xPadding = iconLabel.frame.size.width;
@@ -134,7 +133,7 @@
         UIImageView *imageView;
         if ([self isValidString: self.notification.notificationContent.iconImage]) {
             imageView = [self createImageView];
-            xPadding = imageView.frame.size.width;
+            xPadding = xPadding + imageView.frame.size.width;
         }
         
         UILabel *actionButtonLabel;
@@ -172,9 +171,7 @@
             CGFloat descriptionLabelHeight = descriptionLabel.frame.size.height + (messageTopPadding + messageBottomPadding);
             
             if (descriptionLabelHeight < 50) {
-                CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
-                CGFloat iconBottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
-                descriptionLabelHeight = iconLabel.frame.size.height > 0 ? (50 + iconTopPadding + iconBottomPadding) : imageView.frame.size.height;
+                descriptionLabelHeight = iconLabel.frame.size.height > 0 ? iconLabel.frame.size.height : imageView.frame.size.height;
             }
             
             CGRect frame = slideBannerView.frame;
