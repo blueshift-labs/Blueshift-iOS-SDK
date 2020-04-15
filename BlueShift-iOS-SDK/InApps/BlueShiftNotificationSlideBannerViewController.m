@@ -126,33 +126,25 @@
         
         UILabel *iconLabel;
         BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
-        if (self.notification.notificationContent.icon) {
-            xPadding = (iconPadding && iconPadding.left > 0) ? iconPadding.left : 1.0;
-            CGFloat iconRightPadding = (iconPadding && iconPadding.right > 0) ? iconPadding.right : 0.0;
-            
+        if ([self isValidString: self.notification.notificationContent.icon]) {
             iconLabel = [self createIconLabel: xPadding];
-            xPadding = xPadding + iconLabel.frame.size.width + iconRightPadding;
+            xPadding = iconLabel.frame.size.width;
         }
         
         UIImageView *imageView;
-        BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
-        if (self.notification.notificationContent.iconImage) {
-            BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
-            xPadding = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
+        if ([self isValidString: self.notification.notificationContent.iconImage]) {
             imageView = [self createImageView];
-            
-            CGFloat iconImageRightPadding = (iconImagePadding && iconImagePadding.right > 0) ? iconImagePadding.right : 0.0;
-            xPadding = xPadding + imageView.layer.frame.size.width + iconImageRightPadding;
+            xPadding = imageView.frame.size.width;
         }
         
         UILabel *actionButtonLabel;
-        if (self.notification.notificationContent.secondarIcon) {
+        if ([self isValidString: self.notification.notificationContent.secondarIcon]) {
             actionButtonLabel = [self createActionButtonLabel];
         }
         
         UILabel *descriptionLabel;
         BlueShiftInAppLayoutMargin *messagePadding = [self fetchNotificationMessagePadding];
-        if (self.notification.notificationContent.message) {
+        if ([self isValidString: self.notification.notificationContent.message]) {
             BlueShiftInAppLayoutMargin *actionButtonPadding = [self fetchNotificationActionButtonPadding];
             CGFloat actionButtonRightPadding = (actionButtonPadding && actionButtonPadding.right > 0) ? actionButtonPadding.right : 0.0;
             CGFloat actionButtonLeftPadding = (actionButtonPadding && actionButtonPadding.left > 0) ? actionButtonPadding.left : 0.0;
@@ -182,9 +174,7 @@
             if (descriptionLabelHeight < 50) {
                 CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
                 CGFloat iconBottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
-                CGFloat iconImageTopPadding = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
-                CGFloat iconImageBottomPadding = (iconImagePadding && iconImagePadding.bottom > 0) ? iconImagePadding.bottom : 0.0;
-                descriptionLabelHeight = 50 + iconTopPadding + iconBottomPadding + iconImageTopPadding + iconImageBottomPadding;
+                descriptionLabelHeight = iconLabel.frame.size.height > 0 ? (50 + iconTopPadding + iconBottomPadding) : imageView.frame.size.height;
             }
             
             CGRect frame = slideBannerView.frame;
@@ -193,6 +183,12 @@
             
             [self createNotificationView];
         }
+        
+        imageView.frame = CGRectMake(0.0, 0.0, imageView.frame.size.width, slideBannerView.frame.size.height);
+        iconLabel.frame = CGRectMake(0.0, 0.0, iconLabel.frame.size.width, slideBannerView.frame.size.height);
+        
+        CGFloat actionXposition = slideBannerView.frame.size.width - actionButtonLabel.frame.size.width;
+        actionButtonLabel.frame = CGRectMake(actionXposition, [self getCenterYPosition: actionButtonLabel.frame.size.height], actionButtonLabel.frame.size.width, actionButtonLabel.frame.size.height);
         
         [slideBannerView addSubview: iconLabel];
         [slideBannerView addSubview: imageView];
@@ -203,16 +199,18 @@
 
 - (UIImageView *)createImageView {
     BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
-    CGFloat xPosition = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
-    CGFloat yPosition = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
+    CGFloat leftPadding = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
+    CGFloat topPadding = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
+    CGFloat rightPadding = (iconImagePadding && iconImagePadding.right > 0) ? iconImagePadding.right : 0.0;
+    CGFloat bottomPadding= (iconImagePadding && iconImagePadding.bottom > 0) ? iconImagePadding.bottom : 0.0;
     
-    CGFloat imageViewWidth = kInAppNotificationModalIconWidth;
-    CGFloat imageViewHeight = kInAppNotificationModalIconHeight;
-    CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
+    CGFloat imageViewWidth = kInAppNotificationModalIconWidth + (leftPadding + rightPadding);
+    CGFloat imageViewHeight = kInAppNotificationModalIconHeight+ (topPadding + bottomPadding);
+    CGRect cgRect = CGRectMake(0.0, 0.0, imageViewWidth, imageViewHeight);
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.iconImage) {
-        [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.iconImage];
+       [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.iconImage andWidth:kInAppNotificationModalIconWidth andHeight:kInAppNotificationModalIconHeight];
     }
     
     if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
@@ -224,7 +222,7 @@
     
     imageView.layer.cornerRadius = backgroundRadius;
     imageView.clipsToBounds = YES;
-    imageView.contentMode = UIViewContentModeScaleToFill;
+    imageView.contentMode = UIViewContentModeScaleAspectFit;
     imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     
     return imageView;
@@ -232,8 +230,14 @@
 
 - (UILabel *)createIconLabel:(CGFloat)xPosition {
     BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
-    CGFloat yPosition = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
-    CGRect cgRect = CGRectMake(xPosition, yPosition, kInAppNotificationModalIconWidth, kInAppNotificationModalIconHeight);
+    CGFloat topPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
+    CGFloat bottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
+    CGFloat leftPadding = (iconPadding && iconPadding.left > 0) ? iconPadding.left : 0.0;
+    CGFloat rightPadding = (iconPadding && iconPadding.right> 0) ? iconPadding.right : 0.0;
+    
+    CGFloat itemWidth = kInAppNotificationModalIconWidth + leftPadding + rightPadding;
+    CGFloat itemHeight = kInAppNotificationModalIconHeight + topPadding +bottomPadding;
+    CGRect cgRect = CGRectMake(0.0, 0.0, itemWidth, itemHeight);
     
     UILabel *label = [[UILabel alloc] initWithFrame:cgRect];
     
@@ -282,11 +286,14 @@
 
 - (UILabel *)createActionButtonLabel {
     BlueShiftInAppLayoutMargin *actionButtonPadding = [self fetchNotificationActionButtonPadding];
+    CGFloat leftPadding = (actionButtonPadding && actionButtonPadding.left > 0) ? actionButtonPadding.left : 0.0;
     CGFloat rightPadding = (actionButtonPadding && actionButtonPadding.right > 0) ? actionButtonPadding.right : 0.0;
+    CGFloat topPadding = (actionButtonPadding && actionButtonPadding.top > 0) ? actionButtonPadding.top : 0.0;
+    CGFloat bottomPadding = (actionButtonPadding && actionButtonPadding.bottom > 0) ? actionButtonPadding.bottom : 0.0;
     
-    CGFloat yPosition = (actionButtonPadding && actionButtonPadding.top > 0) ? actionButtonPadding.top : 0.0;
-    CGFloat xPosition = slideBannerView.frame.size.width - (kInAppNotificationSlideBannerActionButtonWidth + rightPadding);
-    CGRect cgrect = CGRectMake(xPosition, yPosition, kInAppNotificationSlideBannerActionButtonWidth, kInAppNotificationSlideBannerActionButtonHeight);
+    CGFloat itemWidth = kInAppNotificationSlideBannerActionButtonWidth + leftPadding + rightPadding;
+    CGFloat itemHeight = kInAppNotificationSlideBannerActionButtonHeight + topPadding + bottomPadding;
+    CGRect cgrect = CGRectMake(0.0, 0.0, itemWidth, itemHeight);
     
     UILabel *actionButtonlabel = [[UILabel alloc] initWithFrame:cgrect];
     
@@ -362,7 +369,7 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemHeight = (CGFloat) floor([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
         CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         
         if (width == 100) {
@@ -391,6 +398,9 @@
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
+    } else {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }
     
     frame.origin.x = frame.origin.x < 0.0f ? 0.0f : frame.origin.x;

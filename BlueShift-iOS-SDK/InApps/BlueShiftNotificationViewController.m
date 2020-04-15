@@ -91,15 +91,17 @@
     return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
 }
 
-- (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL{
+- (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL andWidth:(double)width andHeight:(double)height{
     NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
     UIImage *image = [[UIImage alloc] initWithData:imageData];
 //    UIImage *image = [[UIImage alloc] initWithData:imageData];
     
     // resize image
-    CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.width);
+    CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height);
     UIGraphicsBeginImageContext(newSize);// a CGSize that has the size you want
-    [image drawInRect:CGRectMake(0.0, 0.0, newSize.width, newSize.height)];
+    CGFloat xPosition = (imageView.frame.size.width / 2) - (width / 2);
+    CGFloat yPosition = (imageView.frame.size.height / 2) - (height / 2);
+    [image drawInRect:CGRectMake(xPosition, yPosition, width, height)];
     
     //image is the original UIImage
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -281,6 +283,10 @@
     }
     
     return NSTextAlignmentCenter;
+}
+
+- (BOOL)isValidString:(NSString *)data {
+    return (data && data.length > 0);
 }
 
 @end
