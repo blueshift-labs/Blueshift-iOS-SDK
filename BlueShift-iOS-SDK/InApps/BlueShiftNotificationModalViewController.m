@@ -135,7 +135,7 @@
         CGFloat yPadding = 0.0;
         
         UIImageView *imageView;
-        if (self.notification.notificationContent.banner) {
+        if ([self isValidString: self.notification.notificationContent.banner]) {
             BlueShiftInAppLayoutMargin *bannerImagePadding = [self fetchNotificationBannerImagePadding];
             yPadding = (bannerImagePadding && bannerImagePadding.top > 0) ? bannerImagePadding.top : 0.0;
             imageView = [self createImageView];
@@ -145,7 +145,7 @@
         }
         
         UILabel *iconLabel;
-        if (self.notification.notificationContent.icon) {
+        if ([self isValidString: self.notification.notificationContent.icon]) {
             BlueShiftInAppLayoutMargin *iconPadding = [self fetchNotificationIconPadding];
             CGFloat iconTopPadding = (iconPadding && iconPadding.top > 0) ? iconPadding.top : 0.0;
             CGFloat iconBottomPadding = (iconPadding && iconPadding.bottom > 0) ? iconPadding.bottom : 0.0;
@@ -156,7 +156,7 @@
         }
         
         UILabel *titleLabel;
-        if (self.notification.notificationContent.title) {
+        if ([self isValidString: self.notification.notificationContent.title]) {
             BlueShiftInAppLayoutMargin *titlePadding = [self fetchNotificationTitlePadding];
             CGFloat titleTopPadding = (titlePadding && titlePadding.top > 0) ? titlePadding.top : 0.0 ;
             CGFloat titleBottomPadding = (titlePadding && titlePadding.bottom > 0)? titlePadding.bottom : 0.0;
@@ -167,7 +167,7 @@
         }
         
         UILabel *subTitleLabel;
-        if (self.notification.notificationContent.subTitle) {
+        if ([self isValidString: self.notification.notificationContent.subTitle]) {
             BlueShiftInAppLayoutMargin *subTitlePadding = [self fetchNotificationSubTitlePadding];
             CGFloat subTitleTopPadding = (subTitlePadding && subTitlePadding.top > 0) ? subTitlePadding.top : 0.0;
             CGFloat subTitleBottomPadding = (subTitlePadding && subTitlePadding.bottom > 0) ? subTitlePadding.bottom : 0.0;
@@ -178,7 +178,7 @@
         }
         
         UILabel *descriptionLabel;
-        if (self.notification.notificationContent.message) {
+        if ([self isValidString: self.notification.notificationContent.message]) {
             BlueShiftInAppLayoutMargin *messagePadding = [self fetchNotificationMessagePadding];
             CGFloat messageTopPadding = (messagePadding && messagePadding.top > 0) ? messagePadding.top : 0.0;
             CGFloat messageBottomPadding = (messagePadding && messagePadding.bottom > 0) ? messagePadding.bottom : 0.0;
@@ -225,7 +225,7 @@
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.banner) {
-        [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner];
+        [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner andWidth: imageViewWidth andHeight: imageViewHeight];
     }
     
     imageView.contentMode = UIViewContentModeScaleToFill;
@@ -495,6 +495,9 @@
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
+    } else {
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }
     
     frame.origin.x = frame.origin.x < 0.0f ? 0.0f : frame.origin.x;
