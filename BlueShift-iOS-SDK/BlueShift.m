@@ -173,16 +173,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    if (_config.enableInAppNotification == YES && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+    if (_config.enableInAppNotification == YES) {
         if ([BlueshiftEventAnalyticsHelper isSilentPushNotification: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
-                    if (self->_config.inAppManualTriggerEnabled == NO) {
+                    if (self->_config.inAppManualTriggerEnabled == NO && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
                         [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
                     }
                 } failure:^(NSError *error){
                     NSLog(@"%@", error);
             }];
-        } else if(_config.inAppManualTriggerEnabled == NO){
+        } else if(_config.inAppManualTriggerEnabled == NO && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive){
           [self startInAppMessageLoadFromaDBTimer];
         }
     }
