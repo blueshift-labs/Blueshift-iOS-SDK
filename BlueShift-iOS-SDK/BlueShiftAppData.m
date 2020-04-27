@@ -39,7 +39,7 @@ static BlueShiftAppData *_currentAppData = nil;
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
     if (self.appName) {
-        [appMutableDictionary setObject:self.appName forKey:@"app_name"];
+        [appMutableDictionary setObject:self.bundleIdentifier forKey:@"app_name"];
     }
     
     if (self.appVersion) {
