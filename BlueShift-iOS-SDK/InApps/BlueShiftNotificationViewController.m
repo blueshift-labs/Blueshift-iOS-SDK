@@ -20,6 +20,8 @@
 - (instancetype)initWithNotification:(BlueShiftInAppNotification *)notification {
     self = [super init];
     if (self) {
+        notification.contentStyle = ([self isDarkThemeEnabled] && notification.contentStyleDark) ? notification.contentStyleDark : notification.contentStyle;
+        notification.templateStyle = ([self isDarkThemeEnabled] && notification.templateStyleDark) ? notification.templateStyleDark : notification.templateStyle;
         _notification = notification;
     }
     return self;
@@ -288,5 +290,14 @@
 - (BOOL)isValidString:(NSString *)data {
     return (data && data.length > 0);
 }
+
+- (BOOL)isDarkThemeEnabled {
+    if (@available(iOS 13.0, *)) {
+        return self.traitCollection.userInterfaceStyle == 2;
+    }
+
+    return NO;
+}
+
 
 @end
