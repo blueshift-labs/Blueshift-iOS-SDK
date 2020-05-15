@@ -191,7 +191,6 @@ API_AVAILABLE(ios(8.0))
             [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
             [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
             [self closeButtonDidTapped];
-            
         } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
                 [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:@{}];
