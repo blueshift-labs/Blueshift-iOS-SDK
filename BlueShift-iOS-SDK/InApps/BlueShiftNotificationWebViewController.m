@@ -185,7 +185,13 @@ API_AVAILABLE(ios(8.0))
         NSURL *url = navigationAction.request.URL;
         [self sendActionEventAnalytics: url.absoluteString];
         
-        if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+            NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
+            [actionPayload setObject: url.absoluteString forKey: kInAppNotificationModalPageKey];
+            [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
+            [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
+            [self closeButtonDidTapped];
+        } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
                 [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:@{}];
                 [self closeButtonDidTapped];
