@@ -11,6 +11,7 @@
 #import "BlueShiftUserInfo.h"
 #import "BlueShiftPushDelegate.h"
 #import "BlueShiftInAppNotificationDelegate.h"
+#import "BlueShiftUniversalLinksDelegate.h"
 
 @class BlueShiftInAppNotificationDelegate;
 
