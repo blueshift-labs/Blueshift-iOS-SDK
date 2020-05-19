@@ -30,6 +30,7 @@
 @property BOOL enableInAppNotification;
 @property BOOL inAppManualTriggerEnabled;
 @property BOOL inAppBackgroundFetchEnabled;
+@property BOOL isUniversalLinksEnabled;
 
 @property NSSet * _Nullable customCategories;
 
@@ -38,7 +39,7 @@
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;
-
+@property id<BlueShiftUniversalLinksDelegate> _Nonnull blueShiftUniversalLinksDelegate;
 @property NSString * _Nonnull blueShiftNotificationName;
 @property NSString * _Nonnull isEnabledPushNotificationKey;
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;

@@ -1160,4 +1160,33 @@
     }
 }
 
+
+- (void)continueUserActivity:(NSUserActivity *)userActivity  API_AVAILABLE(ios(8.0)) {
+    @try {
+        if ([userActivity.activityType isEqualToString: NSUserActivityTypeBrowsingWeb]) {
+            NSURL *url = userActivity.webpageURL;
+            if (url != nil) {
+                NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:url];
+                if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
+                    [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
+                    [[BlueShiftRequestOperationManager sharedRequestOperationManager] replayUniversalLink:url completionHandler:^(BOOL status, NSURL *url, NSError *error) {
+                        if (status == YES) {
+                            if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didReceiveAttributionData:)]) {
+                                [self.blueShiftUniversalLinksDelegate didReceiveAttributionData:url];
+                            }
+                        }
+                        else
+                        {
+                            if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didFailedToReceiveAttributionData:)]) {
+                                [self.blueShiftUniversalLinksDelegate didFailedToReceiveAttributionData: error];
+                            }
+                        }
+                    }];
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"Caught exception %@", exception);
+    }
+}
 @end

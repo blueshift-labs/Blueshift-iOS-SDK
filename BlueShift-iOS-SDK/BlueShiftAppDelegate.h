@@ -30,6 +30,7 @@
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
+@property (nonatomic, weak) id<BlueShiftUniversalLinksDelegate> _Nullable blueShiftUniversalLinksDelegate;
 
 @property BlueShiftDeepLink * _Nullable deepLinkToProductPage;
 @property BlueShiftDeepLink * _Nullable deepLinkToCartPage;
@@ -60,6 +61,7 @@
 - (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)(void)) completionHandler;
 - (void)appDidEnterBackground:(UIApplication *_Nonnull)application;
 - (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
+- (void)continueUserActivity:(NSUserActivity *_Nullable)activity API_AVAILABLE(ios(8.0));
 
 @end
 #endif
