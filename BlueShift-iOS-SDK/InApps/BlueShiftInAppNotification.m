@@ -43,11 +43,11 @@
                         [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] != [NSNull null]) {
                         self.buttonType = (NSString *) [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey];
                     }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalButtonBackgroundRadiusKey] &&
-                        [payloadDictionary objectForKey: kInAppNotificationModalButtonBackgroundRadiusKey] != [NSNull null]) {
-                        self.backgroundRadius = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalButtonBackgroundRadiusKey];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
+                        [payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
+                        self.backgroundRadius = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
                     }
-                    
+                
                     break;
                     
                 default:
@@ -62,6 +62,7 @@
 }
 
 @end
+
 
 @implementation BlueShiftInAppNotificationContent
 
@@ -139,6 +140,7 @@
 
 @end
 
+
 @implementation BlueShiftInAppLayoutMargin
 
 - (instancetype)initFromDictionary: (NSDictionary *)marginDictionary {
@@ -207,7 +209,18 @@
                         NSDictionary *marginDictionary = [templateStyleDictionary objectForKey: kInAppNotificationModalLayoutMarginKey];
                         self.margin = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary :marginDictionary];
                     }
-                    
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] != [NSNull null]) {
+                        self.backgroundImage = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] &&
+                        [templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] != [NSNull null]){
+                        self.enableCloseButton = [[templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] boolValue];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
+                        [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
+                        self.backgroundRadius = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
+                    }
+            
                     break;
                     
                 default:
@@ -222,6 +235,7 @@
 }
 
 @end
+
 
 @implementation BlueShiftInAppNotificationContentStyle
 
@@ -364,6 +378,7 @@
 }
 
 @end
+
 
 @implementation BlueShiftInAppNotification
 

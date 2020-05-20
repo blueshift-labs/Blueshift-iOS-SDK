@@ -51,6 +51,9 @@ controller;
 - (void)sendActionEventAnalytics:(NSString *)elementType;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
+- (void)setBackgroundImageFromURL:(UIView *)notificationView;
+- (void)setBackgroundColor:(UIView *)notificationView;
+- (void)setBackgroundRadius:(UIView *)notificationView;
 
 @end
 

@@ -25,10 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueShiftInAppNotificationLayout : NSObject
 
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *backgroundImage;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 @property (nonatomic, copy, readwrite, nullable) NSString *position;
 @property (nonatomic, assign, readwrite) float height;
 @property (nonatomic, assign, readwrite) float width;;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
+@property (nonatomic, assign, readwrite) BOOL enableCloseButton;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;
 
 @end
