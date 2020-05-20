@@ -9,8 +9,8 @@
 @protocol BlueShiftUniversalLinksDelegate <NSObject>
 
 @optional
-- (void) didReceiveAttributionData: (NSURL *)url;
-- (void) didFailedToReceiveAttributionData: (NSError *)error;
+- (void) didReceiveBlueshiftAttributionData: (NSURL *)url;
+- (void) didFailedToReceiveBlueshiftAttributionData: (NSError *)error;
 
 @end
 

@@ -18,7 +18,6 @@
         self.enableAppOpenTrackEvent = YES;
         self.blueShiftNotificationName = @"BlueShiftPushNotificationSetting";
         self.isEnabledPushNotificationKey = @"isEnabled";
-        self.isUniversalLinksEnabled = YES;
     }
     return self;
 }

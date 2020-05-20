@@ -31,7 +31,6 @@
 @property BOOL enableInAppNotification;
 @property BOOL inAppManualTriggerEnabled;
 @property BOOL inAppBackgroundFetchEnabled;
-@property BOOL isUniversalLinksEnabled;
 
 @property NSSet * _Nullable customCategories;
 
