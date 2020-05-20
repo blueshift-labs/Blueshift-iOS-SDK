@@ -12,9 +12,13 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftNotificationCloseButton.h"
+
+#define INAPP_CLOSE_BUTTON_WIDTH 40
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
+    BlueShiftNotificationCloseButton *_closeButton;
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -48,6 +52,7 @@
 
 - (void)createNotificationView {
     CGRect frame = [self positionNotificationView];
+    [self createCloseButton:frame];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -188,13 +193,9 @@
             yPadding = yPadding + descriptionLabel.frame.size.height + messageBottomPadding;
         }
         
-        UIColor *backgroundColor = UIColor.whiteColor;
-        if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor && ![self.notification.contentStyle.messageBackgroundColor isEqualToString:@""]) {
-            backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
-        } else if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
-            backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
-        }
-        notificationView.backgroundColor = backgroundColor;
+        [self setBackgroundColor: notificationView];
+        [self setBackgroundImageFromURL: notificationView];
+        [self setBackgroundRadius: notificationView];
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
             CGRect frame = notificationView.frame;
@@ -532,6 +533,17 @@
     }
     
     return 0;
+}
+
+- (void)createCloseButton:(CGRect) frame {
+    if (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton) {
+        _closeButton = [BlueShiftNotificationCloseButton new];
+        [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
+        int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH) : 0.0f);
+        _closeButton.frame = CGRectMake(frame.origin.x + frame.size.width - extra, frame.origin.y, INAPP_CLOSE_BUTTON_WIDTH, INAPP_CLOSE_BUTTON_WIDTH);
+        _closeButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+        [self.view addSubview:_closeButton];
+    }
 }
 
 - (BlueShiftInAppLayoutMargin *)fetchNotificationBannerImagePadding {

@@ -112,6 +112,35 @@
     imageView.image = newImage;
 }
 
+- (void)setBackgroundImageFromURL:(UIView *)notificationView {
+    if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
+    ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
+        NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
+        NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: backgroundImageURL]];
+        UIImage *image = [[UIImage alloc] initWithData:imageData];
+        [notificationView setBackgroundColor: [UIColor colorWithPatternImage: image]];
+    }
+}
+
+- (void)setBackgroundColor:(UIView *)notificationView {
+    UIColor *backgroundColor = UIColor.whiteColor;
+    if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
+        backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
+    }
+    
+    notificationView.backgroundColor = backgroundColor;
+}
+
+- (void)setBackgroundRadius:(UIView *)notificationView {
+    CGFloat backgroundRadius = 0.0;
+    if (self.notification.templateStyle && self.notification.templateStyle.backgroundRadius
+        && self.notification.templateStyle.backgroundRadius.floatValue > 0) {
+        backgroundRadius = self.notification.templateStyle.backgroundRadius.floatValue;
+    }
+    
+    notificationView.layer.cornerRadius = backgroundRadius;
+}
+
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
     if (filePath) {
         imageView.image = [UIImage imageWithContentsOfFile: filePath];
