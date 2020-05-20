@@ -127,7 +127,6 @@
     if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
         backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
     }
-    
     notificationView.backgroundColor = backgroundColor;
 }
 
@@ -137,7 +136,6 @@
         && self.notification.templateStyle.backgroundRadius.floatValue > 0) {
         backgroundRadius = self.notification.templateStyle.backgroundRadius.floatValue;
     }
-    
     notificationView.layer.cornerRadius = backgroundRadius;
 }
 
