@@ -102,8 +102,8 @@
 #define kInAppNotificationSlideBannerXPadding                   20.0
 #define kInAppNotificationSlideBannerActionButtonWidth          35.0
 #define kInAppNotificationSlideBannerActionButtonHeight         35.0
-#define KInAppNotificationModalCloseButtonWidth                 40.0
-#define KInAppNotificationModalCloseButtonHeight                40.0
+#define KInAppNotificationModalCloseButtonWidth                 32.0
+#define KInAppNotificationModalCloseButtonHeight                32.0
 
 /* In App Message Layout Margin */
 #define kInAppNotificationModalLayoutMarginKey                  @"margin"
