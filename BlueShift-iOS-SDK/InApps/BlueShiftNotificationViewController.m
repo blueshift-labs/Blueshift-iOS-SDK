@@ -10,9 +10,11 @@
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftNotificationCloseButton.h"
 
-@interface BlueShiftNotificationViewController ()
-
+@interface BlueShiftNotificationViewController () {
+    BlueShiftNotificationCloseButton *_closeButton;
+}
 @end
 
 @implementation BlueShiftNotificationViewController
@@ -139,6 +141,71 @@
     notificationView.layer.cornerRadius = backgroundRadius;
 }
 
+- (void)setBackgroundDim {
+    CGFloat backgroundDimAmount = 0.5;
+    if (self.notification.templateStyle && self.notification.templateStyle.backgroundDimAmount
+        && self.notification.templateStyle.backgroundDimAmount.floatValue > 0) {
+        backgroundDimAmount = self.notification.templateStyle.backgroundDimAmount.floatValue;
+    }
+    self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent: backgroundDimAmount];
+}
+
+- (void)createCloseButton:(CGRect)frame {
+    if (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton) {
+        if ( self.notification.templateStyle.closeButton
+            && self.notification.templateStyle.closeButton.text
+            && ![self.notification.templateStyle.closeButton.text isEqualToString:@""]) {
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - 5;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + 5, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            UIButton *closeButtonLabel = [[UIButton alloc] initWithFrame:cgRect];
+            BlueShiftInAppNotificationButton *closeButton = self.notification.templateStyle.closeButton;
+            CGFloat closeButtonFontSize = (closeButton && closeButton.textSize && closeButton.textSize.floatValue > 0)
+                ? closeButton.textSize.floatValue: 22;
+            
+            [self applyIconToLabelView:closeButtonLabel.titleLabel andFontIconSize:[NSNumber numberWithFloat:closeButtonFontSize]];
+            
+            CGFloat closeButtonRadius = 0.5 * closeButtonLabel.bounds.size.width;
+            if (closeButton) {
+                [self setButton: closeButtonLabel andString: closeButton.text
+                textColor: closeButton.textColor backgroundColor: closeButton.backgroundColor];
+                
+                closeButtonRadius = (closeButton.backgroundRadius && closeButton.backgroundRadius.floatValue > 0) ?
+                closeButton.backgroundRadius.floatValue : closeButtonRadius;
+            }
+
+            closeButtonLabel.layer.cornerRadius = closeButtonRadius;
+            [closeButtonLabel addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
+            
+            closeButtonLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+            [closeButtonLabel.titleLabel setTextAlignment: NSTextAlignmentCenter];
+            [self.view addSubview: closeButtonLabel];
+        } else {
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            _closeButton = [BlueShiftNotificationCloseButton new];
+            [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
+            _closeButton.frame = cgRect;
+            _closeButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+            [self.view addSubview:_closeButton];
+        }
+    }
+}
+
+- (void)setButton:(UIButton *)button andString:(NSString *)value
+        textColor:(NSString *)textColorCode
+  backgroundColor:(NSString *)backgroundColorCode {
+    if (value != (id)[NSNull null] && value.length > 0 ) {
+        [button setTitle : value forState:UIControlStateNormal];
+        
+        if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
+            [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
+        }
+        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
+            [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+        }
+    }
+}
+
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
     if (filePath) {
         imageView.image = [UIImage imageWithContentsOfFile: filePath];
@@ -248,7 +315,7 @@
 }
 
 - (void)applyIconToLabelView:(UILabel *)iconLabelView andFontIconSize:(NSNumber *)fontSize {
-    if (self.notification.notificationContent.icon) {
+    if (iconLabelView && [fontSize floatValue] > 0) {
         if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil) {
             [self createFontFile: iconLabelView];
         }

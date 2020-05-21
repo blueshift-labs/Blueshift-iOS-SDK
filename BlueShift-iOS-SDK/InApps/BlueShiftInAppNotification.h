@@ -21,6 +21,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/* Notification button details */
+@interface BlueShiftInAppNotificationButton : NSObject
+
+@property (nonatomic, copy, readwrite, nullable) NSString *text;
+@property (nonatomic, copy, readwrite, nullable) NSString *textColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
+@property (nonatomic, copy, readwrite, nullable) NSString *iosLink;
+@property (nonatomic, copy, readwrite, nullable) NSString *sharableText;
+@property (nonatomic, copy, readwrite, nullable) NSString* buttonType;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *textSize;
+
+@end
+
 /* notification Layout (presentation details) */
 @interface BlueShiftInAppNotificationLayout : NSObject
 
@@ -33,6 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
 @property (nonatomic, assign, readwrite) BOOL enableCloseButton;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;
+@property (nonatomic, readwrite) BlueShiftInAppNotificationButton *closeButton;
+@property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundDimAmount;
 
 @end
 
@@ -76,19 +92,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/* Notification button details */
-@interface BlueShiftInAppNotificationButton : NSObject
-
-@property (nonatomic, copy, readwrite, nullable) NSString *text;
-@property (nonatomic, copy, readwrite, nullable) NSString *textColor;
-@property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
-@property (nonatomic, copy, readwrite, nullable) NSString *iosLink;
-@property (nonatomic, copy, readwrite, nullable) NSString *sharableText;
-@property (nonatomic, copy, readwrite, nullable) NSString* buttonType;
-@property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
-
-@end
-
 /* notification content , either be html link/ html source / layout props */
 @interface BlueShiftInAppNotificationContent : NSObject
 
@@ -125,7 +128,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite) float height;
 @property (nonatomic, assign, readwrite) float width;
 
-@property (nonatomic, readwrite) BOOL showCloseButton;
 @property (nonatomic, assign, readwrite) long *expiresAt;
 @property (nonatomic, copy, readwrite) NSString *trigger;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationLayout *templateStyle;

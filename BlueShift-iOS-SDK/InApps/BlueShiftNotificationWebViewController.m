@@ -7,18 +7,14 @@
 
 #import <WebKit/WebKit.h>
 #import "BlueShiftNotificationWebViewController.h"
-#import "BlueShiftNotificationCloseButton.h"
 #import "BlueShiftNotificationView.h"
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 
-#define INAPP_CLOSE_BUTTON_WIDTH 40
-
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate> {
     WKWebView *webView;
-    BlueShiftNotificationCloseButton *_closeButton;
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -150,7 +146,7 @@ API_AVAILABLE(ios(8.0))
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
-    int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH / 2.0f) : 0.0f);
+    int extra = (int) (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
@@ -210,17 +206,6 @@ API_AVAILABLE(ios(8.0))
     | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
 }
 
-- (void)createCloseButton:(CGRect) frame {
-    if (self.notification.showCloseButton) {
-        _closeButton = [BlueShiftNotificationCloseButton new];
-        [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
-        int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH) : 0.0f);
-        _closeButton.frame = CGRectMake(frame.origin.x + frame.size.width - extra + 5, frame.origin.y - 5, INAPP_CLOSE_BUTTON_WIDTH, INAPP_CLOSE_BUTTON_WIDTH);
-        _closeButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-        [self.view addSubview:_closeButton];
-    }
-}
-
 - (void)loadWebView {
     if (self.notification.notificationContent.url) {
         [self loadFromURL];
@@ -232,6 +217,7 @@ API_AVAILABLE(ios(8.0))
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];
+    [self setBackgroundDim];
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
       webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
       webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
