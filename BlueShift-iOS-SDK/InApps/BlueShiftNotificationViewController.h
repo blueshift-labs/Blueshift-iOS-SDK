@@ -54,6 +54,9 @@ controller;
 - (void)setBackgroundImageFromURL:(UIView *)notificationView;
 - (void)setBackgroundColor:(UIView *)notificationView;
 - (void)setBackgroundRadius:(UIView *)notificationView;
+- (void)setBackgroundDim;
+- (void)createCloseButton:(CGRect)frame;
+- (void)setButton:(UIButton *)button andString:(NSString *)value textColor:(NSString *)textColorCode backgroundColor:(NSString *)backgroundColorCode;
 
 @end
 

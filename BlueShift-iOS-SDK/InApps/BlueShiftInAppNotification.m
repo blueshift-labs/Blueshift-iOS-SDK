@@ -37,7 +37,7 @@
                     }
                     if ([payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] != [NSNull null]) {
-                        self.sharableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
+                        self.shareableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
                     }
                     if ([payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] != [NSNull null]) {
@@ -46,6 +46,9 @@
                     if ([payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
                         self.backgroundRadius = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
+                    }
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalTextSizeKey] && [payloadDictionary objectForKey: kInAppNotificationModalTextSizeKey] != [NSNull null]) {
+                        self.textSize = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalTextSizeKey];
                     }
                 
                     break;
@@ -219,6 +222,13 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
                         [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
                         self.backgroundRadius = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] != [NSNull null]) {
+                        NSDictionary *closeButtonPayload = [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey];
+                        self.closeButton =  [[BlueShiftInAppNotificationButton alloc] initFromDictionary: closeButtonPayload withType: inAppType];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] != [NSNull null]) {
+                        self.backgroundDimAmount = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey];
                     }
             
                     break;
@@ -425,7 +435,6 @@
                         self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
                     }
                     
-                    self.showCloseButton = YES;
                     self.position = kInAppNotificationModalPositionCenterKey;
                     self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
                     self.width = 100;

@@ -12,13 +12,9 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
-#import "BlueShiftNotificationCloseButton.h"
-
-#define INAPP_CLOSE_BUTTON_WIDTH 40
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
-    BlueShiftNotificationCloseButton *_closeButton;
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -53,6 +49,7 @@
 - (void)createNotificationView {
     CGRect frame = [self positionNotificationView];
     [self createCloseButton:frame];
+    [self setBackgroundDim];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -399,21 +396,6 @@
     [notificationView addSubview:button];
 }
 
-- (void)setButton:(UIButton *)button andString:(NSString *)value
-        textColor:(NSString *)textColorCode
-  backgroundColor:(NSString *)backgroundColorCode {
-    if (value != (id)[NSNull null] && value.length > 0 ) {
-        [button setTitle : value forState:UIControlStateNormal];
-        
-        if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
-            [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
-        }
-        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
-            [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-        }
-    }
-}
-
 - (CGFloat)getCenterXPosition:(UIView *)parentView childWidth:(CGFloat)width {
     CGFloat xPadding = width / 2.0;
     
@@ -533,17 +515,6 @@
     }
     
     return 0;
-}
-
-- (void)createCloseButton:(CGRect) frame {
-    if (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton) {
-        _closeButton = [BlueShiftNotificationCloseButton new];
-        [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
-        int extra = (int) (self.notification.showCloseButton ? (INAPP_CLOSE_BUTTON_WIDTH) : 0.0f);
-        _closeButton.frame = CGRectMake(frame.origin.x + frame.size.width - extra, frame.origin.y, INAPP_CLOSE_BUTTON_WIDTH, INAPP_CLOSE_BUTTON_WIDTH);
-        _closeButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-        [self.view addSubview:_closeButton];
-    }
 }
 
 - (BlueShiftInAppLayoutMargin *)fetchNotificationBannerImagePadding {
