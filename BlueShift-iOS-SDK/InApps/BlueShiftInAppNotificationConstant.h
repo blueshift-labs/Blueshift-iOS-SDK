@@ -56,12 +56,15 @@
 #define kInAppNotificationModalBackgroundImageKey               @"background_image"
 #define kInAppNotificationModalEnableCloseButtonKey             @"enable_close_button"
 #define kInAppNotificationModalBackgroundActionKey              @"enable_background_action"
+#define kInAppNotificationModalCloseButtonKey                   @"close_button"
+#define kInAppNotificationModalBackgroundDimAmountKey           @"background_dim_amount"
 
 #define kInAppNotificationModalTextKey                          @"text"
 #define kInAppNotiificationModalTextColorKey                    @"text_color"
 #define kInAppNotificationModalPageKey                          @"ios_link"
 #define kInAppNotificationModalSharableTextKey                  @"shareable_text"
 #define kInAppNotificationModalBackgroundRadiusKey              @"background_radius"
+#define kInAppNotificationModalTextSizeKey                      @"text_size"
 
 /* Define a Font */
 #define kInAppNotificationModalFontExtensionKey                 @"otf"
@@ -99,6 +102,8 @@
 #define kInAppNotificationSlideBannerXPadding                   20.0
 #define kInAppNotificationSlideBannerActionButtonWidth          35.0
 #define kInAppNotificationSlideBannerActionButtonHeight         35.0
+#define KInAppNotificationModalCloseButtonWidth                 32.0
+#define KInAppNotificationModalCloseButtonHeight                32.0
 
 /* In App Message Layout Margin */
 #define kInAppNotificationModalLayoutMarginKey                  @"margin"
