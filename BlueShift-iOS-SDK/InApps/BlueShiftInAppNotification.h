@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString *textColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *backgroundColor;
 @property (nonatomic, copy, readwrite, nullable) NSString *iosLink;
-@property (nonatomic, copy, readwrite, nullable) NSString *sharableText;
+@property (nonatomic, copy, readwrite, nullable) NSString *shareableText;
 @property (nonatomic, copy, readwrite, nullable) NSString* buttonType;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *textSize;

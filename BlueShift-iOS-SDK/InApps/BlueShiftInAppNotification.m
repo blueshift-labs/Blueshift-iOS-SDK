@@ -37,7 +37,7 @@
                     }
                     if ([payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] != [NSNull null]) {
-                        self.sharableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
+                        self.shareableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
                     }
                     if ([payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] != [NSNull null]) {

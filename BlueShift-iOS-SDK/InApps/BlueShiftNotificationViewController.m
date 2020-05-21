@@ -240,8 +240,8 @@
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
-            if (buttonDetails.sharableText != nil && ![buttonDetails.sharableText isEqualToString:@""]) {
-                [self shareData: buttonDetails.sharableText];
+            if (buttonDetails.shareableText != nil && ![buttonDetails.shareableText isEqualToString:@""]) {
+                [self shareData: buttonDetails.shareableText];
             } else{
                 [self closeButtonDidTapped];
             }
@@ -262,7 +262,7 @@
 - (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {
     NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
     if (actionButton.buttonType && [actionButton.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]) {
-        NSString *sharableLink = actionButton.sharableText ? actionButton.sharableText : @"";
+        NSString *sharableLink = actionButton.shareableText ? actionButton.shareableText : @"";
         [actionPayload setObject: sharableLink forKey: kInAppNotificationModalSharableTextKey];
     } else {
         NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
