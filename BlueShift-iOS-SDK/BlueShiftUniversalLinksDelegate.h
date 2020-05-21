@@ -11,6 +11,6 @@
 @optional
 - (void) didReceiveBlueshiftAttributionData: (NSURL *)url;
 - (void) didFailedToReceiveBlueshiftAttributionData: (NSError *)error;
-
+- (void) didStartProcessingBlueshiftAttributionData;
 @end
 

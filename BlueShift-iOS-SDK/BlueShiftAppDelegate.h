@@ -62,7 +62,7 @@
 - (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)(void)) completionHandler;
 - (void)appDidEnterBackground:(UIApplication *_Nonnull)application;
 - (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
-- (BOOL)continueUserActivity:(NSUserActivity *_Nullable)activity API_AVAILABLE(ios(8.0));
+- (BOOL)handleBlueshiftUniversalLinks:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
 
 @end
 #endif
