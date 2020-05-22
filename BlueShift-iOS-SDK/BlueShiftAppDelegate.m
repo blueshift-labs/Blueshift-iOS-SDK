@@ -1165,11 +1165,11 @@
         if (userActivity != nil && [userActivity.activityType isEqualToString: NSUserActivityTypeBrowsingWeb]) {
             NSURL *url = userActivity.webpageURL;
             if (url != nil) {
+                if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didStartProcessingBlueshiftAttributionData)]) {
+                    [self.blueShiftUniversalLinksDelegate didStartProcessingBlueshiftAttributionData];
+                }
                 NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:url];
                 if ([url.absoluteString rangeOfString: kUniversalLinkShortURLKey].location != NSNotFound) {
-                    if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didStartProcessingBlueshiftAttributionData)]) {
-                        [self.blueShiftUniversalLinksDelegate didStartProcessingBlueshiftAttributionData];
-                    }
                     [[BlueShiftRequestOperationManager sharedRequestOperationManager] replayUniversalLink:url completionHandler:^(BOOL status, NSURL *url, NSError *error) {
                         if (status == YES) {
                             if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didReceiveBlueshiftAttributionData:)]) {
@@ -1184,13 +1184,11 @@
                         }
                     }];
                     return YES;
-                } else if ([BlueshiftEventAnalyticsHelper isBlueshiftDeepLinkURL: queriesPayload]) {
-                    if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
+                } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
                         NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
                         [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
                         [self.blueShiftUniversalLinksDelegate didReceiveBlueshiftAttributionData: redirectURL];
                         return YES;
-                    }
                 } else {
                     [self.blueShiftUniversalLinksDelegate didReceiveBlueshiftAttributionData:url];
                     return YES;
