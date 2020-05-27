@@ -9,7 +9,7 @@
 @protocol BlueShiftUniversalLinksDelegate <NSObject>
 
 @optional
-- (void) didReceiveBlueshiftAttributionData: (NSURL *)url;
+- (void) didReceiveBlueshiftAttributionData: (NSURL *_Nullable)url;
 - (void) didFailedToReceiveBlueshiftAttributionData: (NSError *)error;
 - (void) didStartProcessingBlueshiftAttributionData;
 @end
