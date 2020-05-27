@@ -68,7 +68,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     }
     
     if (self.unsubscribed) {
-        [sharedUserInfoMutableDictionary setObject:[NSNumber numberWithBool:self.unsubscribed] forKey:@"unsubscribed"];
+        [sharedUserInfoMutableDictionary setObject:[NSNumber numberWithBool:self.unsubscribed] forKey:@"unsubscribed_push"];
     }
     
     if (self.additionalUserInfo) {
@@ -139,8 +139,8 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:@"education"];
         blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:@"facebook_id"];
         blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:@"gender"];
-        if([currentUserInfoDictionary objectForKey:@"unsubscribed"] && [[currentUserInfoDictionary objectForKey:@"unsubscribed"] boolValue]) {
-            blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:@"unsubscribed"] boolValue];
+        if([currentUserInfoDictionary objectForKey:@"unsubscribed_push"] && [[currentUserInfoDictionary objectForKey:@"unsubscribed_push"] boolValue]) {
+            blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:@"unsubscribed_push"] boolValue];
         }
         NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:@"joined_at"] doubleValue];
         
