@@ -17,6 +17,7 @@
 
 @property NSURLSession *backgroundSession;
 @property NSURLSessionConfiguration *sessionConfiguraion;
+@property NSURLSession *replayURLSesion;
 
 // Method to get the shared instance for BlueShiftOperationManager ...
 
