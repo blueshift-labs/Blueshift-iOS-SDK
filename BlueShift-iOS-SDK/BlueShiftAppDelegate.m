@@ -1177,33 +1177,37 @@
 
 -(void)processUniversalLinks:(NSURL * _Nonnull)url {
     @try {
-        if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didStartProcessingBlueshiftAttributionData)]) {
-            [self.blueShiftUniversalLinksDelegate didStartProcessingBlueshiftAttributionData];
+        if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didStartLinkProcessing)]) {
+            [self.blueShiftUniversalLinksDelegate didStartLinkProcessing];
         }
         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL:url];
         if ([url.absoluteString rangeOfString: kUniversalLinkShortURLKey].location != NSNotFound) {
-            [[BlueShiftRequestOperationManager sharedRequestOperationManager] replayUniversalLink:url completionHandler:^(BOOL status, NSURL *url, NSError *error) {
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] replayUniversalLink:url completionHandler:^(BOOL status, NSURL *redirectURL, NSError *error) {
                 if (status == YES) {
-                    if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didReceiveBlueshiftAttributionData:)]) {
-                        [self.blueShiftUniversalLinksDelegate didReceiveBlueshiftAttributionData:url];
+                    if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
+                        [self.blueShiftUniversalLinksDelegate didCompleteLinkProcessing:redirectURL];
                     }
                 }
                 else
                 {
-                    if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didFailedToReceiveBlueshiftAttributionData:url:)]) {
-                        [self.blueShiftUniversalLinksDelegate didFailedToReceiveBlueshiftAttributionData: error url:url];
+                    if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didFailLinkProcessingWithError:url:)]) {
+                        [self.blueShiftUniversalLinksDelegate didFailLinkProcessingWithError:error url:url];
                     }
                 }
             }];
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
             [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
-            [self.blueShiftUniversalLinksDelegate didReceiveBlueshiftAttributionData: redirectURL];
+            if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
+                [self.blueShiftUniversalLinksDelegate didCompleteLinkProcessing: redirectURL];
+            }
         } else {
             if ([[BlueShift sharedInstance] isBlueshiftUniversalLinkURL:url]) {
                 [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
             }
-            [self.blueShiftUniversalLinksDelegate didReceiveBlueshiftAttributionData:url];
+            if ([self.blueShiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
+                [self.blueShiftUniversalLinksDelegate didCompleteLinkProcessing:url];
+            }
         }
     } @catch (NSException *exception) {
         NSLog(@"Caught exception %@", exception);
