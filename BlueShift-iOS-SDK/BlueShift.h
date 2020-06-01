@@ -148,4 +148,7 @@
 - (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+
+- (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url;
+
 @end

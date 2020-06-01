@@ -101,15 +101,6 @@
     return false;
 }
 
-+ (BOOL)isBlueshiftDeepLinkURL:(NSMutableDictionary *)payload {
-    if (payload && (([payload objectForKey: kInAppNotificationModalUIDKey] &&
-                     [payload objectForKey: kInAppNotificationModalMIDKey]) ||
-                    [payload objectForKey: kInAppNotificationModalEIDKey])) {
-        return true;
-    }
-    return false;
-}
-
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)URL {
     @try {
         NSMutableDictionary *queryDictionary =[[NSMutableDictionary alloc] init];

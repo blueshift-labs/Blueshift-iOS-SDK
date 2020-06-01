@@ -10,7 +10,7 @@
 
 @optional
 - (void) didReceiveBlueshiftAttributionData: (NSURL *_Nullable)url;
-- (void) didFailedToReceiveBlueshiftAttributionData: (NSError *_Nullable)error;
+- (void) didFailedToReceiveBlueshiftAttributionData: (NSError *_Nullable)error url:(NSURL *_Nullable)url;
 - (void) didStartProcessingBlueshiftAttributionData;
 @end
 

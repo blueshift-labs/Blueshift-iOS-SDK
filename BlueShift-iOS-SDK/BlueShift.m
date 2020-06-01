@@ -756,4 +756,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         }];
     }
 }
+
+- (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url {
+    if (url != nil) {
+        NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL: url];
+        if (queriesPayload && ([queriesPayload objectForKey: kInAppNotificationModalUIDKey] &&
+                        [queriesPayload objectForKey: kInAppNotificationModalMIDKey])) {
+            return true;
+        }
+    }
+    return false;
+}
 @end
