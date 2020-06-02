@@ -11,7 +11,7 @@
 #import "BlueShiftUserInfo.h"
 #import "BlueShiftPushDelegate.h"
 #import "BlueShiftInAppNotificationDelegate.h"
-#import "BlueShiftUniversalLinksDelegate.h"
+#import "BlueshiftUniversalLinksDelegate.h"
 
 @class BlueShiftInAppNotificationDelegate;
 
@@ -39,7 +39,7 @@
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;
-@property id<BlueShiftUniversalLinksDelegate> _Nonnull blueShiftUniversalLinksDelegate;
+@property id<BlueshiftUniversalLinksDelegate> _Nonnull blueshiftUniversalLinksDelegate;
 @property NSString * _Nonnull blueShiftNotificationName;
 @property NSString * _Nonnull isEnabledPushNotificationKey;
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;

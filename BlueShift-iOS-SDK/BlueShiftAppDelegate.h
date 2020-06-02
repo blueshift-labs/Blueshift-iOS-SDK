@@ -20,7 +20,7 @@
 #import "BlueShiftAlertView.h"
 #import "BlueshiftEventAnalyticsHelper.h"
 #import "BlueShiftInAppNotificationHelper.h"
-#import "BlueShiftUniversalLinksDelegate.h"
+#import "BlueshiftUniversalLinksDelegate.h"
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, CLLocationManagerDelegate, BlueShiftAlertControllerDelegate>
 
@@ -31,7 +31,7 @@
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
-@property (nonatomic, weak) id<BlueShiftUniversalLinksDelegate> _Nullable blueShiftUniversalLinksDelegate;
+@property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
 @property BlueShiftDeepLink * _Nullable deepLinkToProductPage;
 @property BlueShiftDeepLink * _Nullable deepLinkToCartPage;

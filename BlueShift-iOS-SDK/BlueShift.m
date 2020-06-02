@@ -92,7 +92,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if(config.blueShiftPushDelegate) {
         blueShiftAppDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
     }
-    blueShiftAppDelegate.blueShiftUniversalLinksDelegate = config.blueShiftUniversalLinksDelegate;
+    blueShiftAppDelegate.blueshiftUniversalLinksDelegate = config.blueshiftUniversalLinksDelegate;
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
         [BlueShiftHttpRequestBatchUpload startBatchUpload];
