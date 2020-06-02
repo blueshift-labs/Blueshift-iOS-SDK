@@ -181,7 +181,6 @@
             [closeButtonLabel.titleLabel setTextAlignment: NSTextAlignmentCenter];
             [self.view addSubview: closeButtonLabel];
         } else {
-            [_closeButton removeFromSuperview];
             CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth;
             CGRect cgRect = CGRectMake(xPosition, frame.origin.y, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
             _closeButton = [BlueShiftNotificationCloseButton new];

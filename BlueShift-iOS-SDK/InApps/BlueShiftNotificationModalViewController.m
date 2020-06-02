@@ -48,7 +48,6 @@
 
 - (void)createNotificationView {
     CGRect frame = [self positionNotificationView];
-    [self createCloseButton:frame];
     [self setBackgroundDim];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
@@ -202,6 +201,7 @@
             [self createNotificationView];
         }
         
+        [self createCloseButton: notificationView.frame];
         [notificationView addSubview:imageView];
         [notificationView addSubview: iconLabel];
         [notificationView addSubview: titleLabel];
