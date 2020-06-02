@@ -3,7 +3,7 @@
 //  BlueShift-iOS-SDK
 //
 //  Created by Ketan on 19/05/20.
-//  Copyright © 2020 Blueshift. All rights reserved.
+//  Copyright ©2020 Blueshift. All rights reserved.
 //
 
 @protocol BlueshiftUniversalLinksDelegate <NSObject>
