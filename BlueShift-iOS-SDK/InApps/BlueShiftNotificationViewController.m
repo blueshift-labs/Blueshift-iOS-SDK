@@ -151,7 +151,8 @@
 }
 
 - (void)createCloseButton:(CGRect)frame {
-    if (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton) {
+    BOOL showCloseButton = ((self.notification.inAppType == BlueShiftInAppTypeModal && self.notification.notificationContent.actions.count == 0) || self.notification.inAppType == BlueShiftInAppTypeHTML) ? YES : self.notification.templateStyle.enableCloseButton;
+    if (self.notification.templateStyle && showCloseButton) {
         if ( self.notification.templateStyle.closeButton
             && self.notification.templateStyle.closeButton.text
             && ![self.notification.templateStyle.closeButton.text isEqualToString:@""]) {
@@ -180,6 +181,7 @@
             [closeButtonLabel.titleLabel setTextAlignment: NSTextAlignmentCenter];
             [self.view addSubview: closeButtonLabel];
         } else {
+            [_closeButton removeFromSuperview];
             CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth;
             CGRect cgRect = CGRectMake(xPosition, frame.origin.y, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
             _closeButton = [BlueShiftNotificationCloseButton new];
