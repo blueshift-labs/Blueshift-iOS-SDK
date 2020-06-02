@@ -37,17 +37,20 @@
                     }
                     if ([payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] != [NSNull null]) {
-                        self.sharableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
+                        self.shareableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
                     }
                     if ([payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] != [NSNull null]) {
                         self.buttonType = (NSString *) [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey];
                     }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalButtonBackgroundRadiusKey] &&
-                        [payloadDictionary objectForKey: kInAppNotificationModalButtonBackgroundRadiusKey] != [NSNull null]) {
-                        self.backgroundRadius = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalButtonBackgroundRadiusKey];
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
+                        [payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
+                        self.backgroundRadius = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
                     }
-                    
+                    if ([payloadDictionary objectForKey: kInAppNotificationModalTextSizeKey] && [payloadDictionary objectForKey: kInAppNotificationModalTextSizeKey] != [NSNull null]) {
+                        self.textSize = (NSNumber *)[payloadDictionary objectForKey: kInAppNotificationModalTextSizeKey];
+                    }
+                
                     break;
                     
                 default:
@@ -62,6 +65,7 @@
 }
 
 @end
+
 
 @implementation BlueShiftInAppNotificationContent
 
@@ -139,6 +143,7 @@
 
 @end
 
+
 @implementation BlueShiftInAppLayoutMargin
 
 - (instancetype)initFromDictionary: (NSDictionary *)marginDictionary {
@@ -207,7 +212,25 @@
                         NSDictionary *marginDictionary = [templateStyleDictionary objectForKey: kInAppNotificationModalLayoutMarginKey];
                         self.margin = [[BlueShiftInAppLayoutMargin alloc] initFromDictionary :marginDictionary];
                     }
-                    
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] != [NSNull null]) {
+                        self.backgroundImage = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] &&
+                        [templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] != [NSNull null]){
+                        self.enableCloseButton = [[templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] boolValue];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
+                        [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
+                        self.backgroundRadius = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] != [NSNull null]) {
+                        NSDictionary *closeButtonPayload = [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey];
+                        self.closeButton =  [[BlueShiftInAppNotificationButton alloc] initFromDictionary: closeButtonPayload withType: inAppType];
+                    }
+                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] != [NSNull null]) {
+                        self.backgroundDimAmount = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey];
+                    }
+            
                     break;
                     
                 default:
@@ -222,6 +245,7 @@
 }
 
 @end
+
 
 @implementation BlueShiftInAppNotificationContentStyle
 
@@ -365,6 +389,7 @@
 
 @end
 
+
 @implementation BlueShiftInAppNotification
 
 - (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity {
@@ -410,7 +435,6 @@
                         self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
                     }
                     
-                    self.showCloseButton = YES;
                     self.position = kInAppNotificationModalPositionCenterKey;
                     self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
                     self.width = 100;

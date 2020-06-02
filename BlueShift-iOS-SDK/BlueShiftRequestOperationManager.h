@@ -17,6 +17,7 @@
 
 @property NSURLSession *backgroundSession;
 @property NSURLSessionConfiguration *sessionConfiguraion;
+@property NSURLSession *replayURLSesion;
 
 // Method to get the shared instance for BlueShiftOperationManager ...
 
@@ -30,5 +31,7 @@
 // Method to add Basic authentication request Header ...
 
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password;
+
+- (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler;
 
 @end

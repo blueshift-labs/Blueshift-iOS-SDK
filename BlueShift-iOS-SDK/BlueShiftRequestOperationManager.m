@@ -133,5 +133,29 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     
 }
 
+- (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
+    if(_replayURLSesion == NULL) {
+        NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+        _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    }
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
+    [urlRequest setHTTPMethod:@"HEAD"];
+    NSURLSessionDataTask *dataTask = [_replayURLSesion dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if(error == nil)
+        {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if(httpResponse.statusCode == kStatusCodeSuccessfullResponse)
+            {
+                handler(YES, httpResponse.URL, nil);
+            } else {
+                handler(NO,nil,[NSError errorWithDomain:@"Failed to load redirection link" code:httpResponse.statusCode userInfo:nil]);
+            }
+        } else {
+            handler(NO,nil,error);
+        }
+    }];
+    [dataTask resume];
+}
+
 
 @end

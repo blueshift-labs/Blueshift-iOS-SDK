@@ -48,6 +48,7 @@
 
 - (void)createNotificationView {
     CGRect frame = [self positionNotificationView];
+    [self setBackgroundDim];
     notificationView.frame = frame;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         notificationView.autoresizingMask = notificationView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -188,13 +189,9 @@
             yPadding = yPadding + descriptionLabel.frame.size.height + messageBottomPadding;
         }
         
-        UIColor *backgroundColor = UIColor.whiteColor;
-        if (self.notification.contentStyle && self.notification.contentStyle.messageBackgroundColor && ![self.notification.contentStyle.messageBackgroundColor isEqualToString:@""]) {
-            backgroundColor = [self colorWithHexString: self.notification.contentStyle.messageBackgroundColor];
-        } else if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
-            backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
-        }
-        notificationView.backgroundColor = backgroundColor;
+        [self setBackgroundColor: notificationView];
+        [self setBackgroundImageFromURL: notificationView];
+        [self setBackgroundRadius: notificationView];
         
         if (self.notification.templateStyle == nil || self.notification.templateStyle.height <= 0) {
             CGRect frame = notificationView.frame;
@@ -204,6 +201,7 @@
             [self createNotificationView];
         }
         
+        [self createCloseButton: notificationView.frame];
         [notificationView addSubview:imageView];
         [notificationView addSubview: iconLabel];
         [notificationView addSubview: titleLabel];
@@ -396,21 +394,6 @@
     button.frame = positionValue;
     button.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     [notificationView addSubview:button];
-}
-
-- (void)setButton:(UIButton *)button andString:(NSString *)value
-        textColor:(NSString *)textColorCode
-  backgroundColor:(NSString *)backgroundColorCode {
-    if (value != (id)[NSNull null] && value.length > 0 ) {
-        [button setTitle : value forState:UIControlStateNormal];
-        
-        if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
-            [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
-        }
-        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
-            [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-        }
-    }
 }
 
 - (CGFloat)getCenterXPosition:(UIView *)parentView childWidth:(CGFloat)width {

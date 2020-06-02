@@ -10,9 +10,11 @@
 #import "BlueShiftNotificationView.h"
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftNotificationCloseButton.h"
 
-@interface BlueShiftNotificationViewController ()
-
+@interface BlueShiftNotificationViewController () {
+    BlueShiftNotificationCloseButton *_closeButton;
+}
 @end
 
 @implementation BlueShiftNotificationViewController
@@ -112,6 +114,99 @@
     imageView.image = newImage;
 }
 
+- (void)setBackgroundImageFromURL:(UIView *)notificationView {
+    if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
+    ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
+        NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
+        NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: backgroundImageURL]];
+        UIImage *image = [[UIImage alloc] initWithData:imageData];
+        [notificationView setBackgroundColor: [UIColor colorWithPatternImage: image]];
+    }
+}
+
+- (void)setBackgroundColor:(UIView *)notificationView {
+    UIColor *backgroundColor = UIColor.whiteColor;
+    if(self.notification.templateStyle && self.notification.templateStyle.backgroundColor && ![self.notification.templateStyle.backgroundColor isEqualToString:@""]){
+        backgroundColor = [self colorWithHexString:self.notification.templateStyle.backgroundColor];
+    }
+    notificationView.backgroundColor = backgroundColor;
+}
+
+- (void)setBackgroundRadius:(UIView *)notificationView {
+    CGFloat backgroundRadius = 0.0;
+    if (self.notification.templateStyle && self.notification.templateStyle.backgroundRadius
+        && self.notification.templateStyle.backgroundRadius.floatValue > 0) {
+        backgroundRadius = self.notification.templateStyle.backgroundRadius.floatValue;
+    }
+    notificationView.layer.cornerRadius = backgroundRadius;
+}
+
+- (void)setBackgroundDim {
+    CGFloat backgroundDimAmount = 0.5;
+    if (self.notification.templateStyle && self.notification.templateStyle.backgroundDimAmount
+        && self.notification.templateStyle.backgroundDimAmount.floatValue > 0) {
+        backgroundDimAmount = self.notification.templateStyle.backgroundDimAmount.floatValue;
+    }
+    self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent: backgroundDimAmount];
+}
+
+- (void)createCloseButton:(CGRect)frame {
+    BOOL showCloseButton = ((self.notification.inAppType == BlueShiftInAppTypeModal && self.notification.notificationContent.actions.count == 0) || self.notification.inAppType == BlueShiftInAppTypeHTML) ? YES : self.notification.templateStyle.enableCloseButton;
+    if (self.notification.templateStyle && showCloseButton) {
+        if ( self.notification.templateStyle.closeButton
+            && self.notification.templateStyle.closeButton.text
+            && ![self.notification.templateStyle.closeButton.text isEqualToString:@""]) {
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - 5;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + 5, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            UIButton *closeButtonLabel = [[UIButton alloc] initWithFrame:cgRect];
+            BlueShiftInAppNotificationButton *closeButton = self.notification.templateStyle.closeButton;
+            CGFloat closeButtonFontSize = (closeButton && closeButton.textSize && closeButton.textSize.floatValue > 0)
+                ? closeButton.textSize.floatValue: 22;
+            
+            [self applyIconToLabelView:closeButtonLabel.titleLabel andFontIconSize:[NSNumber numberWithFloat:closeButtonFontSize]];
+            
+            CGFloat closeButtonRadius = 0.5 * closeButtonLabel.bounds.size.width;
+            if (closeButton) {
+                [self setButton: closeButtonLabel andString: closeButton.text
+                textColor: closeButton.textColor backgroundColor: closeButton.backgroundColor];
+                
+                closeButtonRadius = (closeButton.backgroundRadius && closeButton.backgroundRadius.floatValue > 0) ?
+                closeButton.backgroundRadius.floatValue : closeButtonRadius;
+            }
+
+            closeButtonLabel.layer.cornerRadius = closeButtonRadius;
+            [closeButtonLabel addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
+            
+            closeButtonLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+            [closeButtonLabel.titleLabel setTextAlignment: NSTextAlignmentCenter];
+            [self.view addSubview: closeButtonLabel];
+        } else {
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            _closeButton = [BlueShiftNotificationCloseButton new];
+            [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
+            _closeButton.frame = cgRect;
+            _closeButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+            [self.view addSubview:_closeButton];
+        }
+    }
+}
+
+- (void)setButton:(UIButton *)button andString:(NSString *)value
+        textColor:(NSString *)textColorCode
+  backgroundColor:(NSString *)backgroundColorCode {
+    if (value != (id)[NSNull null] && value.length > 0 ) {
+        [button setTitle : value forState:UIControlStateNormal];
+        
+        if (textColorCode != (id)[NSNull null] && textColorCode.length > 0) {
+            [button setTitleColor:[self colorWithHexString:textColorCode] forState:UIControlStateNormal];
+        }
+        if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
+            [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+        }
+    }
+}
+
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
     if (filePath) {
         imageView.image = [UIImage imageWithContentsOfFile: filePath];
@@ -146,8 +241,8 @@
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
             [self closeButtonDidTapped];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
-            if (buttonDetails.sharableText != nil && ![buttonDetails.sharableText isEqualToString:@""]) {
-                [self shareData: buttonDetails.sharableText];
+            if (buttonDetails.shareableText != nil && ![buttonDetails.shareableText isEqualToString:@""]) {
+                [self shareData: buttonDetails.shareableText];
             } else{
                 [self closeButtonDidTapped];
             }
@@ -168,7 +263,7 @@
 - (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {
     NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
     if (actionButton.buttonType && [actionButton.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]) {
-        NSString *sharableLink = actionButton.sharableText ? actionButton.sharableText : @"";
+        NSString *sharableLink = actionButton.shareableText ? actionButton.shareableText : @"";
         [actionPayload setObject: sharableLink forKey: kInAppNotificationModalSharableTextKey];
     } else {
         NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
@@ -221,7 +316,7 @@
 }
 
 - (void)applyIconToLabelView:(UILabel *)iconLabelView andFontIconSize:(NSNumber *)fontSize {
-    if (self.notification.notificationContent.icon) {
+    if (iconLabelView && [fontSize floatValue] > 0) {
         if ([UIFont fontWithName:kInAppNotificationModalFontAwesomeNameKey size:30] == nil) {
             [self createFontFile: iconLabelView];
         }
