@@ -59,5 +59,7 @@
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
 #define kPushNotificationDeepLinkURLKey                                 @"deep_link_url"
 #define kUniversalLinkRedirectURLKey                                    @"redir"
+#define kUniversalLinkShortURLKey                                       @"/z/"
+#define kUniversalLinkTrackURLKey                                       @"/track"
 
 #endif

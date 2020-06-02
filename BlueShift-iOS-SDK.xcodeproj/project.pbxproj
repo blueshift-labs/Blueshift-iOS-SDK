@@ -132,6 +132,7 @@
 		55C739161E28A31200A5EAE4 /* BlueShiftLiveContent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueShiftLiveContent.m; sourceTree = "<group>"; };
 		99CE5242ED9870A5D4A5BADE /* Pods-BlueShift-iOS-SDK.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueShift-iOS-SDK.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueShift-iOS-SDK/Pods-BlueShift-iOS-SDK.release.xcconfig"; sourceTree = "<group>"; };
 		9A09163D6DFCFEE31B4B799F /* Pods-BlueShift-iOS-SDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueShift-iOS-SDK.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueShift-iOS-SDK/Pods-BlueShift-iOS-SDK.debug.xcconfig"; sourceTree = "<group>"; };
+		C3B490092474344700C17CF6 /* BlueshiftUniversalLinksDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftUniversalLinksDelegate.h; sourceTree = "<group>"; };
 		DC7125C61AA76ABB00D6C30E /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		DCA6201F1AA4E303001EC26B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		DCA620271AA4F129001EC26B /* BlueShiftModelBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlueShiftModelBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -229,6 +230,7 @@
 				55BD2BD81D9172F300422869 /* BlueShiftProduct.h */,
 				55BD2BD91D9172F300422869 /* BlueShiftProduct.m */,
 				55BD2BDA1D9172F300422869 /* BlueShiftPushDelegate.h */,
+				C3B490092474344700C17CF6 /* BlueshiftUniversalLinksDelegate.h */,
 				55BD2BDD1D9172F300422869 /* BlueShiftPushParamDelegate.h */,
 				55BD2BDE1D9172F300422869 /* BlueShiftRequestOperation.h */,
 				55BD2BDF1D9172F300422869 /* BlueShiftRequestOperation.m */,
