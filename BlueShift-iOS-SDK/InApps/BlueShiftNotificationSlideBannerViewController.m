@@ -308,6 +308,21 @@
     return actionButtonlabel;
 }
 
+- (void)createBottomSafeAreaView {
+    if([self getBottomSafeAreaHeight] > 0){
+        CGRect frame = slideBannerView.frame;
+        frame.size.height = [self getBottomSafeAreaHeight];
+        frame.origin.y = frame.origin.y;
+        UIView *bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
+        if (self.notification.templateStyle && self.notification.templateStyle.bottomSafeAreaColor && ![self.notification.templateStyle.bottomSafeAreaColor isEqualToString: @""]) {
+            UIColor *backgroundColor = [self colorWithHexString: self.notification.templateStyle.bottomSafeAreaColor];
+            [bottomSafeAreaView setBackgroundColor: backgroundColor];
+        }
+        
+        [self.view addSubview: bottomSafeAreaView];
+    }
+}
+
 - (CGFloat)getCenterYPosition:(CGFloat)height {
     CGFloat yPadding = height / 2.0;
     
@@ -337,9 +352,10 @@
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertHeightToPercentage :slideBannerView];
     
+    
     CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
     float topMargin = statusBarFrame.size.height;
-    float bottomMargin = 0.0;
+    float bottomMargin = [self getBottomSafeAreaHeight];
     float leftMargin = 0.0;
     float rightMargin = 0.0;
     if (self.notification.templateStyle && self.notification.templateStyle.margin) {
@@ -391,6 +407,7 @@
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
+        [self createBottomSafeAreaView];
     } else {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
@@ -402,6 +419,16 @@
     _originalCenter = frame.origin.x + frame.size.width / 2.0f;
     
     return frame;
+}
+
+- (CGFloat)getBottomSafeAreaHeight {
+    UIWindow *window = UIApplication.sharedApplication.keyWindow;
+    CGFloat extraBottomPadding = 0.0;
+    if (@available(iOS 11.0, *)) {
+        extraBottomPadding = window.safeAreaInsets.bottom;
+    }
+    
+    return extraBottomPadding;
 }
 
 - (BlueShiftInAppLayoutMargin *)fetchNotificationIconImagePadding {
