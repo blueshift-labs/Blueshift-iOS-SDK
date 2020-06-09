@@ -309,18 +309,16 @@
 }
 
 - (void)createBottomSafeAreaView {
-    if (self.notification.templateStyle && self.notification.templateStyle.margin
-        && self.notification.templateStyle.margin.bottom <= 0) {
-        CGRect frame = slideBannerView.frame;
-        frame.size.height = [self getBottomSafeAreaHeight];
-        frame.origin.y = frame.origin.y;
-        
-        UIView *bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
-//        [bottomSafeAreaView setBackgroundColor: [UIColor t]];
-//        [self setBackgroundColor: bottomSafeAreaView];
-        
-        [self.view addSubview: bottomSafeAreaView];
+    CGRect frame = slideBannerView.frame;
+    frame.size.height = [self getBottomSafeAreaHeight];
+    frame.origin.y = frame.origin.y;
+    UIView *bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
+    if (self.notification.templateStyle && self.notification.templateStyle.bottomSafeAreaColor && ![self.notification.templateStyle.bottomSafeAreaColor isEqualToString: @""]) {
+        UIColor *backgroundColor = [self colorWithHexString: self.notification.templateStyle.bottomSafeAreaColor];
+        [bottomSafeAreaView setBackgroundColor: backgroundColor];
     }
+    
+    [self.view addSubview: bottomSafeAreaView];
 }
 
 - (CGFloat)getCenterYPosition:(CGFloat)height {
