@@ -21,8 +21,17 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (NSString *)deviceUUID {
-    NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    return idfvString;
+    if (_blueshiftDeviceIdSource && _blueshiftDeviceIdSource == BlueshiftDeviceIdSourceUUID) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        if ([defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"]) {
+            return [defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"];
+        } else {
+            NSString* UUID = [[NSUUID UUID] UUIDString];
+            [defaults setObject:UUID forKey: @"BlueshiftDeviceIdSourceUUID"];
+            return UUID;
+        }
+    }
+    return self.deviceIDFV;
 }
 
 
@@ -53,6 +62,10 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     _currentLocation = [self.locationManager location];
     return _currentLocation;
     
+}
+
+- (NSString *)deviceToken {
+    return [[BlueShift sharedInstance] getDeviceToken];
 }
 
 - (NSDictionary *)toDictionary {

@@ -13,8 +13,8 @@
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kInAppMessageURL];
     
     NSString *deviceID = @"";
-    if ([BlueShift sharedInstance].deviceData.deviceIDFV) {
-        deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV.lowercaseString;
+    if ([BlueShiftDeviceData currentDeviceData].deviceUUID) {
+        deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
     }
     
     NSString *apiKey = @"";
