@@ -56,7 +56,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     // setting config ...
     _sharedBlueShiftInstance.config = config;
-    _sharedBlueShiftInstance.deviceData = [[BlueShiftDeviceData alloc] init];
     _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
     if (@available(iOS 8.0, *)) {
         _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
@@ -166,13 +165,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)setDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:@"bsftDeviceToken"];
+    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:@"deviceToken"];
     [defaults synchronize];
 }
 
 - (NSString *) getDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _deviceToken = (NSString *)[defaults objectForKey:@"bsftDeviceToken"];
+    _deviceToken = (NSString *)[defaults objectForKey:@"deviceToken"];
     return _deviceToken;
 }
 
