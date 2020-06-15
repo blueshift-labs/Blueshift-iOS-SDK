@@ -58,6 +58,7 @@
 #define kInAppNotificationModalBackgroundActionKey              @"enable_background_action"
 #define kInAppNotificationModalCloseButtonKey                   @"close_button"
 #define kInAppNotificationModalBackgroundDimAmountKey           @"background_dim_amount"
+#define kInAppNotificationModalBottomSafeAreaColorKey           @"bottom_safearea_color"
 
 #define kInAppNotificationModalTextKey                          @"text"
 #define kInAppNotiificationModalTextColorKey                    @"text_color"

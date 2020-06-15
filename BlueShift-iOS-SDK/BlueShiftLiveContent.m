@@ -62,7 +62,7 @@
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
+    NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID;
     if(deviceID) {
         NSDictionary *parameters = @{
                                      @"x":apiKey,
@@ -141,14 +141,14 @@
     } else {
         NSLog(@"Customer ID is not set");
         NSError *error = (NSError*)@"Customer ID not set";
-        failure(error);
+        failure(error); 
     }
 }
 
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *deviceID = [BlueShift sharedInstance].deviceData.deviceIDFV;
+    NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID;
     if(deviceID) {
         if(!context) {
             context = @{};

@@ -7,7 +7,6 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShift.h"
 
-
 static BlueShiftDeviceData *_currentDeviceData = nil;
 
 @implementation BlueShiftDeviceData
@@ -21,8 +20,20 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (NSString *)deviceUUID {
-    NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    return idfvString;
+    NSString *deviceUUID = @"";
+    if (_blueshiftDeviceIdSource && _blueshiftDeviceIdSource == BlueshiftDeviceIdSourceUUID) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        if ([defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"]) {
+            deviceUUID = [defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"];
+        } else {
+            NSString* UUID = [[NSUUID UUID] UUIDString];
+            [defaults setObject:UUID forKey: @"BlueshiftDeviceIdSourceUUID"];
+            deviceUUID = [UUID copy];
+        }
+    } else {
+        deviceUUID = self.deviceIDFV;
+    }
+    return deviceUUID;
 }
 
 
@@ -52,7 +63,6 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 - (CLLocation *)currentLocation {
     _currentLocation = [self.locationManager location];
     return _currentLocation;
-    
 }
 
 - (NSDictionary *)toDictionary {
@@ -66,7 +76,8 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     }
     
     if (self.deviceToken) {
-        [deviceMutableDictionary setObject:self.deviceToken forKey:@"device_token"];
+        NSString *storedDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+        [deviceMutableDictionary setObject:storedDeviceToken forKey:@"device_token"];
     }
     
     if (self.deviceIDFV) {

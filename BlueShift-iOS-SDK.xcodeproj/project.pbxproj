@@ -130,6 +130,7 @@
 		55BD2BF21D9172F300422869 /* NSNumber+BlueShiftHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+BlueShiftHelpers.m"; sourceTree = "<group>"; };
 		55C739151E28A31200A5EAE4 /* BlueShiftLiveContent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShiftLiveContent.h; sourceTree = "<group>"; };
 		55C739161E28A31200A5EAE4 /* BlueShiftLiveContent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueShiftLiveContent.m; sourceTree = "<group>"; };
+		913F9B8E2492455E0032CD4A /* BlueshiftDeviceIdSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftDeviceIdSource.h; sourceTree = "<group>"; };
 		99CE5242ED9870A5D4A5BADE /* Pods-BlueShift-iOS-SDK.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueShift-iOS-SDK.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueShift-iOS-SDK/Pods-BlueShift-iOS-SDK.release.xcconfig"; sourceTree = "<group>"; };
 		9A09163D6DFCFEE31B4B799F /* Pods-BlueShift-iOS-SDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueShift-iOS-SDK.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueShift-iOS-SDK/Pods-BlueShift-iOS-SDK.debug.xcconfig"; sourceTree = "<group>"; };
 		C37B370B2486B58D00AC3006 /* BlueshiftUniversalLinksDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueshiftUniversalLinksDelegate.h; sourceTree = "<group>"; };
@@ -215,6 +216,7 @@
 				55BD2BC81D9172F300422869 /* BlueShiftBatchRequestOperation.m */,
 				55BD2BC91D9172F300422869 /* BlueShiftBatchUploadConfig.h */,
 				55BD2BCA1D9172F300422869 /* BlueShiftBatchUploadConfig.m */,
+				913F9B8E2492455E0032CD4A /* BlueshiftDeviceIdSource.h */,
 				55BD2BCB1D9172F300422869 /* BlueShiftConfig.h */,
 				55BD2BCC1D9172F300422869 /* BlueShiftConfig.m */,
 				55BD2BCD1D9172F300422869 /* BlueShiftDeepLink.h */,

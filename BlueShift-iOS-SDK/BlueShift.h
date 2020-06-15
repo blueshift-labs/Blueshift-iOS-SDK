@@ -40,7 +40,6 @@
 @interface BlueShift : NSObject
 
 @property (nonatomic, strong) BlueShiftConfig *config;
-@property BlueShiftDeviceData *deviceData;
 @property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
 @property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification API_AVAILABLE(ios(8.0));

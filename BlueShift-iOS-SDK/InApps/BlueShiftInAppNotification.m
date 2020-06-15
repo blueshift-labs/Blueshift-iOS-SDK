@@ -230,6 +230,10 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] != [NSNull null]) {
                         self.backgroundDimAmount = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey];
                     }
+                    if([templateStyleDictionary objectForKey: kInAppNotificationModalBottomSafeAreaColorKey] &&
+                       [templateStyleDictionary objectForKey: kInAppNotificationModalBottomSafeAreaColorKey] != [NSNull null]){
+                        self.bottomSafeAreaColor = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBottomSafeAreaColorKey];
+                    }
             
                     break;
                     

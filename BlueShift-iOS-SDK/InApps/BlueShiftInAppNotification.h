@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationButton *closeButton;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundDimAmount;
+@property (nonatomic, copy, readwrite, nullable) NSString *bottomSafeAreaColor;
 
 @end
 
