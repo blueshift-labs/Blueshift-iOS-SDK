@@ -19,10 +19,10 @@
         self.blueShiftNotificationName = @"BlueShiftPushNotificationSetting";
         self.isEnabledPushNotificationKey = @"isEnabled";
         
+        //In App
         self.enableInAppNotification = NO;
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
-
     }
     return self;
 }
