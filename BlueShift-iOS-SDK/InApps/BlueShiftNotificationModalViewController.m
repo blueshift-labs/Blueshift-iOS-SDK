@@ -364,17 +364,18 @@
         
         CGFloat xPosition = [self getActionButtonXPosition: notificationView childWidth: buttonWidth andXPadding: xPadding];
         CGFloat yPosition = 0.0;
-        if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation .intValue > 0) {
-            yPosition = notificationView.frame.size.height - 2*buttonHeight - 2*yPadding;
+        NSInteger actionsCount = [self.notification.notificationContent.actions count];
+        if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation.intValue > 0) {
+            yPosition = notificationView.frame.size.height - actionsCount*buttonHeight - actionsCount*yPadding;
         } else {
             yPosition = notificationView.frame.size.height - buttonHeight - yPadding;
         }
         
-        for (int i = 0; i< [self.notification.notificationContent.actions count]; i++) {
+        for (int i = 0; i< actionsCount; i++) {
             CGRect cgRect = CGRectMake(xPosition, yPosition , buttonWidth, buttonHeight);
             [self createActionButton: self.notification.notificationContent.actions[i] positionButton: cgRect objectPosition: &i];
             
-             if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation .intValue > 0) {
+             if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation.intValue > 0) {
                  yPosition = yPosition + buttonHeight + yPadding;
              } else {
                  xPosition =  xPosition + buttonWidth + xPadding;
