@@ -14,6 +14,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <AdSupport/AdSupport.h>
 #import "BlueShiftMacros.h"
+#import "BlueshiftDeviceIdSource.h"
 
 @class BlueShift;
 
@@ -28,6 +29,7 @@
 @property (nonatomic, strong) NSString *deviceType;
 @property (nonatomic, strong) NSString *operatingSystem;
 @property (nonatomic, strong) NSString *networkCarrierName;
+@property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
 
 + (instancetype) currentDeviceData;
 
