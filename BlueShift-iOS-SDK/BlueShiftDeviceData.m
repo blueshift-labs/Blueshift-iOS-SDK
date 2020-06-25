@@ -30,6 +30,9 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             [defaults setObject:UUID forKey: @"BlueshiftDeviceIdSourceUUID"];
             deviceUUID = [UUID copy];
         }
+    } else if (_blueshiftDeviceIdSource && _blueshiftDeviceIdSource == BlueshiftDeviceIdSourceIDFVBundleID) {
+        NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+        deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
     } else {
         deviceUUID = self.deviceIDFV;
     }

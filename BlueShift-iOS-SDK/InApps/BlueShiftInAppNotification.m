@@ -109,10 +109,13 @@
 
                     if ([contentDictionary objectForKey: kInAppNotificationActionButtonKey]) {
                         NSMutableArray<BlueShiftInAppNotificationButton *> *actions = [[NSMutableArray alloc] init];
-                        for(NSDictionary* button in [contentDictionary objectForKey: kInAppNotificationActionButtonKey]){
-                            [actions addObject:[[BlueShiftInAppNotificationButton alloc] initFromDictionary: button withType: inAppType]];
+                        int counter = 0;
+                        for(NSDictionary* actionButton in [contentDictionary objectForKey: kInAppNotificationActionButtonKey]){
+                            BlueShiftInAppNotificationButton* inAppNotificationButton = [[BlueShiftInAppNotificationButton alloc] initFromDictionary: actionButton withType: inAppType];
+                            inAppNotificationButton.buttonIndex = [NSString stringWithFormat:@"%@%d",kInAppNotificationModalButtonIndex,counter];
+                            [actions addObject: inAppNotificationButton];
+                            counter++;
                         }
-                        
                         self.actions = actions;
                     }
                     if ([contentDictionary objectForKey: kInAppNotificationModalBannerKey] &&

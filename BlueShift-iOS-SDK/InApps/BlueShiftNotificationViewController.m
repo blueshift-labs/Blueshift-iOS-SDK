@@ -233,7 +233,7 @@
 }
 
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
-    [self sendActionEventAnalytics: buttonDetails.text];
+    [self sendActionEventAnalytics: buttonDetails.buttonIndex];
     
     if (buttonDetails && buttonDetails.buttonType) {
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {

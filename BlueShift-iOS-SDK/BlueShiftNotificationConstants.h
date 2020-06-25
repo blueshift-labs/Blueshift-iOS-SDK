@@ -53,6 +53,7 @@
 #define kSilentNotificationPayloadTypeKey                               @"type"
 #define kInAppNotificationContentPayloadKey                             @"content"
 #define kInAppNotificationPayloadDisplayOnKey                           @"display_on_ios"
+#define kInAppNotificationModalButtonIndex                              @"button_"
 #define kSilentNotificationTriggerKey                                   @"trigger"
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 #define kInAppNotificationModalSilentPushKey                            @"silent_push"

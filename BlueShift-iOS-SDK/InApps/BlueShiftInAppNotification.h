@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSString* buttonType;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 @property (nonatomic, assign, readwrite, nullable) NSNumber *textSize;
-
+@property (nonatomic, assign, readwrite) NSString* buttonIndex;
 @end
 
 /* notification Layout (presentation details) */
