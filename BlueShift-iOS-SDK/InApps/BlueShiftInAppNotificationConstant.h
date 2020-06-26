@@ -92,6 +92,7 @@
 /*  Define a Button type */
 #define kInAppNotificationButtonTypeKey                         @"type"
 #define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
+#define kInAppNotificationButtonTypeCloseKey                    @"close"
 #define kInAppNotificationButtonTypeOpenKey                     @"open"
 #define kInAppNotificationButtonTypeShareKey                    @"share"
 

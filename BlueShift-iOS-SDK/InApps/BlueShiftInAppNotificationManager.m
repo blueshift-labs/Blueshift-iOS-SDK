@@ -671,9 +671,6 @@
 
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
-    
-    [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:NO];
-    
     self.currentNotificationController = nil;
     
     /* update the app entity from core data */
