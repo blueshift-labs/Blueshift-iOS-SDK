@@ -24,7 +24,7 @@
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
         
-        //BlueshiftDeviceIdSourceIDFV
+        //Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
     }
     return self;
