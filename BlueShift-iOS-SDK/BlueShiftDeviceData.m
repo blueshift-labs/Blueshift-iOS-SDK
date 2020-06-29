@@ -21,20 +21,35 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 
 - (NSString *)deviceUUID {
     NSString *deviceUUID = @"";
-    if (_blueshiftDeviceIdSource && _blueshiftDeviceIdSource == BlueshiftDeviceIdSourceUUID) {
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        if ([defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"]) {
-            deviceUUID = [defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"];
-        } else {
-            NSString* UUID = [[NSUUID UUID] UUIDString];
-            [defaults setObject:UUID forKey: @"BlueshiftDeviceIdSourceUUID"];
-            deviceUUID = [UUID copy];
+    switch (_blueshiftDeviceIdSource) {
+        case BlueshiftDeviceIdSourceIDFV:
+            deviceUUID = self.deviceIDFV;
+            break;
+        case BlueshiftDeviceIdSourceUUID:
+        {
+            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+            if ([defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"]) {
+                deviceUUID = [defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"];
+            } else {
+                NSString* UUID = [[NSUUID UUID] UUIDString];
+                [defaults setObject:UUID forKey: @"BlueshiftDeviceIdSourceUUID"];
+                deviceUUID = [UUID copy];
+            }
         }
-    } else if (_blueshiftDeviceIdSource && _blueshiftDeviceIdSource == BlueshiftDeviceIdSourceIDFVBundleID) {
-        NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-        deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
-    } else {
-        deviceUUID = self.deviceIDFV;
+            break;
+        case BlueshiftDeviceIdSourceIDFVBundleID:
+        {
+            NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+            if (bundleId != nil) {
+                deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
+            } else {
+                NSLog(@"[BlueShift] - ERROR: Failed to get the bundle Id");
+            }
+        }
+            break;
+        default:
+            deviceUUID = self.deviceIDFV;
+            break;
     }
     return deviceUUID;
 }
