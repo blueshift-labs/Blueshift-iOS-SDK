@@ -716,8 +716,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == NO) {
         if (displayPage) {
             _inAppNotificationMananger.inAppNotificationDisplayOnPage = displayPage;
-        } else {
-            _inAppNotificationMananger.inAppNotificationDisplayOnPage = @"";
         }
     
         [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
@@ -726,7 +724,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)unregisterForInAppMessage {
     if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == NO) {
-        _inAppNotificationMananger.inAppNotificationDisplayOnPage = @"";
+        _inAppNotificationMananger.inAppNotificationDisplayOnPage = nil;
     }
 }
 
