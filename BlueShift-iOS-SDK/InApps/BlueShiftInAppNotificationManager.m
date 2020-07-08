@@ -390,22 +390,19 @@
         }
     }
     
-    [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
-        if (status) {
-            NSArray *sortedArray = [self sortedInAppNotification: results];
-            NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray withTriggerMode:triggerMode];
-            
-            for(int i = 0; i < [filteredResults count]; i++) {
-                InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
-                [self createNotificationFromDictionary: entity];
+    if([self inAppNotificationDisplayOnPage]){
+        [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
+            if (status) {
+                NSArray *sortedArray = [self sortedInAppNotification: results];
+                NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray withTriggerMode:triggerMode];
+                
+                for(int i = 0; i < [filteredResults count]; i++) {
+                    InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
+                    [self createNotificationFromDictionary: entity];
+                }
             }
-        } else {
-            if ([self inAppNotificationDisplayOnPage] && ![[self inAppNotificationDisplayOnPage] isEqualToString:@""]) {
-                [[BlueShift sharedInstance] unregisterForInAppMessage];
-                [self fetchInAppNotificationsFromDataStore: triggerMode];
-            }
-        }
-    }];
+        }];
+    }
 }
 
 - (NSArray *)sortedInAppNotification:(NSArray *)inAppNotificationArray {
@@ -613,7 +610,7 @@
         // if we are currently displaying a notification, queue this notification for later display
         [self.notificationControllerQueue addObject:notificationController];
         return;
-    } else {
+    } else if ([self inAppNotificationDisplayOnPage]) {
         // no current notification so display
         self.currentNotificationController = notificationController;
         [notificationController show:YES];
