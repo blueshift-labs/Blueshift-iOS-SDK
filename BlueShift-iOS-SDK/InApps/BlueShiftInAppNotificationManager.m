@@ -610,7 +610,7 @@
         // if we are currently displaying a notification, queue this notification for later display
         [self.notificationControllerQueue addObject:notificationController];
         return;
-    } else {
+    } else if ([self inAppNotificationDisplayOnPage]) {
         // no current notification so display
         self.currentNotificationController = notificationController;
         [notificationController show:YES];
