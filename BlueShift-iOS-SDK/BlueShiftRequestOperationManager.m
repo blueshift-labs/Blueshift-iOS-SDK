@@ -139,12 +139,12 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
         _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     }
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
-    [urlRequest setHTTPMethod:@"HEAD"];
+    [urlRequest setHTTPMethod:@"GET"];
     NSURLSessionDataTask *dataTask = [_replayURLSesion dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if(error == nil)
         {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-            if(httpResponse.statusCode == kStatusCodeSuccessfullResponse)
+            if(httpResponse.URL != nil)
             {
                 handler(YES, httpResponse.URL, nil);
             } else {
