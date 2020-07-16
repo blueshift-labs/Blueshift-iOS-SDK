@@ -58,9 +58,28 @@ static NSDictionary *_inAppTypeDictionay;
 }
 
 + (CGFloat)convertHeightToPercentage:(UIView *) notificationView {
-    CGFloat screenHeight = [[UIScreen mainScreen] bounds].size.height;
+    CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
     CGFloat viewHeight = notificationView.frame.size.height;
-    return ((viewHeight/screenHeight) * 100);
+    return ((viewHeight/presentationAreaHeight) * 100);
+}
+
++ (CGFloat)convertPercentageHeightToPoints:(float) height {
+    CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
+    CGFloat heightInPoints = (CGFloat) ceil(presentationAreaHeight * (height / 100.0f));
+    return heightInPoints;
+}
+
++ (CGFloat)getPresentationAreaHeight {
+    UIWindow *window = UIApplication.sharedApplication.keyWindow;
+    CGFloat topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    CGFloat bottomMargin = 0.0;
+    if (@available(iOS 11.0, *)) {
+        bottomMargin = window.safeAreaInsets.bottom != 0.0 ? window.safeAreaInsets.bottom : topMargin ;
+    } else {
+        bottomMargin = topMargin;
+    }
+    CGFloat presentationAreaHeight = [[UIScreen mainScreen] bounds].size.height - topMargin - bottomMargin;
+    return presentationAreaHeight;
 }
 
 @end

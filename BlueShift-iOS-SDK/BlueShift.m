@@ -744,7 +744,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
                     if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
                         NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
                         [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status) {
-                            success();
+                            if ([notificationArray count] > 0) {
+                                success();
+                            }
                         }];
                     }
                 } failure:^(NSError *error){

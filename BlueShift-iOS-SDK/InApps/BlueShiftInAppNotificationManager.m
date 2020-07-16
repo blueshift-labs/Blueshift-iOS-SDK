@@ -390,7 +390,7 @@
         }
     }
     
-    if([self inAppNotificationDisplayOnPage]){
+    if([self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil){
         [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
             if (status) {
                 NSArray *sortedArray = [self sortedInAppNotification: results];
@@ -670,11 +670,7 @@
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     
     [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:NO];
-    
     self.currentNotificationController = nil;
-    
-    /* update the app entity from core data */
-    [self updateInAppNotification: notificationPayload];
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
@@ -683,8 +679,8 @@
 
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    
     [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
+    [self updateInAppNotification: notification];
     [self stopInAppMessageLoadTimer];
 }
 

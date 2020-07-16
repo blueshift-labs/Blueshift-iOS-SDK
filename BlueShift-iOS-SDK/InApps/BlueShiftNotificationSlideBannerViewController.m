@@ -363,7 +363,7 @@
             topMargin = topMargin + self.notification.templateStyle.margin.top;
         }
         if (self.notification.templateStyle.margin.bottom > 0) {
-            bottomMargin = self.notification.templateStyle.margin.bottom;
+            bottomMargin = bottomMargin + self.notification.templateStyle.margin.bottom;
         }
         if (self.notification.templateStyle.margin.left > 0) {
             leftMargin = self.notification.templateStyle.margin.left;
@@ -378,7 +378,7 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = (CGFloat) floor([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
         CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         
         if (width == 100) {

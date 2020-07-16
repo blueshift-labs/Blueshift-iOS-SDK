@@ -322,8 +322,6 @@
             }
         } else {
             if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-                printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
-
                 [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
             } else {
                // [self scheduleLocalNotification:userInfo];
@@ -331,8 +329,6 @@
         }
     } else {
         if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-            printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
-            
             [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
         } else {
             // Handle push notification when the app is in inactive or background state ...
@@ -546,11 +542,7 @@
 }
 
 - (void)resetUserDefaults:(NSUserDefaults *)userDefaults {
-    NSDictionary * dict = [userDefaults dictionaryRepresentation];
-    for (id key in dict) {
-        [userDefaults removeObjectForKey:key];
-    }
-    
+    [userDefaults removeObjectForKey:kNotificationSelectedIndexKey];
     [userDefaults synchronize];
 }
 

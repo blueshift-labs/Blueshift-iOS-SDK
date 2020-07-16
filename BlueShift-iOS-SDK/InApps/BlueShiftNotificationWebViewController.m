@@ -13,7 +13,7 @@
 #import "BlueShiftInAppNotificationDelegate.h"
 
 API_AVAILABLE(ios(8.0))
-@interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate> {
+@interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
     WKWebView *webView;
 }
 
@@ -58,18 +58,19 @@ API_AVAILABLE(ios(8.0))
     webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:wkConfig];
     webView.scrollView.showsHorizontalScrollIndicator = NO;
     webView.scrollView.showsVerticalScrollIndicator = NO;
-    webView.scrollView.scrollEnabled = NO;
+    webView.scrollView.scrollEnabled = YES;
+    webView.scrollView.bounces = NO;
     webView.backgroundColor = [UIColor whiteColor];
     webView.opaque = NO;
     webView.tag = 188293;
     webView.clipsToBounds = TRUE;
-    webView.layer.cornerRadius = 10.0;
     
     return webView;
 }
 
 - (void)setWebViewDelegate:(WKWebView *)webView  API_AVAILABLE(ios(8.0)){
     webView.navigationDelegate = self;
+    webView.scrollView.delegate = self;
 }
 
 - (void)addWebViewAsSubView:(WKWebView *)webView  API_AVAILABLE(ios(8.0)){
@@ -89,8 +90,7 @@ API_AVAILABLE(ios(8.0))
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
     
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    float topMargin = statusBarFrame.size.height;
+    float topMargin = 0.0;
     float bottomMargin = 0.0;
     float leftMargin = 0.0;
     float rightMargin = 0.0;
@@ -115,7 +115,7 @@ API_AVAILABLE(ios(8.0))
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
         CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         
         if (width == 100) {
@@ -155,16 +155,15 @@ API_AVAILABLE(ios(8.0))
     } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         double yPosition = (screenSize.height - size.height) / 2.0f;
-        if (height == 100) {
-            yPosition = yPosition + topMargin;
-        }
         frame.origin.y = yPosition;
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
         webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
     } else {
-        
+        frame.origin.x = (screenSize.width - size.width) / 2.0f;
+        double yPosition = (screenSize.height - size.height) / 2.0f;
+        frame.origin.y = yPosition;
     }
     
     frame.origin.x = frame.origin.x < 0.0f ? 0.0f : frame.origin.x;
@@ -200,6 +199,10 @@ API_AVAILABLE(ios(8.0))
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
+    [scrollView.pinchGestureRecognizer setEnabled:false];
+}
+
 - (void)configureWebViewBackground {
     self.view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
     UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin
@@ -210,7 +213,6 @@ API_AVAILABLE(ios(8.0))
     if (self.notification.notificationContent.url) {
         [self loadFromURL];
     } else{
-        printf("%f WebViewController:: loading html from data \n", [[NSDate date] timeIntervalSince1970]);
         [self loadFromHTML];
     }
     
