@@ -368,9 +368,6 @@
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
-    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-
-    
     NSString *urlString = [self.userInfo objectForKey: kPushNotificationDeepLinkURLKey];
     NSURL *url = [NSURL URLWithString:urlString];
     

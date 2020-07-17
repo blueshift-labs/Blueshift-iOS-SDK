@@ -344,7 +344,7 @@
         self.notification.notificationContent.actions[0]) {
         [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
     } else {
-        [self closeButtonDidTapped];
+        [self hideFromWindow:YES];
     }
 }
 
