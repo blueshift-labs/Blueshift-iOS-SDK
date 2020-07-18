@@ -67,6 +67,7 @@
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self fetchNowAndUpcomingInAppMessageFromDB];
         [self startInAppMessageFetchTimer];
+        [self deleteExpireInAppNotificationFromDataStore];
     }
 }
 
