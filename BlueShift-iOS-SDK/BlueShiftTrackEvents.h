@@ -31,4 +31,6 @@
 #define kEventPushClicked                              @"click"
 #define kEventDismissAlert                             @"dismiss_alert"
 
+#define kBsftEncodedSpace                              @"%20"
+
 #endif
