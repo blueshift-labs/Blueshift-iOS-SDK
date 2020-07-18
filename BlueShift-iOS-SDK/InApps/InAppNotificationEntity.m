@@ -67,6 +67,9 @@
         case BlueShiftInAppNoTriggerEvent:
             triggerStr = @"";
             break;
+        case BlueShiftInAppTriggerNowAndUpComing:
+            triggerStr = @"NowAndUpComing";
+            break;
     }
     
     displayOn =  (displayOn ? displayOn: @"");
@@ -81,7 +84,7 @@
                 NSArray *results = [[NSArray alloc]init];
                 results = [context executeFetchRequest:fetchRequest error:&error];
                 if (results && results.count > 0) {
-                    [self updateNotificationsInQueue:context notifications:results];
+//                    [self updateNotificationsInQueue:context notifications:results];
                     handler(YES, results);
                 } else {
                     handler(NO, nil);
@@ -97,7 +100,9 @@
 }
 
 + (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
-    if (triggerStr && ![triggerStr isEqualToString: @""]) {
+    if ([triggerStr isEqualToString:@"NowAndUpComing"]) {
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil];
+    } else if (triggerStr && ![triggerStr isEqualToString: @""]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
     } else {
         return [NSPredicate predicateWithFormat:@"status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"pending", displayOn, @"", nil];

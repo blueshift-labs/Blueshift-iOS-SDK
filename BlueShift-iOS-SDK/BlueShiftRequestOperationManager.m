@@ -74,7 +74,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
     
     [urlRequest setHTTPMethod:@"GET"];
-    
+    NSLog(@"URL - %@", urlWithParams);
     NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest
                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                            if(error == nil)

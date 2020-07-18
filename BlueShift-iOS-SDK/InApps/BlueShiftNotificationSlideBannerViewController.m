@@ -35,6 +35,9 @@
     
     slideBannerView = [self createNotificationWindow];
     [self enableSingleTap];
+    if (!self.canTouchesPassThroughWindow) {
+        [self setTapGestureForView];
+    }
     [self presentAnimationView];
 }
 
@@ -50,6 +53,11 @@
     [[UITapGestureRecognizer alloc] initWithTarget:self
                                               action:@selector(onOkayButtonTapped:)];
     [slideBannerView addGestureRecognizer:singleFingerTap];
+}
+
+-(void)setTapGestureForView {
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideAnimated)];
+    [[self view] addGestureRecognizer:tapGesture];
 }
 
 - (void)presentAnimationView {
@@ -336,6 +344,10 @@
 
 -(void)hide:(BOOL)animated {
     [self hideFromWindow:animated];
+}
+
+-(void)hideAnimated {
+    [self hideFromWindow:YES];
 }
 
 - (IBAction)onOkayButtonTapped:(id)sender {

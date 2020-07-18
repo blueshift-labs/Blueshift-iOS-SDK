@@ -277,10 +277,11 @@
 }
 
 - (void)sendActionEventAnalytics:(NSString *)elementType {
+    NSString *encodedText = [elementType stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
     if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]
         && self.notification) {
         NSMutableDictionary *notificationPayload = [self.notification.notificationPayload mutableCopy];
-        [notificationPayload setObject: elementType forKey: kInAppNotificationModalElementsKey];
+        [notificationPayload setObject: encodedText forKey: kInAppNotificationModalElementsKey];
         [self.delegate inAppActionDidTapped : notificationPayload fromViewController:self];
     }
 }

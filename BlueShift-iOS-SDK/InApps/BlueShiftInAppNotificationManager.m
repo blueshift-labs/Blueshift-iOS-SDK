@@ -37,11 +37,9 @@
 
 // init
 - (void)load {
-    self.notificationControllerQueue = [NSMutableArray new];
     
-    /* create timer for upcoming events */
-    [self startInAppMessageLoadTimer];
-    
+    [self startInAppMessageFetchTimer];
+
     /* register for app background / foreground notification */
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(OnApplicationEnteringBackground:)
@@ -58,18 +56,18 @@
 
 - (void) OnApplicationEnteringBackground:(NSNotification *)notification {
     /* stop the timer once app enters background */
-    
-    [self stopInAppMessageLoadTimer];
-    [self stopInAppScanQueueTimer];
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+        [self stopInAppMessageFetchTimer];
+    }
 }
 
 - (void) OnApplicationEnteringForeground:(NSNotification *)notification {
     /* start the timer once app enters foreground */
     
-    [self startInAppMessageLoadTimer];
-    
-    /* show any now messages if saved earlier */
-    [self startInAppMessageFetchTimer];
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+        [self fetchNowAndUpcomingInAppMessageFromDB];
+        [self startInAppMessageFetchTimer];
+    }
 }
 
 - (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
@@ -379,25 +377,23 @@
 
 
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
+    if([self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
+        NSManagedObjectContext *masterContext;
+        if (appDelegate) {
+            @try {
+                masterContext = appDelegate.managedObjectContext;
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
+            }
         }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
-        }
-    }
-    
-    if([self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil){
         [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
             if (status) {
                 NSArray *sortedArray = [self sortedInAppNotification: results];
-                NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray withTriggerMode:triggerMode];
-                
-                for(int i = 0; i < [filteredResults count]; i++) {
-                    InAppNotificationEntity *entity = [filteredResults objectAtIndex:i];
+                NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray];
+                if ([filteredResults count] > 0) {
+                    InAppNotificationEntity *entity = [filteredResults objectAtIndex:0];
                     [self createNotificationFromDictionary: entity];
                 }
             }
@@ -423,8 +419,7 @@
             }
         }
         
-        sortedArrayList = [sortedArrayList arrayByAddingObjectsFromArray: displayOnArray];
-        sortedArrayList = [sortedArrayList arrayByAddingObjectsFromArray: displayOnEmptyArray];
+        sortedArrayList = [displayOnArray arrayByAddingObjectsFromArray: displayOnEmptyArray];
     }
     
     return sortedArrayList;
@@ -454,121 +449,56 @@
         
         NSString *notificationID = [self getInAppMessageID: notificationPayload];
         if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
-                if (status && [[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
-                    [self startInAppScanQueueTimer];
-                    [self stopInAppMessageLoadTimer];
-                }
-            }];
+        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){ }];
         }
     }
 }
 
 
-- (NSArray *) filterInAppNotificationResults: (NSArray*) results withTriggerMode:(BlueShiftInAppTriggerMode) triggerMode {
+- (NSArray *) filterInAppNotificationResults: (NSArray*) results {
     
     /* get the current time (since 1970) */
     NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
-    NSArray *outResults = nil;
+    NSArray *filteredResults = [[NSArray alloc] init];
+    NSMutableArray *upcomingFilteredResults = [[NSMutableArray alloc] init];
+    NSMutableArray *nowFilteredResults = [[NSMutableArray alloc] init];
     
-    if (BlueShiftInAppTriggerUpComing == triggerMode)
+    for(int i = 0; i < [results count]; i++)
     {
-        NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
-        
-        for(int i = 0; i < [results count]; i++)
-        {
-            InAppNotificationEntity *entity = [results objectAtIndex:i];
-            
+        InAppNotificationEntity *entity = [results objectAtIndex:i];
+        if ([entity.triggerMode isEqualToString: @"now"]) {
             double endTime = [entity.endTime doubleValue];
-            double startTime = [entity.startTime doubleValue];
-            
             if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
                 /* discard notification if its expired. */
-    
-                [self removeInAppNotificationFromDB: entity.objectID];
-                
-            } else if (startTime > currentTime) {
-                /* Wait for (startTime-currentTime) before IAM is shown */
-                
-            } else {
-                [filteredResults addObject:entity];
-            }
-        }
-        outResults = [NSArray arrayWithArray: filteredResults];
-        
-    } else if (BlueShiftInAppTriggerNow == triggerMode) {
-        
-        NSMutableArray* filteredResults = [[NSMutableArray alloc] init];
-        
-        for(int i = 0; i < [results count]; i++)
-        {
-            InAppNotificationEntity *entity = [results objectAtIndex:i];
-            
-            double endTime = [entity.endTime doubleValue];
-            //double startTime = [entity.startTime doubleValue];
-            
-            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
-                /* discard notification if its expired. */
-                
                 [self removeInAppNotificationFromDB: entity.objectID];
             } else {
                 /* For 'Now' category msg show it if time is not expired */
-                [filteredResults addObject:entity];
+                [nowFilteredResults addObject:entity];
+            }
+        } else if ([entity.triggerMode isEqualToString: @"upcoming"]) {
+            double endTime = [entity.endTime doubleValue];
+            double startTime = [entity.startTime doubleValue];
+            
+            if ((currentTime - THRESHOLD_FOR_UPCOMING_IAM) > endTime) {
+                /* discard notification if its expired. */
+                [self removeInAppNotificationFromDB: entity.objectID];
+            } else if (startTime > currentTime) {
+                /* Wait for (startTime-currentTime) before IAM is shown */
+                continue;
+            } else {
+                [upcomingFilteredResults addObject:entity];
             }
         }
-        outResults = [NSArray arrayWithArray: filteredResults];
-        
-    } else {
-        outResults = results;
     }
-    return outResults;
-}
-
-
-
-// Method to start In-App message loading timer
-- (void)startInAppMessageLoadTimer {
-    if (nil == self.inAppMsgTimer) {
-        self.inAppMsgTimer = [NSTimer scheduledTimerWithTimeInterval: 10
-                                                          target:self
-                                                        selector:@selector(handlePendingInAppMessage)
-                                                        userInfo:nil
-                                                         repeats:YES];
-    }
-}
-
-// Method to stop In-App message loading timer
-- (void) stopInAppMessageLoadTimer {
-    if (nil != self.inAppMsgTimer) {
-        [self.inAppMsgTimer invalidate];
-        self.inAppMsgTimer = nil;
-    }
-}
-
-// Method to start time gap b/w loading inAppNotification timer
-- (void)startInAppScanQueueTimer {
-    if (self.inAppScanQueueTimer == nil) {
-        self.inAppScanQueueTimer = [NSTimer scheduledTimerWithTimeInterval:[self inAppNotificationTimeInterval]
-                                target:self
-                                selector:@selector(scanNotificationQueue)
-                                userInfo:nil
-                                repeats: NO];
-    }
-}
-
-// Method to stop time gap b/w loading inAppNotification timer
-- (void) stopInAppScanQueueTimer {
-    if (self.inAppScanQueueTimer != nil) {
-        [self.inAppScanQueueTimer invalidate];
-        self.inAppScanQueueTimer = nil;
-    }
+    filteredResults = [nowFilteredResults arrayByAddingObjectsFromArray: upcomingFilteredResults];
+    return filteredResults;
 }
 
 - (void)startInAppMessageFetchTimer {
     if (self.inAppMessageFetchTimer == nil) {
-        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: 2
+        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: [self inAppNotificationTimeInterval]
                                                                     target:self
-                                                                  selector:@selector(handleInAppMessageFromDB)
+                                                                  selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
                                                                   userInfo:nil
                                                                    repeats: NO];
     }
@@ -582,36 +512,13 @@
     }
 }
 
-- (void)handleInAppMessageFromDB {
-    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNow];
-    [self stopInAppMessageFetchTimer];
+- (void)fetchNowAndUpcomingInAppMessageFromDB {
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
 }
-
-// handle In-App msg.
-- (void) handlePendingInAppMessage {
-   [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerUpComing];
-}
-
-
-// trigger queued notifications
-- (void)scanNotificationQueue {
-    if (self.notificationControllerQueue && [self.notificationControllerQueue count] > 0) {
-        BlueShiftNotificationViewController *notificationController = [self.notificationControllerQueue objectAtIndex:0];
-        [self.notificationControllerQueue removeObjectAtIndex:0];
-        [self presentInAppNotification:notificationController];
-        [self stopInAppScanQueueTimer];
-    }
-}
-
 
 // Present ViewController
 - (void)presentInAppNotification:(BlueShiftNotificationViewController*)notificationController {
-    if (self.currentNotificationController) {
-        // if we are currently displaying a notification, queue this notification for later display
-        [self.notificationControllerQueue addObject:notificationController];
-        return;
-    } else if ([self inAppNotificationDisplayOnPage]) {
-        // no current notification so display
+    if ([self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
         self.currentNotificationController = notificationController;
         [notificationController show:YES];
     }
@@ -661,7 +568,6 @@
 }
 
 - (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
-    
     BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
     [self createNotification: inAppNotification];
 }
@@ -669,6 +575,9 @@
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     self.currentNotificationController = nil;
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+        [self startInAppMessageFetchTimer];
+    }
 }
 
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
@@ -679,7 +588,9 @@
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
     [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
     [self updateInAppNotification: notification];
-    [self stopInAppMessageLoadTimer];
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+        [self stopInAppMessageFetchTimer];
+    }
 }
 
 @end
