@@ -10,12 +10,8 @@
 
 @interface BlueShiftNetworkReachabilityManager : NSObject
 
-
-
 // Method to start monitoring network connectivity ...
 + (void)monitorNetworkConnectivity;
-
-
 
 // Method to check whether internet is connected ...
 + (BOOL)networkConnected;

@@ -10,7 +10,6 @@
 
 
 // Enumerations to list different types of http methods ...
-
 typedef enum {
     BlueShiftSubscriptionStateStart,
     BlueShiftSubscriptionStateUpgrade,
