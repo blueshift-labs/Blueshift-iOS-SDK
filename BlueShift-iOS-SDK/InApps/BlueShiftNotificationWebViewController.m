@@ -40,6 +40,16 @@ API_AVAILABLE(ios(8.0))
     [self presentWebViewNotification];
 }
 
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    for (UIView *view in [self.view subviews]) {
+        if ([view isKindOfClass:[UIButton class]]) {
+            [view removeFromSuperview];
+        }
+    }
+    [self initialiseWebView];
+}
+
 - (void)configureBackground {
     self.view.backgroundColor = [UIColor clearColor];
 }
@@ -50,6 +60,25 @@ API_AVAILABLE(ios(8.0))
         [self setWebViewDelegate:webView];
         [self addWebViewAsSubView:webView];
         [self loadWebView];
+    }
+}
+
+- (void)loadWebView {
+    if (self.notification.notificationContent.url) {
+        [self loadFromURL];
+    } else{
+        [self loadFromHTML];
+    }
+}
+
+-(void)initialiseWebView {
+    CGRect frame = [self positionWebView];
+    [self configureWebViewBackground];
+    [self createCloseButton:frame];
+    [self setBackgroundDim];
+    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
+      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
+      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
 }
 
@@ -207,23 +236,6 @@ API_AVAILABLE(ios(8.0))
     self.view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
     UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin
     | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
-}
-
-- (void)loadWebView {
-    if (self.notification.notificationContent.url) {
-        [self loadFromURL];
-    } else{
-        [self loadFromHTML];
-    }
-    
-    CGRect frame = [self positionWebView];
-    [self configureWebViewBackground];
-    [self createCloseButton:frame];
-    [self setBackgroundDim];
-    if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
-      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
-    }
 }
 
 - (void)showFromWindow:(BOOL)animated {

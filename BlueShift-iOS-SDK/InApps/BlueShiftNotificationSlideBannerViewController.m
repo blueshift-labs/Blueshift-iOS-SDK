@@ -41,8 +41,12 @@
     [self presentAnimationView];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    for (UIView *view in [slideBannerView subviews])
+    {
+        [view removeFromSuperview];
+    }
     [self configureBackground];
     [self createNotificationView];
     [self initializeNotificationView];

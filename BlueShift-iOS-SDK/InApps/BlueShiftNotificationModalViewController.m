@@ -39,8 +39,17 @@
     [self.view insertSubview:notificationView aboveSubview:self.view];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    for (UIView *view in [notificationView subviews])
+    {
+        [view removeFromSuperview];
+    }
+    for (UIView *view in [self.view subviews]) {
+        if ([view isKindOfClass:[UIButton class]]) {
+            [view removeFromSuperview];
+        }
+    }
     [self configureBackground];
     [self createNotificationView];
     [self initializeNotificationView];
