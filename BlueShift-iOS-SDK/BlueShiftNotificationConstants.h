@@ -62,4 +62,6 @@
 #define kUniversalLinkShortURLKey                                       @"/z/"
 #define kUniversalLinkTrackURLKey                                       @"/track"
 
+#define kBsftEncodedSpace                                               @"%20"
+
 #endif

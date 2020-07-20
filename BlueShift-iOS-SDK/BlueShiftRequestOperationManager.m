@@ -6,7 +6,7 @@
 //
 
 #import "BlueShiftRequestOperationManager.h"
-#import "BlueShiftTrackEvents.h"
+#import "BlueShiftNotificationConstants.h"
 
 static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
