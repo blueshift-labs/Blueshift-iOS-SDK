@@ -14,21 +14,14 @@
 + (void)retryProcessRequestWithContext:(NSManagedObjectContext *)context requestOperation:(BlueShiftRequestOperation*)requestOperation forEntity:(HttpRequestOperationEntity*)operationEntityToBeExecuted;
 
 @end
+
 // this static variable is meant to show the status of the request queue ...
-
 static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-
-
-// this static variable holds the value for the maximum number of retry that can be made when the request execution from requests fails ...
-
 
 
 @implementation BlueShiftRequestQueue
 
-
-
 // Method to trigger request executions from the Queue ...
-
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation {
     @synchronized(self) {
         if(requestOperation != nil) {
@@ -122,17 +115,13 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 // Method to add Request Operation to the Queue ...
-
 + (void)performRequestOperation:(BlueShiftRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {
-    
     // get the request operation details ...
     NSString *url = requestOperation.url;
     BlueShiftHTTPMethod httpMethod = requestOperation.httpMethod;
     NSDictionary *parameters = requestOperation.parameters;
     
-    
     // perform executions based on the request operation http method ...
-    
     if (httpMethod == BlueShiftHTTPMethodGET) {
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError* error) {
             handler(status);
@@ -252,7 +241,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 // Method to trigger request executions from the Queue ...
-
 + (void)processRequestsInQueue {
     // Will execute the code when the requestQueue is free / available and internet is connected ...
     if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
@@ -286,7 +274,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Method to set the request queue status explicity ...
 // Meant to be used by other classes ...
-
 + (void)setRequestQueueStatus:(BlueShiftRequestQueueStatus)requestQueueStatus {
     _requestQueueStatus = requestQueueStatus;
 }

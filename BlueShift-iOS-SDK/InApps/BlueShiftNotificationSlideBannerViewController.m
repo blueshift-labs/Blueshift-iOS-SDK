@@ -35,11 +35,18 @@
     
     slideBannerView = [self createNotificationWindow];
     [self enableSingleTap];
+    if (!self.canTouchesPassThroughWindow) {
+        [self setTapGestureForView];
+    }
     [self presentAnimationView];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    for (UIView *view in [slideBannerView subviews])
+    {
+        [view removeFromSuperview];
+    }
     [self configureBackground];
     [self createNotificationView];
     [self initializeNotificationView];
@@ -50,6 +57,11 @@
     [[UITapGestureRecognizer alloc] initWithTarget:self
                                               action:@selector(onOkayButtonTapped:)];
     [slideBannerView addGestureRecognizer:singleFingerTap];
+}
+
+-(void)setTapGestureForView {
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideAnimated)];
+    [[self view] addGestureRecognizer:tapGesture];
 }
 
 - (void)presentAnimationView {
@@ -338,13 +350,17 @@
     [self hideFromWindow:animated];
 }
 
+-(void)hideAnimated {
+    [self hideFromWindow:YES];
+}
+
 - (IBAction)onOkayButtonTapped:(id)sender {
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
         self.notification.notificationContent.actions.count > 0 &&
         self.notification.notificationContent.actions[0]) {
         [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
     } else {
-        [self closeButtonDidTapped];
+        [self hideFromWindow:YES];
     }
 }
 
@@ -363,7 +379,7 @@
             topMargin = topMargin + self.notification.templateStyle.margin.top;
         }
         if (self.notification.templateStyle.margin.bottom > 0) {
-            bottomMargin = self.notification.templateStyle.margin.bottom;
+            bottomMargin = bottomMargin + self.notification.templateStyle.margin.bottom;
         }
         if (self.notification.templateStyle.margin.left > 0) {
             leftMargin = self.notification.templateStyle.margin.left;
@@ -378,7 +394,7 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = (CGFloat) floor([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
         CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         
         if (width == 100) {

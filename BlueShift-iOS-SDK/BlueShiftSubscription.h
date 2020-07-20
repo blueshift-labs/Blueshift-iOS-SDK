@@ -10,7 +10,6 @@
 
 @interface BlueShiftSubscription : NSObject
 
-
 @property BlueShiftSubscriptionState subscriptionState;
 @property NSString *cycleType;
 @property NSInteger cycleLength;
@@ -18,12 +17,14 @@
 @property float price;
 @property NSTimeInterval startDate;
 
-
 - (id)initWithSubscriptionState:(BlueShiftSubscriptionState)subscriptionState andCycleType:(NSString *)cycleType andCycleLength:(NSInteger)cycleLength andSubscriptionType:(NSString *)subscriptionType andPrice:(float)price andStartDate:(NSTimeInterval)startDate;
 
 - (NSDictionary *)toDictionary;
+
 + (BlueShiftSubscription *)currentSubscription;
+
 - (void)save;
+
 + (void)removeCurrentSubscription;
 
 

@@ -48,7 +48,7 @@
 }
 
 - (void)closeButtonDidTapped {
-    [self sendActionEventAnalytics: kInAppNotificationButtonTypeDismissKey];
+    [self sendActionEventAnalytics: kInAppNotificationButtonTypeCloseKey];
     [self hide:YES];
 }
 
@@ -239,12 +239,12 @@
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
-            [self closeButtonDidTapped];
+            [self hide:YES];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             if (buttonDetails.shareableText != nil && ![buttonDetails.shareableText isEqualToString:@""]) {
                 [self shareData: buttonDetails.shareableText];
             } else{
-                [self closeButtonDidTapped];
+                [self hide:YES];
             }
         } else {
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
@@ -255,7 +255,7 @@
                 }
             }
             
-            [self closeButtonDidTapped];
+            [self hide:YES];
         }
     }
 }
@@ -273,7 +273,7 @@
     NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
     [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-    [self closeButtonDidTapped];
+    [self hide:YES];
 }
 
 - (void)sendActionEventAnalytics:(NSString *)elementType {
@@ -291,7 +291,7 @@
     if (@available(iOS 8.0, *)) {
         activityView.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
             if (completed){
-                [self closeButtonDidTapped];
+                [self hide:YES];
             }
         };
     }

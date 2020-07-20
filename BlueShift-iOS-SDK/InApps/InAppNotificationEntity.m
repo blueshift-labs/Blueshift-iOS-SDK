@@ -67,6 +67,9 @@
         case BlueShiftInAppNoTriggerEvent:
             triggerStr = @"";
             break;
+        case BlueShiftInAppTriggerNowAndUpComing:
+            triggerStr = @"NowAndUpComing";
+            break;
     }
     
     displayOn =  (displayOn ? displayOn: @"");
@@ -81,7 +84,6 @@
                 NSArray *results = [[NSArray alloc]init];
                 results = [context executeFetchRequest:fetchRequest error:&error];
                 if (results && results.count > 0) {
-                    [self updateNotificationsInQueue:context notifications:results];
                     handler(YES, results);
                 } else {
                     handler(NO, nil);
@@ -97,30 +99,12 @@
 }
 
 + (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
-    if (triggerStr && ![triggerStr isEqualToString: @""]) {
+    if ([triggerStr isEqualToString:@"NowAndUpComing"]) {
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil];
+    } else if (triggerStr && ![triggerStr isEqualToString: @""]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
     } else {
         return [NSPredicate predicateWithFormat:@"status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"pending", displayOn, @"", nil];
-    }
-}
-
-+ (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
-    for(int i = 0; i < notifications.count; i++) {
-        //InAppNotificationEntity *notification = [notifications objectAtIndex:i];
-        
-        //TODO: commented the below code. Dont think its required.
-        //[notification setValue:@"QUEUE" forKey:@"status"];
-    }
-    @try {
-        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *error = nil;
-                [context save:&error];
-            }];
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
     }
 }
 

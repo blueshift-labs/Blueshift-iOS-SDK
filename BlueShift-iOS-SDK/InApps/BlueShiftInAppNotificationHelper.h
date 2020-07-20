@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)hasDigits:(NSString *)digits;
 + (void)deleteFileFromLocal:(NSString *) fileName;
 + (CGFloat)convertHeightToPercentage:(UIView *) notificationView;
-
++ (CGFloat)convertPercentageHeightToPoints:(float) height;
 @end
 
 NS_ASSUME_NONNULL_END
