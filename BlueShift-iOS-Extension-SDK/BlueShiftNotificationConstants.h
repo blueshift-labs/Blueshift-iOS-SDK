@@ -47,4 +47,6 @@
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
 
+#define kBsftEncodedSpace                              @"%20"
+
 #endif

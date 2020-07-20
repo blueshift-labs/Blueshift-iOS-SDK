@@ -8,7 +8,6 @@
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftTrackEvents.h"
 
-
 static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 @implementation BlueShiftRequestOperationManager

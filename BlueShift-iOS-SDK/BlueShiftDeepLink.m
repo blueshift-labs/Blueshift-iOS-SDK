@@ -67,8 +67,6 @@ static NSDictionary *_deepLinkList = nil;
         return NO;
     }
     
-    
-    
     [self deepLinkToPath:[self.pathURL pathComponents]];
     
     return YES;
@@ -97,7 +95,6 @@ static NSDictionary *_deepLinkList = nil;
     }
     
     if(![navController respondsToSelector:@selector(popToRootViewControllerAnimated:)]){
-        NSLog(@"Your rootViewContoller is not UINavigationController\n Can't do default deep linking\n Use BlueShiftPushDelegate methods for deep linking");
         return NO;
     }
     
@@ -129,10 +126,7 @@ static NSDictionary *_deepLinkList = nil;
         }
         
         navController.viewControllers = viewControllers;
-    } else {
-        NSLog(@"Your rootViewContoller is not UINavigationController\n Can't do default deep linking\n Use BlueShiftPushDelegate methods for deep linking");
     }
-    
 }
 
 - (UIViewController *)lastViewController {

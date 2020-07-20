@@ -56,7 +56,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     // setting config ...
     _sharedBlueShiftInstance.config = config;
-    _sharedBlueShiftInstance.appData = [[BlueShiftAppData alloc] init];
     if (@available(iOS 8.0, *)) {
         _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
     }
