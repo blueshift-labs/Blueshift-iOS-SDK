@@ -65,8 +65,7 @@
 }
 
 +(BOOL)isFetchInAppAction:(NSDictionary*)userInfo {
-    if (userInfo && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey]
-        && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey] != nil) {
+    if (userInfo && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey]) {
         NSDictionary *silentPushData = [[userInfo objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
         if (silentPushData && [[silentPushData objectForKey:kInAppNotificationAction] isEqual: kInAppNotificationBackgroundFetch]) {
             return YES;
@@ -79,8 +78,7 @@
 }
 
 +(BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo {
-    if (userInfo && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey]
-        && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey] != nil) {
+    if (userInfo && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey]) {
         NSDictionary *silentPushData = [[userInfo objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
         if (silentPushData && [[silentPushData objectForKey:kInAppNotificationAction] isEqual: kInAppNotificationMarkAsOpen]) {
             return YES;
