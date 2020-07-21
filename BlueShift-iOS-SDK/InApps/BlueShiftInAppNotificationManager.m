@@ -83,6 +83,20 @@
     }
 }
 
+//Remove the in-apps on receciving `in_app_mark_as_open` silent push which
+//are displayed on the other deivce for same user.
+-(void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray {
+    if (messageUUIDArray != nil && messageUUIDArray.count > 0) {
+        for (int count = 0; count< messageUUIDArray.count; count++) {
+            NSString *messageUUID = [messageUUIDArray objectAtIndex:count];
+            if (messageUUID != nil && ![messageUUID isEqualToString:@""]) {
+                NSDictionary *dictionary = [[NSDictionary alloc] initWithObjectsAndKeys:messageUUID, kInAppNotificationModalMessageUDIDKey,nil];
+                [self updateInAppNotification:dictionary];
+            }
+        }
+    }
+}
+
 - (void)checkInAppNotificationExist:(NSDictionary *)payload handler:(void (^)(BOOL))handler{
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;

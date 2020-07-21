@@ -212,21 +212,25 @@
         [fetchRequest setFetchLimit:1];
         NSError *error;
         NSArray *arrResult = [context executeFetchRequest:fetchRequest error:&error];
-        InAppNotificationEntity *entity = arrResult[0];
-        [entity setValue: status forKey: @"status"];
-        @try {
-            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                [context performBlock:^{
-                    NSError *error = nil;
-                    [context save:&error];
-                    handler(YES);
-                }];
-            } else {
+        if (arrResult.count > 0) {
+            InAppNotificationEntity *entity = arrResult[0];
+            [entity setValue: status forKey: @"status"];
+            @try {
+                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    [context performBlock:^{
+                        NSError *error = nil;
+                        [context save:&error];
+                        handler(YES);
+                    }];
+                } else {
+                    handler(NO);
+                }
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception %@", exception);
                 handler(NO);
             }
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+        } else {
             handler(NO);
         }
     } else {
