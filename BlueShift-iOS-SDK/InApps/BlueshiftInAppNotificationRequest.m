@@ -11,31 +11,32 @@
 
 + (void) fetchInAppNotification:(NSString *)lastMessageID andLastTimestamp:(NSString *)lastTimestamp success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kInAppMessageURL];
-    
-    NSString *deviceID = @"";
-    if ([BlueShiftDeviceData currentDeviceData].deviceUUID) {
-        deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
-    }
-    
+    NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
+    NSString *email = [BlueShiftUserInfo sharedInstance].email;
+
     NSString *apiKey = @"";
     if([BlueShift sharedInstance].config.apiKey) {
         apiKey = [BlueShift sharedInstance].config.apiKey;
     }
     
-    NSString *email = @"";
-    if ([BlueShiftUserInfo sharedInstance].email) {
-        email = [BlueShiftUserInfo sharedInstance].email;
-    }
     
+
     if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
-        NSDictionary *parameters = @{
-                                        @"email":email,
+        NSMutableDictionary *parameters = [@{
                                         @"bsft_message_uuid" : lastMessageID,
                                         @"api_key" : apiKey,
-                                        @"device_id": deviceID,
-                                        @"last_timestamp" : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0
-                                    };
-        
+                                        @"last_timestamp" : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
+                                        @"bsft_sdk_version" : kSDKVersionNumber
+                                        } mutableCopy];
+        [parameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
+        [parameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
+        [parameters addEntriesFromDictionary:[[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy]];
+        if (deviceID && parameters[@"device_id"] == nil) {
+            [parameters setValue:deviceID forKey:@"device_id"];
+        }
+        if (email && [parameters objectForKey:@"email"] == nil) {
+            [parameters setValue:email forKey:@"email"];
+         }
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if (status) {
                 success(data);

@@ -29,7 +29,9 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     if (self.email) {
         [sharedUserInfoMutableDictionary setObject:self.email forKey:@"email"];
     } else {
-        NSLog(@"\n\n BlueShiftWarning: Email not set for BlueShiftUserInfo \n");
+        #ifdef DEBUG
+            NSLog(@"\n\n BlueShiftWarning: Email not set for BlueShiftUserInfo \n");
+        #endif
     }
     
     if (self.name) {
@@ -39,7 +41,9 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     if (self.retailerCustomerID) {
         [sharedUserInfoMutableDictionary setObject:self.retailerCustomerID forKey:@"customer_id"];
     } else {
-        NSLog(@"\n\n BlueShiftWarning: Retailer Customer ID not set for BlueShiftUserInfo \n");
+        #ifdef DEBUG
+            NSLog(@"\n\n BlueShiftWarning: Retailer Customer ID not set for BlueShiftUserInfo \n");
+        #endif
     }
     
     if (self.firstName) {

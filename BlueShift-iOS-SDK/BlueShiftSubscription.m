@@ -116,6 +116,4 @@ static BlueShiftSubscription *_currentSubscription = nil;
     return blueShiftSubscription;
 }
 
-
-
 @end

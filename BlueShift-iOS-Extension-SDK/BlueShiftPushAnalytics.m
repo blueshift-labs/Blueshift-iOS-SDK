@@ -73,8 +73,8 @@
     }
     
     NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, paramsString];
-    
-    NSURL * url = [NSURL URLWithString:urlWithParams];
+    NSString *encodedString = [urlWithParams stringByReplacingOccurrencesOfString:@" " withString:kBsftEncodedSpace];
+    NSURL * url = [NSURL URLWithString:encodedString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
     
     [urlRequest setHTTPMethod:@"GET"];

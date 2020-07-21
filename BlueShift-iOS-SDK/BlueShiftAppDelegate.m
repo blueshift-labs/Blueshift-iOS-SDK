@@ -322,8 +322,6 @@
             }
         } else {
             if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-                printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
-
                 [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
             } else {
                // [self scheduleLocalNotification:userInfo];
@@ -331,8 +329,6 @@
         }
     } else {
         if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-            printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
-            
             [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
         } else {
             // Handle push notification when the app is in inactive or background state ...
@@ -372,9 +368,6 @@
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
-    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-
-    
     NSString *urlString = [self.userInfo objectForKey: kPushNotificationDeepLinkURLKey];
     NSURL *url = [NSURL URLWithString:urlString];
     
@@ -546,11 +539,7 @@
 }
 
 - (void)resetUserDefaults:(NSUserDefaults *)userDefaults {
-    NSDictionary * dict = [userDefaults dictionaryRepresentation];
-    for (id key in dict) {
-        [userDefaults removeObjectForKey:key];
-    }
-    
+    [userDefaults removeObjectForKey:kNotificationSelectedIndexKey];
     [userDefaults synchronize];
 }
 
@@ -1027,17 +1016,6 @@
         return _managedObjectModel;
     }
     
-    //NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/BlueShiftBundle.bundle",[[NSBundle mainBundle] resourcePath]]];
-    //NSBundle *dataBundle = [NSBundle bundleWithURL:url];
-    
-//    NSString *bundlePath = [[NSBundle bundleForClass:self.class] pathForResource:@"BlueShiftBundle" ofType:@"bundle"];
-//    
-//    NSBundle *dataBundle = [NSBundle bundleWithPath:bundlePath];
-    
-    
-    //NSManagedObjectModel *managedObjectModel = [NSManagedObjectModel mergedModelFromBundles:@[dataBundle]];
-    
-    //NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
     NSString * path = @"";
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"];
@@ -1052,7 +1030,6 @@
 
     NSURL *modelURL = [NSURL fileURLWithPath:path];
     
-//    NSURL *modelURL = [dataBundle URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;
 }

@@ -15,7 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueShiftInAppNotificationManager : NSObject
 
 @property (nonatomic, strong, readwrite) BlueShiftNotificationViewController * _Nullable currentNotificationController;
-@property (nonatomic, strong, readwrite) NSMutableArray<BlueShiftNotificationViewController*> *notificationControllerQueue;
 @property (nonatomic, weak) id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
 @property (nonatomic) double inAppNotificationTimeInterval;
 @property (nonatomic) NSString * _Nullable inAppNotificationDisplayOnPage;
@@ -25,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler;
 - (void) deleteExpireInAppNotificationFromDataStore;
+- (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray;
 
 @end
 

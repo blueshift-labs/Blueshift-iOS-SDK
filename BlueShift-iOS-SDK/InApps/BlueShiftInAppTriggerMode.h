@@ -15,6 +15,7 @@ typedef NS_ENUM(NSUInteger, BlueShiftInAppTriggerMode){
     BlueShiftInAppTriggerUpComing,
     BlueShiftInAppTriggerEvent,
     BlueShiftInAppNoTriggerEvent,
+    BlueShiftInAppTriggerNowAndUpComing,
 };
 
 NS_ASSUME_NONNULL_END
