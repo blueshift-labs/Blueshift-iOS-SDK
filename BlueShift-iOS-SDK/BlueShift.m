@@ -176,7 +176,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     if (_config.enableInAppNotification == YES) {
-        if ([BlueshiftEventAnalyticsHelper isSilentPushNotification: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
+        if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
                 if (self->_config.inAppManualTriggerEnabled == NO) {
                          [self fetchInAppNotificationFromDB];
@@ -184,6 +184,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
                 } failure:^(NSError *error){
                     NSLog(@"%@", error);
             }];
+        } else if ([BlueshiftEventAnalyticsHelper isMarkInAppAsOpen:dictionary]) {
+            if (_inAppNotificationMananger) {
+                NSDictionary *silentPushData = [[dictionary objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
+                NSArray * messageUUIDArray = [silentPushData objectForKey:kInAppNotificationOpenedInAppUUID];
+                [_inAppNotificationMananger markAsDisplayedForNotificationsViewedOnOtherDevice:messageUUIDArray];
+            }
         } else if(_config.inAppManualTriggerEnabled == NO){
           [self fetchInAppNotificationFromDB];
         }
