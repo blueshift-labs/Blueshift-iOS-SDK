@@ -187,7 +187,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         } else if ([BlueshiftEventAnalyticsHelper isMarkInAppAsOpen:dictionary]) {
             if (_inAppNotificationMananger) {
                 NSDictionary *silentPushData = [[dictionary objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
-                NSArray * messageUUIDArray = [silentPushData objectForKey:kInAppNotificationOpenedInAppUUID];
+                NSArray * messageUUIDArray = (NSArray*)[silentPushData objectForKey:kInAppNotificationOpenedInAppUUID];
                 [_inAppNotificationMananger markAsDisplayedForNotificationsViewedOnOtherDevice:messageUUIDArray];
             }
         } else if(_config.inAppManualTriggerEnabled == NO){
@@ -617,7 +617,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
-    [parameterMutableDictionary setObject:kSDKVersionNumber forKey:@"bsft_sdk_version"];
+    [parameterMutableDictionary setObject:kSDKVersionNumber forKey:kInAppNotificationModalSDKVersionKey];
     
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }

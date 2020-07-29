@@ -207,8 +207,9 @@ API_AVAILABLE(ios(8.0))
     
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
         NSURL *url = navigationAction.request.URL;
-        [self sendActionEventAnalytics: url.absoluteString];
-        
+        NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:url.absoluteString];
+        NSDictionary *details = @{kNotificationURLElementKey:encodedURLString};
+        [self sendActionEventAnalytics: details];
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
             NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
             [actionPayload setObject: url.absoluteString forKey: kInAppNotificationModalPageKey];

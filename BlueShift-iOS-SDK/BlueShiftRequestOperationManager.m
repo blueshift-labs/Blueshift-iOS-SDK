@@ -50,7 +50,8 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
     
     NSString *paramsString = [[NSString alloc] init];
-    for(id key in params) {
+    NSArray *keys = [[params allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    for(id key in keys) {
         if(paramsString.length > 0) {
             paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [params objectForKey:key]];
         } else {

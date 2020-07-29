@@ -82,4 +82,14 @@ static NSDictionary *_inAppTypeDictionay;
     return presentationAreaHeight;
 }
 
++ (NSString*)getEncodedURLString:(NSString*) urlString {
+    if (urlString && ![urlString isEqualToString:@""]) {
+        NSString *charactersToEscape = @"!*'();:@&=+$,/?%#[]<>^`\{|}"" ";
+        NSCharacterSet *allowedCharacters = [[NSCharacterSet characterSetWithCharactersInString:charactersToEscape] invertedSet];
+        NSString *escapedURLString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacters];
+        return escapedURLString;
+    }
+    return urlString;
+}
+
 @end

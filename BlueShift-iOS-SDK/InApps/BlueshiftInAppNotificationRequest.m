@@ -26,7 +26,7 @@
                                         @"bsft_message_uuid" : lastMessageID,
                                         @"api_key" : apiKey,
                                         @"last_timestamp" : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
-                                        @"bsft_sdk_version" : kSDKVersionNumber
+                                        kInAppNotificationModalSDKVersionKey : kSDKVersionNumber
                                         } mutableCopy];
         [parameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
         [parameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];

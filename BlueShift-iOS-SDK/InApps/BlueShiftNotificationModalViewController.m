@@ -392,7 +392,7 @@
         for (int i = 0; i< actionsCount; i++) {
             CGRect cgRect = CGRectMake(xPosition, yPosition , buttonWidth, buttonHeight);
             [self createActionButton: self.notification.notificationContent.actions[i] positionButton: cgRect objectPosition: &i];
-            
+            self.notification.notificationContent.actions[i].buttonIndex = [NSString stringWithFormat:@"%@%d",kInAppNotificationButtonIndex,i];
              if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation.intValue > 0) {
                  yPosition = yPosition + buttonHeight + yPadding;
              } else {

@@ -13,8 +13,12 @@
     
     NSDictionary *pushAlertDictionary = [pushDetailsDictionary objectForKey:@"aps"];
     NSString *pushCategory = [[pushDetailsDictionary objectForKey:@"aps"] objectForKey:@"category"];
-    NSString *pushMessage = [pushAlertDictionary objectForKey:@"alert"];
-    UIAlertController *blueShiftAlertController = [UIAlertController alertControllerWithTitle:kAlertTitle message:pushMessage preferredStyle:UIAlertControllerStyleAlert];
+    NSString *pushTitle = [[pushAlertDictionary objectForKey:@"alert"] objectForKey:@"title"];
+    if (!pushTitle || [pushTitle isEqualToString:@""]) {
+        pushTitle = kAlertTitle;
+    }
+    NSString *pushMessage = [[pushAlertDictionary objectForKey:@"alert"] objectForKey:@"body"];
+    UIAlertController *blueShiftAlertController = [UIAlertController alertControllerWithTitle:pushTitle message:pushMessage  preferredStyle:UIAlertControllerStyleAlert];
     if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
         UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:kDismissButton style:UIAlertActionStyleCancel handler:nil];
         UIAlertAction *viewAction = [UIAlertAction actionWithTitle:kViewButton style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
