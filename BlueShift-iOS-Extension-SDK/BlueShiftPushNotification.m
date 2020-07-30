@@ -52,6 +52,12 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
     [[BlueShiftPushNotification sharedInstance] setBlueshiftInAppNotification: request andAppGroupID: appGroupID];
     
+    #ifdef DEBUG
+    if (![[BlueShiftPushNotification sharedInstance] apiKey] || [[BlueShiftPushNotification sharedInstance].apiKey isEqualToString:@""]) {
+        NSLog(@"[Blueshift] Error - Please set the api key in the Notification Service Extension, otherwise push notification delivered events will not reflect on the dashboard");
+    }
+    #endif
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self trackPushViewedWithRequest:request];
     });
@@ -92,9 +98,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                  NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
                  [imageData writeToFile:filePathToWrite atomically:YES];
                  
-                 NSError *error3;
-                 UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
-                 NSLog(@"%@", error3);
+                 NSError *error;
+                 UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+                 if (error) {
+                     NSLog(@"[Blueshift] Failed to create carousel image attachment %@", error);
+                 }
                  if(attachment != nil) {
                      [attachments addObject:attachment];
                      self.attachments = attachments;
@@ -130,9 +138,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
             [imageData writeToFile:filePathToWrite atomically:YES];
             
-            NSError *error3;
-            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
-            NSLog(@"%@", error3);
+            NSError *error;
+            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+            if (error) {
+                NSLog(@"[Blueshift] Failed to create image attachment %@", error);
+            }
             if(attachment != nil) {
                 [attachments addObject:attachment];
             }
@@ -150,9 +160,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
             [videoData writeToFile:filePathToWrite atomically:YES];
             
-            NSError *error3;
-            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
-            NSLog(@"%@", error3);
+            NSError *error;
+            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+            if (error) {
+                NSLog(@"[Blueshift] Failed to create video attachment %@", error);
+            }
             if(attachment != nil) {
                 [attachments addObject:attachment];
             }
@@ -170,9 +182,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
             [gifData writeToFile:filePathToWrite atomically:YES];
             
-            NSError *error3;
-            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
-            NSLog(@"%@", error3);
+            NSError *error;
+            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+            if (error) {
+                NSLog(@"[Blueshift] Failed to create gif image attachment %@", error);
+            }
             if(attachment != nil) {
                 [attachments addObject:attachment];
             }
@@ -190,9 +204,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
             [audioData writeToFile:filePathToWrite atomically:YES];
             
-            NSError *error3;
-            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error3];
-            NSLog(@"%@", error3);
+            NSError *error;
+            UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+            if (error) {
+                NSLog(@"[Blueshift] Failed to create audio attachment %@", error);
+            }
             if(attachment != nil) {
                 [attachments addObject:attachment];
             }

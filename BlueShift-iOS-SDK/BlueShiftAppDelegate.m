@@ -10,6 +10,7 @@
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftInAppNotificationManager.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueshiftLog.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -84,11 +85,12 @@
     } else {
         // Fallback on earlier versions
     }
-
+    
     NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
-    NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    [BlueshiftLog logInfo:[NSString stringWithFormat:@"Successfully registered for remote notifications. Device token: "] withDetails:deviceTokenString methodName:nil];
+     NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
     if (previousDeviceToken && deviceTokenString) {
         if(![previousDeviceToken isEqualToString:deviceTokenString]) {
             [self fireIdentifyCall];
@@ -128,7 +130,7 @@
 }
 
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
-    NSLog(@"\n\n Failed to get push token, error: %@ \n\n", error);
+    [BlueshiftLog logError:error withDescription:[NSString stringWithFormat:@"Failed to register for remote notification"] methodName:nil];
     NSDictionary *userInfo =
     [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
     [[NSNotificationCenter defaultCenter] postNotificationName:
@@ -1029,7 +1031,7 @@
         error = [NSError errorWithDomain:@"YOUR_ERROR_DOMAIN" code:9999 userInfo:dict];
         // Replace this with code to handle the error appropriately.
         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        [BlueshiftLog logError:error withDescription:@"Unresolved error" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     
     return _persistentStoreCoordinator;
@@ -1089,7 +1091,7 @@
         if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
             // Replace this implementation with code to handle the error appropriately.
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            [BlueshiftLog logError:error withDescription:@"Unresolved error" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
 }
@@ -1161,7 +1163,7 @@
             }
         }
     } @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

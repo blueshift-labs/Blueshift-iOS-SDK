@@ -11,6 +11,7 @@
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
+#import "../BlueshiftLog.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -350,7 +351,7 @@
         BOOL failedToRegisterFont = NO;
         if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
-            NSLog(@"Error: Cannot load Font Awesome");
+            [BlueshiftLog logError:nil withDescription:@"Failed to load FontAwesome" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             CFBridgingRelease(errorDescription);
             failedToRegisterFont = YES;
         }

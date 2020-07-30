@@ -113,7 +113,6 @@
             NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: self.notification.notificationContent.banner];
             if (fileName && [BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
                 [BlueShiftInAppNotificationHelper deleteFileFromLocal: fileName];
-                NSLog(@"Image file deleted");
             }
         }
     };

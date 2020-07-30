@@ -6,6 +6,7 @@
 //
 
 #import "BlueshiftInAppNotificationRequest.h"
+#import "../BlueshiftLog.h"
 
 @implementation BlueshiftInAppNotificationRequest
 
@@ -45,8 +46,8 @@
             }
         }];
     } else {
-        NSLog(@"Device ID is not there");
-        NSError *error = (NSError*)@"Device ID not set";
+        NSError *error = (NSError*)@"Device ID is missing";
+        [BlueshiftLog logError:error withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         failure(error);
     }
 }

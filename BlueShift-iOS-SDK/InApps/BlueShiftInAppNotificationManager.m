@@ -15,6 +15,7 @@
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShift.h"
+#import "../BlueshiftLog.h"
 
 #define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
 
@@ -105,7 +106,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     
@@ -117,7 +118,7 @@
             [fetchRequest setEntity:entity];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
         
         if(entity != nil && fetchRequest.entity != nil) {
@@ -177,7 +178,7 @@
                     masterContext = appDelegate.managedObjectContext;
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
             }
             if(masterContext) {
@@ -188,7 +189,7 @@
                     [fetchRequest setEntity:entity];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(entity != nil && fetchRequest.entity != nil) {
                     InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
@@ -214,7 +215,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     
@@ -229,7 +230,7 @@
             count = [masterContext countForFetchRequest: fetchRequest error:&error];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
         
         if(entity != nil && fetchRequest.entity != nil) {
@@ -240,6 +241,7 @@
                         double timeDifferenceInDay = [self checkInAppNotificationExpired: [notification.createdAt doubleValue]];
                         if (timeDifferenceInDay > 30 || count > 40) {
                             [self deleteNotification: notification context: masterContext];
+                            [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:notification.id methodName:nil];
                         }
                     }
                 }
@@ -263,7 +265,7 @@
                 [context deleteObject: pManagedObject];
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
             [context performBlock:^{
                 NSError *saveError = nil;
@@ -290,7 +292,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     
@@ -303,7 +305,7 @@
             [fetchRequest setEntity:entity];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
         
         if(entity != nil && fetchRequest.entity != nil) {
@@ -344,7 +346,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     
@@ -366,7 +368,7 @@
                         [context deleteObject: pManagedObject];
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                     [context performBlock:^{
                         NSError *saveError = nil;
@@ -385,7 +387,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
 }
@@ -400,7 +402,7 @@
                 masterContext = appDelegate.managedObjectContext;
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
         }
         [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
@@ -448,7 +450,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     if(masterContext) {
@@ -459,12 +461,14 @@
             [fetchRequest setEntity:entity];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
         
         NSString *notificationID = [self getInAppMessageID: notificationPayload];
         if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){ }];
+        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
+            [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
+        }];
         }
     }
 }
@@ -486,6 +490,7 @@
             if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
+                [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
             } else {
                 /* For 'Now' category msg show it if time is not expired */
                 [nowFilteredResults addObject:entity];
@@ -497,6 +502,7 @@
             if ((currentTime - THRESHOLD_FOR_UPCOMING_IAM) > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
+                [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
             } else if (startTime > currentTime) {
                 /* Wait for (startTime-currentTime) before IAM is shown */
                 continue;
@@ -516,6 +522,7 @@
                                                                   selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
                                                                   userInfo:nil
                                                                    repeats: NO];
+        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer" withDetails:nil methodName:nil];
     }
 }
 
@@ -524,6 +531,7 @@
     if (self.inAppMessageFetchTimer != nil) {
         [self.inAppMessageFetchTimer invalidate];
         self.inAppMessageFetchTimer = nil;
+        [BlueshiftLog logInfo:@"Stopped InAppMessageFetchTimer" withDetails:nil methodName:nil];
     }
 }
 
@@ -573,6 +581,7 @@
         [self presentInAppNotification:notificationController];
     }
     if (errorString) {
+        [BlueshiftLog logError:nil withDescription:errorString methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -584,6 +593,7 @@
 
 - (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
     BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
+    [BlueshiftLog logInfo:@"Created in-app message to display, message Id: " withDetails:inAppEntity.id methodName:nil];
     [self createNotification: inAppNotification];
 }
 

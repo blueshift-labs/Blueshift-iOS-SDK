@@ -8,6 +8,7 @@
 
 #import "BlueShiftLiveContent.h"
 #import "BlueShiftRequestOperationManager.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueShiftLiveContent
 
@@ -29,8 +30,8 @@
             }
         }];
     } else {
-        NSLog(@"Email is not set");
-        NSError *error = (NSError*)@"Email ID not set";
+        NSError *error = (NSError*)@"Email id is required to fetch live content by email. Set emailId in BlueshiftUserInfo";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
@@ -53,8 +54,8 @@
             }
         }];
     } else {
-        NSLog(@"Customer ID is not set");
-        NSError *error = (NSError*)@"Customer ID not set";
+        NSError *error = (NSError*)@"Customer id is required to fetch live content by email. Set customerId in BlueshiftUserInfo";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
@@ -77,8 +78,8 @@
             }
         }];
     } else {
-        NSLog(@"Device ID is not there");
-        NSError *error = (NSError*)@"Device ID not set";
+        NSError *error = (NSError*)@"Device id is required to fetch live content by deviceId.";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
@@ -108,8 +109,8 @@
             }
         }];
     } else {
-        NSLog(@"Email is not set");
-        NSError *error = (NSError*)@"Email ID not set";
+        NSError *error = (NSError*)@"Email id is required to fetch live content by email. Set emailId in BlueshiftUserInfo";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
@@ -139,9 +140,9 @@
             }
         }];
     } else {
-        NSLog(@"Customer ID is not set");
-        NSError *error = (NSError*)@"Customer ID not set";
-        failure(error); 
+        NSError *error = (NSError*)@"Customer id is required to fetch live content by email. Set customerId in BlueshiftUserInfo";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
+        failure(error);
     }
 }
 
@@ -170,8 +171,8 @@
             }
         }];
     } else {
-        NSLog(@"Device ID is not there");
-        NSError *error = (NSError*)@"Device ID not set";
+        NSError *error = (NSError*)@"Device id is required to fetch live content by deviceId.";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
