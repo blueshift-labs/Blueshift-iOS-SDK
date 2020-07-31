@@ -411,6 +411,7 @@
                 NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray];
                 if ([filteredResults count] > 0) {
                     InAppNotificationEntity *entity = [filteredResults objectAtIndex:0];
+                    [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display message id - " withDetails:entity.id methodName:nil];
                     [self createNotificationFromDictionary: entity];
                 }
             }
@@ -467,7 +468,9 @@
         NSString *notificationID = [self getInAppMessageID: notificationPayload];
         if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
         [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
-            [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
+            if (status) {   
+                [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
+            }
         }];
         }
     }
