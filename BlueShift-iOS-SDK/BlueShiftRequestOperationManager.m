@@ -7,7 +7,7 @@
 
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftNotificationConstants.h"
-#import "./InApps/BlueShiftInAppNotificationConstant.h"
+#import "InApps/BlueShiftInAppNotificationConstant.h"
 
 static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
@@ -56,8 +56,8 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSMutableDictionary *filteredParams = [params mutableCopy];
     for (NSString* key in keysAddedInEnd) {
         if ([filteredParams objectForKey:key]) {
+            [availbleKeysToAddAtEnd addObject:[key copy]];
             [filteredParams removeObjectForKey:key];
-            [availbleKeysToAddAtEnd addObject:key];
         }
     }
     //Add rest of params first in sorted order and then add the params to be added in the end

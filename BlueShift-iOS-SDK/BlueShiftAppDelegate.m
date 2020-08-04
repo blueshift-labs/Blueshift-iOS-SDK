@@ -977,7 +977,7 @@
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
     
-    if([[[BlueShift sharedInstance] config] appGroupID] != nil && (![[[[BlueShift sharedInstance] config] appGroupID] isEqualToString:@""]))
+    if([[[BlueShift sharedInstance] config] appGroupID] != nil && ![[[[BlueShift sharedInstance] config] appGroupID] isEqualToString:@""])
         return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:[[[BlueShift sharedInstance] config] appGroupID]];
     else
         return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
