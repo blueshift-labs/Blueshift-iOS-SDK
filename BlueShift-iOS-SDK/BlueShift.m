@@ -130,6 +130,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         }];
     }
     
+    //Mark app open
+    [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+    
     [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
 }
 

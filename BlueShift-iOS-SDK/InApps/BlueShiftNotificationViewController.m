@@ -100,7 +100,6 @@
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL andWidth:(double)width andHeight:(double)height{
     NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
     UIImage *image = [[UIImage alloc] initWithData:imageData];
-//    UIImage *image = [[UIImage alloc] initWithData:imageData];
     
     // resize image
     CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height);
