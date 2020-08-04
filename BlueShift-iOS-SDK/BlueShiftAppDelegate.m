@@ -26,6 +26,7 @@
     return self;
 }
 
+#pragma mark - Remote notification registration
 - (void) registerForNotification {
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
@@ -121,6 +122,7 @@
     }
 }
 
+#pragma mark - Remote notification delegate
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
     [self registerForRemoteNotification:deviceToken];
 }
@@ -190,8 +192,10 @@
     UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
     BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
     pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-    UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-    [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    if (@available(iOS 8.0, *)) {
+        UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+        [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    }
 }
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
@@ -268,6 +272,7 @@
 
 - (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo {
     if (userInfo != nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] != [NSNull null]) {
+        [self trackAppOpenWithParameters:userInfo];
         NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
         if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
@@ -303,7 +308,6 @@
     self.userInfo = userInfo;
     
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
-    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
@@ -313,14 +317,7 @@
             [self trackPushViewedWithParameters:pushTrackParameterDictionary];
 
             // Handle push notification when the app is in active state...
-            UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
-            BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
-            pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-            
-            if (@available(iOS 8.0, *)) {
-                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
-            }
+            [self presentInAppAlert:userInfo];
         } else {
             if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
                 [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
@@ -484,6 +481,7 @@
     }
 }
 
+#pragma mark - Handle custom push notification actions
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
@@ -744,6 +742,7 @@
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
 
+#pragma mark - Application lifecyle events
 - (void)applicationWillResignActive:(UIApplication *)application {
     if (self.oldDelegate) {
         if ([self.oldDelegate respondsToSelector:@selector(applicationWillResignActive:)]) {
@@ -761,7 +760,6 @@
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {
-    [self trackAppOpen];
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
     if ([BlueShift sharedInstance].config.enableAnalytics) {
@@ -812,6 +810,7 @@
     [anInvocation invokeWithTarget:[self oldDelegate]];
 }
 
+#pragma mark - Handle actions for custom push notificaiton actions
 - (void)handleAlertActionButtonForCategoryBuyWithActionName:(NSString *)name {
     if([name  isEqual: kBuyButton]) {
         [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
@@ -839,14 +838,9 @@
     }
 }
 
+#pragma mark - Tracking methods
 - (void)trackAlertDismiss {
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
-}
-
-- (void)trackAppOpen {
-    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        [self trackAppOpenWithParameters:nil];
-    }
 }
 
 - (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
@@ -1116,6 +1110,7 @@
     }
 }
 
+#pragma mark - Universal links
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0)) {
     if (url != nil) {
         [self processUniversalLinks:url];

@@ -66,7 +66,7 @@
 #define kInAppNotificationModalSharableTextKey                  @"shareable_text"
 #define kInAppNotificationModalBackgroundRadiusKey              @"background_radius"
 #define kInAppNotificationModalTextSizeKey                      @"text_size"
-#define kInAppNotificationButtonIndex                           @"button_"
+#define kInAppNotificationButtonIndex                           @"btn_"
 
 /* Define a Font */
 #define kInAppNotificationModalFontExtensionKey                 @"otf"
@@ -93,7 +93,7 @@
 /*  Define a Button type */
 #define kInAppNotificationButtonTypeKey                         @"type"
 #define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
-#define kInAppNotificationButtonTypeCloseKey                    @"button_close"
+#define kInAppNotificationButtonTypeCloseKey                    @"close"
 #define kInAppNotificationButtonTypeOpenKey                     @"open"
 #define kInAppNotificationButtonTypeShareKey                    @"share"
 
@@ -117,8 +117,8 @@
 #define kInAppNotificationModalGravityStartKey                  @"start"
 #define kInAppNotificationModalGravityEndKey                    @"end"
 
-#define kNotificationClickElementKey                            @"bsft_click_element"
-#define kNotificationURLElementKey                              @"bsft_click_url"
+#define kNotificationClickElementKey                            @"clk_url"
+#define kNotificationURLElementKey                              @"clk_elmt"
 #define kInAppNotificationFontFileDownlaodURL                   @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf"
 
 #define kInAppNotificationModalMessagePaddingKey                @"message_padding"

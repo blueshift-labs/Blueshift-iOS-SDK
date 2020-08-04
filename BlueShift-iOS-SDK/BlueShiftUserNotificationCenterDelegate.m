@@ -21,8 +21,6 @@
         completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
     } else if([[userInfo objectForKey:kNotificationTypeIdentifierKey] isEqualToString:kNotificationAlertIdentifierKey]) {
         [[BlueShift sharedInstance].appDelegate presentInAppAlert:notification.request.content.userInfo];
-    } else {
-        completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
     }
 }
 

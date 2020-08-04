@@ -48,7 +48,8 @@
 }
 
 - (void)closeButtonDidTapped {
-    NSDictionary *details = @{kNotificationClickElementKey:kInAppNotificationButtonTypeCloseKey};
+    NSString *closeButtonIndex = [NSString stringWithFormat:@"%@%@",kInAppNotificationButtonIndex,kInAppNotificationButtonTypeCloseKey];
+    NSDictionary *details = @{kNotificationClickElementKey:closeButtonIndex};
     [self sendActionEventAnalytics: details];
     [self hide:YES];
 }

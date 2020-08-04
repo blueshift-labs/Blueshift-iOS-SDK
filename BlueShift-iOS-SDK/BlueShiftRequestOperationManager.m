@@ -7,6 +7,7 @@
 
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftNotificationConstants.h"
+#import "./InApps/BlueShiftInAppNotificationConstant.h"
 
 static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
@@ -48,10 +49,22 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     if(_backgroundSession == NULL) {
         _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     }
-    
+    //add below params to the end of get url
+    NSArray *keysAddedInEnd = [NSArray arrayWithObjects:@"device_id", @"app_name", kNotificationClickElementKey,kNotificationURLElementKey,nil];
+    NSMutableArray *availbleKeysToAddAtEnd = [[NSMutableArray alloc] init];
+    //remove the params which needs to be added in the end
+    NSMutableDictionary *filteredParams = [params mutableCopy];
+    for (NSString* key in keysAddedInEnd) {
+        if ([filteredParams objectForKey:key]) {
+            [filteredParams removeObjectForKey:key];
+            [availbleKeysToAddAtEnd addObject:key];
+        }
+    }
+    //Add rest of params first in sorted order and then add the params to be added in the end
     NSString *paramsString = [[NSString alloc] init];
-    NSArray *keys = [[params allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
-    for(id key in keys) {
+    NSArray *filteredKeys = [[filteredParams allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSArray *finalKeys = [filteredKeys arrayByAddingObjectsFromArray:availbleKeysToAddAtEnd];
+    for(id key in finalKeys) {
         if(paramsString.length > 0) {
             paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [params objectForKey:key]];
         } else {
