@@ -15,6 +15,8 @@
 #define kNotificationTypeIdentifierKey                                  @"notification_type"
 #define kNotificationKey                                                @"notification"
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
+#define kNotificationBodyKey                                            @"body"
+#define kNotificationTitleKey                                           @"title"
 
 #define kNotificationCategoryBuyIdentifier                              @"buy"
 #define kNotificationActionBuyIdentifier                                @"buy"
