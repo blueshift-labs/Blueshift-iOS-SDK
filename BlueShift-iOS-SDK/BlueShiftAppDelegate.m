@@ -26,6 +26,7 @@
     return self;
 }
 
+#pragma mark - Remote notification registration
 - (void) registerForNotification {
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
@@ -121,6 +122,7 @@
     }
 }
 
+#pragma mark - Remote notification delegate
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
     [self registerForRemoteNotification:deviceToken];
 }
@@ -184,14 +186,16 @@
 
 - (void)presentInAppAlert:(NSDictionary *)userInfo {
     // Track notification view when app is open ...
-    //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
-
+    [self trackPushViewedWithParameters:userInfo];
+    self.userInfo = userInfo;
     // Handle push notification when the app is in active state...
-    //UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+    UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
     BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
     pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-    //UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-    //[topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    if (@available(iOS 8.0, *)) {
+        UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+        [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    }
 }
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
@@ -268,6 +272,7 @@
 
 - (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo {
     if (userInfo != nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] != [NSNull null]) {
+        [self trackAppOpenWithParameters:userInfo];
         NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
         if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
@@ -303,23 +308,16 @@
     self.userInfo = userInfo;
     
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
-    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
     
     // Way to handle push notification in three states
     if (applicationState == UIApplicationStateActive) {
-        // Track notification view when app is open ...
-        [self trackPushViewedWithParameters:pushTrackParameterDictionary];
         
         if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
+            // Track notification view when app is open ...
+            [self trackPushViewedWithParameters:pushTrackParameterDictionary];
+
             // Handle push notification when the app is in active state...
-            UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
-            BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
-            pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-            
-            if (@available(iOS 8.0, *)) {
-                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
-            }
+            [self presentInAppAlert:userInfo];
         } else {
             if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
                 [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
@@ -454,8 +452,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -480,13 +476,12 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
 }
 
+#pragma mark - Handle custom push notification actions
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
@@ -576,8 +571,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -610,8 +603,6 @@
                     NSString *productID = [pushDetailsDictionary objectForKey: kNotificationProductIDIdenfierKey];
                     [self.blueShiftPushParamDelegate fetchProductID:productID];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -640,8 +631,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -679,8 +668,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -709,8 +696,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -757,6 +742,7 @@
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
 
+#pragma mark - Application lifecyle events
 - (void)applicationWillResignActive:(UIApplication *)application {
     if (self.oldDelegate) {
         if ([self.oldDelegate respondsToSelector:@selector(applicationWillResignActive:)]) {
@@ -774,7 +760,6 @@
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {
-    [self trackAppOpen];
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
     if ([BlueShift sharedInstance].config.enableAnalytics) {
@@ -825,6 +810,7 @@
     [anInvocation invokeWithTarget:[self oldDelegate]];
 }
 
+#pragma mark - Handle actions for custom push notificaiton actions
 - (void)handleAlertActionButtonForCategoryBuyWithActionName:(NSString *)name {
     if([name  isEqual: kBuyButton]) {
         [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
@@ -852,14 +838,9 @@
     }
 }
 
+#pragma mark - Tracking methods
 - (void)trackAlertDismiss {
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
-}
-
-- (void)trackAppOpen {
-    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        [self trackAppOpenWithParameters:nil];
-    }
 }
 
 - (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
@@ -875,25 +856,17 @@
     }
 }
 
-- (void)trackPushViewed {
-    [self trackPushViewedWithParameters:nil];
-}
-
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (parameters) {
-            [parameterMutableDictionary addEntriesFromDictionary:parameters];
             [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
+            [parameterMutableDictionary addEntriesFromDictionary:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: parameters]];
         }
         
         [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
     }
-}
-
-- (void)trackPushClicked {
-    [self trackPushClickedWithParameters:nil];
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
@@ -1004,7 +977,7 @@
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
     
-    if([[[BlueShift sharedInstance] config] appGroupID] != nil)
+    if([[[BlueShift sharedInstance] config] appGroupID] != nil && ![[[[BlueShift sharedInstance] config] appGroupID] isEqualToString:@""])
         return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:[[[BlueShift sharedInstance] config] appGroupID]];
     else
         return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
@@ -1137,6 +1110,7 @@
     }
 }
 
+#pragma mark - Universal links
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0)) {
     if (url != nil) {
         [self processUniversalLinks:url];
@@ -1174,13 +1148,13 @@
             }];
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
-            [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
+            [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing: redirectURL];
             }
         } else {
             if ([[BlueShift sharedInstance] isBlueshiftUniversalLinkURL:url]) {
-                [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
+                [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             }
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing:url];

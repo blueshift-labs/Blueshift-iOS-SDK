@@ -13,6 +13,7 @@
 #define kNotificationCategoryIdentifierKey                              @"category"
 #define kNotificationSoundIdentifierKey                                 @"sound"
 #define kNotificationTypeIdentifierKey                                  @"notification_type"
+#define kNotificationKey                                                @"notification"
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
 
 #define kNotificationCategoryBuyIdentifier                              @"buy"
@@ -41,7 +42,6 @@
 #define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
 #define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
-#define kInAppNotificationModalElementKey                               @"element"
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"

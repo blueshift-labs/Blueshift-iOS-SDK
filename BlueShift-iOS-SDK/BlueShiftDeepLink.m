@@ -83,7 +83,6 @@ static NSDictionary *_deepLinkList = nil;
     }];
     
     if (![schemes containsObject:[url scheme]]) {
-        NSLog(@"Deep link URL not found / Something wrong with URL / or schema url");
         return NO;
     }
     
