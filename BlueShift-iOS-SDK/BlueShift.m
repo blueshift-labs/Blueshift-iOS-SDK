@@ -733,13 +733,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
                 [BlueshiftInAppNotificationRequest fetchInAppNotification: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
                     if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
                         NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
-                        [BlueshiftLog logInfo:@"Succesfully fetched in-app messages." withDetails:dictionary methodName:nil];
                         [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status) {
                             success();
                         }];
                     }
                 } failure:^(NSError *error){
-                    [BlueshiftLog logError:error withDescription:[NSString stringWithFormat:@"Failed to fetch in-app messages details."] methodName: [NSString stringWithUTF8String: __PRETTY_FUNCTION__]];
+                    failure(error);
                 }];
             } else {
                 NSError *error = (NSError *)@"Unable to fetch the data from core data.";
