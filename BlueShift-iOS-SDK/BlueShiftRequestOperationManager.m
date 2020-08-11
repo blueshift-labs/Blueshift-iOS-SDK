@@ -146,7 +146,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
     [urlRequest setHTTPMethod:@"GET"];
-    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated ULReplay for - %@", url.absoluteString] withDetails:nil statusCode:nil];
+    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated ULReplay for - %@", url.absoluteString] withDetails:nil statusCode:0];
     NSURLSessionDataTask *dataTask = [_replayURLSesion dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         if(error == nil)
