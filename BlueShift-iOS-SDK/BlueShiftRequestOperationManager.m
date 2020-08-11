@@ -146,20 +146,21 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
     [urlRequest setHTTPMethod:@"GET"];
+    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated ULReplay for - %@", url.absoluteString] withDetails:nil statusCode:nil];
     NSURLSessionDataTask *dataTask = [_replayURLSesion dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         if(error == nil)
         {
             if(httpResponse.URL != nil)
             {
-                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", httpResponse.URL] withDetails:nil statusCode:httpResponse.statusCode];
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
                 handler(YES, httpResponse.URL, nil);
             } else {
-                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@", httpResponse.URL] withDetails:nil statusCode:httpResponse.statusCode];
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
                 handler(NO,nil,[NSError errorWithDomain:@"Failed to load redirection link" code:httpResponse.statusCode userInfo:nil]);
             }
         } else {
-            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@",httpResponse.URL] withDetails:nil statusCode:httpResponse.statusCode];
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@",[[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
             handler(NO,nil,error);
         }
     }];
