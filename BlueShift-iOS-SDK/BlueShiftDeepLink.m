@@ -5,6 +5,7 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 #import "BlueShiftDeepLink.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueShiftDeepLink
 
@@ -89,7 +90,7 @@ static NSDictionary *_deepLinkList = nil;
     
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
     if(navController == nil) {
-        NSLog(@"rootViewContoller is nil");
+        [BlueshiftLog logError:nil withDescription:@"Can not perform custom deep linking as rootViewContoller is nil" methodName:nil];
         return NO;
     }
     

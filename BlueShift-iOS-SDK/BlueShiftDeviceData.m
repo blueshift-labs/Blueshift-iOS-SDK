@@ -6,6 +6,7 @@
 //
 #import "BlueShiftDeviceData.h"
 #import "BlueShift.h"
+#import "BlueshiftLog.h"
 
 static BlueShiftDeviceData *_currentDeviceData = nil;
 
@@ -43,7 +44,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             if (bundleId != nil) {
                 deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
             } else {
-                NSLog(@"[BlueShift] - ERROR: Failed to get the bundle Id");
+                [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id." methodName:nil];
             }
         }
             break;

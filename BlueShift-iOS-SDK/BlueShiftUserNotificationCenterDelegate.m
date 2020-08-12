@@ -6,6 +6,7 @@
 //
 
 #import "BlueShiftUserNotificationCenterDelegate.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueShiftUserNotificationCenterDelegate
 
@@ -18,8 +19,10 @@
 - (void)handleUserNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler API_AVAILABLE(ios(10.0)){
     NSDictionary *userInfo = notification.request.content.userInfo;
     if([[userInfo objectForKey:kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
+        [BlueshiftLog logInfo:@"Push Notification received" withDetails:userInfo methodName:nil];
         completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
     } else if([[userInfo objectForKey:kNotificationTypeIdentifierKey] isEqualToString:kNotificationAlertIdentifierKey]) {
+        [BlueshiftLog logInfo:@"Dialog box Push Notification received" withDetails:userInfo methodName:nil];
         [[BlueShift sharedInstance].appDelegate presentInAppAlert:notification.request.content.userInfo];
     }
 }

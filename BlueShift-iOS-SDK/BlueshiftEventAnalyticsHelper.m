@@ -10,6 +10,7 @@
 #import "BlueShiftAppData.h"
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueshiftEventAnalyticsHelper
 
@@ -154,7 +155,7 @@
         
         return queryDictionary;
     } @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

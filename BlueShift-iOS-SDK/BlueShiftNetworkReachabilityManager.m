@@ -12,11 +12,6 @@
 
 @implementation BlueShiftNetworkReachabilityManager
 
-// Method to start monitoring network connectivity ...
-+ (void)monitorNetworkConnectivity {
-
-}
-
 // Method to check whether internet is connected ...
 + (BOOL)networkConnected {
     BlueShiftReachability *reach = [BlueShiftReachability reachabilityWithHostName:@"www.google.com"];

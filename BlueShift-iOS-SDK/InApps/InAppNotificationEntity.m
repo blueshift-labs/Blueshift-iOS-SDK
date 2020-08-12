@@ -10,6 +10,7 @@
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftAppDelegate.h"
 #import "../BlueShiftNotificationConstants.h"
+#import "../BlueshiftLog.h"
 
 @implementation InAppNotificationEntity
 
@@ -38,7 +39,7 @@
             [fetchRequest setEntity:[NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: masterContext]];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
         if(fetchRequest.entity != nil) {
             [self fetchFromCoreDataFromContext: masterContext forTriggerMode: triggerMode forDisplayPage: displayOn request: fetchRequest handler: handler];
@@ -94,7 +95,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -143,7 +144,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             handler(NO);
         }
     } else {
@@ -173,7 +174,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -200,7 +201,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -227,7 +228,7 @@
                 }
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 handler(NO);
             }
         } else {

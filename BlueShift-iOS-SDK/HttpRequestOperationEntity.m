@@ -6,6 +6,7 @@
 //
 
 #import "HttpRequestOperationEntity.h"
+#import "BlueshiftLog.h"
 
 @implementation HttpRequestOperationEntity
 
@@ -26,7 +27,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     if (masterContext) {
@@ -64,7 +65,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     } else {
         return ;
@@ -93,7 +94,7 @@
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
@@ -118,7 +119,7 @@
                         }
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }
             }
@@ -141,7 +142,7 @@
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
@@ -162,7 +163,7 @@
                         }
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 } else {
                     handler(NO, nil);

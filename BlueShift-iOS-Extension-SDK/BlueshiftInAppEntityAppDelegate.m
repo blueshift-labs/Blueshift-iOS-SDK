@@ -32,7 +32,7 @@
             [fetchRequest setEntity:entity];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            NSLog(@"[Blueshift] Caught exception %@", exception);
         }
 
         if(entity != nil && fetchRequest.entity != nil) {
@@ -60,7 +60,7 @@
                 entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: self.managedObjectContext];
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                NSLog(@"[Blueshift] Caught exception %@", exception);
             }
             
             if(entity != nil) {
@@ -76,10 +76,10 @@
                         }];
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        NSLog(@"[Blueshift] Caught exception %@", exception);
                     }
                 } else {
-                    printf("\n App entity is nil");
+                    NSLog(@"[Blueshift] App entity is nil");
                 }
             }
         }
@@ -146,7 +146,7 @@
         error = [NSError errorWithDomain:@"YOUR_ERROR_DOMAIN" code:9999 userInfo:dict];
         // Replace this with code to handle the error appropriately.
         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        NSLog(@"[Blueshift] Unresolved error %@, %@", error, [error userInfo]);
     }
     
     return _persistentStoreCoordinator;
@@ -207,7 +207,7 @@
         if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
             // Replace this implementation with code to handle the error appropriately.
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            NSLog(@"[Blueshift] Unresolved error %@, %@", error, [error userInfo]);
         }
     }
 }

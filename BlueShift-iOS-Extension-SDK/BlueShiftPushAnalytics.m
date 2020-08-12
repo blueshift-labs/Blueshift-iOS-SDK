@@ -77,7 +77,6 @@
     NSString *encodedString = [urlWithParams stringByReplacingOccurrencesOfString:@" " withString:kBsftEncodedSpace];
     NSURL * url = [NSURL URLWithString:encodedString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
-    
     [urlRequest setHTTPMethod:@"GET"];
     
     NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest

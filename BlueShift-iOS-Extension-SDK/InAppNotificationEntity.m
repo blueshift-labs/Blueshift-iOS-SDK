@@ -60,7 +60,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            NSLog(@"[Blueshift] Caught exception %@", exception);
             handler(NO);
         }
     } else {
@@ -90,7 +90,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        NSLog(@"[Blueshift] Caught exception %@", exception);
     }
 }
 

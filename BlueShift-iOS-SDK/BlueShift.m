@@ -9,6 +9,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import "BlueShiftInAppNotificationManager.h"
 #import "BlueShiftNotificationConstants.h"
+#import "BlueshiftLog.h"
 
 BlueShiftAppDelegate *_newDelegate;
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
@@ -125,15 +126,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         
         [self fetchInAppNotificationFromAPI:^(void) {
             [self fetchInAppNotificationFromDB];
-        } failure:^(NSError *error){
-            NSLog(@"%@", error);
-        }];
+        } failure:^(NSError *error){ }];
     }
-    
     //Mark app open
     [blueShiftAppDelegate trackAppOpenWithParameters:nil];
-    
-    [BlueShiftNetworkReachabilityManager monitorNetworkConnectivity];
+
+    [BlueshiftLog logInfo:@"SDK configured successfully. Below are the config details" withDetails:[config getConfigStringToLog] methodName:nil];
 }
 
 - (void)initDeepLinks {
@@ -178,15 +176,14 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+    [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if (_config.enableInAppNotification == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
                 if (self->_config.inAppManualTriggerEnabled == NO) {
                          [self fetchInAppNotificationFromDB];
                     }
-                } failure:^(NSError *error){
-                    NSLog(@"%@", error);
-            }];
+                } failure:^(NSError *error){ }];
         } else if ([BlueshiftEventAnalyticsHelper isMarkInAppAsOpen:dictionary]) {
             if (_inAppNotificationMananger) {
                 NSDictionary *silentPushData = [[dictionary objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
@@ -539,7 +536,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     BlueShiftSubscription *subscription = [BlueShiftSubscription currentSubscription];
     
     if (subscription==nil) {
-        NSLog(@"\n\n Error: Could not pause subscription. Please initialize the subscription \n\n");
+        [BlueshiftLog logError:nil withDescription:[NSString stringWithFormat:@"Could not pause subscription. Please initialize the subscription"] methodName:nil];
+
         return ;
     }
     
@@ -566,7 +564,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     BlueShiftSubscription *subscription = [BlueShiftSubscription currentSubscription];
     
     if (subscription==nil) {
-        NSLog(@"\n\n Error: Could not unpause subscription. Please initialize the subscription \n\n");
+        [BlueshiftLog logError:nil withDescription:[NSString stringWithFormat:@"Could not unpause subscription. Please initialize the subscription"] methodName:nil];
         return ;
     }
     
@@ -592,7 +590,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     BlueShiftSubscription *subscription = [BlueShiftSubscription currentSubscription];
     
     if (subscription==nil) {
-        NSLog(@"\n\n Error: Could not cancel subscription. Please initialize the subscription \n\n");
+        [BlueshiftLog logError:nil withDescription:[NSString stringWithFormat:@"Could not cancel subscription. Please initialize the subscription"] methodName:nil];
         return ;
     }
     
@@ -637,7 +635,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
     if ([BlueShiftUserInfo sharedInstance]==nil) {
-        NSLog(@"\n\n BlueShift Warning: Please set BlueShiftUserInfo for sending retailer customer ID, email and so on.");
+        [BlueshiftLog logInfo:[NSString stringWithFormat:@"Please set BlueshiftUserInfo for sending the user attributes such as email id, customer id"] withDetails:nil methodName:nil];
     }
     else {
         NSString *email = [requestMutableParameters objectForKey:@"email"];
@@ -740,12 +738,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
                         }];
                     }
                 } failure:^(NSError *error){
-                    NSLog(@"InApp Message API failed");
                     failure(error);
                 }];
             } else {
-                NSLog(@"Unable to fetch the data from core data");
-                NSError *error = (NSError *)@"Unable to fetch the data from core data";
+                NSError *error = (NSError *)@"Unable to fetch the data from core data.";
+                [BlueshiftLog logError:error withDescription:nil methodName: [NSString stringWithUTF8String: __PRETTY_FUNCTION__]];
                 failure(error);
             }
         }];
