@@ -44,7 +44,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             if (bundleId != nil) {
                 deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
             } else {
-                [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id. Use different DeviceIdSource." methodName:nil];
+                [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id." methodName:nil];
             }
         }
             break;

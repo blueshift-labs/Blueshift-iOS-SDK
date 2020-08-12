@@ -3,7 +3,7 @@
 //  BlueShift-iOS-SDK
 //
 //  Created by Ketan Shikhare on 29/07/20.
-//  Copyright © 2020 Bullfinch Software. All rights reserved.
+//  Copyright © 2020 Blueshift. All rights reserved.
 //
 
 #import "BlueshiftLog.h"

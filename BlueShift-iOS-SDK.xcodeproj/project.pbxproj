@@ -322,7 +322,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0610;
-				ORGANIZATIONNAME = "Bullfinch Software";
+				ORGANIZATIONNAME = Blueshift;
 				TargetAttributes = {
 					DC4ECE191A9B53430078CCB0 = {
 						CreatedOnToolsVersion = 6.1.1;

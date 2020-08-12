@@ -43,7 +43,7 @@
     
     if (self.apiKey == NULL || self.apiKey == nil) {
         status = NO;
-        [BlueshiftLog logError:nil withDescription:@"Failed to initialize the SDK, API Key is required to initialise the SDK. Set API key in Blueshift config." methodName:nil];
+        [BlueshiftLog logError:nil withDescription:@"SDK initialization failed! Please set a valid API key inside the Blueshift config to initialize the SDK." methodName:nil];
     }
     
     return status;
