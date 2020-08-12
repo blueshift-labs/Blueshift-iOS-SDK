@@ -85,7 +85,7 @@
     } else {
         // Fallback on earlier versions
     }
-    
+
     NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
