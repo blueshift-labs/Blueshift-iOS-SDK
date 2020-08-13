@@ -47,6 +47,13 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             }
         }
             break;
+        case BlueshiftDeviceIdSourceCUSTOM:
+            if (self.customDeviceID && ![self.customDeviceID isEqualToString:@""]) {
+                deviceUUID = self.customDeviceID;
+            } else {
+                NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
+            }
+            break;
         default:
             deviceUUID = self.deviceIDFV;
             break;
