@@ -93,8 +93,8 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.deviceType forKey:@"device_type"];
     }
     
-    if (self.deviceToken) {
-        NSString *storedDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    NSString *storedDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    if (storedDeviceToken) {
         [deviceMutableDictionary setObject:storedDeviceToken forKey:@"device_token"];
     }
     
