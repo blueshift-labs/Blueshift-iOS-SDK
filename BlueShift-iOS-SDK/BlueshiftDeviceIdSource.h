@@ -13,7 +13,7 @@ typedef NS_ENUM(NSInteger, BlueshiftDeviceIdSource)  {
     BlueshiftDeviceIdSourceIDFV,
     BlueshiftDeviceIdSourceUUID,
     BlueshiftDeviceIdSourceIDFVBundleID,
-    BlueshiftDeviceIdSourceCUSTOM
+    BlueshiftDeviceIdSourceCustom
 };
 
 #endif /* BlueshiftDeviceIdSource_h */

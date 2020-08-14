@@ -97,7 +97,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [[BlueShiftDeviceData currentDeviceData] setBlueshiftDeviceIdSource:config.blueshiftDeviceIdSource];
         
         //Custom device id provision for DeviceIDSourceCUSTOM
-        if (config.blueshiftDeviceIdSource == BlueshiftDeviceIdSourceCUSTOM) {
+        if (config.blueshiftDeviceIdSource == BlueshiftDeviceIdSourceCustom) {
             if (config.customDeviceId && ![config.customDeviceId isEqualToString:@""]) {
                 [[BlueShiftDeviceData currentDeviceData] setCustomDeviceID:config.customDeviceId];
                 NSLog(@"[BlueShift] : CUSTOM device id is set as - %@",config.customDeviceId);
@@ -105,7 +105,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
                 NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
             }
         } else if (config.customDeviceId && ![config.customDeviceId isEqualToString:@""]) {
-            NSLog(@"[BlueShift] - ERROR: Can not use CUSTOM device id without setting the deviceIdSource as BlueshiftDeviceIdSourceCUSTOM");
+            NSLog(@"[BlueShift] - ERROR: Can not use CUSTOM device id without setting the deviceIdSource as BlueshiftDeviceIdSourceCustom");
         }
     }
     if (config.enableAnalytics == YES) {

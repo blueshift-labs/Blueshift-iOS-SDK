@@ -47,7 +47,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             }
         }
             break;
-        case BlueshiftDeviceIdSourceCUSTOM:
+        case BlueshiftDeviceIdSourceCustom:
             if (self.customDeviceID && ![self.customDeviceID isEqualToString:@""]) {
                 deviceUUID = self.customDeviceID;
             } else {
