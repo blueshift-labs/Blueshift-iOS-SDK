@@ -101,7 +101,7 @@
 }
 
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL andWidth:(double)width andHeight:(double)height{
-    UIImage *image = [[UIImage alloc] initWithData:[self loadAndcacheImageForURLString:imageURL]];
+    UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:imageURL]];
     
     // resize image
     CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height);
@@ -121,7 +121,7 @@
     if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
     ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
-        UIImage *image = [[UIImage alloc] initWithData:[self loadAndcacheImageForURLString:backgroundImageURL]];
+        UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.frame = notificationView.bounds;
         imageView.contentMode = UIViewContentModeScaleAspectFill;
@@ -129,7 +129,7 @@
     }
 }
 
--(NSData*)loadAndcacheImageForURLString:(NSString*)urlString {
+-(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
     NSData *imageData = [[NSData alloc] init];
     if([cachedImageData valueForKey: urlString]) {
         imageData = [cachedImageData valueForKey:urlString];
