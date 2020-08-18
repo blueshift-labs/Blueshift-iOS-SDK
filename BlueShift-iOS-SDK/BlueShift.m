@@ -104,8 +104,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             } else {
                 NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
             }
-        } else if (config.customDeviceId && ![config.customDeviceId isEqualToString:@""]) {
-            NSLog(@"[BlueShift] - ERROR: Can not use CUSTOM device id without setting the deviceIdSource as BlueshiftDeviceIdSourceCustom");
         }
     }
     if (config.enableAnalytics == YES) {
