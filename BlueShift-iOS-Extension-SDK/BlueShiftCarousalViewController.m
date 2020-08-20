@@ -30,6 +30,7 @@
 @property NSMutableArray *deepLinkURLs;
 @property NSArray *carouselElements;
 @property NSTimer *carouselTimer;
+@property BOOL isAnimatedCarousel;
 
 @end
 
@@ -371,6 +372,7 @@
     carousel.autoscroll = 0;
     carousel.currentItemIndex = -1;
     if([notification.request.content.categoryIdentifier isEqualToString:@"carousel_animation"]) {
+        _isAnimatedCarousel = YES;
         [self startCarouselTimer];
     }
     [self.carousel reloadData];
@@ -394,8 +396,10 @@
 }
 
 -(void)restartTimer {
-    [self stopCarouselTimer];
-    [self startCarouselTimer];
+    if (_isAnimatedCarousel == YES) {
+        [self stopCarouselTimer];
+        [self startCarouselTimer];
+    }
 }
 
 - (void)setCarouselTheme:(NSString *)themeNmae {
