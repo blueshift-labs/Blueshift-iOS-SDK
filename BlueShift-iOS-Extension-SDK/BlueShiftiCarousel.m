@@ -1402,8 +1402,13 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, BlueShiftiCaro
 }
 
 - (NSInteger)currentItemIndex
-{   
-    return [self clampedIndex:round(_scrollOffset)];
+{
+    NSInteger index = [self clampedIndex:round(_scrollOffset)];
+    if (index) {
+        return index;
+    } else {
+        return 0;
+    }
 }
 
 - (NSInteger)minScrollDistanceFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex

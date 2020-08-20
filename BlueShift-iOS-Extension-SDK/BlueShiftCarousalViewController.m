@@ -22,12 +22,14 @@
 #define kPageIndicatorHeight    30
 
 #define kImageCornerRadius      0.0
+#define kSlideDuration          3.0f
 
 @interface BlueShiftCarousalViewController ()
 
 @property (strong, nonatomic) NSMutableArray *items;
 @property NSMutableArray *deepLinkURLs;
 @property NSArray *carouselElements;
+@property NSTimer *carouselTimer;
 
 @end
 
@@ -319,6 +321,7 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
+    [self stopCarouselTimer];
     self.carousel = nil;
 }
 
@@ -365,17 +368,35 @@
     [self getImages:notification];
     [self createPageIndicator:self.items.count];
     [self setCarouselTheme:[notification.request.content.userInfo  objectForKey:@"carousel_theme"]];
-    if([notification.request.content.categoryIdentifier isEqualToString:@"carousel"]) {
-        self.carousel.autoscroll = 0;
-    } else if([notification.request.content.categoryIdentifier isEqualToString:@"carousel_animation"]) {
-        self.carousel.autoscroll = -0.1;
-    }
-    if(self.items.count == 1) {
-        self.carousel.autoscroll = 0;
+    carousel.autoscroll = 0;
+    carousel.currentItemIndex = -1;
+    if([notification.request.content.categoryIdentifier isEqualToString:@"carousel_animation"]) {
+        [self startCarouselTimer];
     }
     [self.carousel reloadData];
 }
 
+-(void)showNextImage {
+    [carousel scrollToItemAtIndex:carousel.currentItemIndex + 1 animated:YES];
+}
+
+-(void)startCarouselTimer {
+    if(_carouselTimer == nil && self.items.count > 1) {
+        _carouselTimer = [NSTimer scheduledTimerWithTimeInterval:kSlideDuration target:self selector:@selector(showNextImage) userInfo:nil repeats:YES];
+    }
+}
+
+-(void)stopCarouselTimer {
+    if (_carouselTimer) {
+        [_carouselTimer invalidate];
+        _carouselTimer = nil;
+    }
+}
+
+-(void)restartTimer {
+    [self stopCarouselTimer];
+    [self startCarouselTimer];
+}
 
 - (void)setCarouselTheme:(NSString *)themeNmae {
     self.carousel.type = [self fetchCarouselThemeEnum:themeNmae];
@@ -436,9 +457,11 @@
 - (void)setCarouselActionsForResponse:(UNNotificationResponse *)response completionHandler:(void (^)(UNNotificationContentExtensionResponseOption))completion API_AVAILABLE(ios(10.0)){
     if([response.actionIdentifier isEqualToString:@"next"]) {
         [carousel scrollToItemAtIndex:carousel.currentItemIndex + 1 animated:YES];
+        [self restartTimer];
         completion(UNNotificationContentExtensionResponseOptionDoNotDismiss);
     } else if([response.actionIdentifier isEqualToString:@"previous"]) {
         [carousel scrollToItemAtIndex:carousel.currentItemIndex - 1 animated:YES];
+        [self restartTimer];
         completion(UNNotificationContentExtensionResponseOptionDoNotDismiss);
     } else {
         completion(UNNotificationContentExtensionResponseOptionDismissAndForwardAction);
@@ -508,7 +531,6 @@
     [myDefaults setObject:index forKey:@"selected_index"];
     [myDefaults synchronize];
 }
-
 
 - (iCarouselType)fetchCarouselThemeEnum:(NSString *)themeName {
     if([themeName isEqualToString:@"linear"]) {

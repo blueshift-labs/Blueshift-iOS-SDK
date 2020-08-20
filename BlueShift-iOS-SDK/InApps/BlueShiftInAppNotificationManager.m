@@ -21,12 +21,6 @@
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
-/* In-App message timer for handlin upcoming messages */
-@property (nonatomic, strong, readwrite) NSTimer *inAppMsgTimer;
-
-/* Timer for set gap b/w two in app notificaation*/
-@property (nonatomic, strong, readwrite) NSTimer *inAppScanQueueTimer;
-
 @property (nonatomic, strong, readwrite) NSTimer *inAppMessageFetchTimer;
 
 /* private object context */
