@@ -31,6 +31,9 @@
 @property (nonatomic, strong) NSString *networkCarrierName;
 @property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
 
+//Custom device id provision for DeviceIDSourceCUSTOM
+@property (nonatomic, strong) NSString * customDeviceID;
+
 + (instancetype) currentDeviceData;
 
 - (NSDictionary *)toDictionary;

@@ -14,6 +14,7 @@
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
+    NSMutableDictionary *cachedImageData;
 }
 @end
 
@@ -25,6 +26,7 @@
         notification.contentStyle = ([self isDarkThemeEnabled] && notification.contentStyleDark) ? notification.contentStyleDark : notification.contentStyle;
         notification.templateStyle = ([self isDarkThemeEnabled] && notification.templateStyleDark) ? notification.templateStyleDark : notification.templateStyle;
         _notification = notification;
+        cachedImageData = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -96,9 +98,7 @@
 }
 
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL andWidth:(double)width andHeight:(double)height{
-    NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
-    UIImage *image = [[UIImage alloc] initWithData:imageData];
-//    UIImage *image = [[UIImage alloc] initWithData:imageData];
+    UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:imageURL]];
     
     // resize image
     CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height);
@@ -118,10 +118,23 @@
     if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
     ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
-        NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: backgroundImageURL]];
-        UIImage *image = [[UIImage alloc] initWithData:imageData];
-        [notificationView setBackgroundColor: [UIColor colorWithPatternImage: image]];
+        UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        imageView.frame = notificationView.bounds;
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        [notificationView addSubview:imageView];
     }
+}
+
+-(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
+    NSData *imageData = [[NSData alloc] init];
+    if([cachedImageData valueForKey: urlString]) {
+        imageData = [cachedImageData valueForKey:urlString];
+    } else {
+        imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
+        [cachedImageData setObject:imageData forKey:urlString];
+    }
+    return imageData;
 }
 
 - (void)setBackgroundColor:(UIView *)notificationView {
