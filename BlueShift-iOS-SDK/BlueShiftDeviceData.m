@@ -48,6 +48,13 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             }
         }
             break;
+        case BlueshiftDeviceIdSourceCustom:
+            if (self.customDeviceID && ![self.customDeviceID isEqualToString:@""]) {
+                deviceUUID = self.customDeviceID;
+            } else {
+                NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
+            }
+            break;
         default:
             deviceUUID = self.deviceIDFV;
             break;
@@ -94,8 +101,8 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.deviceType forKey:@"device_type"];
     }
     
-    if (self.deviceToken) {
-        NSString *storedDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    NSString *storedDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    if (storedDeviceToken) {
         [deviceMutableDictionary setObject:storedDeviceToken forKey:@"device_token"];
     }
     
