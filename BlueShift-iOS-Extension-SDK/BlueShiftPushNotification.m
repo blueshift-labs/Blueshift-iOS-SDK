@@ -8,7 +8,6 @@
 
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
-#import "BlueshiftInAppEntityAppDelegate.h"
 #import "BlueshiftEventAnalyticsHelper.h"
 
 
@@ -38,14 +37,6 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         return YES;
     } else {
         return NO;
-    }
-}
-
-- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID{
-    if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: request.content.userInfo]) {
-        NSDictionary *payload = request.content.userInfo;
-        BlueshiftInAppEntityAppDelegate *blueshiftInAppentityDelegate = [[BlueshiftInAppEntityAppDelegate alloc] init];
-        [blueshiftInAppentityDelegate addInAppNotificationToDataStore: payload andAppGroupID:(NSString *)appGroupID];
     }
 }
 

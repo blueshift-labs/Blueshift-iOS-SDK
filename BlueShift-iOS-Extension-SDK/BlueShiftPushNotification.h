@@ -20,6 +20,5 @@ API_AVAILABLE(ios(10.0))
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
 - (BOOL)hasBlueShiftAttachments;
 - (void)trackPushViewedWithRequest:(UNNotificationRequest *)request;
-- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID;
 
 @end
