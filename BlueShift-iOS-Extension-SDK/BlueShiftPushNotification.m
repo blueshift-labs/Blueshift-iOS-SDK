@@ -8,7 +8,7 @@
 
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
-#import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueshiftExtensionAnalyticsHelper.h"
 
 
 API_AVAILABLE(ios(10.0))

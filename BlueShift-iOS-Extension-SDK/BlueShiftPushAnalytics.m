@@ -6,10 +6,10 @@
 //
 
 #import "BlueShiftPushAnalytics.h"
-#import "SDKVersion.h"
+#import "ExtensionSDKVersion.h"
 #import "BlueShiftPushNotification.h"
-#import "BlueShiftNotificationConstants.h"
-#import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueshiftExtensionConstants.h"
+#import "BlueshiftExtensionAnalyticsHelper.h"
 
 #define kBaseURL                        @"https://api.getblueshift.com/"
 #define kPushEventsUploadURL            @"track"
@@ -18,8 +18,8 @@
 @implementation BlueShiftPushAnalytics
 
 + (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo {
-    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: userInfo]) {
-        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
+    if ([BlueshiftExtensionAnalyticsHelper isSendPushAnalytics: userInfo]) {
+        NSDictionary *pushTrackParameterDictionary = [BlueshiftExtensionAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         if (pushTrackParameterDictionary) {
             [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
