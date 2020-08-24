@@ -38,6 +38,9 @@
 
 @property NSString * _Nullable appGroupID;
 
+//Custom device id provision for DeviceIDSourceCUSTOM
+@property NSString * _Nullable customDeviceId;
+
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;

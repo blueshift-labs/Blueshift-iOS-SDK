@@ -96,6 +96,16 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     if (config.blueshiftDeviceIdSource) {
         [[BlueShiftDeviceData currentDeviceData] setBlueshiftDeviceIdSource:config.blueshiftDeviceIdSource];
+        
+        //Custom device id provision for DeviceIDSourceCUSTOM
+        if (config.blueshiftDeviceIdSource == BlueshiftDeviceIdSourceCustom) {
+            if (config.customDeviceId && ![config.customDeviceId isEqualToString:@""]) {
+                [[BlueShiftDeviceData currentDeviceData] setCustomDeviceID:config.customDeviceId];
+                NSLog(@"[BlueShift] : CUSTOM device id is set as - %@",config.customDeviceId);
+            } else {
+                NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
+            }
+        }
     }
     if (config.enableAnalytics == YES) {
         // Start periodic batch upload timer
