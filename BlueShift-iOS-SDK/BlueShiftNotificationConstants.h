@@ -14,6 +14,7 @@
 #define kNotificationSoundIdentifierKey                                 @"sound"
 #define kNotificationTypeIdentifierKey                                  @"notification_type"
 #define kNotificationKey                                                @"notification"
+#define kNotificationSchedulerKey                                       @"notification_scheduler"
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
 #define kNotificationBodyKey                                            @"body"
 #define kNotificationTitleKey                                           @"title"

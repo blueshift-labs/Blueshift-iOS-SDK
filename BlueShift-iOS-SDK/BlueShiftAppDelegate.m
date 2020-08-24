@@ -171,7 +171,11 @@
 - (void)scheduleLocalNotification:(NSDictionary *)userInfo {
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
     localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:600];
-    localNotification.alertBody = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationAlertIdentifierKey];
+    NSDictionary *pushAlert = [userInfo objectForKey:kNotificationAPSIdentifierKey];
+    if (@available(iOS 8.2, *)) {
+        localNotification.alertTitle = [[pushAlert objectForKey: kNotificationAlertIdentifierKey] objectForKey:kNotificationTitleKey];
+    }
+    localNotification.alertBody = [[pushAlert objectForKey: kNotificationAlertIdentifierKey] objectForKey:kNotificationBodyKey];
     localNotification.timeZone = [NSTimeZone defaultTimeZone];
     if (@available(iOS 8.0, *)) {
         localNotification.category = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
@@ -179,7 +183,7 @@
     localNotification.soundName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationSoundIdentifierKey];
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
     dictionary = [userInfo mutableCopy];
-    if([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] == (id)[NSNull null]) {
+    if(![dictionary objectForKey: kInAppNotificationModalMessageUDIDKey]) {
         [dictionary removeObjectForKey: kInAppNotificationModalMessageUDIDKey];
     }
     localNotification.userInfo = dictionary;
@@ -323,7 +327,7 @@
         } else {
             if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
                 [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
-            } else {
+            } else if ([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
                // [self scheduleLocalNotification:userInfo];
             }
         }
@@ -488,10 +492,10 @@
     // method to handle the scenario when go to app action is selected for push message of buy category ...
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-    NSString *bundleIdentifier = [BlueShift sharedInstance].config.appGroupID;
-    if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
+    NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
+    if(appGroupID && ![appGroupID isEqualToString:@""]) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
-                                      initWithSuiteName:bundleIdentifier];
+                                      initWithSuiteName:appGroupID];
         NSNumber *selectedIndex = [userDefaults objectForKey: kNotificationSelectedIndexKey];
         if (selectedIndex != nil) {
             [self resetUserDefaults: userDefaults];
@@ -978,11 +982,7 @@
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
-    
-    if([[[BlueShift sharedInstance] config] appGroupID] != nil && ![[[[BlueShift sharedInstance] config] appGroupID] isEqualToString:@""])
-        return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:[[[BlueShift sharedInstance] config] appGroupID]];
-    else
-        return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
 - (NSManagedObjectModel *)managedObjectModel {

@@ -50,7 +50,6 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
-    [[BlueShiftPushNotification sharedInstance] setBlueshiftInAppNotification: request andAppGroupID: appGroupID];
     
     if (![[BlueShiftPushNotification sharedInstance] apiKey] || [[BlueShiftPushNotification sharedInstance].apiKey isEqualToString:@""]) {
         NSLog(@"[Blueshift] Error - Please set the api key in the Notification Service Extension, otherwise push notification delivered events will not reflect on the dashboard");

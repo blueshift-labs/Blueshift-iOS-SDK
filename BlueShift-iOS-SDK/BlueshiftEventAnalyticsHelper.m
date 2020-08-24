@@ -166,4 +166,14 @@
     return NO;
 }
 
++ (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo {
+    BOOL isSchedulePushNotification = false;
+    if (userInfo) {
+        if ([[userInfo valueForKey: kNotificationTypeIdentifierKey] isEqual: kNotificationSchedulerKey]) {
+            isSchedulePushNotification = true;
+        }
+    }
+    return isSchedulePushNotification;
+}
+
 @end
