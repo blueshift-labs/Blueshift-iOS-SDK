@@ -484,7 +484,7 @@
         InAppNotificationEntity *entity = [results objectAtIndex:i];
         if ([entity.triggerMode isEqualToString: @"now"]) {
             double endTime = [entity.endTime doubleValue];
-            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
+            if (currentTime > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
                 [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
@@ -496,7 +496,7 @@
             double endTime = [entity.endTime doubleValue];
             double startTime = [entity.startTime doubleValue];
             
-            if ((currentTime - THRESHOLD_FOR_UPCOMING_IAM) > endTime) {
+            if (currentTime > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
                 [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
