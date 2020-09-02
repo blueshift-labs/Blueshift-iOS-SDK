@@ -8,6 +8,8 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 
+#define kIDFADefaultValue @"00000000-0000-0000-0000-000000000000"
+
 static BlueShiftDeviceData *_currentDeviceData = nil;
 
 @implementation BlueShiftDeviceData
@@ -91,6 +93,10 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return _currentLocation;
 }
 
+- (NSString*)deviceIDFA {
+    return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+}
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *deviceMutableDictionary = [NSMutableDictionary dictionary];
     if (self.deviceUUID) {
@@ -124,6 +130,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     if (self.currentLocation) {
         [deviceMutableDictionary setObject: [NSNumber numberWithFloat:self.currentLocation.coordinate.latitude] forKey:@"latitude"];
         [deviceMutableDictionary setObject:[NSNumber numberWithFloat:self.currentLocation.coordinate.longitude] forKey:@"longitude"];
+    }
+    
+    if (self.deviceIDFA) {
+        NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
+        [deviceMutableDictionary setObject:IDFAString forKey:@"device_idfa"];
     }
     
     return [deviceMutableDictionary copy];
