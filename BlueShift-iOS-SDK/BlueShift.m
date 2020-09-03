@@ -115,10 +115,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [blueShiftAppDelegate registerForNotification];
         [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     }
-    if (config.enableLocationAccess == YES) {
-        [blueShiftAppDelegate registerLocationService];
-    }
-    
+
     // Initialize In App Manager
     _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
     if (config.inAppNotificationDelegate) {

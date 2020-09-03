@@ -947,30 +947,6 @@
     return isCampaignURL;
 }
 
-- (void)registerLocationService {
-    [BlueShiftDeviceData currentDeviceData].locationManager = [[CLLocationManager alloc] init];
-    
-    if ([[BlueShiftDeviceData currentDeviceData].locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-        if (@available(iOS 8.0, *)) {
-            [[BlueShiftDeviceData currentDeviceData].locationManager requestWhenInUseAuthorization];
-        }
-    } else {
-        if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
-            [[[UIAlertView alloc] initWithTitle:@"No GPS" message:@"Please Enable GPS in you device" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-        }
-        
-        [BlueShiftDeviceData currentDeviceData].locationManager.delegate = self;
-        [BlueShiftDeviceData currentDeviceData].locationManager.distanceFilter = kCLDistanceFilterNone;
-        [BlueShiftDeviceData currentDeviceData].locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        [[BlueShiftDeviceData currentDeviceData].locationManager startUpdatingLocation];
-    }
-    
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    [BlueShiftDeviceData currentDeviceData].currentLocation = (CLLocation *)[locations lastObject];
-}
-
 
 #pragma mark - Core Data stack
 
