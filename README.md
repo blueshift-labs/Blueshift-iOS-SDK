@@ -1,6 +1,8 @@
 ## Blueshift iOS SDK
 
 [![Version](https://img.shields.io/cocoapods/v/BlueShift-iOS-SDK.svg?style=flat)](http://cocoapods.org/pods/BlueShift-iOS-SDK)
+[!
+[Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) 
 [![License](https://img.shields.io/cocoapods/l/BlueShift-iOS-SDK.svg?style=flat)](http://cocoapods.org/pods/BlueShift-iOS-SDK)
 [![Platform](https://img.shields.io/cocoapods/p/BlueShift-iOS-SDK.svg?style=flat)](http://cocoapods.org/pods/BlueShift-iOS-SDK)
 
@@ -18,5 +20,5 @@ In addition, include the following details based on the nature of the issue.
 - Campaign Name/Link (if available)
 - Template Name/Link (if available)
 - Any extra details that you think would help in repro the issue
-
+- Compatible with Carthage as prebuild framework, building from GitHub source code is currently not supported
 tl;dr:  File support tickets for issues that you want to report on GitHub.
