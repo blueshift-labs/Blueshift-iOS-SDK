@@ -168,93 +168,24 @@
     [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
 }
 
-- (void)scheduleLocalNotification:(NSDictionary *)userInfo {
+- (void)validateAndScheduleLocalNotification:(NSDictionary *)userInfo {
     @try {
-        NSArray *notifications = (NSArray*)[userInfo valueForKey:@"notifications"];
-        for (NSDictionary *notification in notifications) {
-            NSNumber *expiryTimeStamp = (NSNumber *)[notification objectForKey: @"timestamp_to_expire_display"];
-            if (expiryTimeStamp && expiryTimeStamp > 0) {
-                double currentTimeStamp = (double)[[NSDate date] timeIntervalSince1970];
-                if([expiryTimeStamp doubleValue] > currentTimeStamp) {
-                    NSNumber *fireTimeStamp = (NSNumber *)[notification valueForKey:@"timestamp_to_display"];
-                    if (fireTimeStamp && fireTimeStamp > 0) {
-                        NSDictionary *pushAlert = [userInfo objectForKey:kNotificationAPSIdentifierKey];
-                        NSDate *fireDate = [NSDate dateWithTimeIntervalSince1970: [fireTimeStamp doubleValue]];
-//                        if (fireDate < [NSDate date]) {
-//                            return;
-//                        }
-                        if (@available(iOS 10.0, *)) {
-                            UNMutableNotificationContent *notificationContent = [[UNMutableNotificationContent alloc] init];
-//                            NSDateComponents *components = [NSCalendar.currentCalendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitTimeZone fromDate:fireDate];
-                            notificationContent.title = [[pushAlert objectForKey: kNotificationAlertIdentifierKey] objectForKey:kNotificationTitleKey];
-                            notificationContent.subtitle = @"this is subtitle";
-
-                            notificationContent.body = [[pushAlert objectForKey: kNotificationAlertIdentifierKey] objectForKey:kNotificationBodyKey];
-                            
-                            notificationContent.sound = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationSoundIdentifierKey];
-                            notificationContent.userInfo = [notification mutableCopy];
-                            
-                            // 4. update application icon badge number
-//                            objNotificationContent.badge = @([[UIApplication sharedApplication] applicationIconBadgeNumber] + 1);
-                            
-                            // Deliver the notification in five seconds.
-//                            UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components repeats:NO];
-//                            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-//                            UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:3.0f repeats:NO];
-                            
-//                            NSString* imageURL = [NSURL URLWithString: [notification valueForKey:@"image_url"]];
-//                            if(imageURL != nil) {
-//                                NSData *imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
-//                                if(imageData) {
-//                                    NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-//                                    NSString  *documentsDirectory = [paths objectAtIndex:0];
-//
-//                                    NSString *attachmentName = [NSString stringWithFormat:@"image.jpg"];
-//                                    NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
-//                                    NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
-//                                    NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
-//                                    [imageData writeToFile:filePathToWrite atomically:YES];
-//
-//                                    NSError *error;
-//                                    UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
-//                                    if (error) {
-//                                        NSLog(@"[Blueshift] Failed to create image attachment %@", error);
-//                                    }
-//                                    if(attachment != nil) {
-//                                        NSMutableArray *attachments = [[NSMutableArray alloc]init];
-//                                        [attachments addObject:attachment];
-////                                        notificationContent.attachments = attachments;
-//                                    }
-//                                }
-//                            }
-                            
-                            UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:@"notification1" content:notificationContent trigger:nil];
-                            
-                            // 3. schedule localNotification
-                            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-
-                            [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-                                if (!error) {
-                                    NSLog(@"Local Notification succeeded");
-                                } else {
-                                    NSLog(@"Local Notification failed");
-                                }
-                            }];
-                        } else {
-                            UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-                            localNotification.timeZone = [NSTimeZone localTimeZone];
-                            localNotification.fireDate = fireDate;
-                            if (@available(iOS 8.2, *)) {
-                                localNotification.alertTitle = [[pushAlert objectForKey: kNotificationAlertIdentifierKey] objectForKey:kNotificationTitleKey];
+        NSDictionary *dataPayload = [userInfo valueForKey:kSilentNotificationPayloadIdentifierKey];
+        if ([dataPayload valueForKey:kNotificationsArrayKey]) {
+            NSArray *notifications = (NSArray*)[dataPayload valueForKey:kNotificationsArrayKey];
+            for (NSDictionary *notification in notifications) {
+                NSNumber *expiryTimeStamp = (NSNumber *)[notification objectForKey: kNotificationTimestampToExpireDisplay];
+                if (expiryTimeStamp && expiryTimeStamp > 0) {
+                    double currentTimeStamp = (double)[[NSDate date] timeIntervalSince1970];
+                    if([expiryTimeStamp doubleValue] > currentTimeStamp) {
+                        NSNumber *fireTimeStamp = (NSNumber *)[notification valueForKey:kNotificationTimestampToDisplayKey];
+                        if (fireTimeStamp && fireTimeStamp > 0) {
+                            NSDate *fireDate = [NSDate dateWithTimeIntervalSince1970: [fireTimeStamp doubleValue]];
+                            if ([fireTimeStamp doubleValue] < [[NSDate date] timeIntervalSince1970]) {
+                                [BlueshiftLog logInfo:@"The notification cant be scheduled as it has been already expired" withDetails:notification methodName:nil];
+                                return;
                             }
-                            localNotification.alertBody = [[pushAlert objectForKey: kNotificationAlertIdentifierKey] objectForKey:kNotificationBodyKey];
-                            localNotification.timeZone = [NSTimeZone defaultTimeZone];
-                            if (@available(iOS 8.0, *)) {
-                                localNotification.category = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
-                            }
-                            localNotification.soundName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationSoundIdentifierKey];
-                            localNotification.userInfo = [notification mutableCopy];
-                            [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+                            [self scheduleUNLocalNotification:notification at:fireDate];
                         }
                     }
                 }
@@ -263,6 +194,74 @@
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:nil];
     }
+}
+
+-(void)scheduleUNLocalNotification:(NSDictionary *)notification at:(NSDate *)fireDate {
+    if (@available(iOS 10.0, *)) {
+        //add title, body and userinfo
+        UNMutableNotificationContent* notificationContent = [[UNMutableNotificationContent alloc] init];
+        notificationContent.title = [notification objectForKey:kNotificationTitleKey];
+        notificationContent.body =  [notification objectForKey:kNotificationBodyKey];;
+        notificationContent.sound = [UNNotificationSound defaultSound];
+        notificationContent.categoryIdentifier = [notification objectForKey: kNotificationCategoryIdentifierKey];
+        notificationContent.userInfo = [notification mutableCopy];
+        //Create schedule date component on basis of fire date
+        NSDateComponents *fireDatecomponents = [NSCalendar.currentCalendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitTimeZone fromDate:fireDate];
+        
+        //Download image attachment if present and create attachment
+        NSURL* imageURL = [NSURL URLWithString: [notification valueForKey:kNotificationImageURLKey]];
+        if(imageURL != nil) {
+            NSData *imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
+            if(imageData) {
+                NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString  *documentsDirectory = [paths objectAtIndex:0];
+                NSString *attachmentName = [NSString stringWithFormat:kDownloadImageNameKey];
+                NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
+                NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
+                NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
+                [imageData writeToFile:filePathToWrite atomically:YES];
+                NSError *error;
+                UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+                if (error) {
+                    [BlueshiftLog logError:error withDescription:@"Failed to create image attachment for scheduling local notification" methodName:nil];
+                }
+                if(attachment != nil) {
+                    NSMutableArray *attachments = [[NSMutableArray alloc]init];
+                    [attachments addObject:attachment];
+                    notificationContent.attachments = attachments;
+                }
+            }
+        }
+        //create and add trigger as fire date component
+        UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:fireDatecomponents repeats:NO];
+        UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:[[NSUUID UUID] UUIDString] content:notificationContent trigger:trigger];
+        
+        // Schedule the local notification.
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+            if (!error) {
+                [BlueshiftLog logInfo:@"Scheduled local notification successfully - " withDetails:notification methodName:nil];
+            } else {
+                [BlueshiftLog logError:nil withDescription:@"Failed to schedule location notification" methodName:nil];
+            }
+        }];
+    } else {
+        [self scheduleLocalNotification:notification at:fireDate];
+    }
+}
+
+-(void)scheduleLocalNotification:(NSDictionary *)notification at:(NSDate *)fireDate {
+    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+    localNotification.timeZone = [NSTimeZone localTimeZone];
+    localNotification.fireDate = fireDate;
+    if (@available(iOS 8.2, *)) {
+        localNotification.alertTitle = [notification objectForKey:kNotificationTitleKey];
+    }
+    localNotification.alertBody = [notification objectForKey:kNotificationBodyKey];
+    if (@available(iOS 8.0, *)) {
+        localNotification.category = [notification objectForKey: kNotificationCategoryIdentifierKey];
+    }
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
 
 - (void)presentInAppAlert:(NSDictionary *)userInfo {
@@ -395,13 +394,15 @@
         if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
             [self presentInAppAlert:userInfo];
         } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
-            [self scheduleLocalNotification:userInfo];
+            [self validateAndScheduleLocalNotification:userInfo];
         } else if([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
             [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
         }
     } else {
         if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
             [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
+        } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
+            [self validateAndScheduleLocalNotification:userInfo];
         } else {
             // Handle push notification when the app is in inactive or background state ...
             if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
