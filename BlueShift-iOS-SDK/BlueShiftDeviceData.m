@@ -7,6 +7,7 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
+#import "BlueShiftAppData.h"
 
 #define kBlueshiftDeviceIdSourceUUID    @"BlueshiftDeviceIdSourceUUID"
 #define kLatitude                       @"latitude"
@@ -77,7 +78,6 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return deviceUUID;
 }
 
-
 - (NSString *)deviceIDFV {
     NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     return idfvString;
@@ -146,6 +146,30 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     }
     
     return [deviceMutableDictionary copy];
+}
+
+-(void)saveDeviceDataForNotificationExtensionUse {
+    //Save device data for notifcation extension to use it and send to server with delivered tracking api call
+    if (@available(iOS 10.0, *)) {
+        NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
+        if(appGroupID && ![appGroupID isEqualToString:@""]) {
+            NSUserDefaults *appGroupUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
+            NSString* bundleId = [[BlueShiftAppData currentAppData] bundleIdentifier];
+            NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
+            //Store data on standard userdefaults for avoiding writing multiple times
+            //and avoid warning for writing appgroupid userdefault
+            NSDictionary *storedData = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+            if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:self.deviceUUID])) {
+                NSMutableDictionary *deviceData = [[NSMutableDictionary alloc]init];
+                [deviceData setObject:self.deviceUUID forKey:kDeviceID];
+                [deviceData setObject:[[BlueShiftAppData currentAppData] bundleIdentifier] forKey:@"app_name"];
+                
+                [appGroupUserDefaults setObject:deviceData forKey:key];
+                [appGroupUserDefaults synchronize];
+                [[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:key];
+            }
+        }
+    }
 }
 
 @end

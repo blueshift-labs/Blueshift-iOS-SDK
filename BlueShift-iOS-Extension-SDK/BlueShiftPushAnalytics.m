@@ -40,6 +40,23 @@
     }
 }
 
++ (NSDictionary*)getDeviceData {
+    if (@available(iOS 10.0, *)) {
+        NSBundle *bundle = [NSBundle mainBundle];
+        if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"]) {
+            bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+        }
+        NSString *bundleId = [bundle bundleIdentifier];
+        if(bundleId) {
+            NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[BlueShiftPushNotification sharedInstance].appGroupId];
+            NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
+            NSDictionary *deviceData = [userDefaults dictionaryForKey: key];
+            return deviceData;
+        }
+    }
+    return nil;
+}
+
 + (NSURLSessionConfiguration *)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
     if (password==nil || password == NULL) {
         password = @"";
@@ -73,29 +90,42 @@
         }
     }
     
+    //Add device data in the end
+    NSDictionary *deviceData = [self getDeviceData];
+    if (deviceData) {
+        for(id key in deviceData) {
+            if(paramsString.length > 0) {
+                paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [deviceData objectForKey:key]];
+            } else {
+                paramsString = [NSString stringWithFormat:@"%@=%@", key, [deviceData objectForKey:key]];
+            }
+        }
+    }
+    
     NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, paramsString];
     NSString *encodedString = [urlWithParams stringByReplacingOccurrencesOfString:@" " withString:kBsftEncodedSpace];
     NSURL * url = [NSURL URLWithString:encodedString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
     [urlRequest setHTTPMethod:@"GET"];
     
-    NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest
-                                                       completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                                                           if(error == nil)
-                                                           {
-                                                               NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-                                                               
-                                                               if (statusCode == kStatusCodeSuccessfullResponse) {
-                                                                   NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                                                                   handler(true, dictionary, error);
-                                                               } else {
-                                                                   handler(false, nil, error);
-                                                               }
-                                                           } else {
-                                                               handler(false, nil, error);
-                                                           }
-                                                           
-                                                       }];
+    NSURLSessionDataTask * dataTask =[defaultSession dataTaskWithRequest:urlRequest  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if(error == nil)
+        {
+            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+            #ifdef DEBUG
+                NSLog(@"[Blueshift] API call info -  %@, status %ld",[[(NSHTTPURLResponse *)response URL] absoluteString],(long)statusCode);
+            #endif
+            if (statusCode == kStatusCodeSuccessfullResponse) {
+                NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                handler(true, dictionary, error);
+            } else {
+                handler(false, nil, error);
+            }
+        } else {
+            handler(false, nil, error);
+        }
+        
+    }];
     [dataTask resume];
 }
 

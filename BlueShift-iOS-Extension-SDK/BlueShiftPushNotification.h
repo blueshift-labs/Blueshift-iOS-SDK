@@ -14,6 +14,7 @@ API_AVAILABLE(ios(10.0))
 
 @property NSArray <UNNotificationAttachment *>* attachments;
 @property NSString *apiKey;
+@property NSString* appGroupId;
 
 + (instancetype) sharedInstance;
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID;

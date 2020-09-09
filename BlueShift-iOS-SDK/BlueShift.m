@@ -137,6 +137,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     //Mark app open
     [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+    
+    [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
 
     [BlueshiftLog logInfo:@"SDK configured successfully. Below are the config details" withDetails:[config getConfigStringToLog] methodName:nil];
 }

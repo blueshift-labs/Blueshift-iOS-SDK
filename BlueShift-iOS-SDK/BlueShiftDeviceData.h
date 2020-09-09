@@ -37,5 +37,6 @@
 + (instancetype) currentDeviceData;
 
 - (NSDictionary *)toDictionary;
+- (void)saveDeviceDataForNotificationExtensionUse;
 
 @end
