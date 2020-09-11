@@ -184,7 +184,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+- (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if (_config.enableInAppNotification == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {

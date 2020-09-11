@@ -112,15 +112,15 @@
     }
 }
 
-+ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo {
-    BOOL isIAMPayloadPresent = false;
++ (BOOL) isSilenPushNotificationPayload: (NSDictionary*)userInfo {
+    BOOL isSilenPushNotificationPayload = false;
     if (userInfo) {
         NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
         if (dataPayload && [dataPayload objectForKey:kInAppNotificationModalSilentPushKey]) {
-            isIAMPayloadPresent = true;
+            isSilenPushNotificationPayload = true;
         }
     }
-    return isIAMPayloadPresent;
+    return isSilenPushNotificationPayload;
 }
 
 + (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo {

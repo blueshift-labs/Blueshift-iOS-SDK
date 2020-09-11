@@ -315,8 +315,8 @@
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
     /* if there is payload for IAM , give priority to the it */
-    if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-        [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
+    if ([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
+        [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: UIApplicationStateActive];
     } else {
         NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
         self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
@@ -391,16 +391,16 @@
     
     // Handle push notification when the app is in active state
     if (applicationState == UIApplicationStateActive) {
-        if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
+        if([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
+            [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: applicationState];
+        } else if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
             [self presentInAppAlert:userInfo];
         } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
             [self validateAndScheduleLocalNotification:userInfo];
-        } else if([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-            [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
         }
     } else {
-        if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-            [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
+        if ([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
+            [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: applicationState];
         } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
             [self validateAndScheduleLocalNotification:userInfo];
         } else {
