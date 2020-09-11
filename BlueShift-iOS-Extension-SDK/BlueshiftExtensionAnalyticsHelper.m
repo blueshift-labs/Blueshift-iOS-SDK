@@ -1,13 +1,13 @@
 //
-//  BlueshiftEventAnalyticsHelper.m
+//  BlueshiftExtensionAnalyticsHelper.m
 //  BlueShift-iOS-Extension-SDK
 //
 //  Created by Noufal on 18/10/19.
 //
 
-#import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueshiftExtensionAnalyticsHelper.h"
 
-@implementation BlueshiftEventAnalyticsHelper
+@implementation BlueshiftExtensionAnalyticsHelper
 
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalExperimentIDKey];
@@ -63,22 +63,5 @@
         return YES;
     }
 }
-
-+ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo {
-    BOOL isIAMPayloadPresent = false;
-    if (nil != userInfo) {
-        NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
-        if (nil != dataPayload) {
-            isIAMPayloadPresent = true;
-        } else {
-            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-            NSNumber *num = [NSNumber numberWithInt:1];
-            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
-        }
-    }
-    
-    return isIAMPayloadPresent;
-}
-
 
 @end

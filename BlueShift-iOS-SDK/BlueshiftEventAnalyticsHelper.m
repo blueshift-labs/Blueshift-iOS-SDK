@@ -112,20 +112,15 @@
     }
 }
 
-+ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo {
-    BOOL isIAMPayloadPresent = false;
-    if (nil != userInfo) {
++ (BOOL) isSilenPushNotificationPayload: (NSDictionary*)userInfo {
+    BOOL isSilenPushNotificationPayload = false;
+    if (userInfo) {
         NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
-        if (nil != dataPayload) {
-            isIAMPayloadPresent = true;
-        } else {
-            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-            NSNumber *num = [NSNumber numberWithInt:1];
-            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        if (dataPayload && [dataPayload objectForKey:kInAppNotificationModalSilentPushKey]) {
+            isSilenPushNotificationPayload = true;
         }
     }
-    
-    return isIAMPayloadPresent;
+    return isSilenPushNotificationPayload;
 }
 
 + (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo {
@@ -164,6 +159,16 @@
         return YES;
     }
     return NO;
+}
+
++ (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo {
+    BOOL isSchedulePushNotification = false;
+    if (userInfo) {
+        if ([[userInfo valueForKey: kNotificationTypeIdentifierKey] isEqual: kNotificationSchedulerKey]) {
+            isSchedulePushNotification = true;
+        }
+    }
+    return isSchedulePushNotification;
 }
 
 @end

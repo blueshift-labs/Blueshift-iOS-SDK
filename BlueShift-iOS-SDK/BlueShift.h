@@ -52,7 +52,7 @@
 - (void) setPushParamDelegate: (id) obj;
 - (NSString *) getDeviceToken;
 - (void) setDeviceToken;
-- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
+- (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
 - (void)registerForInAppMessage:(NSString *)displayPage;
 - (void)unregisterForInAppMessage;
 

@@ -8,8 +8,7 @@
 
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
-#import "BlueshiftInAppEntityAppDelegate.h"
-#import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueshiftExtensionAnalyticsHelper.h"
 
 
 API_AVAILABLE(ios(10.0))
@@ -41,17 +40,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (void)setBlueshiftInAppNotification:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID{
-    if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: request.content.userInfo]) {
-        NSDictionary *payload = request.content.userInfo;
-        BlueshiftInAppEntityAppDelegate *blueshiftInAppentityDelegate = [[BlueshiftInAppEntityAppDelegate alloc] init];
-        [blueshiftInAppentityDelegate addInAppNotificationToDataStore: payload andAppGroupID:(NSString *)appGroupID];
-    }
-}
-
 - (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
-    [[BlueShiftPushNotification sharedInstance] setBlueshiftInAppNotification: request andAppGroupID: appGroupID];
-    
+    self.appGroupId = appGroupID;
     if (![[BlueShiftPushNotification sharedInstance] apiKey] || [[BlueShiftPushNotification sharedInstance].apiKey isEqualToString:@""]) {
         NSLog(@"[Blueshift] Error - Please set the api key in the Notification Service Extension, otherwise push notification delivered events will not reflect on the dashboard");
     }

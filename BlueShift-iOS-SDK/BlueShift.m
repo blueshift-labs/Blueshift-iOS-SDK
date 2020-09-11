@@ -115,10 +115,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [blueShiftAppDelegate registerForNotification];
         [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     }
-    if (config.enableLocationAccess == YES) {
-        [blueShiftAppDelegate registerLocationService];
-    }
-    
+
     // Initialize In App Manager
     _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
     if (config.inAppNotificationDelegate) {
@@ -140,6 +137,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     //Mark app open
     [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+    
+    [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
 
     [BlueshiftLog logInfo:@"SDK configured successfully. Below are the config details" withDetails:[config getConfigStringToLog] methodName:nil];
 }
@@ -185,7 +184,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+- (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if (_config.enableInAppNotification == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {

@@ -7,6 +7,22 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
+#import "BlueShiftAppData.h"
+
+#define kBlueshiftDeviceIdSourceUUID    @"BlueshiftDeviceIdSourceUUID"
+#define kLatitude                       @"latitude"
+#define kLongitude                      @"longitude"
+#define kDeviceIDFA                     @"device_idfa"
+#define kNetworkCarrier                 @"network_carrier"
+#define kOSName                         @"os_name"
+#define kDeviceManufacturer             @"device_manufacturer"
+#define kDeviceIDFV                     @"device_idfv"
+#define kIDFADefaultValue               @"00000000-0000-0000-0000-000000000000"
+#define kDeviceToken                    @"device_token"
+#define kDeviceType                     @"device_type"
+#define kDeviceID                       @"device_id"
+#define kApple                          @"apple"
+#define kiOS                            @"iOS"
 
 static BlueShiftDeviceData *_currentDeviceData = nil;
 
@@ -29,11 +45,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         case BlueshiftDeviceIdSourceUUID:
         {
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-            if ([defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"]) {
-                deviceUUID = [defaults stringForKey:@"BlueshiftDeviceIdSourceUUID"];
+            if ([defaults stringForKey:kBlueshiftDeviceIdSourceUUID]) {
+                deviceUUID = [defaults stringForKey:kBlueshiftDeviceIdSourceUUID];
             } else {
                 NSString* UUID = [[NSUUID UUID] UUIDString];
-                [defaults setObject:UUID forKey: @"BlueshiftDeviceIdSourceUUID"];
+                [defaults setObject:UUID forKey: kBlueshiftDeviceIdSourceUUID];
                 deviceUUID = [UUID copy];
             }
         }
@@ -62,7 +78,6 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return deviceUUID;
 }
 
-
 - (NSString *)deviceIDFV {
     NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     return idfvString;
@@ -79,55 +94,82 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (NSString *)operatingSystem {
-    return [NSString stringWithFormat:@"iOS %@", [[UIDevice currentDevice] systemVersion]];
+    return [NSString stringWithFormat:@"%@ %@",kiOS, [[UIDevice currentDevice] systemVersion]];
 }
 
 - (NSString *)deviceManufacturer {
-    return @"apple";
+    return kApple;
 }
 
-- (CLLocation *)currentLocation {
-    _currentLocation = [self.locationManager location];
-    return _currentLocation;
+- (NSString*)deviceIDFA {
+    return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
 }
 
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *deviceMutableDictionary = [NSMutableDictionary dictionary];
     if (self.deviceUUID) {
-        [deviceMutableDictionary setObject:self.deviceUUID forKey:@"device_id"];
+        [deviceMutableDictionary setObject:self.deviceUUID forKey:kDeviceID];
     }
     
     if (self.deviceType) {
-        [deviceMutableDictionary setObject:self.deviceType forKey:@"device_type"];
+        [deviceMutableDictionary setObject:self.deviceType forKey:kDeviceType];
     }
     
     NSString *storedDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
     if (storedDeviceToken) {
-        [deviceMutableDictionary setObject:storedDeviceToken forKey:@"device_token"];
+        [deviceMutableDictionary setObject:storedDeviceToken forKey:kDeviceToken];
     }
     
     if (self.deviceIDFV) {
-        [deviceMutableDictionary setObject:self.deviceIDFV forKey:@"device_idfv"];
+        [deviceMutableDictionary setObject:self.deviceIDFV forKey:kDeviceIDFV];
     }
     
-    [deviceMutableDictionary setObject:self.deviceManufacturer forKey:@"device_manufacturer"];
+    [deviceMutableDictionary setObject:self.deviceManufacturer forKey:kDeviceManufacturer];
     
     if (self.operatingSystem) {
-        [deviceMutableDictionary setObject:self.operatingSystem forKey:@"os_name"];
+        [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
     NSString *networkCarrier = self.networkCarrierName;
     if (networkCarrier) {
-        [deviceMutableDictionary setObject: networkCarrier forKey:@"network_carrier"];
+        [deviceMutableDictionary setObject: networkCarrier forKey:kNetworkCarrier];
     }
     
-    if (self.currentLocation) {
-        [deviceMutableDictionary setObject: [NSNumber numberWithFloat:self.currentLocation.coordinate.latitude] forKey:@"latitude"];
-        [deviceMutableDictionary setObject:[NSNumber numberWithFloat:self.currentLocation.coordinate.longitude] forKey:@"longitude"];
+    if (self.currentLocation && [BlueShift sharedInstance].config.enableLocationAccess) {
+        [deviceMutableDictionary setObject: [NSNumber numberWithFloat:self.currentLocation.coordinate.latitude] forKey:kLatitude];
+        [deviceMutableDictionary setObject:[NSNumber numberWithFloat:self.currentLocation.coordinate.longitude] forKey:kLongitude];
+    }
+    
+    if (self.deviceIDFA) {
+        NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
+        [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
     
     return [deviceMutableDictionary copy];
 }
 
+-(void)saveDeviceDataForNotificationExtensionUse {
+    //Save device data for notifcation extension to use it and send to server with delivered tracking api call
+    if (@available(iOS 10.0, *)) {
+        NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
+        if(appGroupID && ![appGroupID isEqualToString:@""]) {
+            NSUserDefaults *appGroupUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
+            NSString* bundleId = [[BlueShiftAppData currentAppData] bundleIdentifier];
+            NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
+            //Store data on standard userdefaults for avoiding writing multiple times
+            //and avoid warning for writing appgroupid userdefault
+            NSDictionary *storedData = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+            if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:self.deviceUUID])) {
+                NSMutableDictionary *deviceData = [[NSMutableDictionary alloc]init];
+                [deviceData setObject:self.deviceUUID forKey:kDeviceID];
+                [deviceData setObject:[[BlueShiftAppData currentAppData] bundleIdentifier] forKey:@"app_name"];
+                
+                [appGroupUserDefaults setObject:deviceData forKey:key];
+                [appGroupUserDefaults synchronize];
+                [[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:key];
+            }
+        }
+    }
+}
 
 @end

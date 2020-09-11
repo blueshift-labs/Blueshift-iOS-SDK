@@ -21,12 +21,6 @@
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
-/* In-App message timer for handlin upcoming messages */
-@property (nonatomic, strong, readwrite) NSTimer *inAppMsgTimer;
-
-/* Timer for set gap b/w two in app notificaation*/
-@property (nonatomic, strong, readwrite) NSTimer *inAppScanQueueTimer;
-
 @property (nonatomic, strong, readwrite) NSTimer *inAppMessageFetchTimer;
 
 /* private object context */
@@ -490,7 +484,7 @@
         InAppNotificationEntity *entity = [results objectAtIndex:i];
         if ([entity.triggerMode isEqualToString: @"now"]) {
             double endTime = [entity.endTime doubleValue];
-            if (currentTime - THRESHOLD_FOR_UPCOMING_IAM > endTime) {
+            if (currentTime > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
                 [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
@@ -502,7 +496,7 @@
             double endTime = [entity.endTime doubleValue];
             double startTime = [entity.startTime doubleValue];
             
-            if ((currentTime - THRESHOLD_FOR_UPCOMING_IAM) > endTime) {
+            if (currentTime > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
                 [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];

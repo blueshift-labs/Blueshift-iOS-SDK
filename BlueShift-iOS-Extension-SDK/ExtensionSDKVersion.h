@@ -1,12 +1,12 @@
 //
-//  SDKVersion.h
+//  ExtensionSDKVersion.h
 //  Pods
 //
 //  Created by shahas kp on 11/10/17.
 //
 
-#ifndef SDKVersion_h
-#define SDKVersion_h
+#ifndef ExtensionSDKVersion_h
+#define ExtensionSDKVersion_h
 
 #define kSDKVersionNumber   @"2.1.6"
 

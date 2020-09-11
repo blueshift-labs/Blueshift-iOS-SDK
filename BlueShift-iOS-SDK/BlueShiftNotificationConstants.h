@@ -18,6 +18,14 @@
 #define kNotificationBodyKey                                            @"body"
 #define kNotificationTitleKey                                           @"title"
 
+#define kNotificationSchedulerKey                                       @"notification_scheduler"
+#define kNotificationTimestampToDisplayKey                              @"timestamp_to_display"
+#define kNotificationTimestampToExpireDisplay                           @"timestamp_to_expire_display"
+#define kNotificationsArrayKey                                          @"notifications"
+
+#define kNotificationImageURLKey                                        @"image_url"
+#define kDownloadImageNameKey                                           @"image.jpg"
+
 #define kNotificationCategoryBuyIdentifier                              @"buy"
 #define kNotificationActionBuyIdentifier                                @"buy"
 #define kNotificationActionViewIdentifier                               @"view"
