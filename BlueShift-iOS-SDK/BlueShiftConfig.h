@@ -32,6 +32,7 @@
 @property BOOL enableInAppNotification;
 @property BOOL inAppManualTriggerEnabled;
 @property BOOL inAppBackgroundFetchEnabled;
+@property BOOL debug;
 
 @property NSSet * _Nullable customCategories;
 
@@ -51,6 +52,7 @@
 @property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
 
 - (BOOL)validateConfigDetails;
+- (NSString*_Nullable)getConfigStringToLog;
 
 + (BlueShiftConfig * _Nonnull )config;
 @end

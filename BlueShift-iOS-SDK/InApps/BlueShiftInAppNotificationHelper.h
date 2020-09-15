@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)deleteFileFromLocal:(NSString *) fileName;
 + (CGFloat)convertHeightToPercentage:(UIView *) notificationView;
 + (CGFloat)convertPercentageHeightToPoints:(float) height;
++ (NSString*)getEncodedURLString:(NSString*) urlString;
+
 @end
 
 NS_ASSUME_NONNULL_END

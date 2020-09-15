@@ -180,6 +180,11 @@
             
             if (descriptionLabelHeight < 50) {
                 descriptionLabelHeight = iconLabel.frame.size.height > 0 ? iconLabel.frame.size.height : imageView.frame.size.height;
+                //Modify height of description label if height is less than 50
+                //to align text veritically center
+                CGRect derscriptionLabelFrame = descriptionLabel.frame;
+                derscriptionLabelFrame.size.height = descriptionLabelHeight - messageTopPadding - messageBottomPadding;
+                descriptionLabel.frame = derscriptionLabelFrame;
             }
             
             CGRect frame = slideBannerView.frame;

@@ -7,6 +7,8 @@
 
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftNotificationConstants.h"
+#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueshiftLog.h"
 
 static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
@@ -48,9 +50,22 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     if(_backgroundSession == NULL) {
         _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     }
-    
+    //add below params to the end of get url
+    NSArray *keysAddedInEnd = [NSArray arrayWithObjects:@"device_id", @"app_name", kNotificationClickElementKey,kNotificationURLElementKey,nil];
+    NSMutableArray *availbleKeysToAddAtEnd = [[NSMutableArray alloc] init];
+    //remove the params which needs to be added in the end
+    NSMutableDictionary *filteredParams = [params mutableCopy];
+    for (NSString* key in keysAddedInEnd) {
+        if ([filteredParams objectForKey:key]) {
+            [availbleKeysToAddAtEnd addObject:[key copy]];
+            [filteredParams removeObjectForKey:key];
+        }
+    }
+    //Add rest of params first in sorted order and then add the params to be added in the end
     NSString *paramsString = [[NSString alloc] init];
-    for(id key in params) {
+    NSArray *filteredKeys = [[filteredParams allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSArray *finalKeys = [filteredKeys arrayByAddingObjectsFromArray:availbleKeysToAddAtEnd];
+    for(id key in finalKeys) {
         if(paramsString.length > 0) {
             paramsString = [NSString stringWithFormat:@"%@&%@=%@", paramsString, key, [params objectForKey:key]];
         } else {
@@ -64,23 +79,25 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
     
     [urlRequest setHTTPMethod:@"GET"];
-    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest
-                                                       completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                                                           if(error == nil)
-                                                           {
-                                                               NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-                                                               
-                                                               if (statusCode == kStatusCodeSuccessfullResponse) {
-                                                                   NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                                                                   handler(true, dictionary, error);
-                                                               } else {
-                                                                   handler(false, nil, error);
-                                                               }
-                                                           } else {
-                                                               handler(false, nil, error);
-                                                           }
-                                                           
-                                                       }];
+    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        NSString *url = [[response URL] absoluteString];
+        if(error == nil)
+        {
+            if (statusCode == kStatusCodeSuccessfullResponse) {
+                NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Success %@",url] withDetails:nil statusCode:statusCode];
+                handler(true, dictionary, error);
+            } else {
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Fail %@",url] withDetails:nil statusCode:statusCode];
+                handler(false, nil, error);
+            }
+        } else {
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];
+            handler(false, nil, error);
+        }
+        
+    }];
     [dataTask resume];
 }
 
@@ -97,27 +114,29 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSData *JSONData = [NSJSONSerialization dataWithJSONObject:paramsDictionary
                                                        options:0
                                                          error:nil];
+    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated POST %@",urlString] withDetails:params statusCode:0];
     [urlRequest setHTTPBody:JSONData];
     [urlRequest setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest
-                                                       completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                                                           if(error == nil)
-                                                           {
-                                                               NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-                                                               
-                                                               if (statusCode == kStatusCodeSuccessfullResponse) {
-                                                                   NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                                                                   handler(true, dictionary, error);
-                                                               } else {
-                                                                   handler(false, nil, error);
-                                                               }
-                                                           } else {
-                                                               handler(false, nil, error);
-                                                           }
-                                                           
-                                                       }];
+    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        NSString *url = [[response URL] absoluteString];
+        if(error == nil)
+        {
+            if (statusCode == kStatusCodeSuccessfullResponse) {
+                NSDictionary *dictionary  = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Success %@",url] withDetails:nil statusCode:statusCode];
+                handler(true, dictionary, error);
+            } else {
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:nil statusCode:statusCode];
+                handler(false, nil, error);
+            }
+        } else {
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];
+            handler(false, nil, error);
+        }
+        
+    }];
     [dataTask resume];
-    
 }
 
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
@@ -127,17 +146,21 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
     [urlRequest setHTTPMethod:@"GET"];
+    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated ULReplay for - %@", url.absoluteString] withDetails:nil statusCode:0];
     NSURLSessionDataTask *dataTask = [_replayURLSesion dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         if(error == nil)
         {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             if(httpResponse.URL != nil)
             {
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
                 handler(YES, httpResponse.URL, nil);
             } else {
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
                 handler(NO,nil,[NSError errorWithDomain:@"Failed to load redirection link" code:httpResponse.statusCode userInfo:nil]);
             }
         } else {
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@",[[httpResponse URL] absoluteString]] withDetails:@{@"error":error} statusCode:httpResponse.statusCode];
             handler(NO,nil,error);
         }
     }];

@@ -6,6 +6,7 @@
 //
 
 #import "BatchEventEntity.h"
+#import "BlueshiftLog.h"
 
 @interface BatchEventEntity ()
 
@@ -27,7 +28,7 @@
             masterContext = appDelegate.batchEventManagedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     if (masterContext) {
@@ -60,7 +61,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     } else {
         return ;
@@ -78,7 +79,7 @@
                 context = appDelegate.batchEventManagedObjectContext;
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
             if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -86,7 +87,7 @@
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(fetchRequest.entity != nil) {
                     [BatchEventEntity fetchBatchesFromCoreDataFromContext:context request:fetchRequest handler:handler];
@@ -121,7 +122,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

@@ -48,7 +48,7 @@ controller;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
-- (void)sendActionEventAnalytics:(NSString *)elementType;
+- (void)sendActionEventAnalytics:(NSDictionary *)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
 - (void)setBackgroundImageFromURL:(UIView *)notificationView;

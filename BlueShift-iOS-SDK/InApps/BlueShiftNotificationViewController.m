@@ -11,6 +11,7 @@
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
+#import "../BlueshiftLog.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -50,7 +51,9 @@
 }
 
 - (void)closeButtonDidTapped {
-    [self sendActionEventAnalytics: kInAppNotificationButtonTypeCloseKey];
+    NSString *closeButtonIndex = [NSString stringWithFormat:@"%@%@",kInAppNotificationButtonIndex,kInAppNotificationButtonTypeCloseKey];
+    NSDictionary *details = @{kNotificationClickElementKey:closeButtonIndex};
+    [self sendActionEventAnalytics: details];
     [self hide:YES];
 }
 
@@ -246,7 +249,16 @@
 }
 
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
-    [self sendActionEventAnalytics: buttonDetails.text];
+    NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
+    NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:deepLinkURL.absoluteString];
+    NSMutableDictionary *details = [[NSMutableDictionary alloc]init];
+    if (encodedURLString) {
+        [details setValue:encodedURLString forKey:kNotificationURLElementKey];
+    }
+    if (buttonDetails.buttonIndex) {
+        [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
+    }
+    [self sendActionEventAnalytics: details];
     
     if (buttonDetails && buttonDetails.buttonType) {
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
@@ -262,7 +274,6 @@
         } else {
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
-                NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
                 if (@available(iOS 9.0, *)) {
                     [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
                 }
@@ -289,11 +300,13 @@
     [self hide:YES];
 }
 
-- (void)sendActionEventAnalytics:(NSString *)elementType {
+- (void)sendActionEventAnalytics:(NSDictionary *)details {
     if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]
         && self.notification) {
         NSMutableDictionary *notificationPayload = [self.notification.notificationPayload mutableCopy];
-        [notificationPayload setObject: elementType forKey: kInAppNotificationModalElementsKey];
+        if (details) {
+            [notificationPayload addEntriesFromDictionary: details];
+        }
         [self.delegate inAppActionDidTapped : notificationPayload fromViewController:self];
     }
 }
@@ -352,7 +365,7 @@
         BOOL failedToRegisterFont = NO;
         if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
-            NSLog(@"Error: Cannot load Font Awesome");
+            [BlueshiftLog logError:nil withDescription:@"Failed to load FontAwesome" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             CFBridgingRelease(errorDescription);
             failedToRegisterFont = YES;
         }

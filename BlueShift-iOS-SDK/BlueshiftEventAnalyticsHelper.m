@@ -6,6 +6,11 @@
 //
 
 #import "BlueshiftEventAnalyticsHelper.h"
+#import "BlueShiftDeviceData.h"
+#import "BlueShiftAppData.h"
+#import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationConstant.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueshiftEventAnalyticsHelper
 
@@ -15,7 +20,11 @@
     NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
     NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
+    NSString *clickElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationClickElementKey];
+    NSString *urlElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
+    NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
+    NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
+    NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
     NSString *lastTimestamp = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTimestampKey];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
@@ -33,8 +42,21 @@
     if (sdkVersion) {
         [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kInAppNotificationModalSDKVersionKey];
     }
-    if (element) {
-        [pushTrackParametersMutableDictionary setObject:element forKey: kInAppNotificationModalElementKey];
+    if ([self isNotNilAndNotEmpty:clickElement]) {
+        [pushTrackParametersMutableDictionary setObject:clickElement forKey: kNotificationClickElementKey];
+    }
+    if ([self isNotNilAndNotEmpty:urlElement]) {
+        [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
+    }
+    if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey] && [self isNotNilAndNotEmpty:pushDeepLinkURL]) {
+        NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
+        [pushTrackParametersMutableDictionary setObject:encodedUrl forKey: kNotificationURLElementKey];
+    }
+    if (deviceId) {
+        [pushTrackParametersMutableDictionary setObject:deviceId forKey: @"device_id"];
+    }
+    if (appName) {
+        [pushTrackParametersMutableDictionary setObject:appName forKey: @"app_name"];
     }
     if (lastTimestamp) {
         [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationCreatedTimestampKey];
@@ -90,20 +112,15 @@
     }
 }
 
-+ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo {
-    BOOL isIAMPayloadPresent = false;
-    if (nil != userInfo) {
++ (BOOL) isSilenPushNotificationPayload: (NSDictionary*)userInfo {
+    BOOL isSilenPushNotificationPayload = false;
+    if (userInfo) {
         NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];
-        if (nil != dataPayload) {
-            isIAMPayloadPresent = true;
-        } else {
-            NSDictionary *apNSData = [userInfo objectForKey:@"aps"];
-            NSNumber *num = [NSNumber numberWithInt:1];
-            isIAMPayloadPresent = [[apNSData objectForKey:@"content-available"] isEqualToNumber:num];
+        if (dataPayload && [dataPayload objectForKey:kInAppNotificationModalSilentPushKey]) {
+            isSilenPushNotificationPayload = true;
         }
     }
-    
-    return isIAMPayloadPresent;
+    return isSilenPushNotificationPayload;
 }
 
 + (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo {
@@ -133,9 +150,25 @@
         
         return queryDictionary;
     } @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    
+}
+
++(BOOL)isNotNilAndNotEmpty:(NSString*)string {
+    if (string && ![string isEqualToString:@""]) {
+        return YES;
+    }
+    return NO;
+}
+
++ (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo {
+    BOOL isSchedulePushNotification = false;
+    if (userInfo) {
+        if ([[userInfo valueForKey: kNotificationTypeIdentifierKey] isEqual: kNotificationSchedulerKey]) {
+            isSchedulePushNotification = true;
+        }
+    }
+    return isSchedulePushNotification;
 }
 
 @end

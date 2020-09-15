@@ -6,6 +6,7 @@
 //
 
 #import "BlueshiftInAppNotificationRequest.h"
+#import "../BlueshiftLog.h"
 
 @implementation BlueshiftInAppNotificationRequest
 
@@ -26,7 +27,7 @@
                                         @"bsft_message_uuid" : lastMessageID,
                                         @"api_key" : apiKey,
                                         @"last_timestamp" : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
-                                        @"bsft_sdk_version" : kSDKVersionNumber
+                                        kInAppNotificationModalSDKVersionKey : kSDKVersionNumber
                                         } mutableCopy];
         [parameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
         [parameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
@@ -39,14 +40,15 @@
          }
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if (status) {
+                [BlueshiftLog logAPICallInfo:@"Succesfully fetched in-app messages." withDetails:data statusCode:0];
                 success(data);
             } else {
                 failure(error);
             }
         }];
     } else {
-        NSLog(@"Device ID is not there");
-        NSError *error = (NSError*)@"Device ID not set";
+        NSError *error = (NSError*)@"Device ID is missing";
+        [BlueshiftLog logError:error withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         failure(error);
     }
 }

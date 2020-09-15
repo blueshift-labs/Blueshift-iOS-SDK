@@ -13,7 +13,18 @@
 #define kNotificationCategoryIdentifierKey                              @"category"
 #define kNotificationSoundIdentifierKey                                 @"sound"
 #define kNotificationTypeIdentifierKey                                  @"notification_type"
+#define kNotificationKey                                                @"notification"
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
+#define kNotificationBodyKey                                            @"body"
+#define kNotificationTitleKey                                           @"title"
+
+#define kNotificationSchedulerKey                                       @"notification_scheduler"
+#define kNotificationTimestampToDisplayKey                              @"timestamp_to_display"
+#define kNotificationTimestampToExpireDisplay                           @"timestamp_to_expire_display"
+#define kNotificationsArrayKey                                          @"notifications"
+
+#define kNotificationImageURLKey                                        @"image_url"
+#define kDownloadImageNameKey                                           @"image.jpg"
 
 #define kNotificationCategoryBuyIdentifier                              @"buy"
 #define kNotificationActionBuyIdentifier                                @"buy"
@@ -41,7 +52,6 @@
 #define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
 #define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
-#define kInAppNotificationModalElementKey                               @"element"
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"
