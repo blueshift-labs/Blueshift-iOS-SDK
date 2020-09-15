@@ -559,8 +559,7 @@
 #pragma mark - Handle custom push notification actions
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
-    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+    NSDictionary *pushDetails = [self.userInfo mutableCopy];
     NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
     if(appGroupID && ![appGroupID isEqualToString:@""]) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
@@ -575,6 +574,8 @@
             NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
             NSString *urlString = [selectedItem objectForKey: kPushNotificationDeepLinkURLKey];
             NSURL *url = [NSURL URLWithString:urlString];
+            [pushDetails setValue:urlString forKey:kPushNotificationDeepLinkURLKey];
+            [self trackPushClickedWithParameters: [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:pushDetails]];
             if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
                 // User already implemented the viewPushActionWithDetails in App Delegate...
             
@@ -590,10 +591,6 @@
                     self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
                     [self.deepLinkToCustomPage performCustomDeepLinking:url];
                     self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
-                
-                    // Track notification when the page is deeplinked ...
-                    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-                
                     if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handleCarouselPushDictionary: withSelectedIndex:)]) {
                         [self.blueShiftPushParamDelegate handleCarouselPushDictionary:pushDetailsDictionary withSelectedIndex:index];
                     }
@@ -601,11 +598,13 @@
             }
             
             [self setupPushNotificationDeeplink: selectedItem];
+            return;
         } else {
             
             [self setupPushNotificationDeeplink: pushDetailsDictionary];
         }
     }
+    [self trackPushClickedWithParameters:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:pushDetails]];
 }
 
 - (void)resetUserDefaults:(NSUserDefaults *)userDefaults {

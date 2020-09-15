@@ -93,7 +93,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                 handler(false, nil, error);
             }
         } else {
-            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Fail %@",url] withDetails:nil statusCode:statusCode];
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];
             handler(false, nil, error);
         }
         
@@ -131,7 +131,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                 handler(false, nil, error);
             }
         } else {
-            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:nil statusCode:statusCode];
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];
             handler(false, nil, error);
         }
         
@@ -160,7 +160,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                 handler(NO,nil,[NSError errorWithDomain:@"Failed to load redirection link" code:httpResponse.statusCode userInfo:nil]);
             }
         } else {
-            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@",[[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
+            [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@",[[httpResponse URL] absoluteString]] withDetails:@{@"error":error} statusCode:httpResponse.statusCode];
             handler(NO,nil,error);
         }
     }];
