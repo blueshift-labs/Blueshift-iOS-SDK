@@ -48,7 +48,7 @@
     if ([self isNotNilAndNotEmpty:urlElement]) {
         [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
     }
-    if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey] && pushDeepLinkURL) {
+    if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey] && [self isNotNilAndNotEmpty:pushDeepLinkURL]) {
         NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
         [pushTrackParametersMutableDictionary setObject:encodedUrl forKey: kNotificationURLElementKey];
     }
