@@ -14,6 +14,7 @@
 @property (nonatomic, strong) NSString *appVersion;
 @property (nonatomic, strong) NSString *appBuildNumber;
 @property (nonatomic, strong) NSString *bundleIdentifier;
+@property BOOL isPushPermissionAccepted;
 
 + (instancetype) currentAppData;
 

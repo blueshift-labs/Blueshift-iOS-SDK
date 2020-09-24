@@ -90,11 +90,6 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         [sharedUserInfoMutableDictionary setObject:dateOfBirthTimeStamp forKey:@"date_of_birth"];
     }
     
-    
-    NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];
-    [sharedUserInfoMutableDictionary setObject: enableInApp  forKey:@"enable_inapp"];
-
-    
     return [sharedUserInfoMutableDictionary copy];
 }
 
