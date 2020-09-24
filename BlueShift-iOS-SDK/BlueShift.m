@@ -11,6 +11,9 @@
 #import "BlueShiftNotificationConstants.h"
 #import "BlueshiftLog.h"
 
+#define kBlueshiftPushPermissionStatus          @"BlueshiftPushPermissionStatus"
+#define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
+
 BlueShiftAppDelegate *_newDelegate;
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
@@ -177,14 +180,54 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)setDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:@"BlueshiftDeviceToken"];
+    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:kBlueshiftDeviceToken];
     [defaults synchronize];
 }
 
 - (NSString *) getDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _deviceToken = (NSString *)[defaults objectForKey:@"BlueshiftDeviceToken"];
+    _deviceToken = (NSString *)[defaults objectForKey:kBlueshiftDeviceToken];
     return _deviceToken;
+}
+
+- (NSString*)getPushPermissionStatus {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString* pushPermissionStatus = (NSString *)[defaults objectForKey:kBlueshiftPushPermissionStatus];
+    return  pushPermissionStatus;
+}
+
+- (void)setPushPermissionStatus:(NSString*) pushPermissionStatus {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:pushPermissionStatus forKey:kBlueshiftPushPermissionStatus];
+}
+
+//Check push enabled current status vs push enbled userdefault status, if its not matching
+// update the userdefault value status and fire identify call
+- (BOOL)validatePushPermissionStatus {
+     NSString* pushPermissionStatus = [self getPushPermissionStatus];
+    if ([[BlueShiftAppData currentAppData] isPushPermissionAccepted]) {
+        if(!pushPermissionStatus || [pushPermissionStatus isEqualToString:@"NO"]) {
+            [self setPushPermissionStatus: @"YES"];
+            [BlueshiftLog logInfo:@"enable_push status changed to YES" withDetails:nil methodName:nil];
+            [[[BlueShift sharedInstance]appDelegate] registerForNotification];
+            return YES;
+        }
+    } else {
+        if(!pushPermissionStatus || [pushPermissionStatus isEqualToString:@"YES"]) {
+            [self setPushPermissionStatus: @"NO"];
+            [BlueshiftLog logInfo:@"enable_push status changed to NO" withDetails:nil methodName:nil];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+//Check and fire identify call if any device attribute is changed
+- (void) autoIdentifyCheck {
+    BOOL autoIdentify = [self validatePushPermissionStatus];
+    if (autoIdentify) {
+        [self identifyUserWithDetails:nil canBatchThisEvent:NO];
+    }
 }
 
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
@@ -662,9 +705,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [requestMutableParameters addEntriesFromDictionary:[blueShiftUserInfoMutableDictionary copy]];
     }
     
-    
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
     [BlueShiftRequestQueue addRequestOperation:requestOperation];
+    
+    //Fire auto identify call in case any device attribute changes
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        [self autoIdentifyCheck];
+    });
 }
 
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {

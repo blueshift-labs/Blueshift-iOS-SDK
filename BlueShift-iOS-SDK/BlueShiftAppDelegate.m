@@ -41,14 +41,16 @@
             }
             [self setPushEnabled];
             if (granted) {
-                [BlueshiftLog logInfo:@"Push notification permission is granted. Registered successfully for push notifications" withDetails:nil methodName:nil];
+                [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
             } else {
-                [BlueshiftLog logInfo:@"Push notification permission is denied. Registered successfully for background silent notifications" withDetails:nil methodName:nil];
+                [BlueshiftLog logInfo:@"Push notification permission is denied. Registered for background silent notifications" withDetails:nil methodName:nil];
             }
         }];
     } else if ([UIApplication respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:([[[BlueShift sharedInstance] pushNotification] notificationTypes]) categories:[[[BlueShift sharedInstance] pushNotification] notificationCategories]]];
+        if (@available(iOS 8.0, *)) {
+            [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:([[[BlueShift sharedInstance] pushNotification] notificationTypes]) categories:[[[BlueShift sharedInstance] pushNotification] notificationCategories]]];
             [[UIApplication sharedApplication] registerForRemoteNotifications];
+        }
     }
     [self downloadFileFromURL];
 }
@@ -61,7 +63,7 @@
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
                 [self setPushEnabled];
-                [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered successfully for background silent notifications" withDetails:nil methodName:nil];
+                [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered for background silent notifications" withDetails:nil methodName:nil];
             } else {
                 [self registerForNotification];
             }
@@ -70,21 +72,14 @@
     [self downloadFileFromURL];
 }
 
+//Update push permission accepted status in BlueshiftAppData on app launch and on app didBecomeActive
 - (void)setPushEnabled {
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-            NSString* isPermissionAccepted = [[BlueShiftAppData currentAppData] isPushPermissionAccepted];
             if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
-                if(!isPermissionAccepted || [isPermissionAccepted isEqualToString:@"NO"]) {
-                    [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:@"YES"];
-                    [BlueshiftLog logInfo:@"enable_push status changed from NO to YES" withDetails:nil methodName:nil];
-                    [self registerForNotification];
-                }
+                [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:YES];
             } else {
-                if(!isPermissionAccepted || [isPermissionAccepted isEqualToString:@"YES"]) {
-                    [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:@"NO"];
-                    [BlueshiftLog logInfo:@"enable_push status changed from YES to NO" withDetails:nil methodName:nil];
-                }
+                [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:NO];
             }
         }];
     }
@@ -133,9 +128,10 @@
 }
 
 - (void)fireIdentifyCall {
-    //fire delayed app_open on receiving device_token for very first time
+    //set fireAppOpen to true on receiving device_token for very first time
+    BOOL fireAppOpen = NO;
     if(![[BlueShift sharedInstance] getDeviceToken]) {
-        [self trackAppOpenWithParameters:nil];
+        fireAppOpen = YES;
     }
 
     [[BlueShift sharedInstance] setDeviceToken];
@@ -144,6 +140,13 @@
         [[BlueShift sharedInstance] identifyUserWithEmail:email andDetails:nil canBatchThisEvent:NO];
     } else {
         [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+    }
+    
+    //fire delayed app_open after firing the identify call
+    if(fireAppOpen) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [self trackAppOpenWithParameters:nil];
+        });
     }
 }
 
@@ -976,20 +979,7 @@
 }
 
 - (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }
-    
-    [self performPushEventsRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
-}
-
-- (void) performPushEventsRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-    NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-    [BlueShiftRequestQueue addRequestOperation:requestOperation];
+    [[BlueShift sharedInstance] performRequestQueue:[parameters copy] canBatchThisEvent:isBatchEvent];
 }
 
 - (BOOL)trackOpenURLWithCampaignURLString:(NSString *)campaignURLString andParameters:(NSDictionary *)parameters {
