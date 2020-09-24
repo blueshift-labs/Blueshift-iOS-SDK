@@ -64,6 +64,7 @@
 - (void)handleBlueshiftUniversalLinksForActivity:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0));
 - (void)trackAppOpenWithParameters:(NSDictionary *_Nullable)parameters;
+- (void)registerForSilentPushNotification;
 
 @end
 #endif

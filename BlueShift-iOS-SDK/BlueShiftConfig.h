@@ -46,8 +46,6 @@
 @property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;
 @property id<BlueshiftUniversalLinksDelegate> _Nonnull blueshiftUniversalLinksDelegate;
 
-@property NSString * _Nonnull blueShiftNotificationName;
-@property NSString * _Nonnull isEnabledPushNotificationKey;
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
 @property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
 

@@ -29,29 +29,64 @@
 
 #pragma mark - Remote notification registration
 - (void) registerForNotification {
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
-            if (@available(iOS 10.0, *)) {
-                UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-                center.delegate = self.userNotificationDelegate;
-                [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
-                [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
-                    if(!error){
-                        dispatch_async(dispatch_get_main_queue(), ^(void) {
-                            [[UIApplication sharedApplication] registerForRemoteNotifications];
-                        });
-                    }
-                }];
+    if (@available(iOS 10.0, *)) {
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = self.userNotificationDelegate;
+        [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+        [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
+            if(!error){
+                dispatch_async(dispatch_get_main_queue(), ^(void) {
+                    [[UIApplication sharedApplication] registerForRemoteNotifications];
+                });
             }
-        } else {
-           if (@available(iOS 10.0, *)) {
-                UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
-                [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
-                [[UIApplication sharedApplication] registerForRemoteNotifications];
+            [self setPushEnabled];
+            if (granted) {
+                [BlueshiftLog logInfo:@"Push notification permission is granted. Registered successfully for push notifications" withDetails:nil methodName:nil];
+            } else {
+                [BlueshiftLog logInfo:@"Push notification permission is denied. Registered successfully for background silent notifications" withDetails:nil methodName:nil];
             }
-        }
-        
-        [self downloadFileFromURL];
+        }];
+    } else if ([UIApplication respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:([[[BlueShift sharedInstance] pushNotification] notificationTypes]) categories:[[[BlueShift sharedInstance] pushNotification] notificationCategories]]];
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+    }
+    [self downloadFileFromURL];
+}
+
+- (void)registerForSilentPushNotification {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if ([settings authorizationStatus] != UNAuthorizationStatusAuthorized) {
+                dispatch_async(dispatch_get_main_queue(), ^(void) {
+                    [[UIApplication sharedApplication] registerForRemoteNotifications];
+                });
+                [self setPushEnabled];
+                [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered successfully for background silent notifications" withDetails:nil methodName:nil];
+            } else {
+                [self registerForNotification];
+            }
+        }];
+    }
+    [self downloadFileFromURL];
+}
+
+- (void)setPushEnabled {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            NSString* isPermissionAccepted = [[BlueShiftAppData currentAppData] isPushPermissionAccepted];
+            if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
+                if(!isPermissionAccepted || [isPermissionAccepted isEqualToString:@"NO"]) {
+                    [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:@"YES"];
+                    [BlueshiftLog logInfo:@"enable_push status changed from NO to YES" withDetails:nil methodName:nil];
+                    [self registerForNotification];
+                }
+            } else {
+                if(!isPermissionAccepted || [isPermissionAccepted isEqualToString:@"YES"]) {
+                    [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:@"NO"];
+                    [BlueshiftLog logInfo:@"enable_push status changed from YES to NO" withDetails:nil methodName:nil];
+                }
+            }
+        }];
     }
 }
 
@@ -69,23 +104,6 @@
 }
 
 - (void) registerForRemoteNotification:(NSData *)deviceToken {
-    if (@available(iOS 8.0, *)) {
-        if ([[[UIApplication sharedApplication] currentUserNotificationSettings] types]) {
-            NSDictionary *userInfo =
-            [NSDictionary dictionaryWithObject:@YES forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
-            [[NSNotificationCenter defaultCenter] postNotificationName:
-             [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
-        }
-        else {
-            NSDictionary *userInfo =
-            [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
-            [[NSNotificationCenter defaultCenter] postNotificationName:
-             [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
-        }
-    } else {
-        // Fallback on earlier versions
-    }
-
     NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
@@ -115,6 +133,11 @@
 }
 
 - (void)fireIdentifyCall {
+    //fire delayed app_open on receiving device_token for very first time
+    if(![[BlueShift sharedInstance] getDeviceToken]) {
+        [self trackAppOpenWithParameters:nil];
+    }
+
     [[BlueShift sharedInstance] setDeviceToken];
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
     if (email && ![email isEqualToString:@""]) {
@@ -131,10 +154,6 @@
 
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
     [BlueshiftLog logError:error withDescription:[NSString stringWithFormat:@"Failed to register for remote notification"] methodName:nil];
-    NSDictionary *userInfo =
-    [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
-    [[NSNotificationCenter defaultCenter] postNotificationName:
-     [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
 }
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error {
@@ -839,7 +858,7 @@
     if ([BlueShift sharedInstance].config.enableAnalytics) {
         [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
     }
-    // Will have to handled by SDK .....
+    [self setPushEnabled];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

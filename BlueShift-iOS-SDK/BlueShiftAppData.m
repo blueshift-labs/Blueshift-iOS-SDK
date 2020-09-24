@@ -7,6 +7,16 @@
 //
 
 #import "BlueShiftAppData.h"
+#import "BlueShift.h"
+
+#define kEnablePush                             @"enable_push"
+#define kEnableInApp                            @"enable_inapp"
+#define kBundleIdentifier                       @"bundle_identifier"
+#define kBuildNumber                            @"build_number"
+#define kAppVersion                             @"app_version"
+#define kAppName                                @"app_name"
+#define kCFBundleShortVersionString             @"CFBundleShortVersionString"
+#define kBlueshiftIsPushPermissionAccepted      @"BlueshiftIsPushPermissionAccepted"
 
 static BlueShiftAppData *_currentAppData = nil;
 
@@ -25,7 +35,7 @@ static BlueShiftAppData *_currentAppData = nil;
 }
 
 - (NSString *)appVersion {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:kCFBundleShortVersionString];
 }
 
 - (NSString *)appBuildNumber {
@@ -36,27 +46,46 @@ static BlueShiftAppData *_currentAppData = nil;
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleIdentifierKey];
 }
 
+- (NSString*)isPushPermissionAccepted {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString* isPushAccepted = (NSString *)[defaults objectForKey:kBlueshiftIsPushPermissionAccepted];
+    return  isPushAccepted;
+}
+
+- (void)setIsPushPermissionAccepted:(NSString*)isPushPermissionAccepted {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:isPushPermissionAccepted forKey:kBlueshiftIsPushPermissionAccepted];
+    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+}
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
     if (self.appName) {
-        [appMutableDictionary setObject:self.bundleIdentifier forKey:@"app_name"];
+        [appMutableDictionary setObject:self.bundleIdentifier forKey:kAppName];
     }
     
     if (self.appVersion) {
-        [appMutableDictionary setObject:self.appVersion forKey:@"app_version"];
+        [appMutableDictionary setObject:self.appVersion forKey:kAppVersion];
     }
     
     if (self.appBuildNumber) {
-        [appMutableDictionary setObject:self.appBuildNumber forKey:@"build_number"];
+        [appMutableDictionary setObject:self.appBuildNumber forKey:kBuildNumber];
     }
     
     if (self.bundleIdentifier) {
-        [appMutableDictionary setObject:self.bundleIdentifier forKey:@"bundle_identifier"];
+        [appMutableDictionary setObject:self.bundleIdentifier forKey:kBundleIdentifier];
     }
     
+    if (@available(iOS 10.0, *)) {
+        BOOL isPushEnabledBool = [[self isPushPermissionAccepted] isEqualToString:@"YES"] ? YES : NO;
+        NSNumber *isPushEnabledNumber = [NSNumber numberWithBool: isPushEnabledBool];
+        [appMutableDictionary setObject: isPushEnabledNumber  forKey:kEnablePush];
+    }
+    
+    NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];
+    [appMutableDictionary setObject: enableInApp  forKey:kEnableInApp];
+
     return [appMutableDictionary copy];
 }
-
-
 
 @end

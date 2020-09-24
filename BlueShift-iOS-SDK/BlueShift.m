@@ -114,8 +114,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (config.enablePushNotification == YES) {
         [blueShiftAppDelegate registerForNotification];
         [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
+    } else {
+        [blueShiftAppDelegate registerForSilentPushNotification];
     }
-
     // Initialize In App Manager
     _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
     if (config.inAppNotificationDelegate) {
@@ -135,8 +136,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             [self fetchInAppNotificationFromDB];
         } failure:^(NSError *error){ }];
     }
-    //Mark app open
-    [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+    //Mark app open if device token is already present, else delay it till app receves device token
+    if ([self getDeviceToken]) {
+        [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+    }
     
     [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
 
@@ -174,13 +177,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)setDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:@"deviceToken"];
+    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:@"BlueshiftDeviceToken"];
     [defaults synchronize];
 }
 
 - (NSString *) getDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _deviceToken = (NSString *)[defaults objectForKey:@"deviceToken"];
+    _deviceToken = (NSString *)[defaults objectForKey:@"BlueshiftDeviceToken"];
     return _deviceToken;
 }
 
