@@ -144,7 +144,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
-        
+
     return [deviceMutableDictionary copy];
 }
 
