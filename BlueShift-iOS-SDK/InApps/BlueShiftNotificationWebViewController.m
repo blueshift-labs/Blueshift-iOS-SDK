@@ -145,7 +145,7 @@ API_AVAILABLE(ios(8.0))
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        CGFloat itemWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);

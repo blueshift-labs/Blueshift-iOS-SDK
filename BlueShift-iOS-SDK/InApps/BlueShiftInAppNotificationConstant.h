@@ -108,6 +108,7 @@
 #define KInAppNotificationModalCloseButtonWidth                 32.0
 #define KInAppNotificationModalCloseButtonHeight                32.0
 
+#define kInAppNotificationDefaultWidth                          90
 /* In App Message Layout Margin */
 #define kInAppNotificationModalLayoutMarginKey                  @"margin"
 #define kInAppNotificationModalLayoutMarginLeftKey              @"left"

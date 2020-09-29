@@ -57,16 +57,26 @@ static NSDictionary *_inAppTypeDictionay;
     }
 }
 
-+ (CGFloat)convertHeightToPercentage:(UIView *) notificationView {
++ (CGFloat)convertPointsHeightToPercentage:(float) height {
     CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
-    CGFloat viewHeight = notificationView.frame.size.height;
-    return ((viewHeight/presentationAreaHeight) * 100);
+    return ((height/presentationAreaHeight) * 100);
+}
+
++ (CGFloat)convertPointsWidthToPercentage:(float) width {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
+    return ((width/presentationAreaWidth) * 100);
 }
 
 + (CGFloat)convertPercentageHeightToPoints:(float) height {
     CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
     CGFloat heightInPoints = (CGFloat) ceil(presentationAreaHeight * (height / 100.0f));
     return heightInPoints;
+}
+
++ (CGFloat)convertPercentageWidthToPoints:(float) width {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
+    CGFloat widthInPoints = (CGFloat) ceil(presentationAreaWidth * (width / 100.0f));
+    return widthInPoints;
 }
 
 + (CGFloat)getPresentationAreaHeight {
@@ -82,6 +92,18 @@ static NSDictionary *_inAppTypeDictionay;
     return presentationAreaHeight;
 }
 
++ (CGFloat)getPresentationAreaWidth {
+    UIWindow *window = UIApplication.sharedApplication.keyWindow;
+    CGFloat leftMargin = 0.0;
+    CGFloat rightMargin = 0.0;
+    if (@available(iOS 11.0, *)) {
+        leftMargin = window.safeAreaInsets.left;
+        rightMargin = window.safeAreaInsets.right;
+    }
+    CGFloat presentationAreaWidth = [[UIScreen mainScreen] bounds].size.width - leftMargin - rightMargin;
+    return presentationAreaWidth;
+}
+
 + (NSString*)getEncodedURLString:(NSString*) urlString {
     if (urlString && ![urlString isEqualToString:@""]) {
         NSString *charactersToEscape = @"!*'();:@&=+$,/?%#[]<>^`\{|}"" ";
@@ -90,6 +112,13 @@ static NSDictionary *_inAppTypeDictionay;
         return escapedURLString;
     }
     return urlString;
+}
+
++ (BOOL)isIpadDevice {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        return YES;
+    }
+    return NO;
 }
 
 @end
