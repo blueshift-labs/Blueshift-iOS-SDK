@@ -152,7 +152,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     //Save device data for notifcation extension to use it and send to server with delivered tracking api call
     if (@available(iOS 10.0, *)) {
         NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
-        if(appGroupID && ![appGroupID isEqualToString:@""]) {
+        if(appGroupID && ![appGroupID isEqualToString:@""]  && self.deviceUUID) {
             NSUserDefaults *appGroupUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
             NSString* bundleId = [[BlueShiftAppData currentAppData] bundleIdentifier];
             NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];

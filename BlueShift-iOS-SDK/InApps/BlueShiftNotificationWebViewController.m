@@ -14,7 +14,11 @@
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
+    UIActivityIndicatorView* activityIndicator;
     WKWebView *webView;
+    BOOL isAutoHeight;
+    BOOL isAutoWidth;
+    BOOL isWebViewLoaded;
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -74,7 +78,12 @@ API_AVAILABLE(ios(8.0))
 -(void)initialiseWebView {
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
-    [self createCloseButton:frame];
+    if(isWebViewLoaded) {
+        [self createCloseButton:frame];
+    } else {
+        [webView setHidden:YES];
+        [self showActivityIndicator];
+    }
     [self setBackgroundDim];
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
       webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -84,6 +93,7 @@ API_AVAILABLE(ios(8.0))
 
 - (WKWebView *)createWebView  API_AVAILABLE(ios(8.0)){
     WKWebViewConfiguration *wkConfig = [[WKWebViewConfiguration alloc] init];
+    wkConfig.allowsInlineMediaPlayback = YES;
     webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:wkConfig];
     webView.scrollView.showsHorizontalScrollIndicator = NO;
     webView.scrollView.showsVerticalScrollIndicator = NO;
@@ -93,7 +103,7 @@ API_AVAILABLE(ios(8.0))
     webView.opaque = NO;
     webView.tag = 188293;
     webView.clipsToBounds = TRUE;
-    
+    webView.contentMode = UIViewContentModeScaleAspectFit;
     return webView;
 }
 
@@ -116,8 +126,25 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (CGRect)positionWebView{
-    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : self.notification.height;
+    isAutoWidth = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ?  NO: YES;
+    isAutoHeight = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? NO : YES;
+    
+    float width = 0;
+    float height = 0;
+    if (isAutoWidth) {
+        if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMinimumIPadWidthInPoints];
+        } else {
+            width = kInAppNotificationDefaultWidth;
+        }
+    } else {
+        width = self.notification.templateStyle.width;
+    }
+    if (isAutoHeight) {
+        height = kHTMLInAppNotificationMinimumHeight;
+    } else {
+        height = self.notification.templateStyle.height;
+    }
     
     float topMargin = 0.0;
     float bottomMargin = 0.0;
@@ -140,9 +167,18 @@ API_AVAILABLE(ios(8.0))
     
     CGSize size = CGSizeZero;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
-        // Ignore Constants.INAPP_X_PERCENT
-        size.width = width;
-        size.height = height;
+        CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidth];
+        if(maxWidth > width) {
+            size.width = width;
+        } else {
+            size.width = maxWidth;
+        }
+        CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+        if(maxHeight > height) {
+            size.height = height;
+        } else {
+            size.height = maxHeight;
+        }
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
         CGFloat itemWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
@@ -229,14 +265,86 @@ API_AVAILABLE(ios(8.0))
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    [self resizeWebViewOnDocumentReady: webView];
+}
+
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
     [scrollView.pinchGestureRecognizer setEnabled:false];
+}
+
+- (void)resizeWebViewOnDocumentReady:(WKWebView *)webView {
+    [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
+        if (complete) {
+            [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
+                [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self->isWebViewLoaded = YES;
+                        [self setHeightWidthAsPerHTMLContentWidth:[width floatValue] height:[height floatValue]];
+                        [webView setHidden:NO];
+                        [self hideActivityIndicator];
+                        [self.view layoutSubviews];
+                    });
+                }];
+            }];
+        }
+    }];
+}
+
+- (void)setHeightWidthAsPerHTMLContentWidth:(float) width height:(float)height {
+    if(isAutoHeight || isAutoWidth) {
+        self.notification.dimensionType = kInAppNotificationModalResolutionPointsKey;
+        if (isAutoWidth) {
+            CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidth];
+            if(maxWidth > width) {
+                self.notification.templateStyle.width = width;
+            } else {
+                self.notification.templateStyle.width = maxWidth;
+            }
+        } else {
+            self.notification.templateStyle.width = webView.frame.size.width;
+        }
+        if (isAutoHeight) {
+            CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+            if(maxHeight > height) {
+                self.notification.templateStyle.height = height;
+            } else {
+                self.notification.templateStyle.height = maxHeight;
+            }
+        } else {
+            self.notification.templateStyle.height = webView.frame.size.height;
+        }
+    }
 }
 
 - (void)configureWebViewBackground {
     self.view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
     UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin
     | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+}
+
+- (void)showActivityIndicator {
+    if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidStartLoading:)]) {
+        [self.inAppNotificationDelegate inAppNotificationDidStartLoading:self.view];
+    } else {
+        activityIndicator = [[UIActivityIndicatorView alloc] init];
+        activityIndicator.center = [self.view center];
+        if (@available(iOS 13.0, *)) {
+            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+        } else {
+            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+        }
+        [self.view addSubview:activityIndicator];
+        [activityIndicator startAnimating];
+    }
+}
+
+- (void)hideActivityIndicator {
+    if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidFinishLoading)]) {
+        [self.inAppNotificationDelegate inAppNotificationDidFinishLoading];
+    } else {
+        [activityIndicator removeFromSuperview];
+    }
 }
 
 - (void)showFromWindow:(BOOL)animated {
