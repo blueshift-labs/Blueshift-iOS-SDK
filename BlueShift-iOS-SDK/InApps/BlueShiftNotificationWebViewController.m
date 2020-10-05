@@ -78,6 +78,8 @@ API_AVAILABLE(ios(8.0))
 -(void)initialiseWebView {
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
+    //Create close button once webView is loaded completely
+    //Hide webview and show loader till its not loaded completely
     if(isWebViewLoaded) {
         [self createCloseButton:frame];
     } else {
@@ -126,19 +128,23 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (CGRect)positionWebView{
+    //Check if width or height is automatic
     isAutoWidth = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ?  NO: YES;
     isAutoHeight = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? NO : YES;
     
     float width = 0;
     float height = 0;
     if (isAutoWidth) {
+        //If ipad, set the width to max width
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMinimumWidthInPoints];
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
         } else {
             float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
-            if (deviceWidth > kHTMLInAppNotificationMinimumWidthInPoints) {
-                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMinimumWidthInPoints];
+            //If iPhone orientation is landscape, set the width to max width
+            if (deviceWidth > kHTMLInAppNotificationMaximumWidthInPoints) {
+                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
             } else {
+                //If iPhone orientation is portrait, set the width to default 90%
                 width = kInAppNotificationDefaultWidth;
             }
         }
@@ -278,6 +284,7 @@ API_AVAILABLE(ios(8.0))
     [scrollView.pinchGestureRecognizer setEnabled:false];
 }
 
+//resize webview as per content height & width when all the content/media is loaded
 - (void)resizeWebViewOnDocumentReady:(WKWebView *)webView {
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
@@ -302,6 +309,7 @@ API_AVAILABLE(ios(8.0))
         self.notification.dimensionType = kInAppNotificationModalResolutionPointsKey;
         if (isAutoWidth) {
             CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidth];
+            //If content width is greater than the screen width, then set width to max width else set to content height
             if(maxWidth > width) {
                 self.notification.templateStyle.width = width;
             } else {
@@ -312,6 +320,7 @@ API_AVAILABLE(ios(8.0))
         }
         if (isAutoHeight) {
             CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+            //If content height is greater than the screen width, then set width to max height else set to content height
             if(maxHeight > height) {
                 self.notification.templateStyle.height = height;
             } else {
@@ -330,6 +339,7 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (void)showActivityIndicator {
+    //if host app has implemented delegate method, then let host app show the loader else show default SDK loader
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidStartLoading:)]) {
         [self.inAppNotificationDelegate inAppNotificationDidStartLoading:self.view];
     } else {
@@ -346,6 +356,7 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (void)hideActivityIndicator {
+    //if host app has implemented delegate method, then let host app hide the loader else hide default SDK loader
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidFinishLoading)]) {
         [self.inAppNotificationDelegate inAppNotificationDidFinishLoading];
     } else {
