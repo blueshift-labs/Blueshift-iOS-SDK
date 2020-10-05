@@ -57,10 +57,16 @@ static NSDictionary *_inAppTypeDictionay;
     }
 }
 
-+ (CGFloat)convertHeightToPercentage:(UIView *) notificationView {
++ (CGFloat)convertPointsHeightToPercentage:(float) height {
     CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
-    CGFloat viewHeight = notificationView.frame.size.height;
-    return ((viewHeight/presentationAreaHeight) * 100);
+    CGFloat heightInPercentage = (CGFloat) ceil(((height/presentationAreaHeight) * 100.0f));
+    return heightInPercentage;
+}
+
++ (CGFloat)convertPointsWidthToPercentage:(float) width {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
+    CGFloat widthInPercentage = (CGFloat) ceil(((width/presentationAreaWidth) * 100.0f));
+    return  widthInPercentage;
 }
 
 + (CGFloat)convertPercentageHeightToPoints:(float) height {
@@ -69,17 +75,37 @@ static NSDictionary *_inAppTypeDictionay;
     return heightInPoints;
 }
 
++ (CGFloat)convertPercentageWidthToPoints:(float) width {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
+    CGFloat widthInPoints = (CGFloat) ceil(presentationAreaWidth * (width / 100.0f));
+    return widthInPoints;
+}
+
 + (CGFloat)getPresentationAreaHeight {
     UIWindow *window = UIApplication.sharedApplication.keyWindow;
-    CGFloat topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    CGFloat topMargin = 0.0;
     CGFloat bottomMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        bottomMargin = window.safeAreaInsets.bottom != 0.0 ? window.safeAreaInsets.bottom : topMargin ;
+        topMargin =  window.safeAreaInsets.top;
+        bottomMargin = window.safeAreaInsets.bottom;
     } else {
-        bottomMargin = topMargin;
+        topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
+        bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }
     CGFloat presentationAreaHeight = [[UIScreen mainScreen] bounds].size.height - topMargin - bottomMargin;
     return presentationAreaHeight;
+}
+
++ (CGFloat)getPresentationAreaWidth {
+    UIWindow *window = UIApplication.sharedApplication.keyWindow;
+    CGFloat leftMargin = 0.0;
+    CGFloat rightMargin = 0.0;
+    if (@available(iOS 11.0, *)) {
+        leftMargin = window.safeAreaInsets.left;
+        rightMargin = window.safeAreaInsets.right;
+    }
+    CGFloat presentationAreaWidth = [[UIScreen mainScreen] bounds].size.width - leftMargin - rightMargin;
+    return presentationAreaWidth;
 }
 
 + (NSString*)getEncodedURLString:(NSString*) urlString {
@@ -90,6 +116,13 @@ static NSDictionary *_inAppTypeDictionay;
         return escapedURLString;
     }
     return urlString;
+}
+
++ (BOOL)isIpadDevice {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        return YES;
+    }
+    return NO;
 }
 
 @end

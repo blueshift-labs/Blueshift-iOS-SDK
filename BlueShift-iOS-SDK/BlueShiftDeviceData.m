@@ -151,21 +151,23 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 -(void)saveDeviceDataForNotificationExtensionUse {
     //Save device data for notifcation extension to use it and send to server with delivered tracking api call
     if (@available(iOS 10.0, *)) {
+        NSString *deviceId = self.deviceUUID;
+        NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
         NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
-        if(appGroupID && ![appGroupID isEqualToString:@""]) {
+        
+        if(appGroupID && ![appGroupID isEqualToString:@""] && deviceId && appName) {
             NSUserDefaults *appGroupUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
             NSString* bundleId = [[BlueShiftAppData currentAppData] bundleIdentifier];
             NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
             //Store data on standard userdefaults for avoiding writing multiple times
             //and avoid warning for writing appgroupid userdefault
             NSDictionary *storedData = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-            if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:self.deviceUUID])) {
+            if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:deviceId])) {
                 NSMutableDictionary *deviceData = [[NSMutableDictionary alloc]init];
-                [deviceData setObject:self.deviceUUID forKey:kDeviceID];
-                [deviceData setObject:[[BlueShiftAppData currentAppData] bundleIdentifier] forKey:@"app_name"];
+                [deviceData setObject:deviceId forKey:kDeviceID];
+                [deviceData setObject:appName forKey:@"app_name"];
                 
                 [appGroupUserDefaults setObject:deviceData forKey:key];
-                [appGroupUserDefaults synchronize];
                 [[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:key];
             }
         }

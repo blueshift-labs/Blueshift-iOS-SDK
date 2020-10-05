@@ -19,6 +19,8 @@
 - (void)inAppNotificationDidAppear:(NSDictionary *)notificationDictionary;
 - (void)inAppNotificationWillDisappear:(NSDictionary *)notificationDictionary;
 - (void)inAppNotificationDidDisappear:(NSDictionary *)notificationDictionary;
+- (void)inAppNotificationDidStartLoading:(UIView *)view;
+- (void)inAppNotificationDidFinishLoading;
 
 @end
 

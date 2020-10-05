@@ -441,7 +441,7 @@
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertHeightToPercentage: notificationView];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height];
     
     float topMargin = 0.0;
     float bottomMargin = 0.0;
@@ -468,7 +468,7 @@
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        CGFloat itemWidth =  [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
         
         if (height == 100) {
             itemHeight = itemHeight - (topMargin + bottomMargin);
