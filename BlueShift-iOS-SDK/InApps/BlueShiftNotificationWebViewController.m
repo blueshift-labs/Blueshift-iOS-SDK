@@ -133,9 +133,14 @@ API_AVAILABLE(ios(8.0))
     float height = 0;
     if (isAutoWidth) {
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMinimumIPadWidthInPoints];
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMinimumWidthInPoints];
         } else {
-            width = kInAppNotificationDefaultWidth;
+            float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
+            if (deviceWidth > kHTMLInAppNotificationMinimumWidthInPoints) {
+                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMinimumWidthInPoints];
+            } else {
+                width = kInAppNotificationDefaultWidth;
+            }
         }
     } else {
         width = self.notification.templateStyle.width;
@@ -283,7 +288,8 @@ API_AVAILABLE(ios(8.0))
                         [self setHeightWidthAsPerHTMLContentWidth:[width floatValue] height:[height floatValue]];
                         [webView setHidden:NO];
                         [self hideActivityIndicator];
-                        [self.view layoutSubviews];
+                        [self.view setNeedsLayout];
+                        [self.view layoutIfNeeded];
                     });
                 }];
             }];
