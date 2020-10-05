@@ -518,7 +518,7 @@
                                                                     target:self
                                                                   selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
                                                                   userInfo:nil
-                                                                   repeats: NO];
+                                                                   repeats: YES];
         [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer" withDetails:nil methodName:nil];
     }
 }

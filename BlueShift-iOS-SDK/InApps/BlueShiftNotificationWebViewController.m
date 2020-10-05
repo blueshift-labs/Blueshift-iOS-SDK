@@ -78,12 +78,10 @@ API_AVAILABLE(ios(8.0))
 -(void)initialiseWebView {
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
-    //Create close button once webView is loaded completely
-    //Hide webview and show loader till its not loaded completely
-    if(isWebViewLoaded) {
-        [self createCloseButton:frame];
-    } else {
-        [webView setHidden:YES];
+    [self createCloseButton:frame];
+    //show loader till its not loaded completely
+    
+    if(!isWebViewLoaded) {
         [self showActivityIndicator];
     }
     [self setBackgroundDim];
@@ -291,17 +289,20 @@ API_AVAILABLE(ios(8.0))
             [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
                 [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        self->isWebViewLoaded = YES;
                         [self setHeightWidthAsPerHTMLContentWidth:[width floatValue] height:[height floatValue]];
-                        [webView setHidden:NO];
-                        [self hideActivityIndicator];
-                        [self.view setNeedsLayout];
-                        [self.view layoutIfNeeded];
+                        [self layoutWebView];
                     });
                 }];
             }];
         }
     }];
+}
+
+- (void)layoutWebView {
+    isWebViewLoaded = YES;
+    [self hideActivityIndicator];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
 }
 
 - (void)setHeightWidthAsPerHTMLContentWidth:(float) width height:(float)height {
@@ -346,9 +347,10 @@ API_AVAILABLE(ios(8.0))
         activityIndicator = [[UIActivityIndicatorView alloc] init];
         activityIndicator.center = [self.view center];
         if (@available(iOS 13.0, *)) {
-            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge;
+            activityIndicator.color = [UIColor grayColor];
         } else {
-            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
         }
         [self.view addSubview:activityIndicator];
         [activityIndicator startAnimating];
