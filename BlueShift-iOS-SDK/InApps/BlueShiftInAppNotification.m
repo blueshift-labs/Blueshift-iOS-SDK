@@ -442,7 +442,7 @@
                     self.position = kInAppNotificationModalPositionCenterKey;
                     self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
                     self.width = kInAppNotificationDefaultWidth;
-                    self.height = 100;
+                    self.height = kInAppNotificationDefaultHeight;
                 
                 }
             }

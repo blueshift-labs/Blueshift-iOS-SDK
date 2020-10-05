@@ -109,6 +109,8 @@
 #define KInAppNotificationModalCloseButtonHeight                32.0
 
 #define kInAppNotificationDefaultWidth                          90.0
+#define kInAppNotificationDefaultHeight                         100.0
+
 #define kHTMLInAppNotificationMaximumWidthInPoints              470.0
 #define kHTMLInAppNotificationMinimumHeight                     25.0
 
