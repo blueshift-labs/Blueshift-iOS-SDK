@@ -14,11 +14,9 @@
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
-    UIActivityIndicatorView* activityIndicator;
     WKWebView *webView;
     BOOL isAutoHeight;
     BOOL isAutoWidth;
-    BOOL isWebViewLoaded;
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -40,6 +38,7 @@ API_AVAILABLE(ios(8.0))
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self setAutomaticScale];
     [self configureBackground];
     [self presentWebViewNotification];
 }
@@ -52,6 +51,17 @@ API_AVAILABLE(ios(8.0))
         }
     }
     [self initialiseWebView];
+}
+
+- (void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    //Resize webview on orientation change
+    [self resizeWebViewAsPerContent:webView];
+}
+
+- (void)setAutomaticScale {
+    isAutoWidth = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ?  NO: YES;
+    isAutoHeight = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? NO : YES;
 }
 
 - (void)configureBackground {
@@ -79,11 +89,6 @@ API_AVAILABLE(ios(8.0))
     CGRect frame = [self positionWebView];
     [self configureWebViewBackground];
     [self createCloseButton:frame];
-    //show loader till its not loaded completely
-    
-    if(!isWebViewLoaded) {
-        [self showActivityIndicator];
-    }
     [self setBackgroundDim];
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
       webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
@@ -103,7 +108,6 @@ API_AVAILABLE(ios(8.0))
     webView.opaque = NO;
     webView.tag = 188293;
     webView.clipsToBounds = TRUE;
-    webView.contentMode = UIViewContentModeScaleAspectFit;
     return webView;
 }
 
@@ -126,13 +130,10 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (CGRect)positionWebView{
-    //Check if width or height is automatic
-    isAutoWidth = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ?  NO: YES;
-    isAutoHeight = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? NO : YES;
+    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ?  self.notification.templateStyle.width: 0;
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : 0;
     
-    float width = 0;
-    float height = 0;
-    if (isAutoWidth) {
+    if (isAutoWidth && width == 0) {
         //If ipad, set the width to max width
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
             width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
@@ -142,14 +143,14 @@ API_AVAILABLE(ios(8.0))
             if (deviceWidth > kHTMLInAppNotificationMaximumWidthInPoints) {
                 width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
             } else {
-                //If iPhone orientation is portrait, set the width to default 90%
+                //If iPhone orientation is portrait, set the width to default 95%
                 width = kInAppNotificationDefaultWidth;
             }
         }
     } else {
         width = self.notification.templateStyle.width;
     }
-    if (isAutoHeight) {
+    if (isAutoHeight && height == 0) {
         height = kHTMLInAppNotificationMinimumHeight;
     } else {
         height = self.notification.templateStyle.height;
@@ -275,7 +276,11 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
-    [self resizeWebViewOnDocumentReady: webView];
+    [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
+        if (complete) {
+            [self resizeWebViewAsPerContent:webView];
+        }
+    }];
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
@@ -283,33 +288,23 @@ API_AVAILABLE(ios(8.0))
 }
 
 //resize webview as per content height & width when all the content/media is loaded
-- (void)resizeWebViewOnDocumentReady:(WKWebView *)webView {
-    [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
-        if (complete) {
-            [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
-                [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self setHeightWidthAsPerHTMLContentWidth:[width floatValue] height:[height floatValue]];
-                        [self layoutWebView];
-                    });
-                }];
-            }];
-        }
+- (void)resizeWebViewAsPerContent:(WKWebView *)webView  {
+    [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
+        [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self setHeightWidthAsPerHTMLContentWidth:[width floatValue] height:[height floatValue]];
+                [self.view setNeedsLayout];
+                [self.view layoutIfNeeded];
+            });
+        }];
     }];
-}
-
-- (void)layoutWebView {
-    isWebViewLoaded = YES;
-    [self hideActivityIndicator];
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
 }
 
 - (void)setHeightWidthAsPerHTMLContentWidth:(float) width height:(float)height {
     if(isAutoHeight || isAutoWidth) {
         self.notification.dimensionType = kInAppNotificationModalResolutionPointsKey;
         if (isAutoWidth) {
-            CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidth];
+            CGFloat maxWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
             //If content width is greater than the screen width, then set width to max width else set to content height
             if(maxWidth > width) {
                 self.notification.templateStyle.width = width;
@@ -339,32 +334,6 @@ API_AVAILABLE(ios(8.0))
     | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
 }
 
-- (void)showActivityIndicator {
-    //if host app has implemented delegate method, then let host app show the loader else show default SDK loader
-    if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidStartLoading:)]) {
-        [self.inAppNotificationDelegate inAppNotificationDidStartLoading:self.view];
-    } else {
-        activityIndicator = [[UIActivityIndicatorView alloc] init];
-        activityIndicator.center = [self.view center];
-        if (@available(iOS 13.0, *)) {
-            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge;
-            activityIndicator.color = [UIColor grayColor];
-        } else {
-            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
-        }
-        [self.view addSubview:activityIndicator];
-        [activityIndicator startAnimating];
-    }
-}
-
-- (void)hideActivityIndicator {
-    //if host app has implemented delegate method, then let host app hide the loader else hide default SDK loader
-    if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidFinishLoading)]) {
-        [self.inAppNotificationDelegate inAppNotificationDidFinishLoading];
-    } else {
-        [activityIndicator removeFromSuperview];
-    }
-}
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
