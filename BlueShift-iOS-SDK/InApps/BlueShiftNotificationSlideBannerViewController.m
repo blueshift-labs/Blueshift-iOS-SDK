@@ -371,7 +371,7 @@
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertHeightToPercentage :slideBannerView];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height];
     
     
     CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
