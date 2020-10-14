@@ -72,11 +72,11 @@ static BlueShiftAppData *_currentAppData = nil;
     }
     
     if (@available(iOS 10.0, *)) {
-        NSNumber *enablePushValue = [NSNumber numberWithBool: NO];
-        if (self.enablePush == YES) {
-            enablePushValue = [NSNumber numberWithBool: self.isPushPermissionAccepted];
+        if (self.enablePush && self.isPushPermissionAccepted) {
+            [appMutableDictionary setObject: [NSNumber numberWithBool: YES] forKey:kEnablePush];
+        } else {
+            [appMutableDictionary setObject:[NSNumber numberWithBool: NO] forKey:kEnablePush];
         }
-        [appMutableDictionary setObject: enablePushValue  forKey:kEnablePush];
     }
     
     NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];

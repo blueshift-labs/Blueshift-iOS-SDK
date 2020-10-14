@@ -818,10 +818,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo {
-    if (userInfo) {
-        if ([userInfo valueForKey:kInAppNotificationModalMessageUDIDKey]) {
-            return  YES;
-        }
+    if (userInfo && [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey]) {
+        return  YES;
     }
     return  NO;
 }
