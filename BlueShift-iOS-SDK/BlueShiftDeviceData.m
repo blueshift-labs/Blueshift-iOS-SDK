@@ -8,21 +8,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueShiftAppData.h"
-
-#define kBlueshiftDeviceIdSourceUUID    @"BlueshiftDeviceIdSourceUUID"
-#define kLatitude                       @"latitude"
-#define kLongitude                      @"longitude"
-#define kDeviceIDFA                     @"device_idfa"
-#define kNetworkCarrier                 @"network_carrier"
-#define kOSName                         @"os_name"
-#define kDeviceManufacturer             @"device_manufacturer"
-#define kDeviceIDFV                     @"device_idfv"
-#define kIDFADefaultValue               @"00000000-0000-0000-0000-000000000000"
-#define kDeviceToken                    @"device_token"
-#define kDeviceType                     @"device_type"
-#define kDeviceID                       @"device_id"
-#define kApple                          @"apple"
-#define kiOS                            @"iOS"
+#import "BlueshiftConstants.h"
 
 static BlueShiftDeviceData *_currentDeviceData = nil;
 
@@ -165,7 +151,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:deviceId])) {
                 NSMutableDictionary *deviceData = [[NSMutableDictionary alloc]init];
                 [deviceData setObject:deviceId forKey:kDeviceID];
-                [deviceData setObject:appName forKey:@"app_name"];
+                [deviceData setObject:appName forKey:kAppName];
                 
                 [appGroupUserDefaults setObject:deviceData forKey:key];
                 [[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:key];

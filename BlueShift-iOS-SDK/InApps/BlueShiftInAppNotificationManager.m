@@ -17,8 +17,6 @@
 #import "BlueShift.h"
 #import "../BlueshiftLog.h"
 
-#define THRESHOLD_FOR_UPCOMING_IAM  (30*60)         // 30 min set for time-being.
-
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
 @property (nonatomic, strong, readwrite) NSTimer *inAppMessageFetchTimer;
@@ -59,7 +57,7 @@
 - (void) OnApplicationEnteringForeground:(NSNotification *)notification {
     /* start the timer once app enters foreground */
     
-    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[[BlueShift sharedInstance] config] enableInAppNotification] == YES) {
         [self fetchNowAndUpcomingInAppMessageFromDB];
         [self startInAppMessageFetchTimer];
         [self deleteExpireInAppNotificationFromDataStore];

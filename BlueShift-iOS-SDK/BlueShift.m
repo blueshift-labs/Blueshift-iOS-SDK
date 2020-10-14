@@ -10,9 +10,7 @@
 #import "BlueShiftInAppNotificationManager.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueshiftLog.h"
-
-#define kBlueshiftPushPermissionStatus          @"BlueshiftPushPermissionStatus"
-#define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
+#import "BlueshiftConstants.h"
 
 BlueShiftAppDelegate *_newDelegate;
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
@@ -818,4 +816,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     return false;
 }
+
+- (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo {
+    if (userInfo && [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey]) {
+        return  YES;
+    }
+    return  NO;
+}
+
 @end

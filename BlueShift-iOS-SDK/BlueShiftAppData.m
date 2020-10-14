@@ -9,14 +9,7 @@
 #import "BlueShiftAppData.h"
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
-
-#define kEnablePush                             @"enable_push"
-#define kEnableInApp                            @"enable_inapp"
-#define kBundleIdentifier                       @"bundle_identifier"
-#define kBuildNumber                            @"build_number"
-#define kAppVersion                             @"app_version"
-#define kAppName                                @"app_name"
-#define kCFBundleShortVersionString             @"CFBundleShortVersionString"
+#import "BlueshiftConstants.h"
 
 static BlueShiftAppData *_currentAppData = nil;
 
@@ -46,6 +39,20 @@ static BlueShiftAppData *_currentAppData = nil;
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleIdentifierKey];
 }
 
+- (BOOL)enablePush {
+    NSString *val = [[NSUserDefaults standardUserDefaults] objectForKey:kBlueshiftEnablePush];
+    BOOL enablePush = YES;
+    if (val) {
+        enablePush = [val isEqual:@"YES"] ? YES : NO;
+    }
+    return enablePush;
+}
+
+- (void)setEnablePush:(BOOL)enablePush {
+    NSString *val =  enablePush ? @"YES" : @"NO";
+    [[NSUserDefaults standardUserDefaults] setObject:val forKey:kBlueshiftEnablePush];
+}
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
     if (self.appName) {
@@ -65,8 +72,11 @@ static BlueShiftAppData *_currentAppData = nil;
     }
     
     if (@available(iOS 10.0, *)) {
-        NSNumber *isPushEnabled = [NSNumber numberWithBool: self.isPushPermissionAccepted];
-        [appMutableDictionary setObject: isPushEnabled  forKey:kEnablePush];
+        if (self.enablePush && self.isPushPermissionAccepted) {
+            [appMutableDictionary setObject: [NSNumber numberWithBool: YES] forKey:kEnablePush];
+        } else {
+            [appMutableDictionary setObject:[NSNumber numberWithBool: NO] forKey:kEnablePush];
+        }
     }
     
     NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];
