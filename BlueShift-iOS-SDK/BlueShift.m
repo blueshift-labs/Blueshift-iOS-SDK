@@ -132,7 +132,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             [self fetchInAppNotificationFromDB];
         } failure:^(NSError *error){ }];
     }
-    //Mark app open if device token is already present, else delay it till app receves device token and fires identify
+    // Mark app open if device token is already present, else delay it till app receves device token and fires identify
     if ([self getDeviceToken]) {
         [blueShiftAppDelegate trackAppOpenWithParameters:nil];
     }
