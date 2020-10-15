@@ -72,7 +72,7 @@
     [self downloadFileFromURL];
 }
 
-///Update UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
 - (void)checkUNAuthorizationStatus {
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
@@ -380,6 +380,7 @@
             if (@available(iOS 9.0, *)) {
                 [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
             }
+            [BlueshiftLog logInfo:@"Delivered push notifiation deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
         }
     }
 }
@@ -587,6 +588,8 @@
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
                                       initWithSuiteName:appGroupID];
         NSNumber *selectedIndex = [userDefaults objectForKey: kNotificationSelectedIndexKey];
+        [BlueshiftLog logInfo:[NSString stringWithFormat: @"Clicked image index for carousel push notification : %@",selectedIndex] withDetails:nil methodName:nil];
+
         if (selectedIndex != nil) {
             [self resetUserDefaults: userDefaults];
             
@@ -625,6 +628,8 @@
             
             [self setupPushNotificationDeeplink: pushDetailsDictionary];
         }
+    } else {
+        [BlueshiftLog logInfo:@"Unable to process the deeplink as AppGroupId is not set in the Blueshift SDK initialization." withDetails:nil methodName:nil];
     }
     [self trackPushClickedWithParameters:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:pushDetails]];
 }
@@ -980,48 +985,6 @@
 
 - (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     [[BlueShift sharedInstance] performRequestQueue:[parameters copy] canBatchThisEvent:isBatchEvent];
-}
-
-- (BOOL)trackOpenURLWithCampaignURLString:(NSString *)campaignURLString andParameters:(NSDictionary *)parameters {
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    BOOL isCampaignURL = NO;
-    
-    NSArray *components = [campaignURLString componentsSeparatedByString:@"?"];
-    if (components.count == 2) {
-        
-        NSArray *nameValueStrings = [components[1] componentsSeparatedByString:@"&"];
-        for (NSString *nameValueString in nameValueStrings) {
-            NSArray *parts = [nameValueString componentsSeparatedByString:@"="];
-            
-            if (parts.count == 2) {
-                if (parts[0]!=nil) {
-                    if (parts[1]) {
-                        [parameterMutableDictionary setObject:parts[1] forKey:parts[0]];
-                    } else {
-                        [parameterMutableDictionary setObject:@"" forKey:parts[0]];
-                    }
-                    isCampaignURL = YES;
-                    
-                } else {
-                    isCampaignURL = NO;
-                    break;
-                }
-            } else {
-                isCampaignURL = NO;
-                break;
-            }
-        }
-    }
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }
-    
-    if (isCampaignURL) {
-        [self trackAppOpenWithParameters:[parameterMutableDictionary copy]];
-    }
-    
-    return isCampaignURL;
 }
 
 

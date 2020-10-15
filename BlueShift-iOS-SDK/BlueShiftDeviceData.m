@@ -43,10 +43,15 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         case BlueshiftDeviceIdSourceIDFVBundleID:
         {
             NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-            if (bundleId != nil) {
-                deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
+            NSString* idfv = self.deviceIDFV;
+            if (bundleId != nil && idfv != nil) {
+                deviceUUID = [NSString stringWithFormat:@"%@:%@", idfv,bundleId];
             } else {
-                [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id." methodName:nil];
+                if (idfv == nil) {
+                    [BlueshiftLog logError:nil withDescription:@"Failed to get the IDFV." methodName:nil];
+                } else {
+                    [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id." methodName:nil];
+                }
             }
         }
             break;
@@ -54,7 +59,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             if (self.customDeviceID && ![self.customDeviceID isEqualToString:@""]) {
                 deviceUUID = self.customDeviceID;
             } else {
-                NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
+                [BlueshiftLog logError:nil withDescription:@"CUSTOM device id is not provided" methodName:nil];
             }
             break;
         default:
