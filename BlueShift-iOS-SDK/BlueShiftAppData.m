@@ -49,7 +49,7 @@ static BlueShiftAppData *_currentAppData = nil;
 }
 
 - (void)setEnablePush:(BOOL)enablePush {
-    NSString *val =  enablePush ? @"YES" : @"NO";
+    NSString *val = enablePush ? @"YES" : @"NO";
     [[NSUserDefaults standardUserDefaults] setObject:val forKey:kBlueshiftEnablePush];
 }
 
@@ -77,6 +77,9 @@ static BlueShiftAppData *_currentAppData = nil;
         } else {
             [appMutableDictionary setObject:[NSNumber numberWithBool: NO] forKey:kEnablePush];
         }
+    } else {
+        //send enablePush value as is to server for iOS 9 and below versions
+        [appMutableDictionary setObject:[NSNumber numberWithBool: self.enablePush] forKey:kEnablePush];
     }
     
     NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];

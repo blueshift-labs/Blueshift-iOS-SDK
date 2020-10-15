@@ -40,14 +40,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
 }
 
-- (void)setUserNotificationDelegate {
-    BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
-    if (@available(iOS 10.0, *)) {
-        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-        center.delegate = blueShiftUserNotificationCenterDelegate;
-    }
-}
-
 - (void) setupWithConfiguration:(BlueShiftConfig *)config {
     // validating the configuration details set by the user ...
     BOOL configurationSetCorrectly = [config validateConfigDetails];
@@ -75,12 +67,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     // initiating the newDelegate ...
     _newDelegate = [[BlueShiftAppDelegate alloc] init];
     BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
+    
     // assigning the current application delegate with the app delegate we are going to use in the SDK ...
     _sharedBlueShiftInstance.appDelegate = _newDelegate;
     _sharedBlueShiftInstance.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
+    
     // setting the new delegate's old delegate with the original delegate we saved...
     BlueShiftAppDelegate *blueShiftAppDelegate = (BlueShiftAppDelegate *)_newDelegate;
     blueShiftAppDelegate.oldDelegate = oldDelegate;
+    
     if (@available(iOS 10.0, *)) {
         if(config.userNotificationDelegate) {
             blueShiftAppDelegate.userNotificationDelegate = config.userNotificationDelegate;
@@ -137,7 +132,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             [self fetchInAppNotificationFromDB];
         } failure:^(NSError *error){ }];
     }
-    //Mark app open if device token is already present, else delay it till app receves device token
+    // Mark app open if device token is already present, else delay it till app receves device token and fires identify
     if ([self getDeviceToken]) {
         [blueShiftAppDelegate trackAppOpenWithParameters:nil];
     }
