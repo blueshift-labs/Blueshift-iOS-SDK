@@ -201,7 +201,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 /// Check current UNAuthorizationStatus status with last Modified UNAuthorizationStatus status, if its not matching
 /// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
-- (BOOL)validateUNAuthorizationStatus {
+- (BOOL)validateChangeInUNAuthorizationStatus {
      NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
     if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
         if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"NO"]) {
@@ -222,7 +222,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 //Check and fire identify call if any device attribute is changed
 - (void) autoIdentifyCheck {
-    BOOL autoIdentify = [self validateUNAuthorizationStatus];
+    BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
     if (autoIdentify) {
         [self identifyUserWithDetails:nil canBatchThisEvent:NO];
         [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
