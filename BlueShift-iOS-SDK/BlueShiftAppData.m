@@ -72,7 +72,7 @@ static BlueShiftAppData *_currentAppData = nil;
     }
     
     if (@available(iOS 10.0, *)) {
-        if (self.enablePush && self.isPushPermissionAccepted) {
+        if (self.enablePush && self.currentUNAuthorizationStatus) {
             [appMutableDictionary setObject: [NSNumber numberWithBool: YES] forKey:kEnablePush];
         } else {
             [appMutableDictionary setObject:[NSNumber numberWithBool: NO] forKey:kEnablePush];

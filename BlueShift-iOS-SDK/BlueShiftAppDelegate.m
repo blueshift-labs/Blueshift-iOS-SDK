@@ -39,7 +39,7 @@
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
             }
-            [self setPushEnabled];
+            [self checkUNAuthorizationStatus];
             if (granted) {
                 [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
             } else {
@@ -62,7 +62,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
-                [self setPushEnabled];
+                [self checkUNAuthorizationStatus];
                 [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered for background silent notifications" withDetails:nil methodName:nil];
             } else {
                 [self registerForNotification];
@@ -72,14 +72,14 @@
     [self downloadFileFromURL];
 }
 
-//Update push permission accepted status in BlueshiftAppData on app launch and on app didBecomeActive
-- (void)setPushEnabled {
+///Update UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+- (void)checkUNAuthorizationStatus {
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
-                [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:YES];
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
             } else {
-                [[BlueShiftAppData currentAppData] setIsPushPermissionAccepted:NO];
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
             }
         }];
     }
@@ -861,7 +861,7 @@
     if ([BlueShift sharedInstance].config.enableAnalytics) {
         [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
     }
-    [self setPushEnabled];
+    [self checkUNAuthorizationStatus];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
