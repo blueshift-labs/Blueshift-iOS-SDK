@@ -35,7 +35,7 @@
 
 //UserDefaults
 #define kBlueshiftDeviceIdSourceUUID            @"BlueshiftDeviceIdSourceUUID"
-#define kBlueshiftPushPermissionStatus          @"BlueshiftPushPermissionStatus"
+#define kBlueshiftUNAuthorizationStatus         @"BlueshiftUNAuthorizationStatus"
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
 

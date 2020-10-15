@@ -188,32 +188,32 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-- (NSString*)getPushPermissionStatus {
+- (NSString*)getLastModifiedUNAuthorizationStatus {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString* pushPermissionStatus = (NSString *)[defaults objectForKey:kBlueshiftPushPermissionStatus];
-    return  pushPermissionStatus;
+    NSString* authorizationStatus = (NSString *)[defaults objectForKey:kBlueshiftUNAuthorizationStatus];
+    return  authorizationStatus;
 }
 
-- (void)setPushPermissionStatus:(NSString*) pushPermissionStatus {
+- (void)setLastModifiedUNAuthorizationStatus:(NSString*) authorizationStatus {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:pushPermissionStatus forKey:kBlueshiftPushPermissionStatus];
+    [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
 }
 
-//Check push enabled current status vs push enbled userdefault status, if its not matching
-// update the userdefault value status and fire identify call
-- (BOOL)validatePushPermissionStatus {
-     NSString* pushPermissionStatus = [self getPushPermissionStatus];
-    if ([[BlueShiftAppData currentAppData] isPushPermissionAccepted]) {
-        if(!pushPermissionStatus || [pushPermissionStatus isEqualToString:@"NO"]) {
-            [self setPushPermissionStatus: @"YES"];
-            [BlueshiftLog logInfo:@"enable_push status changed to YES" withDetails:nil methodName:nil];
+/// Check current UNAuthorizationStatus status with last Modified UNAuthorizationStatus status, if its not matching
+/// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
+- (BOOL)validateChangeInUNAuthorizationStatus {
+     NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
+    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"NO"]) {
+            [self setLastModifiedUNAuthorizationStatus: @"YES"];
+            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
             [[[BlueShift sharedInstance]appDelegate] registerForNotification];
             return YES;
         }
     } else {
-        if(!pushPermissionStatus || [pushPermissionStatus isEqualToString:@"YES"]) {
-            [self setPushPermissionStatus: @"NO"];
-            [BlueshiftLog logInfo:@"enable_push status changed to NO" withDetails:nil methodName:nil];
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"YES"]) {
+            [self setLastModifiedUNAuthorizationStatus: @"NO"];
+            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to NO" withDetails:nil methodName:nil];
             return YES;
         }
     }
@@ -222,9 +222,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 //Check and fire identify call if any device attribute is changed
 - (void) autoIdentifyCheck {
-    BOOL autoIdentify = [self validatePushPermissionStatus];
+    BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
     if (autoIdentify) {
         [self identifyUserWithDetails:nil canBatchThisEvent:NO];
+        [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
     }
 }
 
