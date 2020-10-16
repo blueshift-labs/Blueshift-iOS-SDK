@@ -11,6 +11,7 @@
 #import "BlueShiftInAppNotificationManager.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -27,7 +28,7 @@
     return self;
 }
 
-#pragma mark - Remote notification registration
+#pragma mark - Remote & silent push notification registration
 - (void) registerForNotification {
     if (@available(iOS 10.0, *)) {
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -70,19 +71,6 @@
         }];
     }
     [self downloadFileFromURL];
-}
-
-///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
-- (void)checkUNAuthorizationStatus {
-    if (@available(iOS 10.0, *)) {
-        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-            if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
-            } else {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
-            }
-        }];
-    }
 }
 
 // Handles the push notification payload when the app is killed and lauched from push notification tray ...
@@ -147,6 +135,64 @@
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             [self trackAppOpenWithParameters:nil];
         });
+    }
+}
+
+#pragma mark - enable push and auto identify
+- (NSString*)getLastModifiedUNAuthorizationStatus {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString* authorizationStatus = (NSString *)[defaults objectForKey:kBlueshiftUNAuthorizationStatus];
+    return  authorizationStatus;
+}
+
+- (void)setLastModifiedUNAuthorizationStatus:(NSString*) authorizationStatus {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
+}
+
+/// Check current UNAuthorizationStatus status with last Modified UNAuthorizationStatus status, if its not matching
+/// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
+- (BOOL)validateChangeInUNAuthorizationStatus {
+     NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
+    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"NO"]) {
+            [self setLastModifiedUNAuthorizationStatus: @"YES"];
+            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
+            [[[BlueShift sharedInstance]appDelegate] registerForNotification];
+            return YES;
+        }
+    } else {
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"YES"]) {
+            [self setLastModifiedUNAuthorizationStatus: @"NO"];
+            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to NO" withDetails:nil methodName:nil];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+//Check and fire identify call if any device attribute is changed
+- (void) autoIdentifyCheck {
+    BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
+    if (autoIdentify) {
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
+            [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+        });
+    }
+}
+///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+- (void)checkUNAuthorizationStatus {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
+            } else {
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
+            }
+            //Fire auto identify call in case any device attribute changes
+            [self autoIdentifyCheck];
+        }];
     }
 }
 

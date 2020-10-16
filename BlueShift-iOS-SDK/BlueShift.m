@@ -183,47 +183,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _deviceToken;
 }
 
-- (NSString*)getLastModifiedUNAuthorizationStatus {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString* authorizationStatus = (NSString *)[defaults objectForKey:kBlueshiftUNAuthorizationStatus];
-    return  authorizationStatus;
-}
-
-- (void)setLastModifiedUNAuthorizationStatus:(NSString*) authorizationStatus {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
-}
-
-/// Check current UNAuthorizationStatus status with last Modified UNAuthorizationStatus status, if its not matching
-/// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
-- (BOOL)validateChangeInUNAuthorizationStatus {
-     NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
-    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
-        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"NO"]) {
-            [self setLastModifiedUNAuthorizationStatus: @"YES"];
-            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
-            [[[BlueShift sharedInstance]appDelegate] registerForNotification];
-            return YES;
-        }
-    } else {
-        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"YES"]) {
-            [self setLastModifiedUNAuthorizationStatus: @"NO"];
-            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to NO" withDetails:nil methodName:nil];
-            return YES;
-        }
-    }
-    return NO;
-}
-
-//Check and fire identify call if any device attribute is changed
-- (void) autoIdentifyCheck {
-    BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
-    if (autoIdentify) {
-        [self identifyUserWithDetails:nil canBatchThisEvent:NO];
-        [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
-    }
-}
-
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if (_config.enableInAppNotification == YES) {
@@ -701,11 +660,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
     [BlueShiftRequestQueue addRequestOperation:requestOperation];
-    
-    //Fire auto identify call in case any device attribute changes
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [self autoIdentifyCheck];
-    });
 }
 
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
