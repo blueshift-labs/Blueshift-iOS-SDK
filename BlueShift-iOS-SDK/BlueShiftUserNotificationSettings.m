@@ -43,29 +43,8 @@
 }
 
 - (UNNotificationCategory *)carouselCategory  API_AVAILABLE(ios(10.0)){
-    NSString *nextHtmlString = @"&#9654;&#9654;";
-    NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
-    
-    NSDictionary *options = @{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType};
-    NSAttributedString *decodedString;
-    decodedString = [[NSAttributedString alloc] initWithData:nextStringData
-                                                     options:options
-                                          documentAttributes:NULL
-                                                       error:NULL];
-    
-    UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:decodedString.string options:UNNotificationActionOptionNone];
-    
-    NSString *previousHtmlString = @"&#9664;&#9664;";
-    NSData *previousStringData = [previousHtmlString dataUsingEncoding:NSUTF8StringEncoding];
-    
-    decodedString = [[NSAttributedString alloc] initWithData:previousStringData
-                                                     options:options
-                                          documentAttributes:NULL
-                                                       error:NULL];
-    
-    UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:decodedString.string options:UNNotificationActionOptionNone];
-    
-    
+    UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"▶▶" options:UNNotificationActionOptionNone];
+    UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"◀◀" options:UNNotificationActionOptionNone];
     UNNotificationAction *gotoAppAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselGotoappIdentifier title:@"Go to app" options:UNNotificationActionOptionNone];
     
     UNNotificationCategory *carouselCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
@@ -74,29 +53,8 @@
 }
 
 - (UNNotificationCategory *)carouselAnimationCategory  API_AVAILABLE(ios(10.0)){
-    NSString *nextHtmlString = @"&#9654;&#9654;";
-    NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
-    
-    NSDictionary *options = @{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType};
-    NSAttributedString *decodedString;
-    decodedString = [[NSAttributedString alloc] initWithData:nextStringData
-                                                     options:options
-                                          documentAttributes:NULL
-                                                       error:NULL];
-    
-    UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:decodedString.string options:UNNotificationActionOptionNone];
-    
-    NSString *previousHtmlString = @"&#9664;&#9664;";
-    NSData *previousStringData = [previousHtmlString dataUsingEncoding:NSUTF8StringEncoding];
-    
-    decodedString = [[NSAttributedString alloc] initWithData:previousStringData
-                                                     options:options
-                                          documentAttributes:NULL
-                                                       error:NULL];
-    
-    UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:decodedString.string options:UNNotificationActionOptionNone];
-    
-    
+    UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"▶▶" options:UNNotificationActionOptionNone];
+    UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"◀◀" options:UNNotificationActionOptionNone];
     UNNotificationAction *gotoAppAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselGotoappIdentifier title:@"Go to app" options:UNNotificationActionOptionForeground];
     
     UNNotificationCategory *carouselAnimationCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselAnimationIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];

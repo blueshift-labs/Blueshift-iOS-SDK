@@ -137,9 +137,21 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         [blueShiftAppDelegate trackAppOpenWithParameters:nil];
     }
     
+    [self logSDKInitializationDetails];
+    
     [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
 
-    [BlueshiftLog logInfo:@"SDK configured successfully. Below are the config details" withDetails:[config getConfigStringToLog] methodName:nil];
+}
+
+/// Print debug logs on SDK initialization
+- (void) logSDKInitializationDetails {
+    [BlueshiftLog logInfo:@"SDK configured successfully. Below are the config details" withDetails:[_config getConfigStringToLog] methodName:nil];
+
+    if ([[BlueShiftAppData currentAppData] enablePush] == YES) {
+        [BlueshiftLog logInfo: @"EnablePush has been set to YES. If app push notification permission is accepted then app will start receiving push notifications from Blueshift." withDetails:nil methodName:nil];
+    } else {
+        [BlueshiftLog logInfo: @"EnablePush has been set to NO. The app will not receive any push notifications from Blueshift. To enable receiving push notifications, set enablePush to true and fire identify call from Blueshift SDK." withDetails:nil methodName:nil];
+    }
 }
 
 - (void)initDeepLinks {
