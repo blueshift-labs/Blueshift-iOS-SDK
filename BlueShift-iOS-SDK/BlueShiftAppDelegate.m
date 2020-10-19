@@ -76,11 +76,13 @@
 - (void)checkUNAuthorizationStatus {
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-            if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
+            BOOL isPushAuthorized = [settings authorizationStatus] == UNAuthorizationStatusAuthorized;
+            if (isPushAuthorized) {
                 [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
             } else {
                 [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
             }
+            [BlueshiftLog logInfo:[NSString stringWithFormat:@"UNAuthorization status - Push Notifications are %@ from the settings.", (isPushAuthorized ? @"enabled" : @"disabled")] withDetails:nil methodName:nil];
         }];
     }
 }
