@@ -43,13 +43,13 @@ static BlueShiftAppData *_currentAppData = nil;
     NSString *val = [[NSUserDefaults standardUserDefaults] objectForKey:kBlueshiftEnablePush];
     BOOL enablePush = YES;
     if (val) {
-        enablePush = [val isEqual:@"YES"] ? YES : NO;
+        enablePush = [val isEqual:kYES] ? YES : NO;
     }
     return enablePush;
 }
 
 - (void)setEnablePush:(BOOL)enablePush {
-    NSString *val = enablePush ? @"YES" : @"NO";
+    NSString *val = enablePush ? kYES : kNO;
     [[NSUserDefaults standardUserDefaults] setObject:val forKey:kBlueshiftEnablePush];
 }
 
