@@ -8,21 +8,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueShiftAppData.h"
-
-#define kBlueshiftDeviceIdSourceUUID    @"BlueshiftDeviceIdSourceUUID"
-#define kLatitude                       @"latitude"
-#define kLongitude                      @"longitude"
-#define kDeviceIDFA                     @"device_idfa"
-#define kNetworkCarrier                 @"network_carrier"
-#define kOSName                         @"os_name"
-#define kDeviceManufacturer             @"device_manufacturer"
-#define kDeviceIDFV                     @"device_idfv"
-#define kIDFADefaultValue               @"00000000-0000-0000-0000-000000000000"
-#define kDeviceToken                    @"device_token"
-#define kDeviceType                     @"device_type"
-#define kDeviceID                       @"device_id"
-#define kApple                          @"apple"
-#define kiOS                            @"iOS"
+#import "BlueshiftConstants.h"
 
 static BlueShiftDeviceData *_currentDeviceData = nil;
 
@@ -57,10 +43,15 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         case BlueshiftDeviceIdSourceIDFVBundleID:
         {
             NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-            if (bundleId != nil) {
-                deviceUUID = [NSString stringWithFormat:@"%@:%@", self.deviceIDFV,bundleId];
+            NSString* idfv = self.deviceIDFV;
+            if (bundleId != nil && idfv != nil) {
+                deviceUUID = [NSString stringWithFormat:@"%@:%@", idfv,bundleId];
             } else {
-                [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id." methodName:nil];
+                if (idfv == nil) {
+                    [BlueshiftLog logError:nil withDescription:@"Failed to get the IDFV." methodName:nil];
+                } else {
+                    [BlueshiftLog logError:nil withDescription:@"Failed to get the bundle Id." methodName:nil];
+                }
             }
         }
             break;
@@ -68,7 +59,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             if (self.customDeviceID && ![self.customDeviceID isEqualToString:@""]) {
                 deviceUUID = self.customDeviceID;
             } else {
-                NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
+                [BlueshiftLog logError:nil withDescription:@"CUSTOM device id is not provided" methodName:nil];
             }
             break;
         default:
@@ -144,7 +135,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
-    
+
     return [deviceMutableDictionary copy];
 }
 
@@ -165,7 +156,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:deviceId])) {
                 NSMutableDictionary *deviceData = [[NSMutableDictionary alloc]init];
                 [deviceData setObject:deviceId forKey:kDeviceID];
-                [deviceData setObject:appName forKey:@"app_name"];
+                [deviceData setObject:appName forKey:kAppName];
                 
                 [appGroupUserDefaults setObject:deviceData forKey:key];
                 [[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:key];

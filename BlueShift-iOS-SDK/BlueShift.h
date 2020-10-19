@@ -148,4 +148,10 @@
 
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url;
 
+
+/// Check if the push notification is from Blueshift
+/// @param userInfo  userInfo dictionary from the push notification payload
+/// @returns true or false based on if push notification is from Blueshift or not
+- (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
+
 @end
