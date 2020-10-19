@@ -155,15 +155,15 @@
 - (BOOL)validateChangeInUNAuthorizationStatus {
      NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
     if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
-        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"NO"]) {
-            [self setLastModifiedUNAuthorizationStatus: @"YES"];
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kNO]) {
+            [self setLastModifiedUNAuthorizationStatus: kYES];
             [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
             [[[BlueShift sharedInstance]appDelegate] registerForNotification];
             return YES;
         }
     } else {
-        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:@"YES"]) {
-            [self setLastModifiedUNAuthorizationStatus: @"NO"];
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kYES]) {
+            [self setLastModifiedUNAuthorizationStatus: kNO];
             [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to NO" withDetails:nil methodName:nil];
             return YES;
         }

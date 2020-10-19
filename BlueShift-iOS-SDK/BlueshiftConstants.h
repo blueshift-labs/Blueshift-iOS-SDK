@@ -39,5 +39,8 @@
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
 
+//Bool
+#define kYES                                    @"YES"
+#define kNO                                     @"NO"
 
 #endif /* BlueshiftConstants_h */
