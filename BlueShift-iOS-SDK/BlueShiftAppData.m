@@ -51,11 +51,6 @@ static BlueShiftAppData *_currentAppData = nil;
 - (void)setEnablePush:(BOOL)enablePush {
     NSString *val = enablePush ? @"YES" : @"NO";
     [[NSUserDefaults standardUserDefaults] setObject:val forKey:kBlueshiftEnablePush];
-    if (enablePush == YES) {
-        [BlueshiftLog logInfo: @"EnablePush has been manually set to YES. If app push notification permission is accepted then app will start receiving push notifications from Blueshift." withDetails:nil methodName:nil];
-    } else {
-        [BlueshiftLog logInfo: @"EnablePush has been manually set to NO. The app will stop receiveing push notifications from Blueshift. To enable receiving push notifications, set enablePush to true and fire identify call from Blueshift SDK." withDetails:nil methodName:nil];
-    }
 }
 
 - (NSDictionary *)toDictionary {
