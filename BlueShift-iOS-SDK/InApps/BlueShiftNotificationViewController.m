@@ -11,9 +11,11 @@
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
+#import "../BlueshiftLog.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
+    NSMutableDictionary *cachedImageData;
 }
 @end
 
@@ -25,6 +27,7 @@
         notification.contentStyle = ([self isDarkThemeEnabled] && notification.contentStyleDark) ? notification.contentStyleDark : notification.contentStyle;
         notification.templateStyle = ([self isDarkThemeEnabled] && notification.templateStyleDark) ? notification.templateStyleDark : notification.templateStyle;
         _notification = notification;
+        cachedImageData = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -48,7 +51,9 @@
 }
 
 - (void)closeButtonDidTapped {
-    [self sendActionEventAnalytics: kInAppNotificationButtonTypeDismissKey];
+    NSString *closeButtonIndex = [NSString stringWithFormat:@"%@%@",kInAppNotificationButtonIndex,kInAppNotificationButtonTypeCloseKey];
+    NSDictionary *details = @{kNotificationClickElementKey:closeButtonIndex};
+    [self sendActionEventAnalytics: details];
     [self hide:YES];
 }
 
@@ -107,9 +112,7 @@
 }
 
 - (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL andWidth:(double)width andHeight:(double)height{
-    NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString:imageURL]];
-    UIImage *image = [[UIImage alloc] initWithData:imageData];
-//    UIImage *image = [[UIImage alloc] initWithData:imageData];
+    UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:imageURL]];
     
     // resize image
     CGSize newSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height);
@@ -129,10 +132,23 @@
     if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
     ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
-        NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: backgroundImageURL]];
-        UIImage *image = [[UIImage alloc] initWithData:imageData];
-        [notificationView setBackgroundColor: [UIColor colorWithPatternImage: image]];
+        UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        imageView.frame = notificationView.bounds;
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        [notificationView addSubview:imageView];
     }
+}
+
+-(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
+    NSData *imageData = [[NSData alloc] init];
+    if([cachedImageData valueForKey: urlString]) {
+        imageData = [cachedImageData valueForKey:urlString];
+    } else {
+        imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
+        [cachedImageData setObject:imageData forKey:urlString];
+    }
+    return imageData;
 }
 
 - (void)setBackgroundColor:(UIView *)notificationView {
@@ -244,29 +260,37 @@
 }
 
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
-    [self sendActionEventAnalytics: buttonDetails.text];
+    NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
+    NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:deepLinkURL.absoluteString];
+    NSMutableDictionary *details = [[NSMutableDictionary alloc]init];
+    if (encodedURLString) {
+        [details setValue:encodedURLString forKey:kNotificationURLElementKey];
+    }
+    if (buttonDetails.buttonIndex) {
+        [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
+    }
+    [self sendActionEventAnalytics: details];
     
     if (buttonDetails && buttonDetails.buttonType) {
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
-            [self closeButtonDidTapped];
+            [self hide:YES];
         } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
             if (buttonDetails.shareableText != nil && ![buttonDetails.shareableText isEqualToString:@""]) {
                 [self shareData: buttonDetails.shareableText];
             } else{
-                [self closeButtonDidTapped];
+                [self hide:YES];
             }
         } else {
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
-                NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
                 if (@available(iOS 9.0, *)) {
                     [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
                 }
             }
             
-            [self closeButtonDidTapped];
+            [self hide:YES];
         }
     }
 }
@@ -284,14 +308,16 @@
     NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
     [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-    [self closeButtonDidTapped];
+    [self hide:YES];
 }
 
-- (void)sendActionEventAnalytics:(NSString *)elementType {
+- (void)sendActionEventAnalytics:(NSDictionary *)details {
     if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]
         && self.notification) {
         NSMutableDictionary *notificationPayload = [self.notification.notificationPayload mutableCopy];
-        [notificationPayload setObject: elementType forKey: kInAppNotificationModalElementsKey];
+        if (details) {
+            [notificationPayload addEntriesFromDictionary: details];
+        }
         [self.delegate inAppActionDidTapped : notificationPayload fromViewController:self];
     }
 }
@@ -302,7 +328,7 @@
     if (@available(iOS 8.0, *)) {
         activityView.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
             if (completed){
-                [self closeButtonDidTapped];
+                [self hide:YES];
             }
         };
     }
@@ -350,7 +376,7 @@
         BOOL failedToRegisterFont = NO;
         if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
-            NSLog(@"Error: Cannot load Font Awesome");
+            [BlueshiftLog logError:nil withDescription:@"Failed to load FontAwesome" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             CFBridgingRelease(errorDescription);
             failedToRegisterFont = YES;
         }

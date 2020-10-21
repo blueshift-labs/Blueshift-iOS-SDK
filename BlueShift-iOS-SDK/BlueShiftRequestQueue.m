@@ -6,6 +6,7 @@
 //
 
 #import "BlueShiftRequestQueue.h"
+#import "BlueshiftLog.h"
 
 @interface BlueShiftRequestQueue ()
 
@@ -14,21 +15,14 @@
 + (void)retryProcessRequestWithContext:(NSManagedObjectContext *)context requestOperation:(BlueShiftRequestOperation*)requestOperation forEntity:(HttpRequestOperationEntity*)operationEntityToBeExecuted;
 
 @end
+
 // this static variable is meant to show the status of the request queue ...
-
 static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-
-
-// this static variable holds the value for the maximum number of retry that can be made when the request execution from requests fails ...
-
 
 
 @implementation BlueShiftRequestQueue
 
-
-
 // Method to trigger request executions from the Queue ...
-
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation {
     @synchronized(self) {
         if(requestOperation != nil) {
@@ -39,7 +33,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     masterContext = appDelegate.managedObjectContext;
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
             }
             if(masterContext) {
@@ -48,7 +42,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     entity = [NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:masterContext];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(entity != nil) {
                     NSString *url = requestOperation.url;
@@ -79,7 +73,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                             }
                         }
                     } @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }
             }
@@ -96,7 +90,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 context = appDelegate.batchEventManagedObjectContext;
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
         }
         if(context) {
@@ -105,7 +99,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context];
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
             if(entity != nil) {
                 NSArray *paramsArray = requestOperation.paramsArray;
@@ -122,17 +116,13 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 // Method to add Request Operation to the Queue ...
-
 + (void)performRequestOperation:(BlueShiftRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {
-    
     // get the request operation details ...
     NSString *url = requestOperation.url;
     BlueShiftHTTPMethod httpMethod = requestOperation.httpMethod;
     NSDictionary *parameters = requestOperation.parameters;
     
-    
     // perform executions based on the request operation http method ...
-    
     if (httpMethod == BlueShiftHTTPMethodGET) {
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError* error) {
             handler(status);
@@ -183,7 +173,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 }
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
                 [self processRequestsInQueue];
             }
@@ -214,7 +204,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         [self processRequestsInQueue];
     }
 }
@@ -246,13 +236,12 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         [self processRequestsInQueue];
     }
 }
 
 // Method to trigger request executions from the Queue ...
-
 + (void)processRequestsInQueue {
     // Will execute the code when the requestQueue is free / available and internet is connected ...
     if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
@@ -269,7 +258,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         context = appDelegate.realEventManagedObjectContext;
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                     [self processRequestsWithContext:context forEntity:operationEntityToBeExecuted];
                 } else {
@@ -286,7 +275,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Method to set the request queue status explicity ...
 // Meant to be used by other classes ...
-
 + (void)setRequestQueueStatus:(BlueShiftRequestQueueStatus)requestQueueStatus {
     _requestQueueStatus = requestQueueStatus;
 }

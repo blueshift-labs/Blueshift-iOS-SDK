@@ -5,6 +5,7 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 #import "BlueShiftDeepLink.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueShiftDeepLink
 
@@ -67,8 +68,6 @@ static NSDictionary *_deepLinkList = nil;
         return NO;
     }
     
-    
-    
     [self deepLinkToPath:[self.pathURL pathComponents]];
     
     return YES;
@@ -85,19 +84,17 @@ static NSDictionary *_deepLinkList = nil;
     }];
     
     if (![schemes containsObject:[url scheme]]) {
-        NSLog(@"Deep link URL not found / Something wrong with URL / or schema url");
         return NO;
     }
     
     
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
     if(navController == nil) {
-        NSLog(@"rootViewContoller is nil");
+        [BlueshiftLog logError:nil withDescription:@"Can not perform custom deep linking as rootViewContoller is nil" methodName:nil];
         return NO;
     }
     
     if(![navController respondsToSelector:@selector(popToRootViewControllerAnimated:)]){
-        NSLog(@"Your rootViewContoller is not UINavigationController\n Can't do default deep linking\n Use BlueShiftPushDelegate methods for deep linking");
         return NO;
     }
     
@@ -129,10 +126,7 @@ static NSDictionary *_deepLinkList = nil;
         }
         
         navController.viewControllers = viewControllers;
-    } else {
-        NSLog(@"Your rootViewContoller is not UINavigationController\n Can't do default deep linking\n Use BlueShiftPushDelegate methods for deep linking");
     }
-    
 }
 
 - (UIViewController *)lastViewController {

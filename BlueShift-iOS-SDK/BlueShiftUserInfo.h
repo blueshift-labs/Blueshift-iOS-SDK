@@ -10,7 +10,6 @@
 
 @interface BlueShiftUserInfo : NSObject
 
-
 @property (nonatomic, strong) NSString *email;
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *firstName;

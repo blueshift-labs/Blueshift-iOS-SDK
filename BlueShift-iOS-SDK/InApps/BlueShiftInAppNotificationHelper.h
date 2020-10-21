@@ -19,8 +19,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)createFileNameFromURL:(NSString *)imageURL;
 + (BOOL)hasDigits:(NSString *)digits;
 + (void)deleteFileFromLocal:(NSString *) fileName;
-+ (CGFloat)convertHeightToPercentage:(UIView *) notificationView;
-
++ (CGFloat)convertPointsHeightToPercentage:(float) height;
++ (CGFloat)convertPointsWidthToPercentage:(float) width;
++ (CGFloat)convertPercentageHeightToPoints:(float) height;
++ (CGFloat)convertPercentageWidthToPoints:(float) width;
++ (NSString*)getEncodedURLString:(NSString*) urlString;
++ (CGFloat)getPresentationAreaHeight;
++ (CGFloat)getPresentationAreaWidth;
++ (BOOL)isIpadDevice;
 @end
 
 NS_ASSUME_NONNULL_END

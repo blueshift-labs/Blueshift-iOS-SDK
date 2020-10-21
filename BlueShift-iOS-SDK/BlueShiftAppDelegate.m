@@ -10,6 +10,8 @@
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftInAppNotificationManager.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -26,31 +28,49 @@
     return self;
 }
 
+#pragma mark - Remote & silent push notification registration
 - (void) registerForNotification {
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
-            if (@available(iOS 10.0, *)) {
-                UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-                center.delegate = self.userNotificationDelegate;
-                [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
-                [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
-                    if(!error){
-                        dispatch_async(dispatch_get_main_queue(), ^(void) {
-                            [[UIApplication sharedApplication] registerForRemoteNotifications];
-                        });
-                    }
-                }];
+    if (@available(iOS 10.0, *)) {
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = self.userNotificationDelegate;
+        [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+        [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
+            if(!error){
+                dispatch_async(dispatch_get_main_queue(), ^(void) {
+                    [[UIApplication sharedApplication] registerForRemoteNotifications];
+                });
             }
-        } else {
-           if (@available(iOS 10.0, *)) {
-                UIUserNotificationSettings* notificationSettings = [[[BlueShift sharedInstance] pushNotification] notificationSettings];
-                [[UIApplication sharedApplication] registerUserNotificationSettings: notificationSettings];
-                [[UIApplication sharedApplication] registerForRemoteNotifications];
+            [self checkUNAuthorizationStatus];
+            if (granted) {
+                [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
+            } else {
+                [BlueshiftLog logInfo:@"Push notification permission is denied. Registered for background silent notifications" withDetails:nil methodName:nil];
             }
+        }];
+    } else if ([UIApplication respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        if (@available(iOS 8.0, *)) {
+            [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:([[[BlueShift sharedInstance] pushNotification] notificationTypes]) categories:[[[BlueShift sharedInstance] pushNotification] notificationCategories]]];
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
         }
-        
-        [self downloadFileFromURL];
     }
+    [self downloadFileFromURL];
+}
+
+- (void)registerForSilentPushNotification {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if ([settings authorizationStatus] != UNAuthorizationStatusAuthorized) {
+                dispatch_async(dispatch_get_main_queue(), ^(void) {
+                    [[UIApplication sharedApplication] registerForRemoteNotifications];
+                });
+                [self checkUNAuthorizationStatus];
+                [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered for background silent notifications" withDetails:nil methodName:nil];
+            } else {
+                [self registerForNotification];
+            }
+        }];
+    }
+    [self downloadFileFromURL];
 }
 
 // Handles the push notification payload when the app is killed and lauched from push notification tray ...
@@ -67,27 +87,11 @@
 }
 
 - (void) registerForRemoteNotification:(NSData *)deviceToken {
-    if (@available(iOS 8.0, *)) {
-        if ([[[UIApplication sharedApplication] currentUserNotificationSettings] types]) {
-            NSDictionary *userInfo =
-            [NSDictionary dictionaryWithObject:@YES forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
-            [[NSNotificationCenter defaultCenter] postNotificationName:
-             [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
-        }
-        else {
-            NSDictionary *userInfo =
-            [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
-            [[NSNotificationCenter defaultCenter] postNotificationName:
-             [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
-        }
-    } else {
-        // Fallback on earlier versions
-    }
-
     NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
     deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
     [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
-    NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+    [BlueshiftLog logInfo:[NSString stringWithFormat:@"Successfully registered for remote notifications. Device token: "] withDetails:deviceTokenString methodName:nil];
+     NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
     if (previousDeviceToken && deviceTokenString) {
         if(![previousDeviceToken isEqualToString:deviceTokenString]) {
             [self fireIdentifyCall];
@@ -112,6 +116,12 @@
 }
 
 - (void)fireIdentifyCall {
+    //set fireAppOpen to true on receiving device_token for very first time
+    BOOL fireAppOpen = NO;
+    if(![[BlueShift sharedInstance] getDeviceToken]) {
+        fireAppOpen = YES;
+    }
+
     [[BlueShift sharedInstance] setDeviceToken];
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
     if (email && ![email isEqualToString:@""]) {
@@ -119,18 +129,80 @@
     } else {
         [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
     }
+    
+    //fire delayed app_open after firing the identify call
+    if(fireAppOpen) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [self trackAppOpenWithParameters:nil];
+        });
+    }
 }
 
+#pragma mark - enable push and auto identify
+- (NSString*)getLastModifiedUNAuthorizationStatus {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString* authorizationStatus = (NSString *)[defaults objectForKey:kBlueshiftUNAuthorizationStatus];
+    return  authorizationStatus;
+}
+
+- (void)setLastModifiedUNAuthorizationStatus:(NSString*) authorizationStatus {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
+}
+
+/// Check current UNAuthorizationStatus status with last Modified UNAuthorizationStatus status, if its not matching
+/// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
+- (BOOL)validateChangeInUNAuthorizationStatus {
+     NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
+    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kNO]) {
+            [self setLastModifiedUNAuthorizationStatus: kYES];
+            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
+            [[[BlueShift sharedInstance]appDelegate] registerForNotification];
+            return YES;
+        }
+    } else {
+        if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kYES]) {
+            [self setLastModifiedUNAuthorizationStatus: kNO];
+            [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to NO" withDetails:nil methodName:nil];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+//Check and fire identify call if any device attribute is changed
+- (void) autoIdentifyCheck {
+    BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
+    if (autoIdentify) {
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
+            [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+        });
+    }
+}
+///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+- (void)checkUNAuthorizationStatus {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
+            } else {
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
+            }
+            //Fire auto identify call in case any device attribute changes
+            [self autoIdentifyCheck];
+        }];
+    }
+}
+
+#pragma mark - Remote notification delegate
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
     [self registerForRemoteNotification:deviceToken];
 }
 
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
-    NSLog(@"\n\n Failed to get push token, error: %@ \n\n", error);
-    NSDictionary *userInfo =
-    [NSDictionary dictionaryWithObject:@NO forKey:[[[BlueShift sharedInstance] config] isEnabledPushNotificationKey]];
-    [[NSNotificationCenter defaultCenter] postNotificationName:
-     [[[BlueShift sharedInstance] config] blueShiftNotificationName] object:nil userInfo:userInfo];
+    [BlueshiftLog logError:error withDescription:[NSString stringWithFormat:@"Failed to register for remote notification"] methodName:nil];
 }
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error {
@@ -164,34 +236,114 @@
     [self handleLocalNotification:self.userInfo forApplicationState:application.applicationState];
 }
 
-- (void)scheduleLocalNotification:(NSDictionary *)userInfo {
+- (void)validateAndScheduleLocalNotification:(NSDictionary *)userInfo {
+    @try {
+        NSDictionary *dataPayload = [userInfo valueForKey:kSilentNotificationPayloadIdentifierKey];
+        if ([dataPayload valueForKey:kNotificationsArrayKey]) {
+            NSArray *notifications = (NSArray*)[dataPayload valueForKey:kNotificationsArrayKey];
+            for (NSDictionary *notification in notifications) {
+                NSNumber *expiryTimeStamp = (NSNumber *)[notification objectForKey: kNotificationTimestampToExpireDisplay];
+                if (expiryTimeStamp && expiryTimeStamp > 0) {
+                    double currentTimeStamp = (double)[[NSDate date] timeIntervalSince1970];
+                    if([expiryTimeStamp doubleValue] > currentTimeStamp) {
+                        NSNumber *fireTimeStamp = (NSNumber *)[notification valueForKey:kNotificationTimestampToDisplayKey];
+                        if (fireTimeStamp && fireTimeStamp > 0) {
+                            NSDate *fireDate = [NSDate dateWithTimeIntervalSince1970: [fireTimeStamp doubleValue]];
+                            if ([fireTimeStamp doubleValue] < [[NSDate date] timeIntervalSince1970]) {
+                                [BlueshiftLog logInfo:@"The notification cant be scheduled as it has been already expired" withDetails:notification methodName:nil];
+                                return;
+                            }
+                            [self scheduleUNLocalNotification:notification at:fireDate];
+                        }
+                    }
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
+    }
+}
+
+-(void)scheduleUNLocalNotification:(NSDictionary *)notification at:(NSDate *)fireDate {
+    if (@available(iOS 10.0, *)) {
+        //add title, body and userinfo
+        UNMutableNotificationContent* notificationContent = [[UNMutableNotificationContent alloc] init];
+        notificationContent.title = [notification objectForKey:kNotificationTitleKey];
+        notificationContent.body =  [notification objectForKey:kNotificationBodyKey];;
+        notificationContent.sound = [UNNotificationSound defaultSound];
+        notificationContent.categoryIdentifier = [notification objectForKey: kNotificationCategoryIdentifierKey];
+        notificationContent.userInfo = [notification mutableCopy];
+        //Create schedule date component on basis of fire date
+        NSDateComponents *fireDatecomponents = [NSCalendar.currentCalendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitTimeZone fromDate:fireDate];
+        
+        //Download image attachment if present and create attachment
+        NSURL* imageURL = [NSURL URLWithString: [notification valueForKey:kNotificationImageURLKey]];
+        if(imageURL != nil) {
+            NSData *imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
+            if(imageData) {
+                NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString  *documentsDirectory = [paths objectAtIndex:0];
+                NSString *attachmentName = [NSString stringWithFormat:kDownloadImageNameKey];
+                NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
+                NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
+                NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
+                [imageData writeToFile:filePathToWrite atomically:YES];
+                NSError *error;
+                UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+                if (error) {
+                    [BlueshiftLog logError:error withDescription:@"Failed to create image attachment for scheduling local notification" methodName:nil];
+                }
+                if(attachment != nil) {
+                    NSMutableArray *attachments = [[NSMutableArray alloc]init];
+                    [attachments addObject:attachment];
+                    notificationContent.attachments = attachments;
+                }
+            }
+        }
+        //create and add trigger as fire date component
+        UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:fireDatecomponents repeats:NO];
+        UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:[[NSUUID UUID] UUIDString] content:notificationContent trigger:trigger];
+        
+        // Schedule the local notification.
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+            if (!error) {
+                [BlueshiftLog logInfo:@"Scheduled local notification successfully - " withDetails:notification methodName:nil];
+            } else {
+                [BlueshiftLog logError:nil withDescription:@"Failed to schedule location notification" methodName:nil];
+            }
+        }];
+    } else {
+        [self scheduleLocalNotification:notification at:fireDate];
+    }
+}
+
+-(void)scheduleLocalNotification:(NSDictionary *)notification at:(NSDate *)fireDate {
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:600];
-    localNotification.alertBody = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationAlertIdentifierKey];
-    localNotification.timeZone = [NSTimeZone defaultTimeZone];
+    localNotification.timeZone = [NSTimeZone localTimeZone];
+    localNotification.fireDate = fireDate;
+    if (@available(iOS 8.2, *)) {
+        localNotification.alertTitle = [notification objectForKey:kNotificationTitleKey];
+    }
+    localNotification.alertBody = [notification objectForKey:kNotificationBodyKey];
     if (@available(iOS 8.0, *)) {
-        localNotification.category = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+        localNotification.category = [notification objectForKey: kNotificationCategoryIdentifierKey];
     }
-    localNotification.soundName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationSoundIdentifierKey];
-    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
-    dictionary = [userInfo mutableCopy];
-    if([dictionary objectForKey: kInAppNotificationModalMessageUDIDKey] == (id)[NSNull null]) {
-        [dictionary removeObjectForKey: kInAppNotificationModalMessageUDIDKey];
-    }
-    localNotification.userInfo = dictionary;
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
 
 - (void)presentInAppAlert:(NSDictionary *)userInfo {
     // Track notification view when app is open ...
-    //[self trackPushViewedWithParameters:pushTrackParameterDictionary];
-
+    [self trackPushViewedWithParameters:userInfo];
+    self.userInfo = userInfo;
     // Handle push notification when the app is in active state...
-    //UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+    UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
     BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
     pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-    //UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-    //[topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    if (@available(iOS 8.0, *)) {
+        UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+        [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+    }
 }
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
@@ -231,8 +383,8 @@
 
 - (void)handleRemoteNotification:(NSDictionary *)userInfo {
     /* if there is payload for IAM , give priority to the it */
-    if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-        [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: UIApplicationStateActive];
+    if ([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
+        [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: UIApplicationStateActive];
     } else {
         NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
         self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
@@ -268,11 +420,13 @@
 
 - (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo {
     if (userInfo != nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] != [NSNull null]) {
+        [self trackAppOpenWithParameters:userInfo];
         NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
         if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
                 [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
             }
+            [BlueshiftLog logInfo:@"Delivered push notifiation deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
         }
     }
 }
@@ -303,37 +457,21 @@
     self.userInfo = userInfo;
     
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
-    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
     
-    // Way to handle push notification in three states
+    // Handle push notification when the app is in active state
     if (applicationState == UIApplicationStateActive) {
-        // Track notification view when app is open ...
-        [self trackPushViewedWithParameters:pushTrackParameterDictionary];
-        
-        if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
-            // Handle push notification when the app is in active state...
-            UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
-            BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
-            pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-            
-            if (@available(iOS 8.0, *)) {
-                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
-            }
-        } else {
-            if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-                printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
-
-                [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
-            } else {
-               // [self scheduleLocalNotification:userInfo];
-            }
+        if([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
+            [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: applicationState];
+        } else if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
+            [self presentInAppAlert:userInfo];
+        } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
+            [self validateAndScheduleLocalNotification:userInfo];
         }
     } else {
-        if ([BlueshiftEventAnalyticsHelper isInAppMessagePayload: userInfo]) {
-            printf("%f  AppDelegate: Received silent push notification \n", [[NSDate date] timeIntervalSince1970]);
-            
-            [[BlueShift sharedInstance] createInAppNotification: userInfo forApplicationState: applicationState];
+        if ([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
+            [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: applicationState];
+        } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
+            [self validateAndScheduleLocalNotification:userInfo];
         } else {
             // Handle push notification when the app is in inactive or background state ...
             if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
@@ -372,9 +510,6 @@
 
 - (BOOL)customDeepLinkToPrimitiveCategory {
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
-    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-
-    
     NSString *urlString = [self.userInfo objectForKey: kPushNotificationDeepLinkURLKey];
     NSURL *url = [NSURL URLWithString:urlString];
     
@@ -461,8 +596,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -487,22 +620,22 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:self.pushAlertDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
 }
 
+#pragma mark - Handle custom push notification actions
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
-    [self trackPushClickedWithParameters:pushTrackParameterDictionary];
-    NSString *bundleIdentifier = [BlueShift sharedInstance].config.appGroupID;
-    if(bundleIdentifier!=(id)[NSNull null] && ![bundleIdentifier isEqualToString:@""]) {
+    NSDictionary *pushDetails = [self.userInfo mutableCopy];
+    NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
+    if(appGroupID && ![appGroupID isEqualToString:@""]) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
-                                      initWithSuiteName:bundleIdentifier];
+                                      initWithSuiteName:appGroupID];
         NSNumber *selectedIndex = [userDefaults objectForKey: kNotificationSelectedIndexKey];
+        [BlueshiftLog logInfo:[NSString stringWithFormat: @"Clicked image index for carousel push notification : %@",selectedIndex] withDetails:nil methodName:nil];
+
         if (selectedIndex != nil) {
             [self resetUserDefaults: userDefaults];
             
@@ -512,6 +645,8 @@
             NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
             NSString *urlString = [selectedItem objectForKey: kPushNotificationDeepLinkURLKey];
             NSURL *url = [NSURL URLWithString:urlString];
+            [pushDetails setValue:urlString forKey:kPushNotificationDeepLinkURLKey];
+            [self trackPushClickedWithParameters: [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:pushDetails]];
             if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
                 // User already implemented the viewPushActionWithDetails in App Delegate...
             
@@ -527,10 +662,6 @@
                     self.deepLinkToCustomPage = [BlueShiftDeepLink deepLinkForRoute:BlueShiftDeepLinkCustomePage];
                     [self.deepLinkToCustomPage performCustomDeepLinking:url];
                     self.blueShiftPushParamDelegate = (id<BlueShiftPushParamDelegate>)[self.deepLinkToCustomPage lastViewController];
-                
-                    // Track notification when the page is deeplinked ...
-                    [self trackAppOpenWithParameters:pushTrackParameterDictionary];
-                
                     if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handleCarouselPushDictionary: withSelectedIndex:)]) {
                         [self.blueShiftPushParamDelegate handleCarouselPushDictionary:pushDetailsDictionary withSelectedIndex:index];
                     }
@@ -538,19 +669,19 @@
             }
             
             [self setupPushNotificationDeeplink: selectedItem];
+            return;
         } else {
             
             [self setupPushNotificationDeeplink: pushDetailsDictionary];
         }
+    } else {
+        [BlueshiftLog logInfo:@"Unable to process the deeplink as AppGroupId is not set in the Blueshift SDK initialization." withDetails:nil methodName:nil];
     }
+    [self trackPushClickedWithParameters:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:pushDetails]];
 }
 
 - (void)resetUserDefaults:(NSUserDefaults *)userDefaults {
-    NSDictionary * dict = [userDefaults dictionaryRepresentation];
-    for (id key in dict) {
-        [userDefaults removeObjectForKey:key];
-    }
-    
+    [userDefaults removeObjectForKey:kNotificationSelectedIndexKey];
     [userDefaults synchronize];
 }
 
@@ -587,8 +718,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -621,8 +750,6 @@
                     NSString *productID = [pushDetailsDictionary objectForKey: kNotificationProductIDIdenfierKey];
                     [self.blueShiftPushParamDelegate fetchProductID:productID];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -651,8 +778,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -690,8 +815,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -720,8 +843,6 @@
                 if ([self.blueShiftPushParamDelegate respondsToSelector:@selector(handlePushDictionary:)]) {
                     [self.blueShiftPushParamDelegate handlePushDictionary:pushDetailsDictionary];
                 }
-            } else {
-                NSLog(@"Deep link URL not found / Something wrong with URL");
             }
         }
     }
@@ -768,6 +889,7 @@
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
 
+#pragma mark - Application lifecyle events
 - (void)applicationWillResignActive:(UIApplication *)application {
     if (self.oldDelegate) {
         if ([self.oldDelegate respondsToSelector:@selector(applicationWillResignActive:)]) {
@@ -785,13 +907,12 @@
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {
-    [self trackAppOpen];
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
     if ([BlueShift sharedInstance].config.enableAnalytics) {
         [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
     }
-    // Will have to handled by SDK .....
+    [self checkUNAuthorizationStatus];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -836,6 +957,7 @@
     [anInvocation invokeWithTarget:[self oldDelegate]];
 }
 
+#pragma mark - Handle actions for custom push notificaiton actions
 - (void)handleAlertActionButtonForCategoryBuyWithActionName:(NSString *)name {
     if([name  isEqual: kBuyButton]) {
         [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
@@ -863,14 +985,9 @@
     }
 }
 
+#pragma mark - Tracking methods
 - (void)trackAlertDismiss {
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
-}
-
-- (void)trackAppOpen {
-    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        [self trackAppOpenWithParameters:nil];
-    }
 }
 
 - (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
@@ -886,25 +1003,17 @@
     }
 }
 
-- (void)trackPushViewed {
-    [self trackPushViewedWithParameters:nil];
-}
-
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         
         if (parameters) {
-            [parameterMutableDictionary addEntriesFromDictionary:parameters];
             [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
+            [parameterMutableDictionary addEntriesFromDictionary:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: parameters]];
         }
         
         [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
     }
-}
-
-- (void)trackPushClicked {
-    [self trackPushClickedWithParameters:nil];
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
@@ -921,86 +1030,7 @@
 }
 
 - (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }
-    
-    [self performPushEventsRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
-}
-
-- (void) performPushEventsRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-    NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-    [BlueShiftRequestQueue addRequestOperation:requestOperation];
-}
-
-- (BOOL)trackOpenURLWithCampaignURLString:(NSString *)campaignURLString andParameters:(NSDictionary *)parameters {
-    NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    BOOL isCampaignURL = NO;
-    
-    NSArray *components = [campaignURLString componentsSeparatedByString:@"?"];
-    if (components.count == 2) {
-        
-        NSArray *nameValueStrings = [components[1] componentsSeparatedByString:@"&"];
-        for (NSString *nameValueString in nameValueStrings) {
-            NSArray *parts = [nameValueString componentsSeparatedByString:@"="];
-            
-            if (parts.count == 2) {
-                if (parts[0]!=nil) {
-                    if (parts[1]) {
-                        [parameterMutableDictionary setObject:parts[1] forKey:parts[0]];
-                    } else {
-                        [parameterMutableDictionary setObject:@"" forKey:parts[0]];
-                    }
-                    isCampaignURL = YES;
-                    
-                } else {
-                    isCampaignURL = NO;
-                    break;
-                }
-            } else {
-                isCampaignURL = NO;
-                break;
-            }
-        }
-    }
-    
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }
-    
-    if (isCampaignURL) {
-        [self trackAppOpenWithParameters:[parameterMutableDictionary copy]];
-    }
-    
-    return isCampaignURL;
-}
-
-- (void)registerLocationService {
-    [BlueShiftDeviceData currentDeviceData].locationManager = [[CLLocationManager alloc] init];
-    
-    if ([[BlueShiftDeviceData currentDeviceData].locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-        if (@available(iOS 8.0, *)) {
-            [[BlueShiftDeviceData currentDeviceData].locationManager requestWhenInUseAuthorization];
-        }
-    } else {
-        if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
-            [[[UIAlertView alloc] initWithTitle:@"No GPS" message:@"Please Enable GPS in you device" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-        }
-        
-        [BlueShiftDeviceData currentDeviceData].locationManager.delegate = self;
-        [BlueShiftDeviceData currentDeviceData].locationManager.distanceFilter = kCLDistanceFilterNone;
-        [BlueShiftDeviceData currentDeviceData].locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        [[BlueShiftDeviceData currentDeviceData].locationManager startUpdatingLocation];
-    }
-    
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    [BlueShiftDeviceData currentDeviceData].currentLocation = (CLLocation *)[locations lastObject];
+    [[BlueShift sharedInstance] performRequestQueue:[parameters copy] canBatchThisEvent:isBatchEvent];
 }
 
 
@@ -1014,11 +1044,7 @@
 
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
-    
-    if([[[BlueShift sharedInstance] config] appGroupID] != nil)
-        return [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:[[[BlueShift sharedInstance] config] appGroupID]];
-    else
-        return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
 - (NSManagedObjectModel *)managedObjectModel {
@@ -1027,17 +1053,6 @@
         return _managedObjectModel;
     }
     
-    //NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/BlueShiftBundle.bundle",[[NSBundle mainBundle] resourcePath]]];
-    //NSBundle *dataBundle = [NSBundle bundleWithURL:url];
-    
-//    NSString *bundlePath = [[NSBundle bundleForClass:self.class] pathForResource:@"BlueShiftBundle" ofType:@"bundle"];
-//    
-//    NSBundle *dataBundle = [NSBundle bundleWithPath:bundlePath];
-    
-    
-    //NSManagedObjectModel *managedObjectModel = [NSManagedObjectModel mergedModelFromBundles:@[dataBundle]];
-    
-    //NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
     NSString * path = @"";
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"];
@@ -1052,7 +1067,6 @@
 
     NSURL *modelURL = [NSURL fileURLWithPath:path];
     
-//    NSURL *modelURL = [dataBundle URLForResource:@"BlueShiftSDKDataModel" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;
 }
@@ -1079,7 +1093,7 @@
         error = [NSError errorWithDomain:@"YOUR_ERROR_DOMAIN" code:9999 userInfo:dict];
         // Replace this with code to handle the error appropriately.
         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        [BlueshiftLog logError:error withDescription:@"Unresolved error" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     
     return _persistentStoreCoordinator;
@@ -1139,7 +1153,7 @@
         if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
             // Replace this implementation with code to handle the error appropriately.
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            [BlueshiftLog logError:error withDescription:@"Unresolved error" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
 }
@@ -1160,6 +1174,7 @@
     }
 }
 
+#pragma mark - Universal links
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0)) {
     if (url != nil) {
         [self processUniversalLinks:url];
@@ -1197,20 +1212,20 @@
             }];
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
-            [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
+            [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing: redirectURL];
             }
         } else {
             if ([[BlueShift sharedInstance] isBlueshiftUniversalLinkURL:url]) {
-                [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:YES];
+                [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             }
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing:url];
             }
         }
     } @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

@@ -9,9 +9,7 @@
 
 @implementation BlueShiftRequestOperation
 
-
 // initialize BlueShiftRequestOperation instance with url and other request based details...
-
 - (id)initWithRequestURL:(NSString *)url andHttpMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andIsBatchEvent:(BOOL)isBatchEvent {
     self = [super init];
     if (self) {
@@ -26,11 +24,7 @@
     return self;
 }
 
-
-
-
 // initialize BlueShiftRequestOperation instance with Core Data entity ...
-
 - (id)initWithHttpRequestOperationEntity:(HttpRequestOperationEntity *)httpRequestionOperationEntity {
     self = [super init];
     if (httpRequestionOperationEntity) {

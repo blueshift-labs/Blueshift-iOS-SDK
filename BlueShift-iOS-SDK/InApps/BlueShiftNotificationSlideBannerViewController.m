@@ -35,11 +35,18 @@
     
     slideBannerView = [self createNotificationWindow];
     [self enableSingleTap];
+    if (!self.canTouchesPassThroughWindow) {
+        [self setTapGestureForView];
+    }
     [self presentAnimationView];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    for (UIView *view in [slideBannerView subviews])
+    {
+        [view removeFromSuperview];
+    }
     [self configureBackground];
     [self createNotificationView];
     [self initializeNotificationView];
@@ -50,6 +57,11 @@
     [[UITapGestureRecognizer alloc] initWithTarget:self
                                               action:@selector(onOkayButtonTapped:)];
     [slideBannerView addGestureRecognizer:singleFingerTap];
+}
+
+-(void)setTapGestureForView {
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideAnimated)];
+    [[self view] addGestureRecognizer:tapGesture];
 }
 
 - (void)presentAnimationView {
@@ -168,6 +180,11 @@
             
             if (descriptionLabelHeight < 50) {
                 descriptionLabelHeight = iconLabel.frame.size.height > 0 ? iconLabel.frame.size.height : imageView.frame.size.height;
+                //Modify height of description label if height is less than 50
+                //to align text veritically center
+                CGRect derscriptionLabelFrame = descriptionLabel.frame;
+                derscriptionLabelFrame.size.height = descriptionLabelHeight - messageTopPadding - messageBottomPadding;
+                descriptionLabel.frame = derscriptionLabelFrame;
             }
             
             CGRect frame = slideBannerView.frame;
@@ -338,23 +355,26 @@
     [self hideFromWindow:animated];
 }
 
+-(void)hideAnimated {
+    [self hideFromWindow:YES];
+}
+
 - (IBAction)onOkayButtonTapped:(id)sender {
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
         self.notification.notificationContent.actions.count > 0 &&
         self.notification.notificationContent.actions[0]) {
         [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
     } else {
-        [self closeButtonDidTapped];
+        [self hideFromWindow:YES];
     }
 }
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertHeightToPercentage :slideBannerView];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height];
     
     
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    float topMargin = statusBarFrame.size.height;
+    float topMargin = [self getTopSafeAreaHeight];
     float bottomMargin = [self getBottomSafeAreaHeight];
     float leftMargin = 0.0;
     float rightMargin = 0.0;
@@ -363,7 +383,7 @@
             topMargin = topMargin + self.notification.templateStyle.margin.top;
         }
         if (self.notification.templateStyle.margin.bottom > 0) {
-            bottomMargin = self.notification.templateStyle.margin.bottom;
+            bottomMargin = bottomMargin + self.notification.templateStyle.margin.bottom;
         }
         if (self.notification.templateStyle.margin.left > 0) {
             leftMargin = self.notification.templateStyle.margin.left;
@@ -378,7 +398,7 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = (CGFloat) floor([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
         CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
         
         if (width == 100) {
@@ -396,20 +416,17 @@
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
+    frame.origin.x = leftMargin;
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
-        frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = 0.0f + topMargin;
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual: kInAppNotificationModalPositionCenterKey]) {
-        frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
-        frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
         [self createBottomSafeAreaView];
     } else {
-        frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }
     
@@ -429,6 +446,18 @@
     }
     
     return extraBottomPadding;
+}
+
+/// get top safe area height
+- (CGFloat)getTopSafeAreaHeight {
+    UIWindow *window = UIApplication.sharedApplication.keyWindow;
+    CGFloat topSafeAreaHeight = 0.0;
+    if (@available(iOS 11.0, *)) {
+        topSafeAreaHeight = window.safeAreaInsets.top;
+    } else {
+        topSafeAreaHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    }
+    return topSafeAreaHeight;
 }
 
 - (BlueShiftInAppLayoutMargin *)fetchNotificationIconImagePadding {

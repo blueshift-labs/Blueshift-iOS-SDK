@@ -66,6 +66,7 @@
 #define kInAppNotificationModalSharableTextKey                  @"shareable_text"
 #define kInAppNotificationModalBackgroundRadiusKey              @"background_radius"
 #define kInAppNotificationModalTextSizeKey                      @"text_size"
+#define kInAppNotificationButtonIndex                           @"btn_"
 
 /* Define a Font */
 #define kInAppNotificationModalFontExtensionKey                 @"otf"
@@ -92,6 +93,7 @@
 /*  Define a Button type */
 #define kInAppNotificationButtonTypeKey                         @"type"
 #define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
+#define kInAppNotificationButtonTypeCloseKey                    @"close"
 #define kInAppNotificationButtonTypeOpenKey                     @"open"
 #define kInAppNotificationButtonTypeShareKey                    @"share"
 
@@ -106,6 +108,12 @@
 #define KInAppNotificationModalCloseButtonWidth                 32.0
 #define KInAppNotificationModalCloseButtonHeight                32.0
 
+#define kInAppNotificationDefaultWidth                          90.0
+#define kInAppNotificationDefaultHeight                         100.0
+
+#define kHTMLInAppNotificationMaximumWidthInPoints              470.0
+#define kHTMLInAppNotificationMinimumHeight                     25.0
+
 /* In App Message Layout Margin */
 #define kInAppNotificationModalLayoutMarginKey                  @"margin"
 #define kInAppNotificationModalLayoutMarginLeftKey              @"left"
@@ -115,7 +123,8 @@
 #define kInAppNotificationModalGravityStartKey                  @"start"
 #define kInAppNotificationModalGravityEndKey                    @"end"
 
-#define kInAppNotificationModalElementsKey                      @"element"
+#define kNotificationClickElementKey                            @"clk_elmt"
+#define kNotificationURLElementKey                              @"clk_url"
 #define kInAppNotificationFontFileDownlaodURL                   @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf"
 
 #define kInAppNotificationModalMessagePaddingKey                @"message_padding"

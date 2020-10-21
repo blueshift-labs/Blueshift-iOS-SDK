@@ -6,10 +6,14 @@
 //
 
 #import "BlueShiftUserInfo.h"
+#import "BlueshiftLog.h"
 
 static BlueShiftUserInfo *_sharedUserInfo = nil;
 
-@implementation BlueShiftUserInfo
+@implementation BlueShiftUserInfo {
+    BOOL isCustomerIdNotSetInfoDisplayed;
+    BOOL isEmailIdNotSetInfoDisplayed;
+}
 
 + (instancetype) sharedInstance {
     static dispatch_once_t onceToken;
@@ -29,7 +33,10 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     if (self.email) {
         [sharedUserInfoMutableDictionary setObject:self.email forKey:@"email"];
     } else {
-        NSLog(@"\n\n BlueShiftWarning: Email not set for BlueShiftUserInfo \n");
+        if (!isEmailIdNotSetInfoDisplayed) {
+            [BlueshiftLog logInfo:@"EmailId is not set for BlueShiftUserInfo. Please set email id." withDetails:nil methodName:nil];
+            isEmailIdNotSetInfoDisplayed = YES;
+        }
     }
     
     if (self.name) {
@@ -39,7 +46,10 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     if (self.retailerCustomerID) {
         [sharedUserInfoMutableDictionary setObject:self.retailerCustomerID forKey:@"customer_id"];
     } else {
-        NSLog(@"\n\n BlueShiftWarning: Retailer Customer ID not set for BlueShiftUserInfo \n");
+        if (!isCustomerIdNotSetInfoDisplayed) {
+            [BlueshiftLog logInfo:@"Retails customer ID is not set for BlueShiftUserInfo. Please set customer Id" withDetails:nil methodName:nil];
+            isCustomerIdNotSetInfoDisplayed = YES;
+        }
     }
     
     if (self.firstName) {
@@ -79,11 +89,6 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
         [sharedUserInfoMutableDictionary setObject:dateOfBirthTimeStamp forKey:@"date_of_birth"];
     }
-    
-    
-    NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];
-    [sharedUserInfoMutableDictionary setObject: enableInApp  forKey:@"enable_inapp"];
-
     
     return [sharedUserInfoMutableDictionary copy];
 }

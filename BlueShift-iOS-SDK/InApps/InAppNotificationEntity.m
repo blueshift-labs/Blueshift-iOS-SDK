@@ -10,6 +10,7 @@
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftAppDelegate.h"
 #import "../BlueShiftNotificationConstants.h"
+#import "../BlueshiftLog.h"
 
 @implementation InAppNotificationEntity
 
@@ -38,7 +39,7 @@
             [fetchRequest setEntity:[NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext: masterContext]];
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
         if(fetchRequest.entity != nil) {
             [self fetchFromCoreDataFromContext: masterContext forTriggerMode: triggerMode forDisplayPage: displayOn request: fetchRequest handler: handler];
@@ -67,6 +68,9 @@
         case BlueShiftInAppNoTriggerEvent:
             triggerStr = @"";
             break;
+        case BlueShiftInAppTriggerNowAndUpComing:
+            triggerStr = @"NowAndUpComing";
+            break;
     }
     
     displayOn =  (displayOn ? displayOn: @"");
@@ -81,7 +85,6 @@
                 NSArray *results = [[NSArray alloc]init];
                 results = [context executeFetchRequest:fetchRequest error:&error];
                 if (results && results.count > 0) {
-                    [self updateNotificationsInQueue:context notifications:results];
                     handler(YES, results);
                 } else {
                     handler(NO, nil);
@@ -92,35 +95,17 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
 + (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
-    if (triggerStr && ![triggerStr isEqualToString: @""]) {
+    if ([triggerStr isEqualToString:@"NowAndUpComing"]) {
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil];
+    } else if (triggerStr && ![triggerStr isEqualToString: @""]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
     } else {
         return [NSPredicate predicateWithFormat:@"status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"pending", displayOn, @"", nil];
-    }
-}
-
-+ (void)updateNotificationsInQueue:(NSManagedObjectContext *)context notifications:(NSArray *)notifications {
-    for(int i = 0; i < notifications.count; i++) {
-        //InAppNotificationEntity *notification = [notifications objectAtIndex:i];
-        
-        //TODO: commented the below code. Dont think its required.
-        //[notification setValue:@"QUEUE" forKey:@"status"];
-    }
-    @try {
-        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *error = nil;
-                [context save:&error];
-            }];
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
     }
 }
 
@@ -159,7 +144,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             handler(NO);
         }
     } else {
@@ -189,7 +174,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -216,7 +201,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -228,21 +213,25 @@
         [fetchRequest setFetchLimit:1];
         NSError *error;
         NSArray *arrResult = [context executeFetchRequest:fetchRequest error:&error];
-        InAppNotificationEntity *entity = arrResult[0];
-        [entity setValue: status forKey: @"status"];
-        @try {
-            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                [context performBlock:^{
-                    NSError *error = nil;
-                    [context save:&error];
-                    handler(YES);
-                }];
-            } else {
+        if (arrResult.count > 0) {
+            InAppNotificationEntity *entity = arrResult[0];
+            [entity setValue: status forKey: @"status"];
+            @try {
+                if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    [context performBlock:^{
+                        NSError *error = nil;
+                        [context save:&error];
+                        handler(YES);
+                    }];
+                } else {
+                    handler(NO);
+                }
+            }
+            @catch (NSException *exception) {
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 handler(NO);
             }
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+        } else {
             handler(NO);
         }
     } else {

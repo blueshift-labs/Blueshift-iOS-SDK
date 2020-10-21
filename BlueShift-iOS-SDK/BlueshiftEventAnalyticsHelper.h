@@ -16,10 +16,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary;
 + (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
-+ (BOOL)isSilentPushNotification:(NSDictionary *)userInfo;
-+ (BOOL) isInAppMessagePayload: (NSDictionary*)userInfo;
++ (BOOL) isSilenPushNotificationPayload:(NSDictionary*)userInfo;
 + (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo;
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)url;
++ (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
++ (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
++ (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;
 
 @end
 

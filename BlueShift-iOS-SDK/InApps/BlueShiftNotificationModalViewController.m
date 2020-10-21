@@ -39,8 +39,17 @@
     [self.view insertSubview:notificationView aboveSubview:self.view];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    for (UIView *view in [notificationView subviews])
+    {
+        [view removeFromSuperview];
+    }
+    for (UIView *view in [self.view subviews]) {
+        if ([view isKindOfClass:[UIButton class]]) {
+            [view removeFromSuperview];
+        }
+    }
     [self configureBackground];
     [self createNotificationView];
     [self initializeNotificationView];
@@ -104,7 +113,6 @@
             NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: self.notification.notificationContent.banner];
             if (fileName && [BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
                 [BlueShiftInAppNotificationHelper deleteFileFromLocal: fileName];
-                NSLog(@"Image file deleted");
             }
         }
     };
@@ -186,6 +194,12 @@
             
             yPadding = yPadding + messageTopPadding;
             descriptionLabel = [self createDescriptionLabel:yPadding];
+            if (self.notification.templateStyle != nil && self.notification.templateStyle.height > 0) {
+                CGRect newFrame = descriptionLabel.frame;
+                CGFloat newHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:self.notification.templateStyle.height] - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
+                newFrame.size.height = newHeight;
+                descriptionLabel.frame = newFrame;
+            }
             yPadding = yPadding + descriptionLabel.frame.size.height + messageBottomPadding;
         }
         
@@ -266,11 +280,10 @@
     CGFloat titleRightPadding = (titlePadding && titlePadding.right > 0)? titlePadding.right : 0.0;
     
     CGFloat titleLabelWidth = notificationView.frame.size.width - (titleLeftPadding + titleRightPadding);
-    CGFloat titleLabelHeight = kInAppNotificationModalTitleHeight;
-    CGRect cgRect = CGRectMake(titleLeftPadding, yPosition, titleLabelWidth, titleLabelHeight);
     
-    UILabel *titlelabel = [[UILabel alloc] initWithFrame: cgRect];
-    
+    UILabel *titlelabel = [[UILabel alloc] initWithFrame: CGRectZero];
+    [titlelabel setNumberOfLines: 0];
+
     CGFloat fontSize = (self.notification.contentStyle && self.notification.contentStyle.titleSize && self.notification.contentStyle.titleSize.floatValue > 0)
         ? self.notification.contentStyle.titleSize.floatValue :  18.0;
     
@@ -279,6 +292,10 @@
     }
 
     [titlelabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size: fontSize]];
+    CGFloat titleLabelHeight = [self getLabelHeight: titlelabel labelWidth: titleLabelWidth] + 10.0;
+    CGRect cgRect = CGRectMake(titleLeftPadding, yPosition, titleLabelWidth, titleLabelHeight);
+    titlelabel.frame = cgRect;
+
     titlelabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     
     int textAlignment = (self.notification.contentStyle && self.notification.contentStyle.titleGravity) ? [self getTextAlignement: self.notification.contentStyle.titleGravity] : NSTextAlignmentCenter;
@@ -374,7 +391,7 @@
         for (int i = 0; i< actionsCount; i++) {
             CGRect cgRect = CGRectMake(xPosition, yPosition , buttonWidth, buttonHeight);
             [self createActionButton: self.notification.notificationContent.actions[i] positionButton: cgRect objectPosition: &i];
-            
+            self.notification.notificationContent.actions[i].buttonIndex = [NSString stringWithFormat:@"%@%d",kInAppNotificationButtonIndex,i];
              if (self.notification.contentStyle && self.notification.contentStyle.actionsOrientation.intValue > 0) {
                  yPosition = yPosition + buttonHeight + yPadding;
              } else {
@@ -424,10 +441,9 @@
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertHeightToPercentage: notificationView];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height];
     
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    float topMargin = statusBarFrame.size.height;
+    float topMargin = 0.0;
     float bottomMargin = 0.0;
     float leftMargin = 0.0;
     float rightMargin = 0.0;
@@ -451,8 +467,8 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = (CGFloat) ceil([[UIScreen mainScreen] bounds].size.height * (height / 100.0f));
-        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
+        CGFloat itemWidth =  [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
         
         if (height == 100) {
             itemHeight = itemHeight - (topMargin + bottomMargin);

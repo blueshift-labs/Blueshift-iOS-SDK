@@ -1,12 +1,12 @@
 //
-//  BlueShiftNotificationConstants.h
+//  BlueshiftExtensionConstants.h
 //  BlueShift-iOS-SDK
 //
 //  Copyright (c) Blueshift. All rights reserved.
 //
 
-#ifndef BlueShift_iOS_SDK_BlueShiftNotificationConstants_h
-#define BlueShift_iOS_SDK_BlueShiftNotificationConstants_h
+#ifndef BlueshiftExtensionConstants_h
+#define BlueshiftExtensionConstants_h
 
 #define kNotificationCategoryBuyIdentifier                              @"buy"
 #define kNotificationActionBuyIdentifier                                @"buy"
@@ -46,5 +46,7 @@
 #define kSilentNotificationTriggerKey                                   @"trigger"
 #define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
+
+#define kBsftEncodedSpace                                               @"%20"
 
 #endif

@@ -40,11 +40,9 @@
 @interface BlueShift : NSObject
 
 @property (nonatomic, strong) BlueShiftConfig *config;
-@property BlueShiftAppData *appData;
 @property (nonatomic, strong) BlueShiftUserInfo *userInfo;
 @property (nonatomic, strong) BlueShiftPushNotificationSettings *pushNotification API_AVAILABLE(ios(8.0));
 @property (nonatomic, strong) BlueShiftUserNotificationSettings *userNotification API_AVAILABLE(ios(10.0));
-@property (nonatomic, strong, readwrite) NSTimer *inAppDBTimer;
 @property NSString *deviceToken;
 
 + (instancetype)sharedInstance;
@@ -54,7 +52,7 @@
 - (void) setPushParamDelegate: (id) obj;
 - (NSString *) getDeviceToken;
 - (void) setDeviceToken;
-- (void) createInAppNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
+- (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
 - (void)registerForInAppMessage:(NSString *)displayPage;
 - (void)unregisterForInAppMessage;
 
@@ -149,5 +147,11 @@
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url;
+
+
+/// Check if the push notification is from Blueshift
+/// @param userInfo  userInfo dictionary from the push notification payload
+/// @returns true or false based on if push notification is from Blueshift or not
+- (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
 
 @end

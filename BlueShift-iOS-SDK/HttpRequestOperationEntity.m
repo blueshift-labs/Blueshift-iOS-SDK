@@ -6,6 +6,7 @@
 //
 
 #import "HttpRequestOperationEntity.h"
+#import "BlueshiftLog.h"
 
 @implementation HttpRequestOperationEntity
 
@@ -26,7 +27,7 @@
             masterContext = appDelegate.managedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     if (masterContext) {
@@ -64,7 +65,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     } else {
         return ;
@@ -83,7 +84,8 @@
 // Method to return the first record from Core Data ...
 
 + (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler {
-    @synchronized(self) {
+    NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
+    @synchronized (key) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate != nil && appDelegate.realEventManagedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
@@ -93,7 +95,7 @@
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
@@ -118,7 +120,7 @@
                         }
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }
             }
@@ -131,7 +133,8 @@
 
 // Method to return the batch records from Core Data ....
 + (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
-    @synchronized(self) {
+    NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
+    @synchronized(key) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
             NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
@@ -141,7 +144,7 @@
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
@@ -162,7 +165,7 @@
                         }
                     }
                     @catch (NSException *exception) {
-                        NSLog(@"Caught exception %@", exception);
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 } else {
                     handler(NO, nil);

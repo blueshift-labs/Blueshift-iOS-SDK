@@ -6,6 +6,8 @@
 //
 
 #import "BlueShiftConfig.h"
+#import "BlueshiftLog.h"
+#import <objc/runtime.h>
 
 @implementation BlueShiftConfig
 
@@ -16,8 +18,8 @@
         self.enableLocationAccess = YES;
         self.enableAnalytics = YES;
         self.enableAppOpenTrackEvent = YES;
-        self.blueShiftNotificationName = @"BlueShiftPushNotificationSetting";
-        self.isEnabledPushNotificationKey = @"isEnabled";
+        
+        self.debug = NO;
         
         //In App
         self.enableInAppNotification = NO;
@@ -39,10 +41,23 @@
     
     if (self.apiKey == NULL || self.apiKey == nil) {
         status = NO;
-        NSLog(@"\n\n Cannot initialize the SDK. Need to set the API Key. \n\n");
+        [BlueshiftLog logError:nil withDescription:@"SDK initialization failed! Please set a valid API key inside the Blueshift config to initialize the SDK." methodName:nil];
     }
     
     return status;
+}
+
+- (NSString*_Nullable)getConfigStringToLog {
+    unsigned int numberOfProperties = 0;
+    NSString *configString = @"";
+    objc_property_t *propertyArray = class_copyPropertyList([self class], &numberOfProperties);
+    for (NSUInteger i = 0; i < numberOfProperties; i++) {
+        objc_property_t property = propertyArray[i];
+        NSString *name = [[NSString alloc] initWithUTF8String:property_getName(property)];
+        configString = [NSString stringWithFormat:@"%@ %@ : %@\n", configString, name, [self valueForKey:name]];
+    }
+    free(propertyArray);
+    return configString;
 }
 
 @end

@@ -6,6 +6,7 @@
 //
 
 #import "BatchEventEntity.h"
+#import "BlueshiftLog.h"
 
 @interface BatchEventEntity ()
 
@@ -19,7 +20,6 @@
 @dynamic retryAttemptsCount;
 
 // Method to insert Entry for a particular request operation in core data ...
-
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
@@ -28,7 +28,7 @@
             masterContext = appDelegate.batchEventManagedObjectContext;
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     if (masterContext) {
@@ -61,7 +61,7 @@
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception %@", exception);
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     } else {
         return ;
@@ -70,7 +70,6 @@
 
 
 // Method to return the failed batch records from Core Data ....
-
 + (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
@@ -80,7 +79,7 @@
                 context = appDelegate.batchEventManagedObjectContext;
             }
             @catch (NSException *exception) {
-                NSLog(@"Caught exception %@", exception);
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
             if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -88,7 +87,7 @@
                     [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Caught exception %@", exception);
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(fetchRequest.entity != nil) {
                     [BatchEventEntity fetchBatchesFromCoreDataFromContext:context request:fetchRequest handler:handler];
@@ -123,7 +122,7 @@
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"Caught exception %@", exception);
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

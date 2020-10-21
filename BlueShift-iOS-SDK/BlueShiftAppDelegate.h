@@ -22,7 +22,7 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueshiftUniversalLinksDelegate.h"
 
-@interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, CLLocationManagerDelegate, BlueShiftAlertControllerDelegate>
+@interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate, BlueShiftAlertControllerDelegate>
 
 @property NSDictionary * _Nullable userInfo;
 @property NSDictionary * _Nullable pushAlertDictionary;
@@ -49,7 +49,6 @@
 
 - (void) registerForNotification;
 - (BOOL) handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *_Nullable)launchOptions;
-- (void)registerLocationService;
 - (NSString *_Nullable)hexadecimalStringFromData:(NSData *_Nullable)data;
 
 - (void) registerForRemoteNotification:(NSData *_Nullable)deviceToken;
@@ -64,6 +63,8 @@
 - (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
 - (void)handleBlueshiftUniversalLinksForActivity:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0));
+- (void)trackAppOpenWithParameters:(NSDictionary *_Nullable)parameters;
+- (void)registerForSilentPushNotification;
 
 @end
 #endif
