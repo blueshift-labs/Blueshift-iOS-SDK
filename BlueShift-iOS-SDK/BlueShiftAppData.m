@@ -49,8 +49,15 @@ static BlueShiftAppData *_currentAppData = nil;
 }
 
 - (void)setEnablePush:(BOOL)enablePush {
-    NSString *val = enablePush ? kYES : kNO;
-    [[NSUserDefaults standardUserDefaults] setObject:val forKey:kBlueshiftEnablePush];
+    // Added try catch to avoid issues with App UI automation script execution
+    @try {
+        NSString *val = enablePush ? kYES : kNO;
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:val forKey:kBlueshiftEnablePush];
+        [defaults synchronize];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
 }
 
 - (NSDictionary *)toDictionary {
