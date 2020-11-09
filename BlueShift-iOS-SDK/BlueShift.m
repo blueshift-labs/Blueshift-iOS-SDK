@@ -16,7 +16,9 @@ BlueShiftAppDelegate *_newDelegate;
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
 
-@implementation BlueShift
+@implementation BlueShift {
+    BOOL isSDKInitialised;
+}
 
 + (instancetype) sharedInstance {
     static dispatch_once_t onceToken;
@@ -47,9 +49,12 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (configurationSetCorrectly == NO) {
         return ;
     }
-    
+        
     // setting config ...
     _sharedBlueShiftInstance.config = config;
+    
+    isSDKInitialised = YES;
+
     if (@available(iOS 8.0, *)) {
         _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
     }
@@ -196,6 +201,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+    if (isSDKInitialised == NO) {
+        return;
+    }
     [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if (_config.enableInAppNotification == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
@@ -644,6 +652,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (isSDKInitialised == NO) {
+        return;
+    }
     NSString *url = [[NSString alloc]init];
     if(isBatchEvent) {
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
@@ -689,6 +700,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (isSDKInitialised == NO) {
+        return;
+    }
     if (parameters != nil) {
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
