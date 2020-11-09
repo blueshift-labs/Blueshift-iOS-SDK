@@ -6,6 +6,7 @@
 //
 #import "BlueShiftDeepLink.h"
 #import "BlueshiftLog.h"
+#import "InApps/BlueShiftInAppNotificationHelper.h"
 
 @implementation BlueShiftDeepLink
 
@@ -87,7 +88,7 @@ static NSDictionary *_deepLinkList = nil;
         return NO;
     }
     
-    if ([self checkAppDelegateWindowPresent] == NO) {
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
         return  NO;
     }
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
@@ -107,7 +108,7 @@ static NSDictionary *_deepLinkList = nil;
 
 
 - (void)deepLinkToPath:(NSArray *)path {
-    if ([self checkAppDelegateWindowPresent] == NO) {
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
         return;
     }
     // Method to perform deeplink using the path components array ...
@@ -135,7 +136,7 @@ static NSDictionary *_deepLinkList = nil;
 
 - (UIViewController *)lastViewController {
     // Get the last view controller in the view controller list ...
-    if ([self checkAppDelegateWindowPresent] == NO) {
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
         return  nil;
     }
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
@@ -144,18 +145,11 @@ static NSDictionary *_deepLinkList = nil;
 
 - (UIViewController *)firstViewController {
     // Get the first view controller in view controller list ...
-    if ([self checkAppDelegateWindowPresent] == NO) {
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
         return  nil;
     }
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
     return [navController.viewControllers firstObject];
-}
-
--(BOOL)checkAppDelegateWindowPresent {
-    if ([[[UIApplication sharedApplication] delegate] window] == nil) {
-        return NO;
-    }
-    return YES;
 }
 
 @end

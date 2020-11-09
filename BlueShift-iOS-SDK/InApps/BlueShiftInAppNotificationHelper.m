@@ -108,6 +108,13 @@ static NSDictionary *_inAppTypeDictionay;
     return presentationAreaWidth;
 }
 
++ (BOOL)checkAppDelegateWindowPresent {
+    if (![[UIApplication sharedApplication].delegate respondsToSelector:@selector(window)]) {
+        return NO;
+    }
+    return YES;
+}
+
 + (NSString*)getEncodedURLString:(NSString*) urlString {
     if (urlString && ![urlString isEqualToString:@""]) {
         NSString *charactersToEscape = @"!*'();:@&=+$,/?%#[]<>^`\{|}"" ";
