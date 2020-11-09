@@ -486,7 +486,7 @@
     frame.size = size;
     notificationView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize];
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {

@@ -37,6 +37,7 @@
 @property NSSet * _Nullable customCategories;
 
 @property NSString * _Nullable appGroupID;
+@property BOOL isSceneDelegateConfiguration;
 
 //Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;

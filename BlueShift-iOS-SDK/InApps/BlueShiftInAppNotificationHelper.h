@@ -27,6 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (CGFloat)getPresentationAreaHeight;
 + (CGFloat)getPresentationAreaWidth;
 + (BOOL)isIpadDevice;
++ (CGSize)getApplicationWindowSize;
++ (UIWindow *)getApplicationKeyWindow;
+
 @end
 
 NS_ASSUME_NONNULL_END
