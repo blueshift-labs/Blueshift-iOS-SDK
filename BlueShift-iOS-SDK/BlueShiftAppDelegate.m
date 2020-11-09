@@ -146,8 +146,14 @@
 }
 
 - (void)setLastModifiedUNAuthorizationStatus:(NSString*) authorizationStatus {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
+    // Added try catch to avoid issues with App UI automation script execution
+    @try {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
+        [defaults synchronize];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
+    }
 }
 
 /// Check current UNAuthorizationStatus status with last Modified UNAuthorizationStatus status, if its not matching
