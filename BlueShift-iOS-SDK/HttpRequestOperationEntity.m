@@ -56,10 +56,18 @@
                     NSError *error = nil;
                     [context save:&error];
                     if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        [masterContext performBlock:^{
-                            NSError *error = nil;
-                            [masterContext save:&error];
-                        }];
+                        @try {
+                            [masterContext performBlock:^{
+                                @try {
+                                    NSError *error = nil;
+                                    [masterContext save:&error];
+                                } @catch (NSException *exception) {
+                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                                }
+                            }];
+                        } @catch (NSException *exception) {
+                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        }
                     }
                 }];
             }
