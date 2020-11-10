@@ -8,6 +8,6 @@
 #ifndef ExtensionSDKVersion_h
 #define ExtensionSDKVersion_h
 
-#define kSDKVersionNumber   @"2.1.8"
+#define kSDKVersionNumber   @"2.1.9"
 
 #endif /* SDKVersion_h */
