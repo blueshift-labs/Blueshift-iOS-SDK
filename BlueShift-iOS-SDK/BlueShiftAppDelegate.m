@@ -339,15 +339,14 @@
     self.userInfo = userInfo;
     // Handle push notification when the app is in active state...
     @try {
-        if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
-            return;
-        }
-        UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
-        BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
-        pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-        if (@available(iOS 8.0, *)) {
-            UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-            [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+        if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == YES) {
+            UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
+            BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
+            pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
+            if (@available(iOS 8.0, *)) {
+                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
+                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
+            }
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
