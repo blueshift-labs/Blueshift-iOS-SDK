@@ -102,8 +102,8 @@
 
 
 /// Download and load image in imageView
-/// @param imageView  ImageView to assign image to
 /// @param imageURL Image url to download the image
+/// @param imageView  assign the downloaded image to imageView
 - (void)loadImageFromURL:(NSString *)imageURL forImageView: (UIImageView *)imageView {
     UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:imageURL]];
     imageView.contentMode = UIViewContentModeScaleAspectFit;
