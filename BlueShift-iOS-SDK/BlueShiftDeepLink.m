@@ -135,15 +135,20 @@ static NSDictionary *_deepLinkList = nil;
 }
 
 - (UIViewController *)lastViewController {
-    // Get the last view controller in the view controller list ...
-    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
-        return  nil;
+    @try {
+        // Get the last view controller in the view controller list ...
+        if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
+            return  nil;
+        }
+        if (![[[[UIApplication sharedApplication] delegate] window] respondsToSelector:@selector(rootViewController)]) {
+            return  nil;
+        }
+        UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
+        return [navController.viewControllers lastObject];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    if (![[[[UIApplication sharedApplication] delegate] window] respondsToSelector:@selector(rootViewController)]) {
-        return  nil;
-    }
-    UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
-    return [navController.viewControllers lastObject];
+    return  nil;
 }
 
 - (UIViewController *)firstViewController {
