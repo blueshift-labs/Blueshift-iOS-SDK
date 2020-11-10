@@ -153,7 +153,7 @@
         [defaults setObject:authorizationStatus forKey:kBlueshiftUNAuthorizationStatus];
         [defaults synchronize];
     } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
