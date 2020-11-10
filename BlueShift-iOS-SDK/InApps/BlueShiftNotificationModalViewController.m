@@ -237,7 +237,7 @@
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.banner) {
-        [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.banner andWidth: imageViewWidth andHeight: imageViewHeight];
+        [self loadImageFromURL:self.notification.notificationContent.banner forImageView:imageView];
     }
     
     imageView.contentMode = UIViewContentModeScaleToFill;

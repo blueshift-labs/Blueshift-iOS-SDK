@@ -227,7 +227,7 @@
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.iconImage) {
-       [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.iconImage andWidth:kInAppNotificationModalIconWidth andHeight:kInAppNotificationModalIconHeight];
+       [self loadImageFromURL:self.notification.notificationContent.iconImage forImageView:imageView];
     }
     
     if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
