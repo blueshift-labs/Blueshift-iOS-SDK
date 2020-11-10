@@ -41,7 +41,7 @@ controller;
 - (void)configureBackground;
 - (UIColor *)colorWithHexString:(NSString *)str;
 - (void)loadNotificationView;
-- (void)loadImageFromURL:(UIImageView *)imageView andImageURL:(NSString *)imageURL andWidth:(double)width andHeight:(double)height;
+- (void)loadImageFromURL:(NSString *)imageURL forImageView:(UIImageView *)imageView;
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
 - (void)applyIconToLabelView:(UILabel *)iconLabelView andFontIconSize:(NSNumber *)fontSize;
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails;

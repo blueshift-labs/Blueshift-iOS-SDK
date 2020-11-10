@@ -178,13 +178,20 @@
             CGFloat messageBottomPadding = (messagePadding && messagePadding.bottom > 0) ? messagePadding.bottom : 0.0;
             CGFloat descriptionLabelHeight = descriptionLabel.frame.size.height + (messageTopPadding + messageBottomPadding);
             
-            if (descriptionLabelHeight < 50) {
-                descriptionLabelHeight = iconLabel.frame.size.height > 0 ? iconLabel.frame.size.height : imageView.frame.size.height;
-                //Modify height of description label if height is less than 50
-                //to align text veritically center
-                CGRect derscriptionLabelFrame = descriptionLabel.frame;
-                derscriptionLabelFrame.size.height = descriptionLabelHeight - messageTopPadding - messageBottomPadding;
-                descriptionLabel.frame = derscriptionLabelFrame;
+            // Set height to icon height/image height/default min height if label height is less than min height
+            // to align text veritically center
+            if (descriptionLabelHeight < kSlideInInAppNotificationMinimumHeight) {
+                if (iconLabel.frame.size.height > 0) {
+                    descriptionLabelHeight = iconLabel.frame.size.height;
+                } else if (imageView.frame.size.height > 0) {
+                    descriptionLabelHeight = imageView.frame.size.height;
+                } else {
+                    descriptionLabelHeight = kSlideInInAppNotificationMinimumHeight;
+                }
+                
+                CGRect descriptionLabelFrame = descriptionLabel.frame;
+                descriptionLabelFrame.size.height = descriptionLabelHeight - messageTopPadding - messageBottomPadding;
+                descriptionLabel.frame = descriptionLabelFrame;
             }
             
             CGRect frame = slideBannerView.frame;
@@ -220,7 +227,7 @@
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
     if (self.notification.notificationContent.iconImage) {
-       [self loadImageFromURL: imageView andImageURL: self.notification.notificationContent.iconImage andWidth:kInAppNotificationModalIconWidth andHeight:kInAppNotificationModalIconHeight];
+       [self loadImageFromURL:self.notification.notificationContent.iconImage forImageView:imageView];
     }
     
     if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {

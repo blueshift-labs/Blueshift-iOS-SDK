@@ -6,6 +6,7 @@
 //
 #import "BlueShiftDeepLink.h"
 #import "BlueshiftLog.h"
+#import "InApps/BlueShiftInAppNotificationHelper.h"
 
 @implementation BlueShiftDeepLink
 
@@ -87,7 +88,9 @@ static NSDictionary *_deepLinkList = nil;
         return NO;
     }
     
-    
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
+        return  NO;
+    }
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
     if(navController == nil) {
         [BlueshiftLog logError:nil withDescription:@"Can not perform custom deep linking as rootViewContoller is nil" methodName:nil];
@@ -105,8 +108,10 @@ static NSDictionary *_deepLinkList = nil;
 
 
 - (void)deepLinkToPath:(NSArray *)path {
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
+        return;
+    }
     // Method to perform deeplink using the path components array ...
-    
     // Get the current navigational controller and pop to the root view controller...
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
     if(navController != nil && [navController respondsToSelector:@selector(popToRootViewControllerAnimated:)]) {
@@ -130,19 +135,29 @@ static NSDictionary *_deepLinkList = nil;
 }
 
 - (UIViewController *)lastViewController {
-    // Get the last view controller in the view controller list ...
-    
-    UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
-    return [navController.viewControllers lastObject];
+    @try {
+        if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
+            return  nil;
+        }
+        if (![[[[UIApplication sharedApplication] delegate] window] respondsToSelector:@selector(rootViewController)]) {
+            return  nil;
+        }
+        // Get the last view controller in the view controller list ...
+        UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
+        return [navController.viewControllers lastObject];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+    return  nil;
 }
 
 - (UIViewController *)firstViewController {
     // Get the first view controller in view controller list ...
-    
+    if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
+        return  nil;
+    }
     UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
     return [navController.viewControllers firstObject];
 }
-
-
 
 @end
