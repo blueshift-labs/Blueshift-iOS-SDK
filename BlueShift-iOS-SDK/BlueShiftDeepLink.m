@@ -136,13 +136,13 @@ static NSDictionary *_deepLinkList = nil;
 
 - (UIViewController *)lastViewController {
     @try {
-        // Get the last view controller in the view controller list ...
         if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == NO) {
             return  nil;
         }
         if (![[[[UIApplication sharedApplication] delegate] window] respondsToSelector:@selector(rootViewController)]) {
             return  nil;
         }
+        // Get the last view controller in the view controller list ...
         UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
         return [navController.viewControllers lastObject];
     } @catch (NSException *exception) {
