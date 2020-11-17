@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString*)getEncodedURLString:(NSString*) urlString;
 + (CGFloat)getPresentationAreaHeight;
 + (CGFloat)getPresentationAreaWidth;
++ (BOOL)checkAppDelegateWindowPresent;
 + (BOOL)isIpadDevice;
 + (CGSize)getApplicationWindowSize;
 + (UIWindow *)getApplicationKeyWindow;

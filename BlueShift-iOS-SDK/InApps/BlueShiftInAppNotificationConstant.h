@@ -100,6 +100,7 @@
 /* Define size of view */
 #define kInAppNotificationModalIconWidth                        50.0
 #define kInAppNotificationModalIconHeight                       50.0
+#define kSlideInInAppNotificationMinimumHeight                  50.0
 #define kInAppNotificationModalYPadding                         10.0
 #define kInAppNotificationModalTitleHeight                      40.0
 #define kInAppNotificationSlideBannerXPadding                   20.0
