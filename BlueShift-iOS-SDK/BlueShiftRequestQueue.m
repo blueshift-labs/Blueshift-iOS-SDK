@@ -52,10 +52,13 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
                     BOOL isBatchEvent = requestOperation.isBatchEvent;
                     
-                    NSString *trackURL = [NSString stringWithFormat:@"%@%@", kBaseURL,kPushEventsUploadURL];
-                    //Convert non-batched event to batched-events when there is no internet and the event is not a tracking event
-                    if ([BlueShiftNetworkReachabilityManager networkConnected] == NO && [requestOperation.url rangeOfString:trackURL].location == NSNotFound)  {
+                    if ([BlueShiftNetworkReachabilityManager networkConnected] == NO)  {
                         isBatchEvent = YES;
+                    }
+                    // Treat all the tracking events as non-batched events to stop them from getting batched
+                    NSString *trackURL = [NSString stringWithFormat:@"%@%@", kBaseURL,kPushEventsUploadURL];
+                    if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
+                        isBatchEvent = NO;
                     }
                     NSManagedObjectContext *context;
                     if (isBatchEvent) {
