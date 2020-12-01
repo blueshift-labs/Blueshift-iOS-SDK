@@ -78,7 +78,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return [[UIDevice currentDevice] model];
 }
 
-- (NSString *)networkCarrierName {
+- (NSString *)getNetworkCarrier {
     CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = [netinfo subscriberCellularProvider];
     return [carrier carrierName];
@@ -121,9 +121,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
-    NSString *networkCarrier = self.networkCarrierName;
-    if (networkCarrier) {
-        [deviceMutableDictionary setObject: networkCarrier forKey:kNetworkCarrier];
+    if (!self.networkCarrierName) {
+        self.networkCarrierName = [self getNetworkCarrier];
+    }
+    if(self.networkCarrierName) {
+        [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
     }
     
     if (self.currentLocation && [BlueShift sharedInstance].config.enableLocationAccess) {
