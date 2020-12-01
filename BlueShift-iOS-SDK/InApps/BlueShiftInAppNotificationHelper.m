@@ -114,8 +114,6 @@ static NSDictionary *_inAppTypeDictionay;
         if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
             return [self getApplicationKeyWindow].bounds.size;
         }
-    } else {
-        return [[UIScreen mainScreen] bounds].size;
     }
     return [[UIScreen mainScreen] bounds].size;
 }
@@ -129,8 +127,6 @@ static NSDictionary *_inAppTypeDictionay;
                 }
             }
         }
-    } else {
-        return [UIApplication sharedApplication].keyWindow;
     }
     return [UIApplication sharedApplication].keyWindow;
 }
