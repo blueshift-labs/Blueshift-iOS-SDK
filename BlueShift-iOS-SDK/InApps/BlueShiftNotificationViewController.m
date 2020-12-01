@@ -70,7 +70,16 @@
 
 - (void)createWindow {
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
-    self.window = [[windowClass alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    if (@available(iOS 13.0, *)) {
+        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
+            self.window = [[windowClass alloc] initWithWindowScene: [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene];
+        } else {
+            self.window = [[windowClass alloc] init];
+        }
+    } else {
+        self.window = [[windowClass alloc] init];
+    }
+    self.window.frame = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].frame;
     self.window.alpha = 0;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.windowLevel = UIWindowLevelNormal;

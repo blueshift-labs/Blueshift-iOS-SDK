@@ -7,6 +7,7 @@
 
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShift.h"
 
 static NSDictionary *_inAppTypeDictionay;
 
@@ -82,30 +83,52 @@ static NSDictionary *_inAppTypeDictionay;
 }
 
 + (CGFloat)getPresentationAreaHeight {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
     CGFloat topMargin = 0.0;
     CGFloat bottomMargin = 0.0;
     if (@available(iOS 11.0, *)) {
+        UIWindow *window = [self getApplicationKeyWindow];
         topMargin =  window.safeAreaInsets.top;
         bottomMargin = window.safeAreaInsets.bottom;
     } else {
         topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
         bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }
-    CGFloat presentationAreaHeight = [[UIScreen mainScreen] bounds].size.height - topMargin - bottomMargin;
+    CGFloat presentationAreaHeight = [self getApplicationWindowSize].height - topMargin - bottomMargin;
     return presentationAreaHeight;
 }
 
 + (CGFloat)getPresentationAreaWidth {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
     CGFloat leftMargin = 0.0;
     CGFloat rightMargin = 0.0;
     if (@available(iOS 11.0, *)) {
+        UIWindow *window = [self getApplicationKeyWindow];
         leftMargin = window.safeAreaInsets.left;
         rightMargin = window.safeAreaInsets.right;
     }
-    CGFloat presentationAreaWidth = [[UIScreen mainScreen] bounds].size.width - leftMargin - rightMargin;
+    CGFloat presentationAreaWidth = [self getApplicationWindowSize].width - leftMargin - rightMargin;
     return presentationAreaWidth;
+}
+
++ (CGSize)getApplicationWindowSize {
+    if (@available(iOS 13.0, *)) {
+        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
+            return [self getApplicationKeyWindow].bounds.size;
+        }
+    }
+    return [[UIScreen mainScreen] bounds].size;
+}
+
++ (UIWindow *)getApplicationKeyWindow {
+    if (@available(iOS 13.0, *)) {
+        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
+            for (UIWindow *window in [UIApplication sharedApplication].windows) {
+                if (window.isKeyWindow) {
+                    return window;
+                }
+            }
+        }
+    }
+    return [UIApplication sharedApplication].keyWindow;
 }
 
 + (BOOL)checkAppDelegateWindowPresent {
