@@ -108,6 +108,7 @@ API_AVAILABLE(ios(8.0))
     webView.opaque = NO;
     webView.tag = 188293;
     webView.clipsToBounds = TRUE;
+    [self setBackgroundRadius:webView];
     return webView;
 }
 
