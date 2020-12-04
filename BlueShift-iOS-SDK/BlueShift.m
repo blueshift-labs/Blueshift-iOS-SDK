@@ -725,6 +725,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (_inAppNotificationMananger) {
         if (displayPage) {
             _inAppNotificationMananger.inAppNotificationDisplayOnPage = displayPage;
+            [BlueshiftLog logInfo:@"Successfully registered for in-app for screen " withDetails:displayPage methodName:nil];
         }
         if (_config.inAppManualTriggerEnabled == NO) {
              [self fetchInAppNotificationFromDB];
@@ -734,6 +735,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)unregisterForInAppMessage {
     if (_inAppNotificationMananger) {
+        [BlueshiftLog logInfo:@"Successfully unegistered for in-app for screen " withDetails:_inAppNotificationMananger.inAppNotificationDisplayOnPage methodName:nil];
         _inAppNotificationMananger.inAppNotificationDisplayOnPage = nil;
     }
 }
