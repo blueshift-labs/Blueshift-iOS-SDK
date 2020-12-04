@@ -78,7 +78,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return [[UIDevice currentDevice] model];
 }
 
-- (NSString *)getNetworkCarrier {
+- (NSString *)getNetworkCarrierName {
     CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = [netinfo subscriberCellularProvider];
     return [carrier carrierName];
@@ -122,7 +122,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     }
     
     if (!self.networkCarrierName) {
-        self.networkCarrierName = [self getNetworkCarrier];
+        self.networkCarrierName = [self getNetworkCarrierName];
     }
     if(self.networkCarrierName) {
         [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
