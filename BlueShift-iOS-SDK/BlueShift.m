@@ -236,7 +236,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (details) {
         [parameterMutableDictionary addEntriesFromDictionary:details];
     }
-    [self trackEventForEventName:kEventIdentify andParameters:details canBatchThisEvent:isBatchEvent];
+    [self trackEventForEventName:kEventIdentify andParameters:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
 }
 
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent{
