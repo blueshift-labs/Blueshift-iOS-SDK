@@ -134,7 +134,7 @@
     //fire delayed app_open after firing the identify call
     if(fireAppOpen) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [self trackAppOpenWithParameters:nil];
+            [self trackAppOpenOnAppLaunch:nil];
         });
     }
 }
@@ -1003,17 +1003,20 @@
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
-- (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
+/// SDK triggeres app_open event automatically on app launch and is controlled by the enableAppOpenTrackEvent  config flag
+- (void)trackAppOpenOnAppLaunch:(NSDictionary *)parameters {
     if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        
+        [self trackAppOpenWithParameters:parameters];
+    }
+}
+
+/// Track app_open by manually calling this method from the host application
+- (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        
         if (parameters) {
             [parameterMutableDictionary addEntriesFromDictionary:parameters];
         }
-        
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
-    }
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
