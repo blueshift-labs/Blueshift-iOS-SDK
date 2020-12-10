@@ -58,64 +58,53 @@ static NSDictionary *_inAppTypeDictionay;
     }
 }
 
-+ (CGFloat)convertPointsHeightToPercentage:(float) height {
-    CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
++ (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window {
+    CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
     CGFloat heightInPercentage = (CGFloat) (((height/presentationAreaHeight) * 100.0f));
     return heightInPercentage;
 }
 
-+ (CGFloat)convertPointsWidthToPercentage:(float) width {
-    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
++ (CGFloat)convertPointsWidthToPercentage:(float) width forWindow:(UIWindow*)window {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
     CGFloat widthInPercentage = (CGFloat) (((width/presentationAreaWidth) * 100.0f));
     return  widthInPercentage;
 }
 
-+ (CGFloat)convertPercentageHeightToPoints:(float) height {
-    CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
++ (CGFloat)convertPercentageHeightToPoints:(float) height forWindow:(UIWindow*)window {
+    CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
     CGFloat heightInPoints = (CGFloat) ceil(presentationAreaHeight * (height / 100.0f));
     return heightInPoints;
 }
 
-+ (CGFloat)convertPercentageWidthToPoints:(float) width {
-    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
++ (CGFloat)convertPercentageWidthToPoints:(float) width forWindow:(UIWindow*)window {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
     CGFloat widthInPoints = (CGFloat) ceil(presentationAreaWidth * (width / 100.0f));
     return widthInPoints;
 }
 
-+ (CGFloat)getPresentationAreaHeight {
++ (CGFloat)getPresentationAreaHeightForWindow:(UIWindow*)window {
     CGFloat topMargin = 0.0;
     CGFloat bottomMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        UIWindow *window = [self getApplicationKeyWindow];
         topMargin =  window.safeAreaInsets.top;
         bottomMargin = window.safeAreaInsets.bottom;
     } else {
         topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
         bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }
-    CGFloat presentationAreaHeight = [self getApplicationWindowSize].height - topMargin - bottomMargin;
+    CGFloat presentationAreaHeight = window.bounds.size.height - topMargin - bottomMargin;
     return presentationAreaHeight;
 }
 
-+ (CGFloat)getPresentationAreaWidth {
++ (CGFloat)getPresentationAreaWidthForWindow:(UIWindow*)window {
     CGFloat leftMargin = 0.0;
     CGFloat rightMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        UIWindow *window = [self getApplicationKeyWindow];
         leftMargin = window.safeAreaInsets.left;
         rightMargin = window.safeAreaInsets.right;
     }
-    CGFloat presentationAreaWidth = [self getApplicationWindowSize].width - leftMargin - rightMargin;
+    CGFloat presentationAreaWidth = window.bounds.size.width - leftMargin - rightMargin;
     return presentationAreaWidth;
-}
-
-+ (CGSize)getApplicationWindowSize {
-    if (@available(iOS 13.0, *)) {
-        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
-            return [self getApplicationKeyWindow].bounds.size;
-        }
-    }
-    return [[UIScreen mainScreen] bounds].size;
 }
 
 + (UIWindow *)getApplicationKeyWindow {

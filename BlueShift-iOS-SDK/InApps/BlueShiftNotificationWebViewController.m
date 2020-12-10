@@ -137,12 +137,12 @@ API_AVAILABLE(ios(8.0))
     if (isAutoWidth && width == 0) {
         //If ipad, set the width to max width
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
         } else {
-            float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
+            float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             //If iPhone orientation is landscape, set the width to max width
             if (deviceWidth > kHTMLInAppNotificationMaximumWidthInPoints) {
-                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
+                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
             } else {
                 //If iPhone orientation is portrait, set the width to default 95%
                 width = kInAppNotificationDefaultWidth;
@@ -178,21 +178,21 @@ API_AVAILABLE(ios(8.0))
     
     CGSize size = CGSizeZero;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
-        CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidth];
+        CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidthForWindow:self.window];
         if(maxWidth > width) {
             size.width = width;
         } else {
             size.width = maxWidth;
         }
-        CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+        CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeightForWindow:self.window];
         if(maxHeight > height) {
             size.height = height;
         } else {
             size.height = maxHeight;
         }
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height forWindow:self.window];
+        CGFloat itemWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width forWindow:self.window];
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);
@@ -219,7 +219,7 @@ API_AVAILABLE(ios(8.0))
     frame.size = size;
     webView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize];
+    CGSize screenSize = self.window.bounds.size;
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     int extra = (int) (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
@@ -305,7 +305,7 @@ API_AVAILABLE(ios(8.0))
     if(isAutoHeight || isAutoWidth) {
         self.notification.dimensionType = kInAppNotificationModalResolutionPointsKey;
         if (isAutoWidth) {
-            CGFloat maxWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
+            CGFloat maxWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             //If content width is greater than the screen width, then set width to max width else set to content height
             if(maxWidth > width) {
                 self.notification.templateStyle.width = width;
@@ -316,7 +316,7 @@ API_AVAILABLE(ios(8.0))
             self.notification.templateStyle.width = webView.frame.size.width;
         }
         if (isAutoHeight) {
-            CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+            CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeightForWindow:self.window];
             //If content height is greater than the screen width, then set width to max height else set to content height
             if(maxHeight > height) {
                 self.notification.templateStyle.height = height;
