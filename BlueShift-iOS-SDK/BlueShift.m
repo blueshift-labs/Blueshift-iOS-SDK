@@ -134,7 +134,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     // Mark app open if device token is already present, else delay it till app receves device token and fires identify
     if ([self getDeviceToken]) {
-        [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+        [blueShiftAppDelegate trackAppOpenOnAppLaunch:nil];
     }
     
     [self logSDKInitializationDetails];
