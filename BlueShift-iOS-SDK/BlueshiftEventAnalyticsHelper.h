@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
 + (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
 + (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;
++ (NSString *)getCurrentUTCTimestamp;
 
 @end
 

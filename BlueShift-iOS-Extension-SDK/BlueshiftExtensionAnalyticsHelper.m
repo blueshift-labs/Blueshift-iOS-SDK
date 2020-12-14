@@ -16,7 +16,7 @@
     NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
     NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
-    NSString *lastTimestamp = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTimestampKey];
+    NSString *timestamp = [self getCurrentUTCTimestamp];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
@@ -36,8 +36,8 @@
     if (element) {
         [pushTrackParametersMutableDictionary setObject:element forKey: kInAppNotificationModalElementKey];
     }
-    if (lastTimestamp) {
-        [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationCreatedTimestampKey];
+    if (timestamp) {
+        [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
     }
     
     return [pushTrackParametersMutableDictionary copy];
@@ -62,6 +62,13 @@
     } else {
         return YES;
     }
+}
+
++ (NSString *)getCurrentUTCTimestamp {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.ssssss'Z'"];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    return [dateFormatter stringFromDate:[NSDate date]];
 }
 
 @end
