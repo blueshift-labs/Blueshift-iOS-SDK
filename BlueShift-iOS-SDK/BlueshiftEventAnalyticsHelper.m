@@ -25,7 +25,7 @@
     NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
     NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
     NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
-    NSString *lastTimestamp = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTimestampKey];
+    NSString *timestamp = [self getCurrentUTCTimestamp];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
@@ -58,8 +58,8 @@
     if (appName) {
         [pushTrackParametersMutableDictionary setObject:appName forKey: @"app_name"];
     }
-    if (lastTimestamp) {
-        [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationCreatedTimestampKey];
+    if (timestamp) {
+        [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
     }
     
     return [pushTrackParametersMutableDictionary copy];
@@ -169,6 +169,13 @@
         }
     }
     return isSchedulePushNotification;
+}
+
++ (NSString *)getCurrentUTCTimestamp {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    return [dateFormatter stringFromDate:[NSDate date]];
 }
 
 @end
