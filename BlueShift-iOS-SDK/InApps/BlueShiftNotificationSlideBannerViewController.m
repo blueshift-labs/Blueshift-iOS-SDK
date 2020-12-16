@@ -420,7 +420,13 @@
     frame.size = size;
     slideBannerView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = self.window.bounds.size;
+    CGSize screenSize = CGSizeZero;
+    if (self.window) {
+        screenSize = self.window.bounds.size;
+    } else {
+        screenSize = [[UIScreen mainScreen] bounds].size;
+    }
+
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     frame.origin.x = leftMargin;
@@ -448,7 +454,9 @@
 - (CGFloat)getBottomSafeAreaHeight {
     CGFloat extraBottomPadding = 0.0;
     if (@available(iOS 11.0, *)) {
-        extraBottomPadding = self.window.safeAreaInsets.bottom;
+        if (self.window) {
+            extraBottomPadding = self.window.safeAreaInsets.bottom;
+        }
     }
     return extraBottomPadding;
 }
@@ -457,7 +465,9 @@
 - (CGFloat)getTopSafeAreaHeight {
     CGFloat topSafeAreaHeight = 0.0;
     if (@available(iOS 11.0, *)) {
-        topSafeAreaHeight = self.window.safeAreaInsets.top;
+        if (self.window) {
+            topSafeAreaHeight = self.window.safeAreaInsets.top;
+        }
     } else {
         topSafeAreaHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }

@@ -151,6 +151,7 @@
             
             CGFloat bannerBottomPadding = (bannerImagePadding && bannerImagePadding.bottom > 0) ? bannerImagePadding.bottom : 0.0;
             yPadding = yPadding + imageView.layer.frame.size.height + bannerBottomPadding;
+            
         }
         
         UILabel *iconLabel;
@@ -486,7 +487,12 @@
     frame.size = size;
     notificationView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = self.window.bounds.size;
+    CGSize screenSize = CGSizeZero;
+    if (self.window) {
+        screenSize = self.window.bounds.size;
+    } else {
+        screenSize = [[UIScreen mainScreen] bounds].size;
+    }
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {

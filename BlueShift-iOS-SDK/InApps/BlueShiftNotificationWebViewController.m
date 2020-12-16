@@ -219,7 +219,13 @@ API_AVAILABLE(ios(8.0))
     frame.size = size;
     webView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = self.window.bounds.size;
+    CGSize screenSize = CGSizeZero;
+    if (self.window) {
+        screenSize = self.window.bounds.size;
+    } else {
+        screenSize = [[UIScreen mainScreen] bounds].size;
+    }
+    
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     int extra = (int) (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);

@@ -171,6 +171,7 @@
     return isSchedulePushNotification;
 }
 
+/// Returns current UTC timestamp with format 2020-12-14T13:35:34.034000Z
 + (NSString *)getCurrentUTCTimestamp {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
