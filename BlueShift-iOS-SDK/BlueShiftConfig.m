@@ -20,6 +20,7 @@
         self.enableAppOpenTrackEvent = YES;
         
         self.debug = NO;
+        self.enableSDKCrashAnalytics = NO;
         
         //In App
         self.enableInAppNotification = NO;

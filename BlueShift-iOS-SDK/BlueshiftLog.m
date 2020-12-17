@@ -9,6 +9,7 @@
 #import "BlueshiftLog.h"
 #import "BlueShift.h"
 #import "BlueShiftTrackEvents.h"
+#import "BlueshiftConstants.h"
 
 @implementation BlueshiftLog
 
@@ -43,6 +44,24 @@
             log = [NSString stringWithFormat:@"%@\n%@",log,exception];
         }
         NSLog(@"%@", log);
+        
+        if ([BlueShift sharedInstance].config.enableSDKCrashAnalytics == YES) {
+            NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
+            if (exception.reason) {
+                [errorDetails setObject:exception.reason forKey:kSDKCrashAnalyticsCause];
+            }
+            if (exception.callStackSymbols) {
+                NSString *stackTrace = [[exception callStackSymbols] componentsJoinedByString:@" \n "];
+                [errorDetails setObject:stackTrace forKey:kSDKCrashAnalyticsStackTrace];
+            }
+            if (exception.name) {
+                [errorDetails setObject:exception.name forKey:kSDKCrashAnalyticsExceptionName];
+            }
+            if (exception.userInfo) {
+                [errorDetails setObject:exception.userInfo forKey:kSDKCrashAnalyticsExceptionInfo];
+            }
+            [[BlueShift sharedInstance] trackEventForEventName:kSDKCrashAnalyticsEventName andParameters:errorDetails canBatchThisEvent:YES];
+        }
     } @catch (NSException *exception) {
         NSLog(@"Failed to log exception %@",exception);
     }

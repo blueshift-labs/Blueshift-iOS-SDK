@@ -33,6 +33,7 @@
 @property BOOL inAppManualTriggerEnabled;
 @property BOOL inAppBackgroundFetchEnabled;
 @property BOOL debug;
+@property BOOL enableSDKCrashAnalytics;
 
 @property NSSet * _Nullable customCategories;
 

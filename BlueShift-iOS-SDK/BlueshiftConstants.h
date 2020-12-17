@@ -43,4 +43,12 @@
 #define kYES                                    @"YES"
 #define kNO                                     @"NO"
 
+//SDKCrashAnalytics events
+#define kSDKCrashAnalyticsEventName             @"bsft_sdk_error_ios"
+#define kSDKCrashAnalyticsCause                 @"error_cause"
+#define kSDKCrashAnalyticsStackTrace            @"error_stack_trace"
+#define kSDKCrashAnalyticsExceptionName         @"error_exception_name"
+#define kSDKCrashAnalyticsExceptionInfo         @"error_user_info"
+#define kSDKCrashAnalyticsMethodName            @"error_method_name"
+
 #endif /* BlueshiftConstants_h */
