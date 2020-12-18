@@ -51,8 +51,7 @@
                 [errorDetails setObject:exception.reason forKey:kSDKCrashAnalyticsCause];
             }
             if (exception.callStackSymbols) {
-                NSString *stackTrace = [[exception callStackSymbols] componentsJoinedByString:@" \n "];
-                [errorDetails setObject:stackTrace forKey:kSDKCrashAnalyticsStackTrace];
+                [errorDetails setObject: [exception callStackSymbols] forKey:kSDKCrashAnalyticsStackTrace];
             }
             if (exception.name) {
                 [errorDetails setObject:exception.name forKey:kSDKCrashAnalyticsExceptionName];
