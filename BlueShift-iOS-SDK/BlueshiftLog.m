@@ -44,23 +44,7 @@
             log = [NSString stringWithFormat:@"%@\n%@",log,exception];
         }
         NSLog(@"%@", log);
-        
-        if ([BlueShift sharedInstance].config.enableSDKCrashAnalytics == YES) {
-            NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
-            if (exception.reason) {
-                [errorDetails setObject:exception.reason forKey:kSDKCrashAnalyticsCause];
-            }
-            if (exception.callStackSymbols) {
-                [errorDetails setObject: [exception callStackSymbols] forKey:kSDKCrashAnalyticsStackTrace];
-            }
-            if (exception.name) {
-                [errorDetails setObject:exception.name forKey:kSDKCrashAnalyticsExceptionName];
-            }
-            if (exception.userInfo) {
-                [errorDetails setObject:exception.userInfo forKey:kSDKCrashAnalyticsExceptionInfo];
-            }
-            [[BlueShift sharedInstance] trackEventForEventName:kSDKCrashAnalyticsEventName andParameters:errorDetails canBatchThisEvent:YES];
-        }
+        [self trackSDKCrashAnalyticsError:exception];
     } @catch (NSException *exception) {
         NSLog(@"Failed to log exception %@",exception);
     }
@@ -86,7 +70,7 @@
     }
 }
 
-+(void)logAPICallInfo:(NSString*)info withDetails: (NSDictionary*) details statusCode:(NSInteger)statusCode {
++ (void)logAPICallInfo:(NSString*)info withDetails: (NSDictionary*) details statusCode:(NSInteger)statusCode {
     if ([[BlueShift sharedInstance] config].debug) {
         NSString* log = @"[Blueshift] API call info : ";
         @try {
@@ -109,6 +93,25 @@
             NSLog(@"Failed to log API call info %@",exception);
         }
     }
-
 }
+
++ (void)trackSDKCrashAnalyticsError:(NSException *)exception {
+    if ([BlueShift sharedInstance].config.enableSDKCrashAnalytics == YES) {
+        NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
+        if (exception.reason) {
+            [errorDetails setObject:exception.reason forKey:kSDKCrashAnalyticsCause];
+        }
+        if (exception.callStackSymbols) {
+            [errorDetails setObject: [exception callStackSymbols] forKey:kSDKCrashAnalyticsStackTrace];
+        }
+        if (exception.name) {
+            [errorDetails setObject:exception.name forKey:kSDKCrashAnalyticsExceptionName];
+        }
+        if (exception.userInfo) {
+            [errorDetails setObject:exception.userInfo forKey:kSDKCrashAnalyticsExceptionInfo];
+        }
+        [[BlueShift sharedInstance] trackEventForEventName:kSDKCrashAnalyticsEventName andParameters:errorDetails canBatchThisEvent:YES];
+    }
+}
+
 @end
