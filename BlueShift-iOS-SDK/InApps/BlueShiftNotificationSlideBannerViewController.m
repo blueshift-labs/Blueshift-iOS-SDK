@@ -451,22 +451,27 @@
     return frame;
 }
 
+/// get bottom safe area height for the current in-app window
 - (CGFloat)getBottomSafeAreaHeight {
     CGFloat extraBottomPadding = 0.0;
     if (@available(iOS 11.0, *)) {
         if (self.window) {
             extraBottomPadding = self.window.safeAreaInsets.bottom;
+        } else if ([BlueShiftInAppNotificationHelper getApplicationKeyWindow]) {
+            extraBottomPadding = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].safeAreaInsets.bottom;
         }
     }
     return extraBottomPadding;
 }
 
-/// get top safe area height
+/// get top safe area height for the current in-app window
 - (CGFloat)getTopSafeAreaHeight {
     CGFloat topSafeAreaHeight = 0.0;
     if (@available(iOS 11.0, *)) {
         if (self.window) {
             topSafeAreaHeight = self.window.safeAreaInsets.top;
+        } else if ([BlueShiftInAppNotificationHelper getApplicationKeyWindow]) {
+            topSafeAreaHeight = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].safeAreaInsets.top;
         }
     } else {
         topSafeAreaHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
