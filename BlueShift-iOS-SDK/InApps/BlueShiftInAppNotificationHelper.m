@@ -137,8 +137,9 @@ static NSDictionary *_inAppTypeDictionay;
         return window.safeAreaInsets;
     } else if ([BlueShiftInAppNotificationHelper getApplicationKeyWindow]) {
         return [BlueShiftInAppNotificationHelper getApplicationKeyWindow].safeAreaInsets;
+    } else {
+        return  UIEdgeInsetsZero;
     }
-    return  UIEdgeInsetsZero;
 }
 
 + (BOOL)checkAppDelegateWindowPresent {
