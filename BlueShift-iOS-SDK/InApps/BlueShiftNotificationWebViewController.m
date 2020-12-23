@@ -219,12 +219,7 @@ API_AVAILABLE(ios(8.0))
     frame.size = size;
     webView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = CGSizeZero;
-    if (self.window) {
-        screenSize = self.window.bounds.size;
-    } else {
-        screenSize = [[UIScreen mainScreen] bounds].size;
-    }
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
     
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     

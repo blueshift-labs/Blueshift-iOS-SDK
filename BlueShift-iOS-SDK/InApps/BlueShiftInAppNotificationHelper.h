@@ -24,10 +24,27 @@ NS_ASSUME_NONNULL_BEGIN
 + (CGFloat)convertPercentageHeightToPoints:(float) height forWindow:(UIWindow*)window;
 + (CGFloat)convertPercentageWidthToPoints:(float) width forWindow:(UIWindow*)window;
 + (NSString*)getEncodedURLString:(NSString*) urlString;
+
+/// Returns the height of window excluding the top and bottom  safe area
+/// @param window - get presentation height for this window
 + (CGFloat)getPresentationAreaHeightForWindow:(UIWindow*)window;
+
+/// Returns the width of window excluding the left and right  safe area
+/// @param window - get presentation width for this window
 + (CGFloat)getPresentationAreaWidthForWindow:(UIWindow*)window;
+
+/// Returns the safe area insets for the given window or key window
+/// @param window - get safe area insets for this window
++ (UIEdgeInsets)getApplicationWindowSafeAreaInsets:(UIWindow*)window API_AVAILABLE(ios(11.0));
+
 + (BOOL)checkAppDelegateWindowPresent;
 + (BOOL)isIpadDevice;
+
+/// Returns the size of window for given window. If window object is null then return the keyWindow size or  UIScreen size
+/// @param window current window of the view
++ (CGSize)getApplicationWindowSize:(UIWindow *)window;
+
+/// Returns application key window based on multi window app or single window app
 + (UIWindow *)getApplicationKeyWindow;
 
 @end

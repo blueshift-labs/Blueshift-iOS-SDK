@@ -82,8 +82,6 @@ static NSDictionary *_inAppTypeDictionay;
     return widthInPoints;
 }
 
-/// Returns the height of window excluding the left and right  safe area
-/// @param window - get presentation width for this window
 + (CGFloat)getPresentationAreaHeightForWindow:(UIWindow*)window {
     CGFloat topMargin = 0.0;
     CGFloat bottomMargin = 0.0;
@@ -94,19 +92,11 @@ static NSDictionary *_inAppTypeDictionay;
         topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
         bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }
-    CGFloat windowHeight = 0;
-    if (window) {
-        windowHeight = window.bounds.size.height;
-    } else {
-        windowHeight = [[UIScreen mainScreen] bounds].size.height;
-    }
-
+    CGFloat windowHeight = [self getApplicationWindowSize:window].height;
     CGFloat presentationAreaHeight = windowHeight - topMargin - bottomMargin;
     return presentationAreaHeight;
 }
 
-/// Returns the height of window excluding the top and bottom  safe area
-/// @param window - get presentation height for this window
 + (CGFloat)getPresentationAreaWidthForWindow:(UIWindow*)window {
     CGFloat leftMargin = 0.0;
     CGFloat rightMargin = 0.0;
@@ -114,17 +104,11 @@ static NSDictionary *_inAppTypeDictionay;
         leftMargin = window.safeAreaInsets.left;
         rightMargin = window.safeAreaInsets.right;
     }
-    CGFloat windowWidth = 0;
-    if (window) {
-        windowWidth = window.bounds.size.width;
-    } else {
-        windowWidth = [[UIScreen mainScreen] bounds].size.width;
-    }
+    CGFloat windowWidth = [self getApplicationWindowSize:window].width;
     CGFloat presentationAreaWidth = windowWidth - leftMargin - rightMargin;
     return presentationAreaWidth;
 }
 
-/// Returns application key window based on multi window app or single window app
 + (UIWindow *)getApplicationKeyWindow {
     if (@available(iOS 13.0, *)) {
         if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
@@ -136,6 +120,25 @@ static NSDictionary *_inAppTypeDictionay;
         }
     }
     return [UIApplication sharedApplication].keyWindow;
+}
+
++ (CGSize)getApplicationWindowSize:(UIWindow *)window {
+    if (window) {
+        return window.bounds.size;
+    } else if ([self getApplicationKeyWindow]) {
+        return [self getApplicationKeyWindow].bounds.size;
+    } else {
+        return [[UIScreen mainScreen] bounds].size;
+    }
+}
+
++ (UIEdgeInsets)getApplicationWindowSafeAreaInsets:(UIWindow*)window API_AVAILABLE(ios(11.0)) {
+    if (window) {
+        return window.safeAreaInsets;
+    } else if ([BlueShiftInAppNotificationHelper getApplicationKeyWindow]) {
+        return [BlueShiftInAppNotificationHelper getApplicationKeyWindow].safeAreaInsets;
+    }
+    return  UIEdgeInsetsZero;
 }
 
 + (BOOL)checkAppDelegateWindowPresent {
