@@ -671,7 +671,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
     if (timestamp) {
-        requestMutableParameters[kInAppNotificationModalTimestampKey] = timestamp;
+        [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
     }
     
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
