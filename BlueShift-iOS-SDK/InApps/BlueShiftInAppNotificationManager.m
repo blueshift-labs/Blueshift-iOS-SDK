@@ -11,10 +11,10 @@
 #import "BlueShiftNotificationModalViewController.h"
 #import "BlueShiftNotificationSlideBannerViewController.h"
 #import "InAppNotificationEntity.h"
-#import "BlueShiftAppDelegate.h"
+#import "../BlueShiftAppDelegate.h"
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
-#import "BlueShift.h"
+#import "../BlueShift.h"
 #import "../BlueshiftLog.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
