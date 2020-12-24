@@ -58,7 +58,8 @@
 }
 
 - (void)loadNotificationView {
-    self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    CGSize windowSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
+    self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, windowSize.width, windowSize.height)];
 }
 
 - (UIView *)createNotificationWindow{

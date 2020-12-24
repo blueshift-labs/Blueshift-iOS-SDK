@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
 + (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
 + (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;
+
+/// Returns current UTC timestamp with format 2020-12-14T13:35:34.034000Z
 + (NSString *)getCurrentUTCTimestamp;
 
 @end

@@ -92,7 +92,8 @@ static NSDictionary *_inAppTypeDictionay;
         topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
         bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }
-    CGFloat presentationAreaHeight = window.bounds.size.height - topMargin - bottomMargin;
+    CGFloat windowHeight = [self getApplicationWindowSize:window].height;
+    CGFloat presentationAreaHeight = windowHeight - topMargin - bottomMargin;
     return presentationAreaHeight;
 }
 
@@ -103,7 +104,8 @@ static NSDictionary *_inAppTypeDictionay;
         leftMargin = window.safeAreaInsets.left;
         rightMargin = window.safeAreaInsets.right;
     }
-    CGFloat presentationAreaWidth = window.bounds.size.width - leftMargin - rightMargin;
+    CGFloat windowWidth = [self getApplicationWindowSize:window].width;
+    CGFloat presentationAreaWidth = windowWidth - leftMargin - rightMargin;
     return presentationAreaWidth;
 }
 
@@ -118,6 +120,26 @@ static NSDictionary *_inAppTypeDictionay;
         }
     }
     return [UIApplication sharedApplication].keyWindow;
+}
+
++ (CGSize)getApplicationWindowSize:(UIWindow *)window {
+    if (window) {
+        return window.bounds.size;
+    } else if ([self getApplicationKeyWindow]) {
+        return [self getApplicationKeyWindow].bounds.size;
+    } else {
+        return [[UIScreen mainScreen] bounds].size;
+    }
+}
+
++ (UIEdgeInsets)getApplicationWindowSafeAreaInsets:(UIWindow*)window API_AVAILABLE(ios(11.0)) {
+    if (window) {
+        return window.safeAreaInsets;
+    } else if ([BlueShiftInAppNotificationHelper getApplicationKeyWindow]) {
+        return [BlueShiftInAppNotificationHelper getApplicationKeyWindow].safeAreaInsets;
+    } else {
+        return  UIEdgeInsetsZero;
+    }
 }
 
 + (BOOL)checkAppDelegateWindowPresent {
