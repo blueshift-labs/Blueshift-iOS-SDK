@@ -406,7 +406,7 @@
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
         CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height forWindow:self.window];
-        CGFloat itemWidth =  (CGFloat) ceil(self.window.bounds.size.width * (width / 100.0f));
+        CGFloat itemWidth =  (CGFloat) round([BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window].width * (width / 100.0f));
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);

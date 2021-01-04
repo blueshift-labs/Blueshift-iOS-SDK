@@ -72,13 +72,13 @@ static NSDictionary *_inAppTypeDictionay;
 
 + (CGFloat)convertPercentageHeightToPoints:(float) height forWindow:(UIWindow*)window {
     CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
-    CGFloat heightInPoints = (CGFloat) ceil(presentationAreaHeight * (height / 100.0f));
+    CGFloat heightInPoints = (CGFloat) round(presentationAreaHeight * (height / 100.0f));
     return heightInPoints;
 }
 
 + (CGFloat)convertPercentageWidthToPoints:(float) width forWindow:(UIWindow*)window {
     CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
-    CGFloat widthInPoints = (CGFloat) ceil(presentationAreaWidth * (width / 100.0f));
+    CGFloat widthInPoints = (CGFloat) round(presentationAreaWidth * (width / 100.0f));
     return widthInPoints;
 }
 
