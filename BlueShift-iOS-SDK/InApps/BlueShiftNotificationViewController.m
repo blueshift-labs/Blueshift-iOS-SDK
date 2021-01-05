@@ -70,14 +70,17 @@
 }
 
 - (void)createWindow {
+    self.window = nil;
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
     if (@available(iOS 13.0, *)) {
         if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
-            self.window = [[windowClass alloc] initWithWindowScene: [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene];
-        } else {
-            self.window = [[windowClass alloc] init];
+            UIWindowScene *windowScene = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene;
+            if (windowScene) {
+                self.window = [[windowClass alloc] initWithWindowScene: windowScene];
+            }
         }
-    } else {
+    }
+    if (self.window == nil) {
         self.window = [[windowClass alloc] init];
     }
     self.window.frame = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].frame;
@@ -137,7 +140,9 @@
         imageData = [cachedImageData valueForKey:urlString];
     } else {
         imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
-        [cachedImageData setObject:imageData forKey:urlString];
+        if (imageData) {
+            [cachedImageData setObject:imageData forKey:urlString];
+        }
     }
     return imageData;
 }
