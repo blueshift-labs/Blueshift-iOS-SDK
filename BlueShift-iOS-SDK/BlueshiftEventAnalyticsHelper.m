@@ -142,7 +142,9 @@
              if (@available(iOS 8.0, *)) {
                  if (URLComponents != nil && [URLComponents queryItems] != nil && [URLComponents.queryItems count] > 0) {
                      for (NSURLQueryItem *queryItem in URLComponents.queryItems) {
-                        [queryDictionary setObject:queryItem.value forKey:queryItem.name];
+                         if (queryItem && queryItem.value && queryItem.name) {
+                             [queryDictionary setObject:queryItem.value forKey:queryItem.name];
+                         }
                     }
                  }
              }
