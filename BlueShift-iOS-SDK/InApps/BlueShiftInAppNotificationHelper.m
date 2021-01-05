@@ -86,8 +86,9 @@ static NSDictionary *_inAppTypeDictionay;
     CGFloat topMargin = 0.0;
     CGFloat bottomMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        topMargin =  window.safeAreaInsets.top;
-        bottomMargin = window.safeAreaInsets.bottom;
+        UIEdgeInsets safeAreaInsets = [self getApplicationWindowSafeAreaInsets:window];
+        topMargin =  safeAreaInsets.top;
+        bottomMargin = safeAreaInsets.bottom;
     } else {
         topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
         bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
@@ -101,8 +102,9 @@ static NSDictionary *_inAppTypeDictionay;
     CGFloat leftMargin = 0.0;
     CGFloat rightMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        leftMargin = window.safeAreaInsets.left;
-        rightMargin = window.safeAreaInsets.right;
+        UIEdgeInsets safeAreaInsets = [self getApplicationWindowSafeAreaInsets:window];
+        leftMargin = safeAreaInsets.left;
+        rightMargin = safeAreaInsets.right;
     }
     CGFloat windowWidth = [self getApplicationWindowSize:window].width;
     CGFloat presentationAreaWidth = windowWidth - leftMargin - rightMargin;
