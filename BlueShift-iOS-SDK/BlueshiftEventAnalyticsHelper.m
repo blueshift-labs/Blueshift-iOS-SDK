@@ -135,8 +135,8 @@
 }
 
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)URL {
+    NSMutableDictionary *queryDictionary = [[NSMutableDictionary alloc] init];
     @try {
-        NSMutableDictionary *queryDictionary =[[NSMutableDictionary alloc] init];
         if (URL !=  nil && [URL absoluteString] != nil && ![URL.absoluteString isEqualToString:@""]) {
             NSURLComponents *URLComponents =[[NSURLComponents alloc] initWithString: URL.absoluteString];
              if (@available(iOS 8.0, *)) {
@@ -147,11 +147,10 @@
                  }
              }
         }
-        
-        return queryDictionary;
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+    return queryDictionary;
 }
 
 +(BOOL)isNotNilAndNotEmpty:(NSString*)string {

@@ -37,9 +37,12 @@
 @property NSSet * _Nullable customCategories;
 
 @property NSString * _Nullable appGroupID;
+
+/// Set this propery to true if the app has SceneDelegate configuration enabled.
+/// Default value is set to false.
 @property BOOL isSceneDelegateConfiguration;
 
-//Custom device id provision for DeviceIDSourceCUSTOM
+/// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
