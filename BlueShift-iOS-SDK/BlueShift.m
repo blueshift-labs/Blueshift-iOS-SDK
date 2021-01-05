@@ -633,8 +633,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
-    
+    if (eventName) {
+        [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
+    }
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }

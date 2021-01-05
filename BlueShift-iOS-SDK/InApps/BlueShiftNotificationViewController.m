@@ -140,7 +140,9 @@
         imageData = [cachedImageData valueForKey:urlString];
     } else {
         imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
-        [cachedImageData setObject:imageData forKey:urlString];
+        if (imageData) {
+            [cachedImageData setObject:imageData forKey:urlString];
+        }
     }
     return imageData;
 }
