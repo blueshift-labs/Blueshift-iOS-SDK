@@ -11,6 +11,7 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
+#import "../BlueshiftLog.h"
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
@@ -266,9 +267,12 @@ API_AVAILABLE(ios(8.0))
             [self hideFromWindow:YES];
         } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:@{}];
-                [self hideFromWindow:YES];
+                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:[self getInAppOpenURLOptions:nil]];
+                [BlueshiftLog logInfo:@"Delivered in-app notifiation deeplink to AppDelegate openURL method" withDetails:url methodName:nil];
             }
+            [self hideFromWindow:YES];
+        } else {
+            [self hideFromWindow:YES];
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         return;

@@ -12,6 +12,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
 #import "../BlueshiftLog.h"
+#import "../BlueshiftConstants.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -282,13 +283,46 @@
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
+                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options: [self getInAppOpenURLOptions:buttonDetails]];
+                    [BlueshiftLog logInfo:@"Delivered in-app notifiation deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
                 }
             }
-            
             [self hide:YES];
         }
     }
+}
+
+- (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)button {
+    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsInApp}];
+    @try {
+        if (_notification) {
+            NSString *inAppType = @"";
+            switch (_notification.inAppType) {
+                case BlueShiftInAppTypeModal:
+                    inAppType = openURLOptionsModal;
+                    break;
+                case BlueShiftNotificationSlideBanner:
+                    inAppType = openURLOptionsSlideIn;
+                    break;
+                case BlueShiftInAppTypeHTML:
+                    inAppType = openURLOptionsHTML;
+                    break;
+                default:
+                    inAppType = @"";
+                    break;
+            }
+            [options setValue:inAppType forKey:openURLOptionsInAppType];
+        }
+        if (button) {
+            NSString *buttonIndex = button.buttonIndex ? button.buttonIndex : @"";
+            [options setValue:buttonIndex forKey:openURLOptionsButtonIndex];
+            NSString *buttonText = button.text ? button.text : @"";
+            [options setValue:buttonText forKey:openURLOptionsButtonText];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+    return options;
 }
 
 - (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {

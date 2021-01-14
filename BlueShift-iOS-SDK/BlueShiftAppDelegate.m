@@ -435,9 +435,10 @@
     if (userInfo != nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] != [NSNull null]) {
         [self trackAppOpenWithParameters:userInfo];
         NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
+        NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush};
         if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
+                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
             }
             [BlueshiftLog logInfo:@"Delivered push notifiation deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
         }

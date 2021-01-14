@@ -113,7 +113,7 @@ static NSDictionary *_inAppTypeDictionay;
 
 + (UIWindow *)getApplicationKeyWindow {
     if (@available(iOS 13.0, *)) {
-        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
+        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES && [NSThread isMainThread] == YES) {
             for (UIWindow *window in [UIApplication sharedApplication].windows) {
                 if (window && window.isKeyWindow) {
                     return window;
