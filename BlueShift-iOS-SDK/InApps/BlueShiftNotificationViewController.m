@@ -284,7 +284,7 @@
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
                     [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options: [self getInAppOpenURLOptions:buttonDetails]];
-                    [BlueshiftLog logInfo:@"Delivered in-app notifiation deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
+                    [BlueshiftLog logInfo:@"Delivered in-app notification deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
                 }
             }
             [self hide:YES];
