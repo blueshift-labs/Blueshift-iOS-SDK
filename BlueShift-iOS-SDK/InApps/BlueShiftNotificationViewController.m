@@ -315,10 +315,12 @@
             [options setValue:inAppType forKey:openURLOptionsInAppType];
         }
         if (inAppbutton) {
-            NSString *buttonIndex = inAppbutton.buttonIndex ? inAppbutton.buttonIndex : @"";
-            [options setValue:buttonIndex forKey:openURLOptionsButtonIndex];
-            NSString *buttonText = inAppbutton.text ? inAppbutton.text : @"";
-            [options setValue:buttonText forKey:openURLOptionsButtonText];
+            if (inAppbutton.buttonIndex) {
+                [options setValue:inAppbutton.buttonIndex forKey:openURLOptionsButtonIndex];
+            }
+            if(inAppbutton.text) {
+                [options setValue:inAppbutton.text forKey:openURLOptionsButtonText];
+            }
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];

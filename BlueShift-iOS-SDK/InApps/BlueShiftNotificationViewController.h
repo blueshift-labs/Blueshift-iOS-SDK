@@ -59,7 +59,7 @@ controller;
 - (void)setButton:(UIButton *)button andString:(NSString *)value textColor:(NSString *)textColorCode backgroundColor:(NSString *)backgroundColorCode;
 
 /// returns dictionary with in-app notification details to share to openURL method of appDelegate
-/// @param button nullable in-app notification clicked button object
+/// @param inAppbutton nullable in-app notification clicked button object
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton;
 
 @end
