@@ -267,8 +267,9 @@ API_AVAILABLE(ios(8.0))
             [self hideFromWindow:YES];
         } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:[self getInAppOpenURLOptions:nil]];
-                [BlueshiftLog logInfo:@"Delivered in-app notification deeplink to AppDelegate openURL method" withDetails:url methodName:nil];
+                NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
+                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
+                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
             }
             [self hideFromWindow:YES];
         } else {

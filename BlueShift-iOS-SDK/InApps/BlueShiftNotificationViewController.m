@@ -283,8 +283,9 @@
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options: [self getInAppOpenURLOptions:buttonDetails]];
-                    [BlueshiftLog logInfo:@"Delivered in-app notification deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
+                    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
+                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                    [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
                 }
             }
             [self hide:YES];
@@ -292,7 +293,7 @@
     }
 }
 
-- (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)button {
+- (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton {
     NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsInApp}];
     @try {
         if (_notification) {
@@ -313,10 +314,10 @@
             }
             [options setValue:inAppType forKey:openURLOptionsInAppType];
         }
-        if (button) {
-            NSString *buttonIndex = button.buttonIndex ? button.buttonIndex : @"";
+        if (inAppbutton) {
+            NSString *buttonIndex = inAppbutton.buttonIndex ? inAppbutton.buttonIndex : @"";
             [options setValue:buttonIndex forKey:openURLOptionsButtonIndex];
-            NSString *buttonText = button.text ? button.text : @"";
+            NSString *buttonText = inAppbutton.text ? inAppbutton.text : @"";
             [options setValue:buttonText forKey:openURLOptionsButtonText];
         }
     } @catch (NSException *exception) {

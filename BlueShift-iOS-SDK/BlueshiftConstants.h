@@ -52,7 +52,7 @@
 #define openURLOptionsModal                     @"modal"
 #define openURLOptionsSlideIn                   @"slideInBanner"
 #define openURLOptionsHTML                      @"HTML"
-#define openURLOptionsInAppType                 @"inAppNotificationType"
+#define openURLOptionsInAppType                 @"inAppType"
 #define openURLOptionsButtonIndex               @"clickedButtonIndex"
 #define openURLOptionsButtonText                @"clickedButtonText"
 

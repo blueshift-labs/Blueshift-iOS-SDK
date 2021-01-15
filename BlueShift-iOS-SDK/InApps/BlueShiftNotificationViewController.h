@@ -60,7 +60,7 @@ controller;
 
 /// returns dictionary with in-app notification details to share to openURL method of appDelegate
 /// @param button nullable in-app notification clicked button object
-- (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable )button;
+- (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton;
 
 @end
 

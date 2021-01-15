@@ -218,17 +218,17 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 /// Fetch in-app notification from db and display on the screen when app is in active state
 - (void)fetchInAppNotificationFromDB {
-    void (^ blockToExecute)(void) = ^ {
+    void (^ fetchInAppBlock)(void) = ^ {
         if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
             [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
         }
     };
     
     if ([NSThread isMainThread] == YES) {
-        blockToExecute();
+        fetchInAppBlock();
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            blockToExecute();
+            fetchInAppBlock();
         });
     }
 }
