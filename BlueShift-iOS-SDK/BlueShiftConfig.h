@@ -40,7 +40,7 @@
 
 /// Set this propery to true if the app has SceneDelegate configuration enabled.
 /// Default value is set to false.
-@property BOOL isSceneDelegateConfiguration;
+@property BOOL isSceneDelegateConfiguration API_AVAILABLE(ios(13.0));
 
 /// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;

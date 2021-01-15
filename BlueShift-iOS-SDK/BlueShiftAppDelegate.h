@@ -68,7 +68,7 @@
 - (void)registerForSilentPushNotification;
 
 // SceneDelegate lifecycle methods
-- (void)sceneDidBecomeActive:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
+- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 
 @end
