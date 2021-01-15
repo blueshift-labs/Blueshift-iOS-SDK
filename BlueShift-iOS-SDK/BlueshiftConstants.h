@@ -43,4 +43,17 @@
 #define kYES                                    @"YES"
 #define kNO                                     @"NO"
 
+//OpenURL options keys and values
+#define openURLOptionsSource                    @"source"
+#define openURLOptionsBlueshift                 @"Blueshift"
+#define openURLOptionsChannel                   @"channel"
+#define openURLOptionsInApp                     @"inApp"
+#define openURLOptionsPush                      @"push"
+#define openURLOptionsModal                     @"modal"
+#define openURLOptionsSlideIn                   @"slideInBanner"
+#define openURLOptionsHTML                      @"HTML"
+#define openURLOptionsInAppType                 @"inAppType"
+#define openURLOptionsButtonIndex               @"clickedButtonIndex"
+#define openURLOptionsButtonText                @"clickedButtonText"
+
 #endif /* BlueshiftConstants_h */

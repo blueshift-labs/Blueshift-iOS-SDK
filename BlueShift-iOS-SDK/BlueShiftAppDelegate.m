@@ -8,8 +8,8 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
-#import "BlueShiftInAppNotificationManager.h"
-#import "BlueShiftInAppNotificationConstant.h"
+#import "InApps/BlueShiftInAppNotificationManager.h"
+#import "InApps/BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 #import "InApps/BlueShiftInAppNotificationHelper.h"
@@ -134,7 +134,7 @@
     //fire delayed app_open after firing the identify call
     if(fireAppOpen) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [self trackAppOpenWithParameters:nil];
+            [self trackAppOpenOnAppLaunch:nil];
         });
     }
 }
@@ -178,7 +178,7 @@
     return NO;
 }
 
-//Check and fire identify call if any device attribute is changed
+/// Check and fire identify call if any device attribute is changed
 - (void) autoIdentifyCheck {
     BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
     if (autoIdentify) {
@@ -437,9 +437,10 @@
         NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
         if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
+                NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush};
+                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
+                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
             }
-            [BlueshiftLog logInfo:@"Delivered push notifiation deeplink to AppDelegate openURL method" withDetails:deepLinkURL methodName:nil];
         }
     }
 }
@@ -1003,17 +1004,20 @@
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
-- (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
+/// SDK triggeres app_open event automatically on app launch and is controlled by the enableAppOpenTrackEvent  config flag
+- (void)trackAppOpenOnAppLaunch:(NSDictionary *)parameters {
     if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        
+        [self trackAppOpenWithParameters:parameters];
+    }
+}
+
+/// Track app_open by manually calling this method from the host application
+- (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        
         if (parameters) {
             [parameterMutableDictionary addEntriesFromDictionary:parameters];
         }
-        
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
-    }
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
@@ -1239,6 +1243,39 @@
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
+- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
+    if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
+        [self appDidBecomeActive:UIApplication.sharedApplication];
+    }
+}
+
+- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
+    if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
+        if ([NSThread isMainThread] == YES) {
+            [self processSceneDidEnterBackground];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self processSceneDidEnterBackground];
+            });
+        }
+    }
+}
+
+/// Call appDidEnterBackground if all the scenes of the app are in background
+/// @warning - This function needs to be executed on the main thread
+- (void)processSceneDidEnterBackground API_AVAILABLE(ios(13.0)) {
+    BOOL areAllScenesInBackground = YES;
+    for (UIWindow* window in UIApplication.sharedApplication.windows) {
+        if (window.windowScene.activationState == UISceneActivationStateForegroundActive || window.windowScene.activationState == UISceneActivationStateForegroundInactive) {
+            areAllScenesInBackground = NO;
+            break;
+        }
+    }
+    if (areAllScenesInBackground == YES) {
+        [self appDidEnterBackground:UIApplication.sharedApplication];
     }
 }
 

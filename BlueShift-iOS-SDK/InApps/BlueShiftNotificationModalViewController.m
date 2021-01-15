@@ -196,7 +196,7 @@
             descriptionLabel = [self createDescriptionLabel:yPadding];
             if (self.notification.templateStyle != nil && self.notification.templateStyle.height > 0) {
                 CGRect newFrame = descriptionLabel.frame;
-                CGFloat newHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:self.notification.templateStyle.height] - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
+                CGFloat newHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:self.notification.templateStyle.height forWindow:self.window] - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
                 newFrame.size.height = newHeight;
                 descriptionLabel.frame = newFrame;
             }
@@ -441,7 +441,7 @@
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height forWindow:self.window];
     
     float topMargin = 0.0;
     float bottomMargin = 0.0;
@@ -467,8 +467,8 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth =  [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height forWindow:self.window];
+        CGFloat itemWidth =  [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width forWindow:self.window];
         
         if (height == 100) {
             itemHeight = itemHeight - (topMargin + bottomMargin);
@@ -486,7 +486,7 @@
     frame.size = size;
     notificationView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {

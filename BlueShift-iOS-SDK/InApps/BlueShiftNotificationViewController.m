@@ -12,6 +12,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
 #import "../BlueshiftLog.h"
+#import "../BlueshiftConstants.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -58,7 +59,8 @@
 }
 
 - (void)loadNotificationView {
-    self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    CGSize windowSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
+    self.view = [[BlueShiftNotificationView alloc] initWithFrame:CGRectMake(0, 0, windowSize.width, windowSize.height)];
 }
 
 - (UIView *)createNotificationWindow{
@@ -69,8 +71,20 @@
 }
 
 - (void)createWindow {
+    self.window = nil;
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
-    self.window = [[windowClass alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    if (@available(iOS 13.0, *)) {
+        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
+            UIWindowScene *windowScene = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene;
+            if (windowScene) {
+                self.window = [[windowClass alloc] initWithWindowScene: windowScene];
+            }
+        }
+    }
+    if (self.window == nil) {
+        self.window = [[windowClass alloc] init];
+    }
+    self.window.frame = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].frame;
     self.window.alpha = 0;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.windowLevel = UIWindowLevelNormal;
@@ -127,7 +141,9 @@
         imageData = [cachedImageData valueForKey:urlString];
     } else {
         imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
-        [cachedImageData setObject:imageData forKey:urlString];
+        if (imageData) {
+            [cachedImageData setObject:imageData forKey:urlString];
+        }
     }
     return imageData;
 }
@@ -267,13 +283,49 @@
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:@{}];
+                    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
+                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                    [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
                 }
             }
-            
             [self hide:YES];
         }
     }
+}
+
+- (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton {
+    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsInApp}];
+    @try {
+        if (_notification) {
+            NSString *inAppType = @"";
+            switch (_notification.inAppType) {
+                case BlueShiftInAppTypeModal:
+                    inAppType = openURLOptionsModal;
+                    break;
+                case BlueShiftNotificationSlideBanner:
+                    inAppType = openURLOptionsSlideIn;
+                    break;
+                case BlueShiftInAppTypeHTML:
+                    inAppType = openURLOptionsHTML;
+                    break;
+                default:
+                    inAppType = @"";
+                    break;
+            }
+            [options setValue:inAppType forKey:openURLOptionsInAppType];
+        }
+        if (inAppbutton) {
+            if (inAppbutton.buttonIndex) {
+                [options setValue:inAppbutton.buttonIndex forKey:openURLOptionsButtonIndex];
+            }
+            if(inAppbutton.text) {
+                [options setValue:inAppbutton.text forKey:openURLOptionsButtonText];
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+    return options;
 }
 
 - (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {

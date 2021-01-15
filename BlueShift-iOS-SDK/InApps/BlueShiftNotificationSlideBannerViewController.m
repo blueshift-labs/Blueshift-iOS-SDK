@@ -378,7 +378,7 @@
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height];
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height forWindow:self.window];
     
     
     float topMargin = [self getTopSafeAreaHeight];
@@ -405,8 +405,8 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height forWindow:self.window];
+        CGFloat itemWidth =  (CGFloat) round([BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window].width * (width / 100.0f));
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);
@@ -420,7 +420,7 @@
     frame.size = size;
     slideBannerView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     frame.origin.x = leftMargin;
@@ -445,22 +445,20 @@
     return frame;
 }
 
+/// get bottom safe area height for the current in-app window
 - (CGFloat)getBottomSafeAreaHeight {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
     CGFloat extraBottomPadding = 0.0;
     if (@available(iOS 11.0, *)) {
-        extraBottomPadding = window.safeAreaInsets.bottom;
+        extraBottomPadding = [BlueShiftInAppNotificationHelper getApplicationWindowSafeAreaInsets: self.window].bottom;
     }
-    
     return extraBottomPadding;
 }
 
-/// get top safe area height
+/// get top safe area height for the current in-app window
 - (CGFloat)getTopSafeAreaHeight {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
     CGFloat topSafeAreaHeight = 0.0;
     if (@available(iOS 11.0, *)) {
-        topSafeAreaHeight = window.safeAreaInsets.top;
+        topSafeAreaHeight = [BlueShiftInAppNotificationHelper getApplicationWindowSafeAreaInsets: self.window].top;
     } else {
         topSafeAreaHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }

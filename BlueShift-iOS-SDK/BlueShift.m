@@ -7,7 +7,7 @@
 
 #import "BlueShift.h"
 #import <UserNotifications/UserNotifications.h>
-#import "BlueShiftInAppNotificationManager.h"
+#import "InApps/BlueShiftInAppNotificationManager.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
@@ -134,7 +134,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     // Mark app open if device token is already present, else delay it till app receves device token and fires identify
     if ([self getDeviceToken]) {
-        [blueShiftAppDelegate trackAppOpenWithParameters:nil];
+        [blueShiftAppDelegate trackAppOpenOnAppLaunch:nil];
     }
     
     [self logSDKInitializationDetails];
@@ -216,12 +216,22 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-- (void) fetchInAppNotificationFromDB{
-    if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-        [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
+/// Fetch in-app notification from db and display on the screen when app is in active state
+- (void)fetchInAppNotificationFromDB {
+    void (^ fetchInAppBlock)(void) = ^ {
+        if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+            [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
+        }
+    };
+    
+    if ([NSThread isMainThread] == YES) {
+        fetchInAppBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            fetchInAppBlock();
+        });
     }
 }
-
 
 - (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent {
     [self identifyUserWithEmail:[BlueShiftUserInfo sharedInstance].email andDetails:details canBatchThisEvent:isBatchEvent];
@@ -236,7 +246,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (details) {
         [parameterMutableDictionary addEntriesFromDictionary:details];
     }
-    [self trackEventForEventName:kEventIdentify andParameters:details canBatchThisEvent:isBatchEvent];
+    [self trackEventForEventName:kEventIdentify andParameters:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
 }
 
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent{
@@ -633,8 +643,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
-    
+    if (eventName) {
+        [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
+    }
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
     }
@@ -668,6 +679,10 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         }
         
         [requestMutableParameters addEntriesFromDictionary:[blueShiftUserInfoMutableDictionary copy]];
+    }
+    NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
+    if (timestamp) {
+        [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
     }
     
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
@@ -725,6 +740,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (_inAppNotificationMananger) {
         if (displayPage) {
             _inAppNotificationMananger.inAppNotificationDisplayOnPage = displayPage;
+            [BlueshiftLog logInfo:@"Successfully registered for in-app for screen " withDetails:displayPage methodName:nil];
         }
         if (_config.inAppManualTriggerEnabled == NO) {
              [self fetchInAppNotificationFromDB];
@@ -734,10 +750,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)unregisterForInAppMessage {
     if (_inAppNotificationMananger) {
+        [BlueshiftLog logInfo:@"Successfully unegistered for in-app for screen " withDetails:_inAppNotificationMananger.inAppNotificationDisplayOnPage methodName:nil];
         _inAppNotificationMananger.inAppNotificationDisplayOnPage = nil;
     }
 }
 
+/// Display in-app notification when manual trigger mode for displaying in-app notifications is enabled
+/// By calling this method, it displays single in-app notification when the current screen/VC is registered for displaying in-app notifications
 - (void)displayInAppNotification {
     if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == YES) {
         [self fetchInAppNotificationFromDB];

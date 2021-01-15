@@ -64,7 +64,12 @@
 - (void)handleBlueshiftUniversalLinksForActivity:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0));
 - (void)trackAppOpenWithParameters:(NSDictionary *_Nullable)parameters;
+- (void)trackAppOpenOnAppLaunch:(NSDictionary *_Nullable)parameters;
 - (void)registerForSilentPushNotification;
+
+// SceneDelegate lifecycle methods
+- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
+- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 
 @end
 #endif

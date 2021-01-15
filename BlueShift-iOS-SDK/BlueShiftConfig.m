@@ -28,6 +28,8 @@
         
         //Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
+        
+        self.isSceneDelegateConfiguration = NO;
     }
     return self;
 }
