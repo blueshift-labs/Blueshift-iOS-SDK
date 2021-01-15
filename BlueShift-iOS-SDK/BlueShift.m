@@ -216,12 +216,22 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-- (void) fetchInAppNotificationFromDB{
-    if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-        [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
+/// Fetch in-app notification from db and display on the screen when app is in active state
+- (void)fetchInAppNotificationFromDB {
+    void (^ fetchInAppBlock)(void) = ^ {
+        if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+            [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
+        }
+    };
+    
+    if ([NSThread isMainThread] == YES) {
+        fetchInAppBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            fetchInAppBlock();
+        });
     }
 }
-
 
 - (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent {
     [self identifyUserWithEmail:[BlueShiftUserInfo sharedInstance].email andDetails:details canBatchThisEvent:isBatchEvent];
@@ -745,6 +755,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+/// Display in-app notification when manual trigger mode for displaying in-app notifications is enabled
+/// By calling this method, it displays single in-app notification when the current screen/VC is registered for displaying in-app notifications
 - (void)displayInAppNotification {
     if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == YES) {
         [self fetchInAppNotificationFromDB];

@@ -45,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (CGSize)getApplicationWindowSize:(UIWindow *)window;
 
 /// Returns application key window based on multi window app or single window app
+/// @warning In the sceneDelegate enabled apps, In order to access multiple windows to find the keyWindow, this function needs to be executed on the main thread
 + (UIWindow *)getApplicationKeyWindow;
 
 @end
