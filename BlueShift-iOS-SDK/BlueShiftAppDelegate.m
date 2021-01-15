@@ -178,7 +178,7 @@
     return NO;
 }
 
-//Check and fire identify call if any device attribute is changed
+/// Check and fire identify call if any device attribute is changed
 - (void) autoIdentifyCheck {
     BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
     if (autoIdentify) {
@@ -1243,6 +1243,39 @@
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
+- (void)sceneDidBecomeActive:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
+    if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
+        [self appDidBecomeActive:UIApplication.sharedApplication];
+    }
+}
+
+- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
+    if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
+        if ([NSThread isMainThread] == YES) {
+            [self processSceneDidEnterBackground];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self processSceneDidEnterBackground];
+            });
+        }
+    }
+}
+
+/// Call appDidEnterBackground if all the scenes of the app are in background
+/// @warning - This function needs to be executed on the main thread
+- (void)processSceneDidEnterBackground API_AVAILABLE(ios(13.0)) {
+    BOOL areAllScenesInBackground = YES;
+    for (UIWindow* window in UIApplication.sharedApplication.windows) {
+        if (window.windowScene.activationState == UISceneActivationStateForegroundActive || window.windowScene.activationState == UISceneActivationStateForegroundInactive) {
+            areAllScenesInBackground = NO;
+            break;
+        }
+    }
+    if (areAllScenesInBackground == YES) {
+        [self appDidEnterBackground:UIApplication.sharedApplication];
     }
 }
 
