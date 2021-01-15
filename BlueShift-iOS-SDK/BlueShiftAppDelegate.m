@@ -1246,7 +1246,7 @@
     }
 }
 
-- (void)sceneDidBecomeActive:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
+- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
     if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
         [self appDidBecomeActive:UIApplication.sharedApplication];
     }
