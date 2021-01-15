@@ -1264,6 +1264,7 @@
 }
 
 /// Call appDidEnterBackground if all the scenes of the app are in background
+/// @warning - This function needs to be executed on the main thread
 - (void)processSceneDidEnterBackground API_AVAILABLE(ios(13.0)) {
     BOOL areAllScenesInBackground = YES;
     for (UIWindow* window in UIApplication.sharedApplication.windows) {
