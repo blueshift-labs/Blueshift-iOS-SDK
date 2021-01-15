@@ -29,7 +29,9 @@
         //Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
-        self.isSceneDelegateConfiguration = NO;
+        if (@available(iOS 13.0, *)) {
+            self.isSceneDelegateConfiguration = NO;
+        }
     }
     return self;
 }
