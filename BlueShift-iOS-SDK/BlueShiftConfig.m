@@ -32,6 +32,8 @@
         if (@available(iOS 13.0, *)) {
             self.isSceneDelegateConfiguration = NO;
         }
+        
+        self.enableIDFACollection = YES;
     }
     return self;
 }
