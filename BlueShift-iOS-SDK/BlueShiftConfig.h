@@ -42,8 +42,8 @@
 /// @note Default value is set to false.
 @property BOOL isSceneDelegateConfiguration API_AVAILABLE(ios(13.0));
 
-/// Set this property to false to stop the SDK from collectiong IDFA..
-/// @Discussion SDK never ask user the device IDFA permission, but if the host app has asked for IDFA permission, and user has accepted it, then SDK collects it and sends to server.
+/// Set this property to false to stop the SDK from collectiong IDFA.
+/// @discussion With enableIDFACollection set as true, SDK will not ask user the device IDFA permission, but if the host app has asked for IDFA permission, and user has accepted it, then SDK collects it and sends to server.
 /// @note Default value is set to true.
 @property BOOL enableIDFACollection;
 
