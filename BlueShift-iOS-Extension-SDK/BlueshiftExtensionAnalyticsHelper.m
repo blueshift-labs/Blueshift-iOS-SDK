@@ -6,6 +6,7 @@
 //
 
 #import "BlueshiftExtensionAnalyticsHelper.h"
+#import "BlueShiftPushAnalytics.h"
 
 @implementation BlueshiftExtensionAnalyticsHelper
 
@@ -17,6 +18,8 @@
     NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
     NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
     NSString *timestamp = [self getCurrentUTCTimestamp];
+    NSString *deviceId = (NSString *)[pushDetailsDictionary objectForKey:kDeviceID];
+    NSString *appName = (NSString *)[pushDetailsDictionary objectForKey:kAppName];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (bsft_user_uuid) {
         [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
@@ -38,6 +41,12 @@
     }
     if (timestamp) {
         [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
+    }
+    if (deviceId) {
+        [pushTrackParametersMutableDictionary setObject:deviceId forKey: kDeviceID];
+    }
+    if (appName) {
+        [pushTrackParametersMutableDictionary setObject:appName forKey: kAppName];
     }
     
     return [pushTrackParametersMutableDictionary copy];
@@ -69,6 +78,19 @@
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
     [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
     return [dateFormatter stringFromDate:[NSDate date]];
+}
+
++ (NSDictionary *)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request {
+    NSMutableDictionary *userInfo = [request.content.userInfo mutableCopy];
+    NSDictionary* deviceData = [BlueShiftPushAnalytics getDeviceData];
+    if ([deviceData objectForKey:kDeviceID]) {
+        [userInfo setValue:[deviceData objectForKey:kDeviceID] forKey:kDeviceID];
+    }
+    if ([deviceData objectForKey:kAppName]) {
+        [userInfo setValue:[deviceData objectForKey:kAppName] forKey:kAppName];
+    }
+    NSLog(@"[Blueshift] - %@",userInfo);
+    return userInfo;
 }
 
 @end

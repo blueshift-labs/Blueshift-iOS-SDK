@@ -432,6 +432,11 @@
 }
 
 - (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo {
+    // invoke the push clicked callback method
+    if ([[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:)]) {
+        [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo];
+    }
+
     if (userInfo != nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] && [userInfo objectForKey: kPushNotificationDeepLinkURLKey] != [NSNull null]) {
         [self trackAppOpenWithParameters:userInfo];
         NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
@@ -659,7 +664,7 @@
             NSDictionary *selectedItem = [carouselItems objectAtIndex:index];
             NSString *urlString = [selectedItem objectForKey: kPushNotificationDeepLinkURLKey];
             NSURL *url = [NSURL URLWithString:urlString];
-            [pushDetails setValue:urlString forKey:kPushNotificationDeepLinkURLKey];
+            [pushDetails setValue:urlString forKey:kNotificationURLElementKey];
             [self trackPushClickedWithParameters: [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:pushDetails]];
             if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCarouselPushForCategory: clickedWithIndex: withDetails:)]) {
                 // User already implemented the viewPushActionWithDetails in App Delegate...
@@ -682,7 +687,7 @@
                 }
             }
             
-            [self setupPushNotificationDeeplink: selectedItem];
+            [self setupPushNotificationDeeplink: pushDetails];
             return;
         } else {
             

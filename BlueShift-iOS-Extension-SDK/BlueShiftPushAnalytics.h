@@ -11,4 +11,7 @@
 
 + (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo;
 
+/// Returns the device data dictionary which includes device_id and app_name
++ (NSDictionary*)getDeviceData;
+
 @end

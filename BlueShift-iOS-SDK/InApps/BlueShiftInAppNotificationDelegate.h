@@ -20,6 +20,21 @@
 - (void)inAppNotificationWillDisappear:(NSDictionary *)notificationDictionary;
 - (void)inAppNotificationDidDisappear:(NSDictionary *)notificationDictionary;
 
+/// This is a SDK hook/callback for the in-app notification delivered event.
+/// @param payload in-app notification payload.
+/// @discussion SDK invokes this callback method when it receives an in-app notification.
+- (void)inAppNotificationDidDeliver:(NSDictionary *)payload;
+
+/// This is a SDK hook/callback for the in-app notification open event.
+/// @param payload in-app notification payload.
+/// @discussion SDK invokes this callback method when it displays an in-app notification.
+- (void)inAppNotificationDidOpen:(NSDictionary *)payload;
+
+/// This is a SDK hook/callback for the in-app notification click event.
+/// @param payload in-app notification payload
+/// @discussion SDK invokes this callback method when user clicks/taps on an in-app notification button/action.
+- (void)inAppNotificationDidClick:(NSDictionary *)payload;
+
 @end
 
 
