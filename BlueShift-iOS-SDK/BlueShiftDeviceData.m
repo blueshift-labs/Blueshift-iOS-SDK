@@ -131,7 +131,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:[NSNumber numberWithFloat:self.currentLocation.coordinate.longitude] forKey:kLongitude];
     }
     
-    if (self.deviceIDFA) {
+    if ([BlueShift sharedInstance].config.enableIDFACollection == YES && self.deviceIDFA) {
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
