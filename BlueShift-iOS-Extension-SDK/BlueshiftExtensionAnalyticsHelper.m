@@ -89,7 +89,6 @@
     if ([deviceData objectForKey:kAppName]) {
         [userInfo setValue:[deviceData objectForKey:kAppName] forKey:kAppName];
     }
-    NSLog(@"[Blueshift] - %@",userInfo);
     return userInfo;
 }
 
