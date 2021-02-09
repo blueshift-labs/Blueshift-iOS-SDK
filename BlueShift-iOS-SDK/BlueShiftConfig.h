@@ -25,7 +25,15 @@
 @property NSURL * _Nullable cartPageURL;
 @property NSURL * _Nullable offerPageURL;
 
+/// Set this property to false in order to delay the push permission dialog.
+/// @discussion When enablePushNotification is set to true during the SDK initialisation, the SDK will register for push notifications immediately after SDK initialisation and it will show user push notification permission dialogue.
+/// @discussion If you want to delay showing push permission dialog, set this property to false and register for push notification explicitly from your app using SDK as below.
+/// @code
+/// BlueShift.sharedInstance()?.appDelegate?.registerForNotification()
+/// @endcode
+/// @note By default this property is set to true.
 @property BOOL enablePushNotification;
+
 @property BOOL enableLocationAccess;
 @property BOOL enableAnalytics;
 @property BOOL enableAppOpenTrackEvent;
@@ -49,6 +57,11 @@
 
 /// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;
+
+/// Set this value in seconds in order to throttle the automatic app_open events getting fired from the SDK.
+/// @discussion Setting this value will make sure that only one app_open event will get fired during given time interval.
+/// @note Default value is set to zero, and it will fire an app_open every time when app is lauched form killed state.
+@property double automaticAppOpenTimeInterval;
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;

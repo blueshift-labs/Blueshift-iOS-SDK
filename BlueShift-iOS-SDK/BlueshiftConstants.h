@@ -38,6 +38,7 @@
 #define kBlueshiftUNAuthorizationStatus         @"BlueshiftUNAuthorizationStatus"
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
+#define kBlueshiftLastAppOpenTimestamp          @"BlueshiftLastAppOpenTimestamp"
 
 //Bool
 #define kYES                                    @"YES"

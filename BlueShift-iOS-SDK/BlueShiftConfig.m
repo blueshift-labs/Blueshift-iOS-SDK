@@ -17,16 +17,19 @@
         self.enablePushNotification = YES;
         self.enableLocationAccess = YES;
         self.enableAnalytics = YES;
+        
+        // App open
         self.enableAppOpenTrackEvent = YES;
+        self.automaticAppOpenTimeInterval = 0;
         
         self.debug = NO;
         
-        //In App
+        // In-app notifications
         self.enableInAppNotification = NO;
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
         
-        //Default BlueshiftDeviceIdSource
+        // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
         if (@available(iOS 13.0, *)) {

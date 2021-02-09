@@ -1004,10 +1004,30 @@
     [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
 }
 
-/// SDK triggeres app_open event automatically on app launch and is controlled by the enableAppOpenTrackEvent  config flag
+/// SDK triggeres app_open event automatically when app is launched from killed state and is controlled by the enableAppOpenTrackEvent config flag
+/// @discussion The automatic app_open events can be throttled by setting time interval in secods to config.automaticAppOpenTimeInterval.
 - (void)trackAppOpenOnAppLaunch:(NSDictionary *)parameters {
-    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-        [self trackAppOpenWithParameters:parameters];
+    @try {
+        if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
+            if ([BlueShift sharedInstance].config.automaticAppOpenTimeInterval == 0) {
+                [self trackAppOpenWithParameters:parameters];
+            } else {
+                double lastAppOpenTimestamp = [[NSUserDefaults standardUserDefaults] doubleForKey:kBlueshiftLastAppOpenTimestamp];
+                double nowTimestamp = [[NSDate date] timeIntervalSince1970];
+                if (lastAppOpenTimestamp != 0) {
+                    double secondsSinceLastAppOpen = nowTimestamp - lastAppOpenTimestamp;
+                    if (secondsSinceLastAppOpen > [BlueShift sharedInstance].config.automaticAppOpenTimeInterval) {
+                        [[NSUserDefaults standardUserDefaults] setDouble:nowTimestamp forKey:kBlueshiftLastAppOpenTimestamp];
+                        [self trackAppOpenWithParameters:parameters];
+                    }
+                } else {
+                    [[NSUserDefaults standardUserDefaults] setDouble:nowTimestamp forKey:kBlueshiftLastAppOpenTimestamp];
+                    [self trackAppOpenWithParameters:parameters];
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
