@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void) autoIntegration;
 - (void) setPushDelegate: (id) obj;
 - (void) setPushParamDelegate: (id) obj;
-- (nullable NSString *) getDeviceToken;
+- (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
 - (void)registerForInAppMessage:(NSString *)displayPage;

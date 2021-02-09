@@ -30,6 +30,8 @@
 }
 
 #pragma mark - Remote & silent push notification registration
+
+/// Call this method to register for remote notifications.
 - (void) registerForNotification {
     if (@available(iOS 10.0, *)) {
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -165,7 +167,9 @@
         if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kNO]) {
             [self setLastModifiedUNAuthorizationStatus: kYES];
             [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
-            [[[BlueShift sharedInstance]appDelegate] registerForNotification];
+            if ([[[BlueShift sharedInstance]appDelegate] respondsToSelector:@selector(registerForNotification)]) {
+                [[[BlueShift sharedInstance]appDelegate] registerForNotification];
+            }
             return YES;
         }
     } else {
