@@ -24,7 +24,6 @@
 
 /// This is a SDK hook/callback for the push notification click event.
 /// @param payload push notification payload
-/// @discussion When SDK processes a push notification click/action, it invokes this callback method and shares the push notification payload
-/// @note availablity SDK v2.1.13 and higher
+/// @discussion When SDK processes a push notification click/action, it invokes this callback method and shares the push notification payload.
 - (void) pushNotificationDidClick:(NSDictionary *)payload;
 @end 

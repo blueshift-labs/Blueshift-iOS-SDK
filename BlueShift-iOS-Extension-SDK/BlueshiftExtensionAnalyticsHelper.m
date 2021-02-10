@@ -82,12 +82,14 @@
 
 + (NSDictionary *)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request {
     NSMutableDictionary *userInfo = [request.content.userInfo mutableCopy];
-    NSDictionary* deviceData = [BlueShiftPushAnalytics getDeviceData];
-    if ([deviceData objectForKey:kDeviceID]) {
-        [userInfo setValue:[deviceData objectForKey:kDeviceID] forKey:kDeviceID];
-    }
-    if ([deviceData objectForKey:kAppName]) {
-        [userInfo setValue:[deviceData objectForKey:kAppName] forKey:kAppName];
+    NSDictionary* deviceData = (NSDictionary*)[BlueShiftPushAnalytics getDeviceData];
+    if (userInfo && deviceData) {
+        if ([deviceData objectForKey:kDeviceID]) {
+            [userInfo setValue:[deviceData objectForKey:kDeviceID] forKey:kDeviceID];
+        }
+        if ([deviceData objectForKey:kAppName]) {
+            [userInfo setValue:[deviceData objectForKey:kAppName] forKey:kAppName];
+        }
     }
     return userInfo;
 }
