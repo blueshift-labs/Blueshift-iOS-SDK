@@ -36,7 +36,12 @@
 
 @property BOOL enableLocationAccess;
 @property BOOL enableAnalytics;
+
+/// From SDK v2.1.13, the automatic app_open tracking will be disabled by default. In order to track the app_open set this flag to true.
+/// @discussion You can set the time interval for automatic app_open events using config.automaticAppOpenTimeInterval to throttle them. Default value for automaticAppOpenTimeInterval is once in 24 hours.
+/// @note Default value for enableAppOpenTrackEvent is set to false.
 @property BOOL enableAppOpenTrackEvent;
+
 @property BOOL enableInAppNotification;
 @property BOOL inAppManualTriggerEnabled;
 @property BOOL inAppBackgroundFetchEnabled;
@@ -60,7 +65,8 @@
 
 /// Set this value in seconds in order to throttle the automatic app_open events getting fired from the SDK.
 /// @discussion Setting this value will make sure that only one app_open event will get fired during given time interval.
-/// @note Default value is set to zero, and it will fire an app_open every time when app is lauched form killed state.
+/// @note Default value is set to 24Hours(60*60*24 seconds), and it will fire an app_open event once in a day.
+/// To fire it every time on app launch set the value to 0
 @property double automaticAppOpenTimeInterval;
 
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));

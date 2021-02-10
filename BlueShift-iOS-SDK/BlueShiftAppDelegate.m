@@ -1007,28 +1007,34 @@
 /// SDK triggeres app_open event automatically when app is launched from killed state and is controlled by the enableAppOpenTrackEvent config flag
 /// @discussion The automatic app_open events can be throttled by setting time interval in secods to config.automaticAppOpenTimeInterval.
 - (void)trackAppOpenOnAppLaunch:(NSDictionary *)parameters {
+    if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
+        if ([BlueShift sharedInstance].config.automaticAppOpenTimeInterval == 0) {
+            [self trackAppOpenWithParameters:parameters];
+        } else if ([self shouldFireAutomaticAppOpen] == YES) {
+            double nowTimestamp = [[NSDate date] timeIntervalSince1970];
+            [[NSUserDefaults standardUserDefaults] setDouble:nowTimestamp forKey:kBlueshiftLastAppOpenTimestamp];
+            [self trackAppOpenWithParameters:parameters];
+        }
+    }
+}
+
+/// Checks if automatic app_open needs to be fired cosidering the automaticAppOpenTimeInterval value
+-(BOOL)shouldFireAutomaticAppOpen {
     @try {
-        if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
-            if ([BlueShift sharedInstance].config.automaticAppOpenTimeInterval == 0) {
-                [self trackAppOpenWithParameters:parameters];
-            } else {
-                double lastAppOpenTimestamp = [[NSUserDefaults standardUserDefaults] doubleForKey:kBlueshiftLastAppOpenTimestamp];
-                double nowTimestamp = [[NSDate date] timeIntervalSince1970];
-                if (lastAppOpenTimestamp != 0) {
-                    double secondsSinceLastAppOpen = nowTimestamp - lastAppOpenTimestamp;
-                    if (secondsSinceLastAppOpen > [BlueShift sharedInstance].config.automaticAppOpenTimeInterval) {
-                        [[NSUserDefaults standardUserDefaults] setDouble:nowTimestamp forKey:kBlueshiftLastAppOpenTimestamp];
-                        [self trackAppOpenWithParameters:parameters];
-                    }
-                } else {
-                    [[NSUserDefaults standardUserDefaults] setDouble:nowTimestamp forKey:kBlueshiftLastAppOpenTimestamp];
-                    [self trackAppOpenWithParameters:parameters];
-                }
+        double lastAppOpenTimestamp = [[NSUserDefaults standardUserDefaults] doubleForKey:kBlueshiftLastAppOpenTimestamp];
+        double nowTimestamp = [[NSDate date] timeIntervalSince1970];
+        if (lastAppOpenTimestamp != 0) {
+            double secondsSinceLastAppOpen = nowTimestamp - lastAppOpenTimestamp;
+            if (secondsSinceLastAppOpen > [BlueShift sharedInstance].config.automaticAppOpenTimeInterval) {
+                return YES;
             }
+        } else {
+            return YES;
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+    return NO;
 }
 
 /// Track app_open by manually calling this method from the host application

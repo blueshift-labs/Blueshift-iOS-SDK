@@ -19,8 +19,8 @@
         self.enableAnalytics = YES;
         
         // App open
-        self.enableAppOpenTrackEvent = YES;
-        self.automaticAppOpenTimeInterval = 0;
+        self.enableAppOpenTrackEvent = false;
+        self.automaticAppOpenTimeInterval = 60*60*24; // 24 Hours
         
         self.debug = NO;
         
