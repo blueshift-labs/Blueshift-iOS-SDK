@@ -25,6 +25,12 @@
 @property NSURL * _Nullable cartPageURL;
 @property NSURL * _Nullable offerPageURL;
 
+/// Set this property to false in order to stop SDK from registering for silent(background) push notifications.
+/// @discussion SDK registers for silent push notifications in order to receive the in-app notifications when user has not asked for push permission
+/// or has denied the push permission or turned off push notifications manually from the app setting.
+/// @note By default this property is set to true.
+@property BOOL enableSilentPushNotification;
+
 /// Set this property to false in order to delay the push permission dialog.
 /// @discussion When enablePushNotification is set to true during the SDK initialisation, the SDK will register for push notifications immediately after SDK initialisation and it will show user push notification permission dialogue.
 /// @discussion If you want to delay showing push permission dialog, set this property to false and register for push notification explicitly from your app using SDK as below.

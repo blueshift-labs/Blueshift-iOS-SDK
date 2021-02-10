@@ -110,7 +110,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (config.enablePushNotification == YES) {
         [blueShiftAppDelegate registerForNotification];
         [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
-    } else {
+    } else if (config.enableSilentPushNotification == YES) {
         [blueShiftAppDelegate registerForSilentPushNotification];
     }
     // Initialize In App Manager
