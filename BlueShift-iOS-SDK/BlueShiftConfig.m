@@ -14,7 +14,10 @@
 - (id)init {
     self = [super init];
     if (self) {
+        // Remote notifications
+        self.enableSilentPushNotification = YES;
         self.enablePushNotification = YES;
+        
         self.enableLocationAccess = YES;
         self.enableAnalytics = YES;
         
