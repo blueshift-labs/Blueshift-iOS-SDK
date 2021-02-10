@@ -13,8 +13,12 @@
 @protocol BlueShiftInAppNotificationDelegate <NSObject>
 
 @optional
-
+/// This callback will called when user performs action on the in-app.
+/// You will receive the in-app deep link in the notificationDictionary as ios_link attribute.
+/// @param notificationDictionary in-app click details.
+/// @warning Implementing this method will override the default behaviour of delivering deep-link to the OpenUrl method of the appDelegate.
 - (void)actionButtonDidTapped:(NSDictionary *)notificationDictionary;
+
 - (void)inAppNotificationWillAppear:(NSDictionary *)notificationDictionary;
 - (void)inAppNotificationDidAppear:(NSDictionary *)notificationDictionary;
 - (void)inAppNotificationWillDisappear:(NSDictionary *)notificationDictionary;
