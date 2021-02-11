@@ -44,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong)  BlueShiftConfig * _Nullable config;
 @property (nonatomic, strong)  BlueShiftPushNotificationSettings * _Nullable pushNotification API_AVAILABLE(ios(8.0));
 @property (nonatomic, strong)  BlueShiftUserNotificationSettings * _Nullable userNotification API_AVAILABLE(ios(10.0));
-@property NSString *deviceToken;
 
 + (instancetype _Nullable)sharedInstance;
 + (void) initWithConfiguration:(BlueShiftConfig *)config;

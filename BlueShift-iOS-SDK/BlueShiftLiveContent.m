@@ -13,82 +13,34 @@
 @implementation BlueShiftLiveContent
 
 + (void) fetchLiveContentByEmail:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
-    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *email = [BlueShiftUserInfo sharedInstance].email;
-    if(email) {
-        NSDictionary *parameters = @{
-                                     @"x":apiKey,
-                                     @"slot":campaignName,
-                                     @"email":email
-                                     };
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
-            if(status) {
-                success(data);
-            } else {
-                failure(error);
-            }
-        }];
-    } else {
-        NSError *error = (NSError*)@"Email id is required to fetch live content by email. Set emailId in BlueshiftUserInfo";
-        [BlueshiftLog logError:error withDescription:nil methodName:nil];
+    [self fetchLiveContentByEmail:campaignName withContext:nil success:^(NSDictionary *data) {
+        success(data);
+    } failure:^(NSError *error) {
         failure(error);
-    }
+    }];
 }
 
 + (void) fetchLiveContentByCustomerID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
-    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
-    if(customerID) {
-        NSDictionary *parameters = @{
-                                     @"x":apiKey,
-                                     @"slot":campaignName,
-                                     @"customer_id":customerID
-                                     };
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
-            if(status) {
-                success(data);
-            } else {
-                failure(error);
-            }
-        }];
-    } else {
-        NSError *error = (NSError*)@"Customer id is required to fetch live content by email. Set customerId in BlueshiftUserInfo";
-        [BlueshiftLog logError:error withDescription:nil methodName:nil];
+    [self fetchLiveContentByCustomerID:campaignName withContext:nil success:^(NSDictionary * data) {
+        success(data);
+    } failure:^(NSError * error) {
         failure(error);
-    }
+    }];
 }
 
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
-    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
-    NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID;
-    if(deviceID) {
-        NSDictionary *parameters = @{
-                                     @"x":apiKey,
-                                     @"slot":campaignName,
-                                     @"device_id":deviceID
-                                     };
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] getRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
-            if(status) {
-                success(data);
-            } else {
-                failure(error);
-            }
-        }];
-    } else {
-        NSError *error = (NSError*)@"Device id is required to fetch live content by deviceId.";
-        [BlueshiftLog logError:error withDescription:nil methodName:nil];
+    [self fetchLiveContentByDeviceID:campaignName withContext:nil success:^(NSDictionary *data) {
+        success(data);
+    } failure:^(NSError *error) {
         failure(error);
-    }
+    }];
 }
 
-+ (void) fetchLiveContentByEmail:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByEmail:(NSString * _Nonnull)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
-    if(email) {
+    if(email && apiKey && campaignName) {
         if(!context) {
             context = @{};
         }
@@ -109,17 +61,17 @@
             }
         }];
     } else {
-        NSError *error = (NSError*)@"Email id is required to fetch live content by email. Set emailId in BlueshiftUserInfo";
+        NSError *error = (NSError*)@"Email Id, SDK API key and campaign name are required to fetch live content. Set Email Id in BlueshiftUserInfo and set API key during the SDK initialisation.";
         [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
 
-+ (void) fetchLiveContentByCustomerID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByCustomerID:(NSString * _Nonnull)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
-    if(customerID) {
+    if(customerID && apiKey && campaignName) {
         if(!context) {
             context = @{};
         }
@@ -140,17 +92,17 @@
             }
         }];
     } else {
-        NSError *error = (NSError*)@"Customer id is required to fetch live content by email. Set customerId in BlueshiftUserInfo";
+        NSError *error = (NSError*)@"Customer Id, SDK API key and campaign name are required to fetch live content. Set Customer Id in BlueshiftUserInfo and set API key during the SDK initialisation.";
         [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }
 }
 
-+ (void) fetchLiveContentByDeviceID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByDeviceID:(NSString * _Nonnull)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID;
-    if(deviceID) {
+    if(deviceID && apiKey && campaignName) {
         if(!context) {
             context = @{};
         }
@@ -171,7 +123,7 @@
             }
         }];
     } else {
-        NSError *error = (NSError*)@"Device id is required to fetch live content by deviceId.";
+        NSError *error = (NSError*)@"Device id SDK, API key and campaign name are required to fetch live content. Set API key during the SDK initialisation.";
         [BlueshiftLog logError:error withDescription:nil methodName:nil];
         failure(error);
     }

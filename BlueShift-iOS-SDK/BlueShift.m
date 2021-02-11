@@ -191,8 +191,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (NSString *) getDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _deviceToken = (NSString *)[defaults objectForKey:kBlueshiftDeviceToken];
-    return _deviceToken;
+    NSString* deviceToken = (NSString *)[defaults objectForKey:kBlueshiftDeviceToken];
+    return deviceToken;
 }
 
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
@@ -704,8 +704,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         if (pushTrackParameterDictionary) {
             [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
         }
-        
-        [parameterMutableDictionary setObject:type forKey:@"a"];
+        if (type) {
+            [parameterMutableDictionary setObject:type forKey:@"a"];
+        }
         [self performRequestQueue:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
     }
 }
