@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 // track events functions ...
 - (void)identifyUserWithDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
-- (void)identifyUserWithEmail:(NSString * _Nullable)email andDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
+- (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent;
 
