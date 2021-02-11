@@ -655,6 +655,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        #ifdef DEBUG
+            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+        #endif
+        return;
+    }
+    
     NSString *url = [[NSString alloc]init];
     if(isBatchEvent) {
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
@@ -704,6 +711,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        #ifdef DEBUG
+            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+        #endif
+        return;
+    }
+
     if (parameters != nil) {
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];

@@ -45,16 +45,16 @@
 /// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;
 
-@property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
+@property NSObject<UNUserNotificationCenterDelegate> * _Nullable userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
-@property id<BlueShiftInAppNotificationDelegate> _Nonnull inAppNotificationDelegate;
-@property id<BlueshiftUniversalLinksDelegate> _Nonnull blueshiftUniversalLinksDelegate;
+@property id<BlueShiftInAppNotificationDelegate> _Nullable inAppNotificationDelegate;
+@property id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
 @property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
 
 - (BOOL)validateConfigDetails;
-- (NSString*_Nullable)getConfigStringToLog;
+- (NSString* _Nullable)getConfigStringToLog;
 
-+ (BlueShiftConfig * _Nonnull )config;
++ (BlueShiftConfig * _Nonnull)config;
 @end
