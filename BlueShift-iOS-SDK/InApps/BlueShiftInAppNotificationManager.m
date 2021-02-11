@@ -191,8 +191,8 @@
                             if(status) {
                                 [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
                                 // invoke the inApp clicked callback method
-                                if ([[[BlueShift sharedInstance].config inAppNotificationDelegate] respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
-                                    [[[BlueShift sharedInstance].config inAppNotificationDelegate] inAppNotificationDidDeliver:payload];
+                                if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
+                                    [self.inAppNotificationDelegate inAppNotificationDidDeliver:payload];
                                 }
                             }
                         }];
@@ -607,8 +607,8 @@
 -(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
     [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: NO];
     // invoke the inApp clicked callback method
-    if ([[[BlueShift sharedInstance].config inAppNotificationDelegate] respondsToSelector:@selector(inAppNotificationDidClick:)]) {
-        [[[BlueShift sharedInstance].config inAppNotificationDelegate] inAppNotificationDidClick:notificationPayload];
+    if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidClick:)]) {
+        [self.inAppNotificationDelegate inAppNotificationDidClick:notificationPayload];
     }
 }   
 
@@ -616,8 +616,8 @@
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
     [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
     // invoke the inApp open callback method
-    if ([[[BlueShift sharedInstance].config inAppNotificationDelegate] respondsToSelector:@selector(inAppNotificationDidOpen:)]) {
-        [[[BlueShift sharedInstance].config inAppNotificationDelegate] inAppNotificationDidOpen:notification];
+    if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidOpen:)]) {
+        [self.inAppNotificationDelegate inAppNotificationDidOpen:notification];
     }
     [self updateInAppNotification: notification];
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
