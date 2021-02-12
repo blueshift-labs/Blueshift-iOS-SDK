@@ -63,9 +63,11 @@
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             if ([settings authorizationStatus] != UNAuthorizationStatusAuthorized) {
-                dispatch_async(dispatch_get_main_queue(), ^(void) {
-                    [[UIApplication sharedApplication] registerForRemoteNotifications];
-                });
+                if (![[BlueShift sharedInstance] getDeviceToken]) {
+                    dispatch_async(dispatch_get_main_queue(), ^(void) {
+                        [[UIApplication sharedApplication] registerForRemoteNotifications];
+                    });
+                }
                 [self checkUNAuthorizationStatus];
                 [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered for background silent notifications" withDetails:nil methodName:nil];
             } else {
