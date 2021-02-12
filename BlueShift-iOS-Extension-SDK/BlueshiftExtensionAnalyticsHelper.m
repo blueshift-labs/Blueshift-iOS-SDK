@@ -11,44 +11,46 @@
 @implementation BlueshiftExtensionAnalyticsHelper
 
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalExperimentIDKey];
-    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
-    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
-    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
-    NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
-    NSString *timestamp = [self getCurrentUTCTimestamp];
-    NSString *deviceId = (NSString *)[pushDetailsDictionary objectForKey:kDeviceID];
-    NSString *appName = (NSString *)[pushDetailsDictionary objectForKey:kAppName];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (bsft_user_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
+    if (pushDetailsDictionary) {
+        NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalExperimentIDKey];
+        NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
+        NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
+        NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
+        NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
+        NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
+        NSString *timestamp = [self getCurrentUTCTimestamp];
+        NSString *deviceId = (NSString *)[pushDetailsDictionary objectForKey:kDeviceID];
+        NSString *appName = (NSString *)[pushDetailsDictionary objectForKey:kAppName];
+        
+        if (bsft_user_uuid) {
+            [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
+        }
+        if(bsft_experiment_uuid) {
+            [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey: kInAppNotificationModalEIDKey];
+        }
+        if (message_uuid) {
+            [pushTrackParametersMutableDictionary setObject:message_uuid forKey: kInAppNotificationModalMIDKey];
+        }
+        if (transactional_uuid) {
+            [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey: kInAppNotificationModalTXNIDKey];
+        }
+        if (sdkVersion) {
+            [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kInAppNotificationModalSDKVersionKey];
+        }
+        if (element) {
+            [pushTrackParametersMutableDictionary setObject:element forKey: kInAppNotificationModalElementKey];
+        }
+        if (timestamp) {
+            [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
+        }
+        if (deviceId) {
+            [pushTrackParametersMutableDictionary setObject:deviceId forKey: kDeviceID];
+        }
+        if (appName) {
+            [pushTrackParametersMutableDictionary setObject:appName forKey: kAppName];
+        }
     }
-    if(bsft_experiment_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey: kInAppNotificationModalEIDKey];
-    }
-    if (message_uuid) {
-        [pushTrackParametersMutableDictionary setObject:message_uuid forKey: kInAppNotificationModalMIDKey];
-    }
-    if (transactional_uuid) {
-        [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey: kInAppNotificationModalTXNIDKey];
-    }
-    if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kInAppNotificationModalSDKVersionKey];
-    }
-    if (element) {
-        [pushTrackParametersMutableDictionary setObject:element forKey: kInAppNotificationModalElementKey];
-    }
-    if (timestamp) {
-        [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
-    }
-    if (deviceId) {
-        [pushTrackParametersMutableDictionary setObject:deviceId forKey: kDeviceID];
-    }
-    if (appName) {
-        [pushTrackParametersMutableDictionary setObject:appName forKey: kAppName];
-    }
-    
     return [pushTrackParametersMutableDictionary copy];
 }
 

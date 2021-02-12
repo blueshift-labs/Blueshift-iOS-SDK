@@ -90,7 +90,9 @@ static BlueShiftAppData *_currentAppData = nil;
     }
     
     NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];
-    [appMutableDictionary setObject: enableInApp  forKey:kEnableInApp];
+    if (enableInApp) {
+        [appMutableDictionary setObject: enableInApp  forKey:kEnableInApp];
+    }
 
     return [appMutableDictionary copy];
 }
