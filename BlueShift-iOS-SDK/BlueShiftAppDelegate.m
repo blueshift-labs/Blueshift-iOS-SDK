@@ -169,6 +169,9 @@
         if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kNO]) {
             [self setLastModifiedUNAuthorizationStatus: kYES];
             [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
+            if ([BlueShift sharedInstance].config.enablePushNotification || [BlueShift sharedInstance].config.enableSilentPushNotification) {
+                [[[BlueShift sharedInstance]appDelegate] registerForNotification];
+            }
             return YES;
         }
     } else {
