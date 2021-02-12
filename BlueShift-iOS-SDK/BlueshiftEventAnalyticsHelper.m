@@ -11,6 +11,7 @@
 #import "InApps/BlueShiftInAppNotificationHelper.h"
 #import "InApps/BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @implementation BlueshiftEventAnalyticsHelper
 
@@ -56,10 +57,10 @@
             }
         }
         if (deviceId) {
-            [pushTrackParametersMutableDictionary setObject:deviceId forKey: @"device_id"];
+            [pushTrackParametersMutableDictionary setObject:deviceId forKey: kDeviceID];
         }
         if (appName) {
-            [pushTrackParametersMutableDictionary setObject:appName forKey: @"app_name"];
+            [pushTrackParametersMutableDictionary setObject:appName forKey: kAppName];
         }
         if (timestamp) {
             [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
