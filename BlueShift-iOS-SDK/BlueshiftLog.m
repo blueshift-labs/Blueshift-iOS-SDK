@@ -26,7 +26,7 @@
         }
         NSLog(@"%@", log);
     } @catch (NSException *exception) {
-        NSLog(@"Failed to log error %@",exception);
+        NSLog(@"[Blueshift] : Failed to log error %@",exception);
     }
 }
 
@@ -44,7 +44,7 @@
         }
         NSLog(@"%@", log);
     } @catch (NSException *exception) {
-        NSLog(@"Failed to log exception %@",exception);
+        NSLog(@"[Blueshift] : Failed to log exception %@",exception);
     }
 }
 
@@ -63,7 +63,7 @@
             }
             NSLog(@"%@", log);
         } @catch (NSException *exception) {
-            NSLog(@"Failed to log info %@",exception);
+            NSLog(@"[Blueshift] : Failed to log info %@",exception);
         }
     }
 }
@@ -88,7 +88,7 @@
         }
         NSLog(@"%@", log);
         } @catch (NSException *exception) {
-            NSLog(@"Failed to log API call info %@",exception);
+            NSLog(@"[Blueshift] : Failed to log API call info %@",exception);
         }
     }
 
