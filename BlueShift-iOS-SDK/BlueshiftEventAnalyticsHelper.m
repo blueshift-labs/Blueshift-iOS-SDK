@@ -50,10 +50,15 @@
         if ([self isNotNilAndNotEmpty:urlElement]) {
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
         }
-        if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey] && [self isNotNilAndNotEmpty:pushDeepLinkURL]) {
-            NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
-            if (encodedUrl) {
-                [pushTrackParametersMutableDictionary setObject:encodedUrl forKey: kNotificationURLElementKey];
+        if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
+            if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
+                pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
+            }
+            if ([self isNotNilAndNotEmpty:pushDeepLinkURL]) {
+                NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
+                if (encodedUrl) {
+                    [pushTrackParametersMutableDictionary setObject:encodedUrl forKey: kNotificationURLElementKey];
+                }
             }
         }
         if (deviceId) {
