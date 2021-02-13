@@ -42,16 +42,18 @@
 
 + (NSDictionary*)getDeviceData {
     if (@available(iOS 10.0, *)) {
-        NSBundle *bundle = [NSBundle mainBundle];
-        if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"]) {
-            bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
-        }
-        NSString *bundleId = [bundle bundleIdentifier];
-        if(bundleId) {
-            NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[BlueShiftPushNotification sharedInstance].appGroupId];
-            NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
-            NSDictionary *deviceData = [userDefaults dictionaryForKey: key];
-            return deviceData;
+        if ([BlueShiftPushNotification sharedInstance].appGroupId && ![[BlueShiftPushNotification sharedInstance].appGroupId isEqualToString:@""]) {
+            NSBundle *bundle = [NSBundle mainBundle];
+            if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"]) {
+                bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+            }
+            NSString *bundleId = [bundle bundleIdentifier];
+            if(bundleId) {
+                NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[BlueShiftPushNotification sharedInstance].appGroupId];
+                NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
+                NSDictionary *deviceData = [userDefaults dictionaryForKey: key];
+                return deviceData;
+            }
         }
     }
     return nil;

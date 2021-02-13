@@ -21,4 +21,9 @@
 - (void) handleCustomCategory:(NSString *)categroyName clickedWithDetails:(NSDictionary *)details;
 - (void) handleCarouselPushForCategory:(NSString *)categoryName clickedWithIndex:(NSInteger)index withDetails:(NSDictionary *)details;
 
+
+/// This is a SDK hook/callback for the push notification click event.
+/// @param payload push notification payload
+/// @discussion When SDK processes a push notification click/action, it invokes this callback method and shares the push notification payload.
+- (void) pushNotificationDidClick:(NSDictionary *)payload;
 @end 

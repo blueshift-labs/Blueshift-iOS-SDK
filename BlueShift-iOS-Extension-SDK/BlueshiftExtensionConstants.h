@@ -49,4 +49,7 @@
 
 #define kBsftEncodedSpace                                               @"%20"
 
+#define kAppName                                                        @"app_name"
+#define kDeviceID                                                       @"device_id"
+
 #endif

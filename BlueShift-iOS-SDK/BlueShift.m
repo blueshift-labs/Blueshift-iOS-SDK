@@ -97,9 +97,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         if (config.blueshiftDeviceIdSource == BlueshiftDeviceIdSourceCustom) {
             if (config.customDeviceId && ![config.customDeviceId isEqualToString:@""]) {
                 [[BlueShiftDeviceData currentDeviceData] setCustomDeviceID:config.customDeviceId];
-                NSLog(@"[BlueShift] : CUSTOM device id is set as - %@",config.customDeviceId);
+                [BlueshiftLog logInfo: [NSString stringWithFormat:@"CUSTOM device id is set as - %@",config.customDeviceId] withDetails:nil methodName:nil];
             } else {
-                NSLog(@"[BlueShift] - ERROR: CUSTOM device id is not provided");
+                [BlueshiftLog logError:nil withDescription:@"ERROR: CUSTOM device id is not provided" methodName:nil];
             }
         }
     }
@@ -110,7 +110,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (config.enablePushNotification == YES) {
         [blueShiftAppDelegate registerForNotification];
         [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
-    } else {
+    } else if (config.enableSilentPushNotification == YES) {
         [blueShiftAppDelegate registerForSilentPushNotification];
     }
     // Initialize In App Manager
@@ -191,8 +191,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (NSString *) getDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _deviceToken = (NSString *)[defaults objectForKey:kBlueshiftDeviceToken];
-    return _deviceToken;
+    NSString* deviceToken = (NSString *)[defaults objectForKey:kBlueshiftDeviceToken];
+    return deviceToken;
 }
 
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
@@ -655,6 +655,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 }
 
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        #ifdef DEBUG
+            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+        #endif
+        return;
+    }
+    
     NSString *url = [[NSString alloc]init];
     if(isBatchEvent) {
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
@@ -697,13 +704,21 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         if (pushTrackParameterDictionary) {
             [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
         }
-        
-        [parameterMutableDictionary setObject:type forKey:@"a"];
+        if (type) {
+            [parameterMutableDictionary setObject:type forKey:@"a"];
+        }
         [self performRequestQueue:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
     }
 }
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        #ifdef DEBUG
+            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+        #endif
+        return;
+    }
+
     if (parameters != nil) {
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
