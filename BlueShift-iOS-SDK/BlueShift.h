@@ -44,24 +44,31 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong)  BlueShiftConfig * _Nullable config;
 @property (nonatomic, strong)  BlueShiftPushNotificationSettings * _Nullable pushNotification API_AVAILABLE(ios(8.0));
 @property (nonatomic, strong)  BlueShiftUserNotificationSettings * _Nullable userNotification API_AVAILABLE(ios(10.0));
+@property BlueShiftAppDelegate * _Nullable appDelegate;
+@property BlueShiftUserNotificationCenterDelegate * _Nullable userNotificationDelegate;
 
 + (instancetype _Nullable)sharedInstance;
+
+/// Initialise the SDK using BlueShiftConfig
+/// @param config BlueShiftConfig object
 + (void) initWithConfiguration:(BlueShiftConfig *)config;
+
 + (void) autoIntegration;
 - (void) setPushDelegate: (id) obj;
 - (void) setPushParamDelegate: (id) obj;
 - (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
+
+/// Register for in-app notifications in order to show the in-app notifications on the view controller or screen. To register, call this method in the `viewDidAppear` lifecycle method of VC.
+/// @param displayPage Name of screen or view controller
+/// @warning If you don't register a VC or screen to receive in-app notification, SDK will not show the in-app notifications on that VC or screen.
 - (void)registerForInAppMessage:(NSString *)displayPage;
+
+/// Unregister a VC or screen in the `viewDidDisappear` lifecycle method of VC. This is required to be done before registering a new screen for in-app notifications.
 - (void)unregisterForInAppMessage;
 
-@property BlueShiftAppDelegate * _Nullable appDelegate;
-@property BlueShiftUserNotificationCenterDelegate * _Nullable userNotificationDelegate;
-
-
-
-// track events functions ...
+// track events functions
 - (void)identifyUserWithDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
@@ -140,19 +147,42 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
                                  canBacthThisEvent:(BOOL)isBatchEvent;
-- (void)displayInAppNotification;
-
-- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
-- (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url;
+/// Displays in-app notification when manual mode is enabled. Calling this method will show only one in-app notification on the screen.
+- (void)displayInAppNotification;
 
+/// Calling this method will fetch in-app notifications manually from api and add them into the SDK database.
+/// @param success block to perform action when api call is successful
+/// @param failure block to perform action when api call is unsuccessful
+- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
+
+/// Check if the url is from Blueshift
+/// @param url  url to check
+/// @returns true or false based on if url is from Blueshift or not
+- (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url;
 
 /// Check if the push notification is from Blueshift
 /// @param userInfo  userInfo dictionary from the push notification payload
 /// @returns true or false based on if push notification is from Blueshift or not
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
+
+/// Calling enableTracking(false) will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
+/// To restart the tracking, call enableTracking(true).
+/// @param isEnabled true or false in order to enable or disable SDK tracking
+- (void)enableTracking:(BOOL)isEnabled;
+
+/// Know current status of SDK tracking if it is enabled or not.
+- (BOOL)isTrackingEnabled;
+
+/// This method will help to add an in-app notification in the SDK database based on the provided dictionary data.
+/// @param completionHandler The block will be called after adding the in-app into the SDK database with status true or false
+- (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler;
+
+/// This method will to get the required payload data to make an api call to the Blueshift In-app notifications api.
+/// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
+- (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
 
 @end
 
