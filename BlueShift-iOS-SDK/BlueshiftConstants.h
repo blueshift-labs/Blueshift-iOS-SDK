@@ -63,4 +63,8 @@
 #define openURLOptionsButtonIndex               @"clickedButtonIndex"
 #define openURLOptionsButtonText                @"clickedButtonText"
 
+//Core data entities
+#define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"
+#define kBatchEventEntity                       @"BatchEventEntity"
+
 #endif /* BlueshiftConstants_h */

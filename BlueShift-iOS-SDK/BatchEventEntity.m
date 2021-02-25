@@ -7,6 +7,7 @@
 
 #import "BatchEventEntity.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BatchEventEntity ()
 
@@ -84,7 +85,7 @@
             if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kBatchEventEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -126,6 +127,26 @@
     }
 }
 
-
++ (void)eraseNonBatchedEventsData {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    @try {
+        if (appDelegate) {
+            masterContext = appDelegate.batchEventManagedObjectContext;
+        }
+        if (masterContext) {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
+            if (@available(iOS 9.0, *)) {
+                NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                NSError *error = nil;
+                [masterContext executeRequest:deleteRequest error:&error];
+                [BlueshiftLog logInfo:@"Deleted all the non batched events" withDetails:nil methodName:nil];
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
 
 @end

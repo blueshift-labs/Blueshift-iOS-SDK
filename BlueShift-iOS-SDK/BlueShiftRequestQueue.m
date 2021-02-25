@@ -7,6 +7,7 @@
 
 #import "BlueShiftRequestQueue.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueShiftRequestQueue ()
 
@@ -39,7 +40,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
             if(masterContext) {
                 NSEntityDescription *entity;
                 @try {
-                    entity = [NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:masterContext];
+                    entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:masterContext];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -103,7 +104,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         if(context) {
             NSEntityDescription *entity;
             @try {
-                entity = [NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context];
+                entity = [NSEntityDescription entityForName:kBatchEventEntity inManagedObjectContext:context];
             }
             @catch (NSException *exception) {
                 [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];

@@ -826,43 +826,37 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
     [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString * notificationID, NSString * lastTimestamp) {
-        if (status) {
-            NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
-            NSString *email = [BlueShiftUserInfo sharedInstance].email;
-            
-            NSString *apiKey = @"";
-            if([BlueShift sharedInstance].config.apiKey) {
-                apiKey = [BlueShift sharedInstance].config.apiKey;
-            } else {
-                #ifdef DEBUG
-                    NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
-                #endif
-            }
-            
-            if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
-                NSMutableDictionary *apiPayload = [@{
-                    kInAppNotificationModalMessageUDIDKey : notificationID,
-                    kAPIKey : apiKey,
-                    kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
-                    kInAppNotificationModalSDKVersionKey : kSDKVersionNumber
-                } mutableCopy];
-                [apiPayload addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
-                [apiPayload addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
-                [apiPayload addEntriesFromDictionary:[[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy]];
-                if (deviceID && apiPayload[kDeviceID] == nil) {
-                    [apiPayload setValue:deviceID forKey:kDeviceID];
-                }
-                if (email && [apiPayload objectForKey:kEmail] == nil) {
-                    [apiPayload setValue:email forKey:kEmail];
-                }
-                completionHandler(apiPayload);
-            } else {
-                [BlueshiftLog logInfo:@"Unable to fetch in-app messages as device_id is missing." withDetails:nil methodName:nil];
-                completionHandler(nil);
-            }
+        NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
+        NSString *email = [BlueShiftUserInfo sharedInstance].email;
+        
+        NSString *apiKey = @"";
+        if([BlueShift sharedInstance].config.apiKey) {
+            apiKey = [BlueShift sharedInstance].config.apiKey;
         } else {
-            NSError *error = (NSError *)@"Unable to fetch the data from core data.";
-            [BlueshiftLog logError:error withDescription:nil methodName: [NSString stringWithUTF8String: __PRETTY_FUNCTION__]];
+            #ifdef DEBUG
+                NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+            #endif
+        }
+        
+        if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
+            NSMutableDictionary *apiPayload = [@{
+                kInAppNotificationModalMessageUDIDKey : notificationID,
+                kAPIKey : apiKey,
+                kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
+                kInAppNotificationModalSDKVersionKey : kSDKVersionNumber
+            } mutableCopy];
+            [apiPayload addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
+            [apiPayload addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
+            [apiPayload addEntriesFromDictionary:[[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy]];
+            if (deviceID && apiPayload[kDeviceID] == nil) {
+                [apiPayload setValue:deviceID forKey:kDeviceID];
+            }
+            if (email && [apiPayload objectForKey:kEmail] == nil) {
+                [apiPayload setValue:email forKey:kEmail];
+            }
+            completionHandler(apiPayload);
+        } else {
+            [BlueshiftLog logInfo:@"Unable to fetch in-app messages as device_id is missing." withDetails:nil methodName:nil];
             completionHandler(nil);
         }
     }];
@@ -875,11 +869,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setValue:val forKey:kBlueshiftEnableTracking];
         [defaults synchronize];
-        // TODO: wipe data
 
         if(isEnabled) {
             [BlueshiftLog logInfo:@"The SDK event tracking has been enabled. SDK will now send the events to the Blueshift server." withDetails:nil methodName:nil];
         } else {
+            // Erase existing batched and non-batched events after disabling the tracking
+            [BatchEventEntity eraseNonBatchedEventsData];
+            [HttpRequestOperationEntity eraseBatchedEventsData];
             [BlueshiftLog logInfo:@"The SDK event tracking has been disabled. SDK will not send any events to the Blueshift server." withDetails:nil methodName:nil];
         }
     } @catch (NSException *exception) {
