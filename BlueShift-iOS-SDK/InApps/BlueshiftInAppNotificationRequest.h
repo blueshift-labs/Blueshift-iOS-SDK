@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftInAppNotificationRequest : NSObject
 
-+ (void) fetchInAppNotification:(NSString *)lastMessageID andLastTimestamp:(NSString *)lastTimestamp success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
++ (void) fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
 
 @end
 
