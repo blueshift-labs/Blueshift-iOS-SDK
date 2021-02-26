@@ -24,9 +24,10 @@
 // Method to insert Entry for a particular request operation in core data ...
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount;
 
-
-
 // Method to return the batch records from Core Data ...
 + (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
+
+/// Erase all the stored non-batched events from the SDK database
++ (void)eraseNonBatchedEventsData;
 
 @end

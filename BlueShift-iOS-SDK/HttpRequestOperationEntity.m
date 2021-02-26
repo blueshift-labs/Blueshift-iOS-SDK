@@ -7,6 +7,7 @@
 
 #import "HttpRequestOperationEntity.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @implementation HttpRequestOperationEntity
 
@@ -100,7 +101,7 @@
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -149,7 +150,7 @@
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -184,6 +185,28 @@
         } else {
             handler(NO, nil);
         }
+    }
+}
+
++ (void)eraseBatchedEventsData {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    @try {
+        if (appDelegate) {
+            masterContext = appDelegate.batchEventManagedObjectContext;
+        }
+        if (masterContext) {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kHttpRequestOperationEntity];
+            if (@available(iOS 9.0, *)) {
+                NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                NSError *error = nil;
+                [masterContext executeRequest:deleteRequest error:&error];
+                [BlueshiftLog logInfo:@"Deleted all the batched events" withDetails:nil methodName:nil];
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
