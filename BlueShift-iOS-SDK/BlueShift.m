@@ -26,6 +26,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return _sharedBlueShiftInstance;
 }
 
+#pragma mark SDK initialisation
 + (void) initWithConfiguration:(BlueShiftConfig *)config {
     [[BlueShift sharedInstance] setupWithConfiguration:config];
 }
@@ -152,6 +153,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     } else {
         [BlueshiftLog logInfo: @"EnablePush has been set to NO. The app will not receive any push notifications from Blueshift. To enable receiving push notifications, set enablePush to true and fire identify call from Blueshift SDK." withDetails:nil methodName:nil];
     }
+    [BlueshiftLog logInfo: [NSString stringWithFormat: @"SDK tracking for custom events and push & in-app metrics is %@.",([self isTrackingEnabled] ? @"enabled" : @"disabled")] withDetails:nil methodName:nil];
 }
 
 - (void)initDeepLinks {
@@ -183,6 +185,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+#pragma mark Device token
 - (void)setDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:kBlueshiftDeviceToken];
@@ -195,44 +198,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return deviceToken;
 }
 
-- (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
-    if (_config.enableInAppNotification == YES) {
-        if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
-            [self fetchInAppNotificationFromAPI:^() {
-                if (self->_config.inAppManualTriggerEnabled == NO) {
-                         [self fetchInAppNotificationFromDB];
-                    }
-                } failure:^(NSError *error){ }];
-        } else if ([BlueshiftEventAnalyticsHelper isMarkInAppAsOpen:dictionary]) {
-            if (_inAppNotificationMananger) {
-                NSDictionary *silentPushData = [[dictionary objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
-                NSArray * messageUUIDArray = (NSArray*)[silentPushData objectForKey:kInAppNotificationOpenedInAppUUID];
-                [_inAppNotificationMananger markAsDisplayedForNotificationsViewedOnOtherDevice:messageUUIDArray];
-            }
-        } else if(_config.inAppManualTriggerEnabled == NO){
-          [self fetchInAppNotificationFromDB];
-        }
-    }
-}
-
-/// Fetch in-app notification from db and display on the screen when app is in active state
-- (void)fetchInAppNotificationFromDB {
-    void (^ fetchInAppBlock)(void) = ^ {
-        if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
-            [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
-        }
-    };
-    
-    if ([NSThread isMainThread] == YES) {
-        fetchInAppBlock();
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            fetchInAppBlock();
-        });
-    }
-}
-
+#pragma mark Identify events
 - (void)identifyUserWithDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent {
     [self identifyUserWithEmail:[BlueShiftUserInfo sharedInstance].email andDetails:details canBatchThisEvent:isBatchEvent];
 }
@@ -249,6 +215,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self trackEventForEventName:kEventIdentify andParameters:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
 }
 
+#pragma mark Track events
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent{
     [self trackScreenViewedForViewController:viewController withParameters:nil canBatchThisEvent:isBatchEvent];
 }
@@ -654,11 +621,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
+#pragma mark Process custom and tracking events
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
-    if (![BlueShift sharedInstance].config.apiKey) {
-        #ifdef DEBUG
-            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
-        #endif
+    if([self validateSDKTrackingRequirements] == false) {
         return;
     }
     
@@ -696,26 +661,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [BlueShiftRequestQueue addRequestOperation:requestOperation];
 }
 
-- (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
-    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics:userInfo]) {
-        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
-        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        
-        if (pushTrackParameterDictionary) {
-            [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
-        }
-        if (type) {
-            [parameterMutableDictionary setObject:type forKey:@"a"];
-        }
-        [self performRequestQueue:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
-    }
-}
-
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
-    if (![BlueShift sharedInstance].config.apiKey) {
-        #ifdef DEBUG
-            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
-        #endif
+    if([self validateSDKTrackingRequirements] == false) {
         return;
     }
 
@@ -726,6 +673,21 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+- (BOOL)validateSDKTrackingRequirements {
+    if (![BlueShift sharedInstance].config.apiKey) {
+        #ifdef DEBUG
+            NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+        #endif
+        return false;
+    }
+    if ([[BlueShift sharedInstance] isTrackingEnabled] == NO) {
+        [BlueshiftLog logInfo:@"The SDK Tracking is disabled and events will not be sent to Blueshift server. To start the SDK tracking, call BlueShift.sharedInstance()?.enableTracking(true)." withDetails:nil methodName:nil];
+        return false;
+    }
+    return  true;
+}
+
+#pragma mark Track delivered, open and click events
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
     [self sendPushAnalytics:@"click" withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
@@ -751,6 +713,22 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self sendPushAnalytics:@"dismiss" withParams: notificationPayload canBatchThisEvent: isBatchEvent];
 }
 
+- (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics:userInfo]) {
+        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        
+        if (pushTrackParameterDictionary) {
+            [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+        }
+        if (type) {
+            [parameterMutableDictionary setObject:type forKey:@"a"];
+        }
+        [self performRequestQueue:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
+    }
+}
+
+#pragma  mark In app messages
 - (void)registerForInAppMessage:(NSString *)displayPage {
     if (_inAppNotificationMananger) {
         if (displayPage) {
@@ -779,29 +757,148 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
+- (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
+    [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
+    if (_config.enableInAppNotification == YES) {
+        if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
+            [self fetchInAppNotificationFromAPI:^() {
+                if (self->_config.inAppManualTriggerEnabled == NO) {
+                         [self fetchInAppNotificationFromDB];
+                    }
+                } failure:^(NSError *error){ }];
+        } else if ([BlueshiftEventAnalyticsHelper isMarkInAppAsOpen:dictionary]) {
+            if (_inAppNotificationMananger) {
+                NSDictionary *silentPushData = [[dictionary objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
+                NSArray * messageUUIDArray = (NSArray*)[silentPushData objectForKey:kInAppNotificationOpenedInAppUUID];
+                [_inAppNotificationMananger markAsDisplayedForNotificationsViewedOnOtherDevice:messageUUIDArray];
+            }
+        } else if(_config.inAppManualTriggerEnabled == NO){
+          [self fetchInAppNotificationFromDB];
+        }
+    }
+}
+
+/// Fetch in-app notification from db and display on the screen when app is in active state
+- (void)fetchInAppNotificationFromDB {
+    void (^ fetchInAppBlock)(void) = ^ {
+        if (_inAppNotificationMananger && [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+            [_inAppNotificationMananger fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
+        }
+    };
+    
+    if ([NSThread isMainThread] == YES) {
+        fetchInAppBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            fetchInAppBlock();
+        });
+    }
+}
+
+
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)(NSError*))failure {
     if (_config.enableInAppNotification == YES && _inAppNotificationMananger) {
-        [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString *notificationID, NSString *lastTimestamp) {
-            if (status) {
-                [BlueshiftInAppNotificationRequest fetchInAppNotification: notificationID andLastTimestamp:lastTimestamp success:^(NSDictionary *dictionary){
-                    if ([dictionary objectForKey: kInAppNotificationContentPayloadKey]) {
-                        NSMutableArray *notificationArray = [dictionary objectForKey: kInAppNotificationContentPayloadKey];
-                        [_inAppNotificationMananger initializeInAppNotificationFromAPI:notificationArray handler:^(BOOL status) {
-                            success();
-                        }];
-                    }
-                } failure:^(NSError *error){
-                    failure(error);
-                }];
-            } else {
-                NSError *error = (NSError *)@"Unable to fetch the data from core data.";
-                [BlueshiftLog logError:error withDescription:nil methodName: [NSString stringWithUTF8String: __PRETTY_FUNCTION__]];
-                failure(error);
-            }
+        [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
+            [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
+                success();
+            }];
+        } failure:^(NSError * error) {
+            failure(error);
         }];
     }
 }
 
+- (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
+    if (apiResponse && [apiResponse objectForKey: kInAppNotificationContentPayloadKey]) {
+        NSMutableArray *inAppNotifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
+        if (inAppNotifications.count > 0) {
+            [_inAppNotificationMananger initializeInAppNotificationFromAPI:inAppNotifications handler:^(BOOL status) {
+                completionHandler(YES);
+            }];
+        } else {
+            completionHandler(YES);
+        }
+    } else {
+        completionHandler(NO);
+        [BlueshiftLog logInfo:@"The in-app API response is nil or does not have content attribute." withDetails:nil methodName:nil];
+    }
+}
+
+- (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
+    [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString * notificationID, NSString * lastTimestamp) {
+        NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
+        NSString *email = [BlueShiftUserInfo sharedInstance].email;
+        
+        NSString *apiKey = @"";
+        if([BlueShift sharedInstance].config.apiKey) {
+            apiKey = [BlueShift sharedInstance].config.apiKey;
+        } else {
+            #ifdef DEBUG
+                NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+            #endif
+        }
+        
+        if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
+            NSMutableDictionary *apiPayload = [@{
+                kInAppNotificationModalMessageUDIDKey : notificationID,
+                kAPIKey : apiKey,
+                kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
+                kInAppNotificationModalSDKVersionKey : kSDKVersionNumber
+            } mutableCopy];
+            [apiPayload addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
+            [apiPayload addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
+            [apiPayload addEntriesFromDictionary:[[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy]];
+            if (deviceID && apiPayload[kDeviceID] == nil) {
+                [apiPayload setValue:deviceID forKey:kDeviceID];
+            }
+            if (email && [apiPayload objectForKey:kEmail] == nil) {
+                [apiPayload setValue:email forKey:kEmail];
+            }
+            completionHandler(apiPayload);
+        } else {
+            [BlueshiftLog logInfo:@"Unable to fetch in-app messages as device_id is missing." withDetails:nil methodName:nil];
+            completionHandler(nil);
+        }
+    }];
+}
+
+#pragma mark Enable/Disable events tracking
+- (void)enableTracking:(BOOL)isEnabled {
+    [self enableTracking:isEnabled andEraseNonSyncedData:!isEnabled];
+}
+
+- (void)enableTracking:(BOOL)isEnabled andEraseNonSyncedData:(BOOL)shouldEraseEventsData {
+    @try {
+        NSString *val = isEnabled ? kYES : kNO;
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setValue:val forKey:kBlueshiftEnableTracking];
+        [defaults synchronize];
+
+        if (shouldEraseEventsData) {
+            // Erase existing batched and non-batched events after disabling the tracking
+            [HttpRequestOperationEntity eraseEntityData];
+            [BatchEventEntity eraseEntityData];
+        }
+        
+        if(isEnabled) {
+            [BlueshiftLog logInfo:@"The SDK event tracking has been enabled. SDK will now send the events to the Blueshift server." withDetails:nil methodName:nil];
+        } else {
+            [BlueshiftLog logInfo:@"The SDK event tracking has been disabled. SDK will not send any events to the Blueshift server." withDetails:nil methodName:nil];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
+- (BOOL)isTrackingEnabled {
+    NSString *status = [[NSUserDefaults standardUserDefaults] stringForKey:kBlueshiftEnableTracking];
+    if (status == nil) {
+        return YES;
+    }
+    return [status isEqual:kYES] ? YES : NO;
+}
+
+#pragma mark Universal links
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url {
     if (url != nil) {
         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL: url];

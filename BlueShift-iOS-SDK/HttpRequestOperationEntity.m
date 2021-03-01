@@ -7,6 +7,7 @@
 
 #import "HttpRequestOperationEntity.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @implementation HttpRequestOperationEntity
 
@@ -100,7 +101,7 @@
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -149,7 +150,7 @@
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"HttpRequestOperationEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -184,6 +185,48 @@
         } else {
             handler(NO, nil);
         }
+    }
+}
+
++ (void)eraseEntityData {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *realtimeContext;
+    NSManagedObjectContext *batchContext;
+    @try {
+        if (appDelegate) {
+            realtimeContext = appDelegate.realEventManagedObjectContext;
+            batchContext = appDelegate.batchEventManagedObjectContext;
+        }
+        if (batchContext && realtimeContext) {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kHttpRequestOperationEntity];
+            if (@available(iOS 9.0, *)) {
+                NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
+                if([realtimeContext isKindOfClass:[NSManagedObjectContext class]]) {
+                    [realtimeContext performBlock:^{
+                        NSError *error = nil;
+                        // check if there are any changes for realtime events to be saved and save it
+                        if ([realtimeContext hasChanges]) {
+                            [realtimeContext save:&error];
+                        }
+                        // check if there are any changes for batched events to be saved and save it
+                        if ([batchContext isKindOfClass:[NSManagedObjectContext class]] && [batchContext hasChanges]) {
+                            [batchContext save:&error];
+                        }
+                        NSBatchDeleteResult* deleteResult = [realtimeContext executeRequest:deleteRequest error:&error];
+                        [realtimeContext save:&error];
+                        if (error) {
+                            [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        } else {
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the HttpRequestOperationEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                        }
+                    }];
+                }
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

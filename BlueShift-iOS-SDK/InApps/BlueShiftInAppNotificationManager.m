@@ -313,7 +313,13 @@
             } else {
                 handler(YES, @"", @"");
             }
+        } else {
+            handler(NO, @"", @"");
         }
+    } else {
+        NSError *error = (NSError *)@"Unable to fetch the lastTimestamp and notificationID from core data.";
+        [BlueshiftLog logError:error withDescription:nil methodName: [NSString stringWithUTF8String: __PRETTY_FUNCTION__]];
+        handler(NO, @"", @"");
     }
 }
 

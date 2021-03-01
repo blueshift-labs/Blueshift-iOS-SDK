@@ -7,6 +7,7 @@
 
 #import "BatchEventEntity.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BatchEventEntity ()
 
@@ -84,7 +85,7 @@
             if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kBatchEventEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -126,6 +127,39 @@
     }
 }
 
-
++ (void)eraseEntityData {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *batchContext;
+    @try {
+        if (appDelegate) {
+            batchContext = appDelegate.batchEventManagedObjectContext;
+        }
+        if (batchContext) {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
+            if (@available(iOS 9.0, *)) {
+                NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                if([batchContext isKindOfClass:[NSManagedObjectContext class]]) {
+                    [batchContext performBlock:^{
+                        NSError *error = nil;
+                        // check if there are any changes to be saved and save it
+                        if ([batchContext hasChanges]) {
+                            [batchContext save:&error];
+                        }
+                        NSBatchDeleteResult* deleteResult = [batchContext executeRequest:deleteRequest error:&error];
+                        [batchContext save:&error];
+                        if (error) {
+                            [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        } else {
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                        }
+                    }];
+                }
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
 
 @end

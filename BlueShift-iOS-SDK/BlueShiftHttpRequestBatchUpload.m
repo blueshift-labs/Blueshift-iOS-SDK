@@ -28,16 +28,22 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Method to start batch uploading
 + (void)startBatchUpload {
-    [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer]
-                                     target:self
-                                   selector:@selector(batchEventsUploadInBackground)
-                                   userInfo:nil
-                                    repeats:YES];
+    // Create timer only if tracking is enabled
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer]
+                                         target:self
+                                       selector:@selector(batchEventsUploadInBackground)
+                                       userInfo:nil
+                                        repeats:YES];
+    }
 }
 
 // Perform uploading task in background (inclues core data operations)
 + (void)batchEventsUploadInBackground {
-    [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
+    // Upload the events only if tracking is enabled
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
+    }
 }
 
 
@@ -270,7 +276,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Perform uploading task in background (inclues core data operations)
 + (void)retryBatchEventsUploadInBackground {
-    [self performSelectorInBackground:@selector(uploadBatches) withObject:nil];
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [self performSelectorInBackground:@selector(uploadBatches) withObject:nil];
+    }
 }
 
 + (void)performRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {

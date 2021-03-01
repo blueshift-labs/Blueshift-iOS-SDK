@@ -33,12 +33,18 @@
 #define kAppName                                @"app_name"
 #define kCFBundleShortVersionString             @"CFBundleShortVersionString"
 
+//Fetch InApp API params
+#define kEmail                                  @"email"
+#define kAPIKey                                 @"api_key"
+#define kLastTimestamp                          @"last_timestamp"
+
 //UserDefaults
 #define kBlueshiftDeviceIdSourceUUID            @"BlueshiftDeviceIdSourceUUID"
 #define kBlueshiftUNAuthorizationStatus         @"BlueshiftUNAuthorizationStatus"
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
 #define kBlueshiftLastAppOpenTimestamp          @"BlueshiftLastAppOpenTimestamp"
+#define kBlueshiftEnableTracking                @"BlueshiftEnableTracking"
 
 //Bool
 #define kYES                                    @"YES"
@@ -56,5 +62,9 @@
 #define openURLOptionsInAppType                 @"inAppType"
 #define openURLOptionsButtonIndex               @"clickedButtonIndex"
 #define openURLOptionsButtonText                @"clickedButtonText"
+
+//Core data entities
+#define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"
+#define kBatchEventEntity                       @"BatchEventEntity"
 
 #endif /* BlueshiftConstants_h */
