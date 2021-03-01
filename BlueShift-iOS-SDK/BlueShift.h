@@ -180,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param isEnabled true or false in order to enable or disable SDK tracking
 /// @param shouldEraseEventsData true or false in order to earase the non synced data from the SDK database while disabling the SDK
 /// @note By default the tracking is enabled.
-/// @warning If you disable the SDK and do not erase the data, the events will be sent to the Blueshift server when the tracking is enabled next time. The delayed events may impact on the product recommendations and campaign execution. It is recommended to erase the data when you disable the SDK.
+/// @warning If you disable the SDK and do not erase the data, the non synced events will be sent to the Blueshift server when the tracking is enabled next time. These delayed events may impact on the product recommendations and campaign execution. It is recommended to erase the data when you disable the SDK.
 - (void)enableTracking:(BOOL)isEnabled andEraseNonSyncedData:(BOOL)shouldEraseEventsData;
 
 /// Know current status of SDK tracking if it is enabled or not.

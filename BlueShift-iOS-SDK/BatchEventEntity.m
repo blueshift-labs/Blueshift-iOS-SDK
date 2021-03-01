@@ -150,7 +150,7 @@
                         if (error) {
                             [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         } else {
-                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the batched events table", deleteReult.result] withDetails:nil methodName:nil];
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteReult.result] withDetails:nil methodName:nil];
                         }
                     }];
                 }
