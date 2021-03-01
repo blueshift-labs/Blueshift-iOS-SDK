@@ -145,12 +145,12 @@
                         if ([batchContext hasChanges]) {
                             [batchContext save:&error];
                         }
-                        NSBatchDeleteResult* deleteReult = [batchContext executeRequest:deleteRequest error:&error];
+                        NSBatchDeleteResult* deleteResult = [batchContext executeRequest:deleteRequest error:&error];
                         [batchContext save:&error];
                         if (error) {
                             [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         } else {
-                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteReult.result] withDetails:nil methodName:nil];
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteResult.result] withDetails:nil methodName:nil];
                         }
                     }];
                 }
