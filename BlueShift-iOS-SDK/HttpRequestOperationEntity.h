@@ -42,7 +42,7 @@
 // Method to return the batch records from Core Data ...
 + (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
 
-/// Erase all the stored batched events from the SDK database
-+ (void)eraseBatchedEventsData;
+/// Erase all the stored batched and non-batched events from the HttpRequestOperation Entity of SDK database
++ (void)eraseEntityData;
 
 @end

@@ -874,8 +874,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             [BlueshiftLog logInfo:@"The SDK event tracking has been enabled. SDK will now send the events to the Blueshift server." withDetails:nil methodName:nil];
         } else {
             // Erase existing batched and non-batched events after disabling the tracking
-            [BatchEventEntity eraseNonBatchedEventsData];
-            [HttpRequestOperationEntity eraseBatchedEventsData];
+            [HttpRequestOperationEntity eraseEntityData];
+            [BatchEventEntity eraseEntityData];
             [BlueshiftLog logInfo:@"The SDK event tracking has been disabled. SDK will not send any events to the Blueshift server." withDetails:nil methodName:nil];
         }
     } @catch (NSException *exception) {

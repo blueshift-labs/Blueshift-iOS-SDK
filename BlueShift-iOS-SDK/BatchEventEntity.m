@@ -127,7 +127,7 @@
     }
 }
 
-+ (void)eraseNonBatchedEventsData {
++ (void)eraseEntityData {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     @try {
@@ -138,9 +138,22 @@
             NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
             if (@available(iOS 9.0, *)) {
                 NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
-                NSError *error = nil;
-                [masterContext executeRequest:deleteRequest error:&error];
-                [BlueshiftLog logInfo:@"Deleted all the non batched events" withDetails:nil methodName:nil];
+                if([masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                    [masterContext performBlock:^{
+                        NSError *error = nil;
+                        // check if there are any changes to be saved and save it
+                        if ([masterContext hasChanges]) {
+                            [masterContext save:&error];
+                        }
+                        NSBatchDeleteResult* deleteReult = [masterContext executeRequest:deleteRequest error:&error];
+                        [masterContext save:&error];
+                        if (error) {
+                            [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        } else {
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the batched events table", deleteReult.result] withDetails:nil methodName:nil];
+                        }
+                    }];
+                }
             }
         }
     }
