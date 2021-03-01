@@ -129,24 +129,24 @@
 
 + (void)eraseEntityData {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
+    NSManagedObjectContext *batchContext;
     @try {
         if (appDelegate) {
-            masterContext = appDelegate.batchEventManagedObjectContext;
+            batchContext = appDelegate.batchEventManagedObjectContext;
         }
-        if (masterContext) {
+        if (batchContext) {
             NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
             if (@available(iOS 9.0, *)) {
                 NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
-                if([masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                    [masterContext performBlock:^{
+                if([batchContext isKindOfClass:[NSManagedObjectContext class]]) {
+                    [batchContext performBlock:^{
                         NSError *error = nil;
                         // check if there are any changes to be saved and save it
-                        if ([masterContext hasChanges]) {
-                            [masterContext save:&error];
+                        if ([batchContext hasChanges]) {
+                            [batchContext save:&error];
                         }
-                        NSBatchDeleteResult* deleteReult = [masterContext executeRequest:deleteRequest error:&error];
-                        [masterContext save:&error];
+                        NSBatchDeleteResult* deleteReult = [batchContext executeRequest:deleteRequest error:&error];
+                        [batchContext save:&error];
                         if (error) {
                             [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         } else {

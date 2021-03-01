@@ -168,10 +168,20 @@ NS_ASSUME_NONNULL_BEGIN
 /// @returns true or false based on if push notification is from Blueshift or not
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
 
-/// Calling enableTracking(false) will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
+/// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
+/// It will also erase all the non synced events data from the SDK database while disabling the SDK and they will not be sent to Blueshift server.
 /// To restart the tracking, call enableTracking(true).
 /// @param isEnabled true or false in order to enable or disable SDK tracking
+/// @note By default the tracking is enabled.
 - (void)enableTracking:(BOOL)isEnabled;
+
+/// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
+/// Based on the param `shouldEraseEventsData`, it will erase all the non synced events data form the SDK database while disabling the SDK and they will not be sent to Blueshift server.
+/// @param isEnabled true or false in order to enable or disable SDK tracking
+/// @param shouldEraseEventsData true or false in order to earase the non synced data from the SDK database while disabling the SDK
+/// @note By default the tracking is enabled.
+/// @warning If you disable the SDK and do not erase the data, the events will be sent to the Blueshift server when the tracking is enabled next time. The delayed events may impact on the product recommendations and campaign execution. It is recommended to erase the data when you disable the SDK.
+- (void)enableTracking:(BOOL)isEnabled andEraseNonSyncedData:(BOOL)shouldEraseEventsData;
 
 /// Know current status of SDK tracking if it is enabled or not.
 - (BOOL)isTrackingEnabled;
