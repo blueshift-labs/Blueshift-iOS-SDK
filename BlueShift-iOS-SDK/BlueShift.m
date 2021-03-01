@@ -864,18 +864,25 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 #pragma mark Enable/Disable events tracking
 - (void)enableTracking:(BOOL)isEnabled {
+    [self enableTracking:isEnabled andEraseNonSyncedData:!isEnabled];
+}
+
+- (void)enableTracking:(BOOL)isEnabled andEraseNonSyncedData:(BOOL)shouldEraseEventsData {
     @try {
         NSString *val = isEnabled ? kYES : kNO;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setValue:val forKey:kBlueshiftEnableTracking];
         [defaults synchronize];
 
+        if (shouldEraseEventsData) {
+            // Erase existing batched and non-batched events after disabling the tracking
+            [HttpRequestOperationEntity eraseEntityData];
+            [BatchEventEntity eraseEntityData];
+        }
+        
         if(isEnabled) {
             [BlueshiftLog logInfo:@"The SDK event tracking has been enabled. SDK will now send the events to the Blueshift server." withDetails:nil methodName:nil];
         } else {
-            // Erase existing batched and non-batched events after disabling the tracking
-            [BatchEventEntity eraseNonBatchedEventsData];
-            [HttpRequestOperationEntity eraseBatchedEventsData];
             [BlueshiftLog logInfo:@"The SDK event tracking has been disabled. SDK will not send any events to the Blueshift server." withDetails:nil methodName:nil];
         }
     } @catch (NSException *exception) {
@@ -885,7 +892,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (BOOL)isTrackingEnabled {
     NSString *status = [[NSUserDefaults standardUserDefaults] stringForKey:kBlueshiftEnableTracking];
-    if (!status) {
+    if (status == nil) {
         return YES;
     }
     return [status isEqual:kYES] ? YES : NO;

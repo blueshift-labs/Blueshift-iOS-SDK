@@ -188,20 +188,40 @@
     }
 }
 
-+ (void)eraseBatchedEventsData {
++ (void)eraseEntityData {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
+    NSManagedObjectContext *realtimeContext;
+    NSManagedObjectContext *batchContext;
     @try {
         if (appDelegate) {
-            masterContext = appDelegate.batchEventManagedObjectContext;
+            realtimeContext = appDelegate.realEventManagedObjectContext;
+            batchContext = appDelegate.batchEventManagedObjectContext;
         }
-        if (masterContext) {
+        if (batchContext && realtimeContext) {
             NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kHttpRequestOperationEntity];
             if (@available(iOS 9.0, *)) {
                 NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
-                NSError *error = nil;
-                [masterContext executeRequest:deleteRequest error:&error];
-                [BlueshiftLog logInfo:@"Deleted all the batched events" withDetails:nil methodName:nil];
+                [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
+                if([realtimeContext isKindOfClass:[NSManagedObjectContext class]]) {
+                    [realtimeContext performBlock:^{
+                        NSError *error = nil;
+                        // check if there are any changes for realtime events to be saved and save it
+                        if ([realtimeContext hasChanges]) {
+                            [realtimeContext save:&error];
+                        }
+                        // check if there are any changes for batched events to be saved and save it
+                        if ([batchContext isKindOfClass:[NSManagedObjectContext class]] && [batchContext hasChanges]) {
+                            [batchContext save:&error];
+                        }
+                        NSBatchDeleteResult* deleteResult = [realtimeContext executeRequest:deleteRequest error:&error];
+                        [realtimeContext save:&error];
+                        if (error) {
+                            [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        } else {
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the HttpRequestOperationEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                        }
+                    }];
+                }
             }
         }
     }
