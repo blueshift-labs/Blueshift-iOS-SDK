@@ -9,6 +9,7 @@
 #import "BlueShiftNotificationConstants.h"
 #import "InApps/BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
@@ -142,7 +143,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
     if(_replayURLSesion == NULL) {
         NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-        _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+        _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: self delegateQueue: [NSOperationQueue mainQueue]];
     }
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
     [urlRequest setHTTPMethod:@"GET"];
@@ -151,12 +152,17 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         if(error == nil)
         {
-            if(httpResponse.URL != nil)
+            NSString* redirectURLString = [httpResponse.allHeaderFields valueForKey:kURLSessionLocation];
+            NSURL* redirectURL = nil;
+            if(redirectURLString) {
+                redirectURL = [[NSURL alloc] initWithString:redirectURLString];
+            }
+            if(redirectURL != nil)
             {
-                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
-                handler(YES, httpResponse.URL, nil);
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", redirectURLString] withDetails:nil statusCode:httpResponse.statusCode];
+                handler(YES, redirectURL, nil);
             } else {
-                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Fail %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
+                [BlueshiftLog logAPICallInfo:@"ULReplay - Fail. Unable to find `location` url in the response." withDetails:nil statusCode:httpResponse.statusCode];
                 handler(NO,nil,[NSError errorWithDomain:@"Failed to load redirection link" code:httpResponse.statusCode userInfo:nil]);
             }
         } else {
@@ -167,5 +173,8 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
+    completionHandler(nil);
+}
 
 @end
