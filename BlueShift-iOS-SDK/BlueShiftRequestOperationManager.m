@@ -159,7 +159,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
             }
             if(redirectURL != nil)
             {
-                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", [[httpResponse URL] absoluteString]] withDetails:nil statusCode:httpResponse.statusCode];
+                [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"ULReplay - Success %@", redirectURLString] withDetails:nil statusCode:httpResponse.statusCode];
                 handler(YES, redirectURL, nil);
             } else {
                 [BlueshiftLog logAPICallInfo:@"ULReplay - Fail. Unable to find `location` url in the response." withDetails:nil statusCode:httpResponse.statusCode];
