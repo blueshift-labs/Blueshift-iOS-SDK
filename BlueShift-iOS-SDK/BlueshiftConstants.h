@@ -67,4 +67,7 @@
 #define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"
 #define kBatchEventEntity                       @"BatchEventEntity"
 
+//URLSession constants
+#define kURLSessionLocation                     @"location"
+
 #endif /* BlueshiftConstants_h */
