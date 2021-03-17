@@ -55,9 +55,9 @@
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
                     NSError *error = nil;
-                    [context save:&error];
-                    if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        @try {
+                    @try {
+                        [context save:&error];
+                        if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
                             [masterContext performBlock:^{
                                 @try {
                                     NSError *error = nil;
@@ -66,9 +66,9 @@
                                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                                 }
                             }];
-                        } @catch (NSException *exception) {
-                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         }
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }];
             }
@@ -114,13 +114,20 @@
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                             [context performBlock:^{
-                                NSArray *results = [[NSArray alloc]init];
-                                NSError *error;
-                                results = [context executeFetchRequest:fetchRequest error:&error];
-                                if(results.count > 0) {
-                                    HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
-                                    handler(YES, operationEntityToBeExecuted);
-                                } else {
+                                @try {
+                                    NSError *error;
+                                    if ([context hasChanges]) {
+                                        [context save:&error];
+                                    }
+                                    NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
+                                    if(results.count > 0) {
+                                        HttpRequestOperationEntity *operationEntityToBeExecuted = (HttpRequestOperationEntity *)[results firstObject];
+                                        handler(YES, operationEntityToBeExecuted);
+                                    } else {
+                                        handler(NO, nil);
+                                    }
+                                } @catch (NSException *exception) {
+                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                                     handler(NO, nil);
                                 }
                             }];
@@ -130,8 +137,13 @@
                     }
                     @catch (NSException *exception) {
                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        handler(NO, nil);
                     }
+                } else {
+                    handler(NO, nil);
                 }
+            } else {
+                handler(NO, nil);
             }
         } else {
             handler(NO, nil);

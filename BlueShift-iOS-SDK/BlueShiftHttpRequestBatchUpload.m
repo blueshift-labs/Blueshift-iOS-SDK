@@ -118,25 +118,30 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     }
                 }
             }
-            [self createBatch:paramsArray];
-        }
-    }
-    @try {
-        if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *saveError = nil;
-                [context save:&saveError];
-                [masterContext performBlock:^{
-                    NSError *saveError = nil;
-                    if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        [masterContext save:&saveError];
+            if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                [context performBlockAndWait:^{
+                    @try {
+                        NSError *saveError = nil;
+                        [context save:&saveError];
+                        [masterContext performBlockAndWait:^{
+                            @try {
+                                NSError *saveError = nil;
+                                if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [masterContext save:&saveError];
+                                }
+                            }
+                            @catch (NSException *exception) {
+                                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            }
+                        }];
+                    }
+                    @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }];
-            }];
+            }
+            [self createBatch:paramsArray];
         }
-    }
-    @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
