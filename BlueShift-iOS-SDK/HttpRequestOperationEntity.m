@@ -112,7 +112,7 @@
                     [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
                     [fetchRequest setFetchLimit:1];
                     @try {
-                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                        if(context && [context respondsToSelector:@selector(save:)]) {
                             [context performBlock:^{
                                 @try {
                                     NSError *error;
@@ -169,17 +169,22 @@
                 }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-                    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
-                    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
+                    [fetchRequest setPredicate:predicate];
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                             [context performBlock:^{
-                                NSError *error;
-                                NSArray *results = [[NSArray alloc]init];
-                                results = [context executeFetchRequest:fetchRequest error:&error];
-                                if (results && results.count > 0) {
-                                    handler(YES, results);
-                                } else {
+                                @try {
+                                    NSError *error;
+                                    NSArray *results = [[NSArray alloc]init];
+                                    results = [context executeFetchRequest:fetchRequest error:&error];
+                                    if (results && results.count > 0) {
+                                        handler(YES, results);
+                                    } else {
+                                        handler(NO, nil);
+                                    }
+                                } @catch (NSException *exception) {
+                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                                     handler(NO, nil);
                                 }
                             }];
@@ -187,6 +192,7 @@
                     }
                     @catch (NSException *exception) {
                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        handler(NO, nil);
                     }
                 } else {
                     handler(NO, nil);
@@ -216,21 +222,26 @@
                 [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
                 if([realtimeContext isKindOfClass:[NSManagedObjectContext class]]) {
                     [realtimeContext performBlock:^{
-                        NSError *error = nil;
-                        // check if there are any changes for realtime events to be saved and save it
-                        if ([realtimeContext hasChanges]) {
+                        @try {
+                            NSError *error = nil;
+                            // check if there are any changes for realtime events to be saved and save it
+                            if ([realtimeContext hasChanges]) {
+                                [realtimeContext save:&error];
+                            }
+                            // check if there are any changes for batched events to be saved and save it
+                            if ([batchContext isKindOfClass:[NSManagedObjectContext class]] && [batchContext hasChanges]) {
+                                [batchContext save:&error];
+                            }
+                            NSBatchDeleteResult* deleteResult = [realtimeContext executeRequest:deleteRequest error:&error];
                             [realtimeContext save:&error];
-                        }
-                        // check if there are any changes for batched events to be saved and save it
-                        if ([batchContext isKindOfClass:[NSManagedObjectContext class]] && [batchContext hasChanges]) {
-                            [batchContext save:&error];
-                        }
-                        NSBatchDeleteResult* deleteResult = [realtimeContext executeRequest:deleteRequest error:&error];
-                        [realtimeContext save:&error];
-                        if (error) {
-                            [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                        } else {
-                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the HttpRequestOperationEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                            if (error) {
+                                [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            } else {
+                                [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the HttpRequestOperationEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                            }
+                            
+                        } @catch (NSException *exception) {
+                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         }
                     }];
                 }

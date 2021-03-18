@@ -48,15 +48,23 @@
         @try {
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
-                    NSError *error = nil;
-                    [context save:&error];
-                    if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        [masterContext performBlock:^{
-                            NSError *error = nil;
-                            if (masterContext) {
-                                [masterContext save:&error];
-                            }
-                        }];
+                    @try {
+                        NSError *error = nil;
+                        [context save:&error];
+                        if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                            [masterContext performBlock:^{
+                                @try {
+                                    NSError *error = nil;
+                                    if (masterContext) {
+                                        [masterContext save:&error];
+                                    }
+                                } @catch (NSException *exception) {
+                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                                }
+                            }];
+                        }
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }];
             }
@@ -64,8 +72,6 @@
         @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-    } else {
-        return ;
     }
 }
 
@@ -109,12 +115,18 @@
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
-                NSError *error;
-                NSArray *results = [[NSArray alloc]init];
-                results = [context executeFetchRequest:fetchRequest error:&error];
-                if (results && results.count > 0) {
-                    handler(YES, results);
-                } else {
+                @try {
+                    
+                    NSError *error;
+                    NSArray *results = [[NSArray alloc]init];
+                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    if (results && results.count > 0) {
+                        handler(YES, results);
+                    } else {
+                        handler(NO, nil);
+                    }
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     handler(NO, nil);
                 }
             }];
@@ -124,6 +136,7 @@
     }
     @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        handler(NO, nil);
     }
 }
 
@@ -140,17 +153,21 @@
                 NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
                 if([batchContext isKindOfClass:[NSManagedObjectContext class]]) {
                     [batchContext performBlock:^{
-                        NSError *error = nil;
-                        // check if there are any changes to be saved and save it
-                        if ([batchContext hasChanges]) {
+                        @try {
+                            NSError *error = nil;
+                            // check if there are any changes to be saved and save it
+                            if ([batchContext hasChanges]) {
+                                [batchContext save:&error];
+                            }
+                            NSBatchDeleteResult* deleteResult = [batchContext executeRequest:deleteRequest error:&error];
                             [batchContext save:&error];
-                        }
-                        NSBatchDeleteResult* deleteResult = [batchContext executeRequest:deleteRequest error:&error];
-                        [batchContext save:&error];
-                        if (error) {
-                            [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                        } else {
-                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                            if (error) {
+                                [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            } else {
+                                [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                            }
+                        } @catch (NSException *exception) {
+                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         }
                     }];
                 }

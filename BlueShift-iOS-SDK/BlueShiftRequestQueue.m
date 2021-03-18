@@ -197,7 +197,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
             [context performBlock:^{
                 @try {
                     NSError *saveError = nil;
-                    if(context) {
+                    if(context && [context respondsToSelector:@selector(deleteObject:)]) {
                         [context deleteObject:operationEntityToBeExecuted];
                         [context save:&saveError];
                     }
