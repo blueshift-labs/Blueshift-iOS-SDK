@@ -53,19 +53,19 @@
     NSString* triggerStr;
     switch (triggerMode) {
         case BlueShiftInAppTriggerNow:
-            triggerStr = @"now";
+            triggerStr = kInAppTriggerModeNow;
             break;
         case BlueShiftInAppTriggerUpComing:
-            triggerStr = @"upcoming";
+            triggerStr = kInAppTriggerModeUpcoming;
             break;
         case BlueShiftInAppTriggerEvent:
-            triggerStr = @"event";
+            triggerStr = kInAppTriggerModeEvent;
             break;
         case BlueShiftInAppNoTriggerEvent:
             triggerStr = @"";
             break;
         case BlueShiftInAppTriggerNowAndUpComing:
-            triggerStr = @"NowAndUpComing";
+            triggerStr = kInAppTriggerModeNowAndUpcoming;
             break;
     }
     
@@ -100,7 +100,7 @@
 }
 
 + (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
-    if ([triggerStr isEqualToString:@"NowAndUpComing"]) {
+    if ([triggerStr isEqualToString:kInAppTriggerModeNowAndUpcoming]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil];
     } else if (triggerStr && ![triggerStr isEqualToString: @""]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
@@ -235,7 +235,7 @@
                         NSArray *arrResult = [context executeFetchRequest:fetchRequest error:&error];
                         if (arrResult.count > 0) {
                             InAppNotificationEntity *entity = arrResult[0];
-                            [entity setValue: status forKey: @"status"];
+                            [entity setValue: status forKey: kInAppStatus];
                             error = nil;
                             [context save:&error];
                             handler(YES);
@@ -266,7 +266,7 @@
             self.id =(NSString *)[dictionary objectForKey: kInAppNotificationModalMessageUDIDKey];
         } else {
             self.id = [NSString stringWithFormat:@"%u",arc4random_uniform(99999)];
-            [payload setValue:self.id forKey:@"id"];
+            [payload setValue:self.id forKey:kInAppId];
         }
         /* parse the payload and save the relevant keys related to presentation of In-App msg */
         
@@ -306,12 +306,12 @@
             self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
         }
         
-        self.triggerMode = @"now";
+        self.triggerMode = kInAppTriggerModeNow;
         if ([dictionary objectForKey: kSilentNotificationTriggerKey]) {
             NSString *trigger = (NSString *)[dictionary objectForKey: kSilentNotificationTriggerKey];
             if (![trigger isEqualToString:@""]) {
                 if ([BlueShiftInAppNotificationHelper hasDigits: trigger] == YES) {
-                    self.triggerMode = @"upcoming";
+                    self.triggerMode = kInAppTriggerModeUpcoming;
                     self.startTime = [NSNumber numberWithDouble: [trigger doubleValue]];
                 } else {
                     self.triggerMode = trigger;
@@ -320,9 +320,9 @@
         }
         
         /* Other properties */
-        self.priority = @"medium";
+        self.priority = kInAppPriorityMedium;
         self.eventName = @"";
-        self.status = @"pending";
+        self.status = kInAppStatusPending;
         self.createdAt = [NSNumber numberWithDouble: (double)[[NSDate date] timeIntervalSince1970]];
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     } @catch (NSException *exception) {
