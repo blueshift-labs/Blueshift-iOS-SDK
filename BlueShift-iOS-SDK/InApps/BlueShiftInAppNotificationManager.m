@@ -296,30 +296,37 @@
     
     if (masterContext != nil) {
         NSEntityDescription *entity;
-        NSError *error;
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         @try {
             entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
             [fetchRequest setEntity:entity];
             if(entity != nil && fetchRequest.entity != nil) {
-                NSArray *results = [masterContext executeFetchRequest: fetchRequest error:&error];
-                NSArray *sortedList = [self sortedInAppMessageWithDate: results];
-                if (sortedList != nil && [sortedList count] > 0 && sortedList[[sortedList count] - 1]) {
-                    InAppNotificationEntity *notification = results[[sortedList count] -1];
-                    handler(YES, notification.id, notification.timestamp);
-                } else {
-                    handler(YES, @"", @"");
-                }
+                [masterContext performBlock:^{
+                    @try {
+                        NSError *error;
+                        NSArray *results = [masterContext executeFetchRequest: fetchRequest error:&error];
+                        NSArray *sortedList = [self sortedInAppMessageWithDate: results];
+                        if (sortedList != nil && [sortedList count] > 0 && sortedList[[sortedList count] - 1]) {
+                            InAppNotificationEntity *notification = results[[sortedList count] -1];
+                            handler(YES, notification.id, notification.timestamp);
+                        } else {
+                            handler(NO, @"", @"");
+                        }
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        handler(NO, @"", @"");
+                    }
+                }];
             } else {
-                handler(YES, @"", @"");
+                handler(NO, @"", @"");
             }
         }
         @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-            handler(YES, @"", @"");
+            handler(NO, @"", @"");
         }
     } else {
-        handler(YES, @"", @"");
+        handler(NO, @"", @"");
     }
 }
 

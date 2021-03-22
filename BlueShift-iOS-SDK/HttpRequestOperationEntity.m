@@ -108,8 +108,8 @@
                 }
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
-                    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
-                    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
+                    [fetchRequest setPredicate:predicate];
                     [fetchRequest setFetchLimit:1];
                     @try {
                         if(context && [context respondsToSelector:@selector(save:)]) {

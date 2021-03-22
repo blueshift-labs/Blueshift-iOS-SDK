@@ -1129,8 +1129,8 @@
 
 - (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
     // The persistent store coordinator for the application. This implementation creates and return a coordinator, having added the store for the application to it.
-    NSString* lock = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
-    @synchronized (lock) {
+    NSString* key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
+    @synchronized (key) {
         @try {
             if (_persistentStoreCoordinator != nil) {
                 return _persistentStoreCoordinator;

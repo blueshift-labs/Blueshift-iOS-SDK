@@ -118,6 +118,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     }
                 }
             }
+            [self createBatch:paramsArray];
             if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlockAndWait:^{
                     @try {
@@ -142,7 +143,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     }
                 }];
             }
-            [self createBatch:paramsArray];
         }
     }
 }

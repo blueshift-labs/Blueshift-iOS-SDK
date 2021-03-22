@@ -110,13 +110,12 @@
 
 + (void *)fetchBatchesFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
-    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
+    [fetchRequest setPredicate:predicate];
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
                 @try {
-                    
                     NSError *error;
                     NSArray *results = [[NSArray alloc]init];
                     results = [context executeFetchRequest:fetchRequest error:&error];
