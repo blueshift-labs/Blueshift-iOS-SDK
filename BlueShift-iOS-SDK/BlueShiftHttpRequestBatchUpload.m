@@ -119,24 +119,31 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 }
             }
             [self createBatch:paramsArray];
-        }
-    }
-    @try {
-        if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *saveError = nil;
-                [context save:&saveError];
-                [masterContext performBlock:^{
-                    NSError *saveError = nil;
-                    if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        [masterContext save:&saveError];
+            if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                [context performBlockAndWait:^{
+                    @try {
+                        NSError *saveError = nil;
+                        if ([context hasChanges]) {
+                            [context save:&saveError];
+                        }
+                        [masterContext performBlockAndWait:^{
+                            @try {
+                                NSError *saveError = nil;
+                                if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [masterContext save:&saveError];
+                                }
+                            }
+                            @catch (NSException *exception) {
+                                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            }
+                        }];
+                    }
+                    @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }];
-            }];
+            }
         }
-    }
-    @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -216,21 +223,31 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
-                [context deleteObject:batchEvent];
-                [context performBlock:^{
+                @try {
+                    [context deleteObject:batchEvent];
                     NSError *saveError = nil;
-                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    if(context) {
                         [context save:&saveError];
                     }
                     _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                }];
+                    handler(YES);
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                    handler(NO);
+                }
             }];
+        }
+        else {
+            _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+            handler(NO);
         }
     }
     @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+        handler(NO);
     }
-    handler(YES);
 }
 
 + (void) handleRetryBatchUpload:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*)context requestOperation: (BlueShiftBatchRequestOperation*)requestOperation completetionHandler:(void (^)(BOOL))handler {
@@ -238,10 +255,10 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
-                [context deleteObject:batchEvent];
-                [context performBlock:^{
+                @try {
+                    [context deleteObject:batchEvent];
                     NSError *saveError = nil;
-                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    if(context) {
                         [context save:&saveError];
                         NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
                         requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
@@ -254,14 +271,23 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         }
                     }
                     _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                }];
+                    handler(YES);
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                    handler(NO);
+                }
             }];
+        } else {
+            _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+            handler(NO);
         }
     }
     @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+        handler(NO);
     }
-    handler(NO);
 }
 
 

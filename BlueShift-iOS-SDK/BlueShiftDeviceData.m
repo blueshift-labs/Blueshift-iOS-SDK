@@ -79,9 +79,14 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (NSString *)networkCarrierName {
-    CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
-    CTCarrier *carrier = [netinfo subscriberCellularProvider];
-    return [carrier carrierName];
+    // Skip fetching network carrier for simulator
+    #if TARGET_OS_SIMULATOR
+        return nil;
+    #else
+        CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
+        CTCarrier *carrier = [netinfo subscriberCellularProvider];
+        return [carrier carrierName];
+    #endif
 }
 
 - (NSString *)operatingSystem {
