@@ -78,4 +78,15 @@
 
 #define kBsftEncodedSpace                                               @"%20"
 
+#define kInAppTriggerModeNow                                            @"now"
+#define kInAppTriggerModeUpcoming                                       @"upcoming"
+#define kInAppTriggerModeEvent                                          @"event"
+#define kInAppTriggerModeNowAndUpcoming                                 @"NowAndUpComing"
+
+#define kInAppPriorityMedium                                            @"medium"
+#define kInAppId                                                        @"id"
+
+#define kInAppStatus                                                    @"status"
+#define kInAppStatusPending                                             @"pending"
+
 #endif
