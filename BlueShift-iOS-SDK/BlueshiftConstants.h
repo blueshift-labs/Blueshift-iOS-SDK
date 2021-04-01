@@ -45,6 +45,7 @@
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
 #define kBlueshiftLastAppOpenTimestamp          @"BlueshiftLastAppOpenTimestamp"
 #define kBlueshiftEnableTracking                @"BlueshiftEnableTracking"
+#define kBlueshiftEnableInApp                   @"BlueshiftEnableInApp"
 
 //Bool
 #define kYES                                    @"YES"

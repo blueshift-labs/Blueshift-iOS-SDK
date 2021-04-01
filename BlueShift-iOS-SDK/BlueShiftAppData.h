@@ -21,6 +21,15 @@
 /// The default value for the enablePush is set to true
 @property (nonatomic) BOOL enablePush;
 
+/// Set this flag to false to disable in-app notifications explicitly. You will need to fire the identify call after changing the value of flag.
+/// To enable in-app notifications later, you will need to set it to true and fire identify call.
+/// The default value for the enableInApp is set to true
+@property (nonatomic) BOOL enableInApp;
+
+- (BOOL)getEnableInAppStatus;
+
+- (BOOL)getEnablePushStatus;
+
 + (instancetype) currentAppData;
 
 - (NSDictionary *)toDictionary;
