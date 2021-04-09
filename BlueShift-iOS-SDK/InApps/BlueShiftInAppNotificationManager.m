@@ -56,7 +56,7 @@
 
 - (void) OnApplicationEnteringForeground:(NSNotification *)notification {
     // start the timer once app enters foreground.
-    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[BlueShiftAppData currentAppData] getEnableInAppStatus] == YES) {
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         [self fetchNowAndUpcomingInAppMessageFromDB];
         [self startInAppMessageFetchTimer];
         [self deleteExpireInAppNotificationFromDataStore];
@@ -402,7 +402,7 @@
 
 
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
-    if([[BlueShiftAppData currentAppData] getEnableInAppStatus] && [self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
+    if([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] && [self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         NSManagedObjectContext *masterContext;
         if (appDelegate) {

@@ -26,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Returns current UTC timestamp with format 2020-12-14T13:35:34.034000Z
 + (NSString *)getCurrentUTCTimestamp;
 
+/// Check for nil and add the key value to the given dictionary
++ (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -60,9 +60,9 @@ static BlueShiftAppData *_currentAppData = nil;
     }
 }
 
-- (BOOL)getEnablePushStatus {
+- (BOOL)getCurrentPushNotificationStatus {
     if (@available(iOS 10.0, *)) {
-        if (self.enablePush == YES && self.currentUNAuthorizationStatus == YES) {
+        if (self.enablePush && self.currentUNAuthorizationStatus) {
             return YES;
         } else {
             return NO;
@@ -93,8 +93,8 @@ static BlueShiftAppData *_currentAppData = nil;
     }
 }
 
-- (BOOL)getEnableInAppStatus {
-    if (self.enableInApp == YES && [BlueShift sharedInstance].config.enableInAppNotification == YES) {
+- (BOOL)getCurrentInAppNotificationStatus {
+    if (self.enableInApp && [BlueShift sharedInstance].config.enableInAppNotification) {
         return  YES;
     }
     return NO;
@@ -102,25 +102,16 @@ static BlueShiftAppData *_currentAppData = nil;
 
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
-    if (self.appName) {
-        [appMutableDictionary setObject:self.bundleIdentifier forKey:kAppName];
+    @try {
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppName value:self.bundleIdentifier];
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppVersion value:self.appVersion];
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBuildNumber value:self.appBuildNumber];
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    
-    if (self.appVersion) {
-        [appMutableDictionary setObject:self.appVersion forKey:kAppVersion];
-    }
-    
-    if (self.appBuildNumber) {
-        [appMutableDictionary setObject:self.appBuildNumber forKey:kBuildNumber];
-    }
-    
-    if (self.bundleIdentifier) {
-        [appMutableDictionary setObject:self.bundleIdentifier forKey:kBundleIdentifier];
-    }
-    
-    [appMutableDictionary setObject:[NSNumber numberWithBool: [self getEnablePushStatus]] forKey:kEnablePush];
-    [appMutableDictionary setObject: [NSNumber numberWithBool: [self getEnableInAppStatus]]  forKey:kEnableInApp];
-
     return [appMutableDictionary copy];
 }
 

@@ -90,7 +90,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         [sharedUserInfoMutableDictionary setObject:dateOfBirthTimeStamp forKey:@"date_of_birth"];
     }
     
-    return [sharedUserInfoMutableDictionary copy];
+    return [sharedUserInfoMutableDictionary mutableCopy];
 }
 
 - (NSDictionary *)toDictionary {

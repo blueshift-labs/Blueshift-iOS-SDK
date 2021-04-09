@@ -188,4 +188,10 @@
     return [dateFormatter stringFromDate:[NSDate date]];
 }
 
++ (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value {
+    if (key && value) {
+        [dictionary setValue:value forKey:key];
+    }
+}
+
 @end

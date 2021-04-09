@@ -26,9 +26,9 @@
 /// The default value for the enableInApp is set to true
 @property (nonatomic) BOOL enableInApp;
 
-- (BOOL)getEnableInAppStatus;
-
-- (BOOL)getEnablePushStatus;
+/// Returns BOOL by taking Logical AND of `enableInApp` and `config.enableInAppNotification` to check the current status of inApp notifications.
+/// This value will be sent to Blueshift server under key `enable_inapp` as part of every event and also it will be checked before displaying in-app notifications.
+- (BOOL)getCurrentInAppNotificationStatus;
 
 + (instancetype) currentAppData;
 
