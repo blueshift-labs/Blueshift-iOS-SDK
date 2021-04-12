@@ -189,8 +189,12 @@
 }
 
 + (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value {
-    if (key && value) {
-        [dictionary setValue:value forKey:key];
+    @try {
+        if (key && value) {
+            [dictionary setValue:value forKey:key];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
