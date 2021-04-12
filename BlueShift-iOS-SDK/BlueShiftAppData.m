@@ -102,16 +102,12 @@ static BlueShiftAppData *_currentAppData = nil;
 
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
-    @try {
-        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppName value:self.bundleIdentifier];
-        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppVersion value:self.appVersion];
-        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBuildNumber value:self.appBuildNumber];
-        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
-        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
-        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-    }
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppName value:self.bundleIdentifier];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppVersion value:self.appVersion];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBuildNumber value:self.appBuildNumber];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
     return [appMutableDictionary copy];
 }
 
