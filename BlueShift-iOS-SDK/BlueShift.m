@@ -794,7 +794,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)(NSError*))failure {
-    if (_inAppNotificationMananger) {
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
         [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
             [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
                 success();
@@ -802,6 +802,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         } failure:^(NSError * error) {
             failure(error);
         }];
+    } else {
+        [BlueshiftLog logInfo:@"In-app is opted out, can not fetch in-app notifications from API." withDetails:nil methodName:nil]
     }
 }
 
