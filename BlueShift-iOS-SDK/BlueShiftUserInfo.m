@@ -27,7 +27,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     return _sharedUserInfo;
 }
 
-- (NSDictionary *)toDictionary {
+- (NSMutableDictionary *)convertToDictionary {
     NSMutableDictionary *sharedUserInfoMutableDictionary = [NSMutableDictionary dictionary];
     
     if (self.email) {
@@ -90,13 +90,28 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         [sharedUserInfoMutableDictionary setObject:dateOfBirthTimeStamp forKey:@"date_of_birth"];
     }
     
-    return [sharedUserInfoMutableDictionary copy];
+    return [sharedUserInfoMutableDictionary mutableCopy];
 }
 
+- (NSDictionary *)toDictionary {
+    NSMutableDictionary *savedData = [self convertToDictionary];
+    if (self.extras) {
+        [savedData addEntriesFromDictionary:self.extras];
+    }
+    return  savedData;
+}
+
+- (NSDictionary *)toDictionaryToSaveData {
+    NSMutableDictionary *savedData = [self convertToDictionary];
+    if (self.extras) {
+        [savedData setObject:self.extras forKey:@"extras"];
+    }
+    return savedData;
+}
 
 - (void)save {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *userInfoDictionary = [self toDictionary];
+    NSDictionary *userInfoDictionary = [self toDictionaryToSaveData];
     [defaults setObject:userInfoDictionary forKey:@"savedBlueShiftUserInfoDictionary"];
     if ([defaults synchronize]==YES) {
         _sharedUserInfo = nil;
@@ -138,6 +153,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     if (currentUserInfoDictionary) {
         blueShiftUserInfo = [[BlueShiftUserInfo alloc] init];
         blueShiftUserInfo.email = [currentUserInfoDictionary objectForKey:@"email"];
+        blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:@"customer_id"];
         blueShiftUserInfo.name = [currentUserInfoDictionary objectForKey:@"name"];
         blueShiftUserInfo.firstName = [currentUserInfoDictionary objectForKey:@"firstname"];
         blueShiftUserInfo.lastName = [currentUserInfoDictionary objectForKey:@"lastname"];
@@ -158,9 +174,8 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         if (dateOfBirthTimeStamp) {
             blueShiftUserInfo.dateOfBirth = [NSDate dateWithTimeIntervalSinceReferenceDate:dateOfBirthTimeStamp];
         }
-        
+        blueShiftUserInfo.extras = [currentUserInfoDictionary objectForKey:@"extras"];
         blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:@"additional_user_info"];
-        blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:@"customer_id"];
     }
     return blueShiftUserInfo;
 }

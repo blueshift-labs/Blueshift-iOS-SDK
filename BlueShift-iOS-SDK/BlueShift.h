@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
-/// Displays in-app notification when manual mode is enabled. Calling this method will show only one in-app notification on the screen.
+/// Calling this method will display single in-app notification if the current screen/VC is registered for displaying in-app notifications.
 - (void)displayInAppNotification;
 
 /// Calling this method will fetch in-app notifications manually from api and add them into the SDK database.

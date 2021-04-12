@@ -188,4 +188,14 @@
     return [dateFormatter stringFromDate:[NSDate date]];
 }
 
++ (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value {
+    @try {
+        if (key && value) {
+            [dictionary setValue:value forKey:key];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
 @end

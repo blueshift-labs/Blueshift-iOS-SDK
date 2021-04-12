@@ -120,8 +120,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
     }
     
-    if (config.enableInAppNotification == YES && config.inAppManualTriggerEnabled == NO) {
-        
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && config.inAppManualTriggerEnabled == NO) {
         if (config.BlueshiftInAppNotificationTimeInterval) {
             _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
         } else {
@@ -748,10 +747,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-/// Display in-app notification when manual trigger mode for displaying in-app notifications is enabled
-/// By calling this method, it displays single in-app notification when the current screen/VC is registered for displaying in-app notifications
 - (void)displayInAppNotification {
-    if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == YES) {
+    if (_inAppNotificationMananger) {
         [self fetchInAppNotificationFromDB];
         [_inAppNotificationMananger deleteExpireInAppNotificationFromDataStore];
     }
@@ -759,7 +756,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
-    if (_config.enableInAppNotification == YES) {
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
                 if (self->_config.inAppManualTriggerEnabled == NO) {
@@ -797,7 +794,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)(NSError*))failure {
-    if (_config.enableInAppNotification == YES && _inAppNotificationMananger) {
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
         [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
             [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
                 success();
@@ -805,6 +802,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         } failure:^(NSError * error) {
             failure(error);
         }];
+    } else {
+        [BlueshiftLog logInfo:@"In-app is opted out, can not fetch in-app notifications from API." withDetails:nil methodName:nil]
     }
 }
 
