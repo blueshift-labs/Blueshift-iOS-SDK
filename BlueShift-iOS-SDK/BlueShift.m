@@ -633,7 +633,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
     }
     
-    NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
+    NSMutableDictionary *requestMutableParameters = [[NSMutableDictionary alloc] init];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
     if ([BlueShiftUserInfo sharedInstance]==nil) {
@@ -654,6 +654,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
     if (timestamp) {
         [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
+    }
+    if(requestParameters) {
+        [requestMutableParameters addEntriesFromDictionary:requestParameters];
     }
     
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
@@ -803,7 +806,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             failure(error);
         }];
     } else {
-        [BlueshiftLog logInfo:@"In-app is opted out, can not fetch in-app notifications from API." withDetails:nil methodName:nil]
+        [BlueshiftLog logInfo:@"In-app is opted out, can not fetch in-app notifications from API." withDetails:nil methodName:nil];
     }
 }
 
