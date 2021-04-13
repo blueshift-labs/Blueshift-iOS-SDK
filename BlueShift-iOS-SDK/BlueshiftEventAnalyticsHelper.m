@@ -190,7 +190,7 @@
 
 + (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value {
     @try {
-        if (key && value) {
+        if (dictionary && key && value) {
             [dictionary setValue:value forKey:key];
         }
     } @catch (NSException *exception) {
