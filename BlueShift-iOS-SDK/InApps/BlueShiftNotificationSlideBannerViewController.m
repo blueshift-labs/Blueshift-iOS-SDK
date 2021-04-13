@@ -5,6 +5,9 @@
 //  Created by Noufal Subair on 23/07/19.
 //
 
+#define kSlideToLeftMultiplier -2.0
+#define kSlideToRightMultiplier 2.0
+
 #import "BlueShiftNotificationSlideBannerViewController.h"
 #import "BlueShiftNotificationView.h"
 #import "BlueShiftNotificationWindow.h"
@@ -133,14 +136,11 @@
     
     if (animated) {
         [UIView animateWithDuration:1.0 animations:^{
-            switch (direction) {
-                case UISwipeGestureRecognizerDirectionLeft:
-                    self.view.frame = CGRectMake(-2 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
-                    break;
-                default:
-                    self.view.frame = CGRectMake(2 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
-                    break;
+            double multiplier = kSlideToRightMultiplier;
+            if (direction == UISwipeGestureRecognizerDirectionLeft) {
+                multiplier = kSlideToLeftMultiplier;
             }
+            self.view.frame = CGRectMake(multiplier * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
             self.window.alpha = 0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -398,11 +398,11 @@
 -(void)dismissInAppWithSwipeDirection:(UISwipeGestureRecognizer *)recognizer {
     switch (recognizer.direction) {
         case UISwipeGestureRecognizerDirectionLeft:
-            [self hideFromWindow:YES withDirection:recognizer.direction];
+            [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionLeft];
             break;
         
         default:
-            [self hideFromWindow:YES withDirection:recognizer.direction];
+            [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
             break;
     }
 }
