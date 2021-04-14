@@ -994,19 +994,6 @@
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }
 
-- (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
-    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
-        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        
-        if (parameters) {
-            [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
-            [parameterMutableDictionary addEntriesFromDictionary:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: parameters]];
-        }
-        
-        [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
-    }
-}
-
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
