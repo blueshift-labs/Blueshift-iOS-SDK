@@ -30,40 +30,43 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 
 - (NSMutableDictionary *)convertToDictionary {
     NSMutableDictionary *sharedUserInfoMutableDictionary = [NSMutableDictionary dictionary];
-    if (self.email) {
-        [sharedUserInfoMutableDictionary setValue:self.email forKey:kEmail];
-    } else {
-        if (!isEmailIdNotSetInfoDisplayed) {
-            [BlueshiftLog logInfo:@"EmailId is not set for BlueShiftUserInfo. Please set email id." withDetails:nil methodName:nil];
-            isEmailIdNotSetInfoDisplayed = YES;
+    @try {
+        if (self.email) {
+            [sharedUserInfoMutableDictionary setValue:self.email forKey:kEmail];
+        } else {
+            if (!isEmailIdNotSetInfoDisplayed) {
+                [BlueshiftLog logInfo:@"EmailId is not set for BlueShiftUserInfo. Please set email id." withDetails:nil methodName:nil];
+                isEmailIdNotSetInfoDisplayed = YES;
+            }
         }
-    }
-    if (self.retailerCustomerID) {
-        [sharedUserInfoMutableDictionary setValue:self.retailerCustomerID forKey:kBSUserCustomerId];
-    } else {
-        if (!isCustomerIdNotSetInfoDisplayed) {
-            [BlueshiftLog logInfo:@"Retails customer ID is not set for BlueShiftUserInfo. Please set customer Id" withDetails:nil methodName:nil];
-            isCustomerIdNotSetInfoDisplayed = YES;
+        if (self.retailerCustomerID) {
+            [sharedUserInfoMutableDictionary setValue:self.retailerCustomerID forKey:kBSUserCustomerId];
+        } else {
+            if (!isCustomerIdNotSetInfoDisplayed) {
+                [BlueshiftLog logInfo:@"Retails customer ID is not set for BlueShiftUserInfo. Please set customer Id" withDetails:nil methodName:nil];
+                isCustomerIdNotSetInfoDisplayed = YES;
+            }
         }
+        
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserName value:self.name];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFirstName value:self.firstName];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserLastName value:self.lastName];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserGender value:self.gender];
+        if (self.joinedAt) {
+            NSNumber *joinedAtTimeStamp = [NSNumber numberWithDouble:[self.joinedAt timeIntervalSinceReferenceDate]];
+            [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserJoinedAt value:joinedAtTimeStamp];
+        }
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFacebookId value:self.facebookID];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserEducation value:self.education];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserUnsubscribedPush value:[NSNumber numberWithBool:self.unsubscribed]];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserAdditionalInfo value:self.additionalUserInfo];
+        if (self.dateOfBirth) {
+            NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
+            [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserDOB value:dateOfBirthTimeStamp];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserName value:self.name];
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFirstName value:self.firstName];
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserLastName value:self.lastName];
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserGender value:self.gender];
-    if (self.joinedAt) {
-        NSNumber *joinedAtTimeStamp = [NSNumber numberWithDouble:[self.joinedAt timeIntervalSinceReferenceDate]];
-        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserJoinedAt value:joinedAtTimeStamp];
-    }
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFacebookId value:self.facebookID];
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserEducation value:self.education];
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserUnsubscribedPush value:[NSNumber numberWithBool:self.unsubscribed]];
-    [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserAdditionalInfo value:self.additionalUserInfo];
-    if (self.dateOfBirth) {
-        NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
-        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserDOB value:dateOfBirthTimeStamp];
-    }
-    
     return [sharedUserInfoMutableDictionary mutableCopy];
 }
 
@@ -72,14 +75,12 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     if (self.extras) {
         [savedData addEntriesFromDictionary:self.extras];
     }
-    return  savedData;
+    return savedData;
 }
 
 - (NSDictionary *)toDictionaryToSaveData {
     NSMutableDictionary *savedData = [self convertToDictionary];
-    if (self.extras) {
-        [savedData setValue:self.extras forKey:kBSUserExtras];
-    }
+    [BlueshiftEventAnalyticsHelper addToDictionary:savedData key:kBSUserExtras value:self.extras];
     return savedData;
 }
 
@@ -91,7 +92,6 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         _sharedUserInfo = nil;
         _sharedUserInfo = [BlueShiftUserInfo currentUserInfo];
     }
-    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:false];
 }
 
 + (void)removeCurrentUserInfo {
