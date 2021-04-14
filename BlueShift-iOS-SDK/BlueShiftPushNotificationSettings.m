@@ -54,34 +54,6 @@
     return viewCartCategory;
 }
 
-- (UIMutableUserNotificationCategory *)oneButtonAlertCategory  API_AVAILABLE(ios(8.0)){
-    UIMutableUserNotificationCategory *oneButtonAlertCategory;
-    oneButtonAlertCategory = [[UIMutableUserNotificationCategory alloc] init];
-    [oneButtonAlertCategory setIdentifier:kNotificationOneButtonAlertIdentifier];
-    [oneButtonAlertCategory setActions:@[]
-                            forContext:UIUserNotificationActionContextDefault];
-    
-    return oneButtonAlertCategory;
-}
-
-- (UIMutableUserNotificationCategory *)twoButtonAlertCategory  API_AVAILABLE(ios(8.0)){
-    UIMutableUserNotificationAction *viewAction;
-    viewAction = [[UIMutableUserNotificationAction alloc] init];
-    [viewAction setActivationMode:UIUserNotificationActivationModeForeground];
-    [viewAction setTitle:@"View"];
-    [viewAction setIdentifier:kNotificationActionViewIdentifier];
-    [viewAction setDestructive:NO];
-    [viewAction setAuthenticationRequired:NO];
-    
-    UIMutableUserNotificationCategory *twoButtonAlertCategory;
-    twoButtonAlertCategory = [[UIMutableUserNotificationCategory alloc] init];
-    [twoButtonAlertCategory setIdentifier:kNotificationTwoButtonAlertIdentifier];
-    [twoButtonAlertCategory setActions:@[viewAction]
-                            forContext:UIUserNotificationActionContextDefault];
-    
-    return twoButtonAlertCategory;
-}
-
 - (UIMutableUserNotificationCategory *)carouselCategory  API_AVAILABLE(ios(8.0)){
     NSString *nextHtmlString = @"&#9654;&#9654;";
     NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
@@ -187,7 +159,7 @@
 }
 
 - (NSSet *)notificationCategories {
-    return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.oneButtonAlertCategory, self.twoButtonAlertCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
+    return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
 }
 
 - (UIUserNotificationType)notificationTypes  API_AVAILABLE(ios(8.0)){

@@ -37,9 +37,6 @@
 #define kNotificationProductIDIdenfierKey                               @"product_id"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
 
-#define kNotificationOneButtonAlertIdentifier                           @"alert_box_1_button"
-#define kNotificationTwoButtonAlertIdentifier                           @"alert_box"
-
 #define kNotificationCarouselIdentifier                                 @"carousel"
 #define kNotificationCarouselAnimationIdentifier                        @"carousel_animation"
 #define kNotificationCarouselNextIdentifier                             @"next"
