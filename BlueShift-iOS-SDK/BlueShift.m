@@ -205,7 +205,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 - (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     if (email) {
-        [parameterMutableDictionary setObject:email forKey:@"email"];
+        [parameterMutableDictionary setObject:email forKey:kEmail];
     }
     
     if (details) {
@@ -461,7 +461,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (email) {
-        [parameterMutableDictionary setObject:email forKey:@"email"];
+        [parameterMutableDictionary setObject:email forKey:kEmail];
     }
     
     if (parameters) {
@@ -481,7 +481,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (email) {
-        [parameterMutableDictionary setObject:email forKey:@"email"];
+        [parameterMutableDictionary setObject:email forKey:kEmail];
     }
     
     if (parameters) {
@@ -638,14 +638,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
     if ([BlueShiftUserInfo sharedInstance]==nil) {
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"Please set BlueshiftUserInfo for sending the user attributes such as email id, customer id"] withDetails:nil methodName:nil];
-    }
-    else {
-        NSString *email = [requestMutableParameters objectForKey:@"email"];
+    } else {
+        NSString *email = [requestMutableParameters objectForKey:kEmail];
         NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy];
         
         if (email) {
-            if ([blueShiftUserInfoMutableDictionary objectForKey:@"email"]) {
-                [blueShiftUserInfoMutableDictionary removeObjectForKey:@"email"];
+            if ([blueShiftUserInfoMutableDictionary objectForKey:kEmail]) {
+                [blueShiftUserInfoMutableDictionary removeObjectForKey:kEmail];
             }
         }
         

@@ -97,10 +97,6 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return kApple;
 }
 
-- (NSString*)deviceIDFA {
-    return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
-}
-
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *deviceMutableDictionary = [NSMutableDictionary dictionary];
     if (self.deviceUUID) {
