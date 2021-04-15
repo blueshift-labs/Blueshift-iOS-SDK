@@ -28,20 +28,6 @@
     return viewCartCategory;
 }
 
-- (UNNotificationCategory *)oneButtonAlertCategory  API_AVAILABLE(ios(10.0)){
-    UNNotificationCategory *oneButtonAlertCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationOneButtonAlertIdentifier actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-    
-    return oneButtonAlertCategory;
-}
-
-- (UNNotificationCategory *)twoButtonAlertCategory  API_AVAILABLE(ios(10.0)){
-    UNNotificationAction *viewAction = [UNNotificationAction actionWithIdentifier:kNotificationActionViewIdentifier title:@"View" options:UNNotificationActionOptionForeground];
-    
-    UNNotificationCategory *twoButtonAlertCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationTwoButtonAlertIdentifier actions:@[viewAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-    
-    return twoButtonAlertCategory;
-}
-
 - (UNNotificationCategory *)carouselCategory  API_AVAILABLE(ios(10.0)){
     UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"▶▶" options:UNNotificationActionOptionNone];
     UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"◀◀" options:UNNotificationActionOptionNone];
@@ -63,7 +49,7 @@
 }
 
 - (NSSet *)notificationCategories {
-    return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.oneButtonAlertCategory, self.twoButtonAlertCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
+    return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
 }
 
 - (UNAuthorizationOptions)notificationTypes  API_AVAILABLE(ios(10.0)){
