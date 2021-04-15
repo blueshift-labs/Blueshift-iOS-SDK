@@ -899,6 +899,18 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return [status isEqual:kYES] ? YES : NO;
 }
 
+#pragma mark Opt out push notifications
+- (void)optOutFromPushNotifications:(BOOL)isOptedOut {
+    [BlueShiftAppData currentAppData].enablePush = isOptedOut;
+    [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
+}
+
+#pragma mark Opt out in-app notifications
+- (void)optOutFromInAppNotifications:(BOOL)isOptedOut {
+    [BlueShiftAppData currentAppData].enableInApp = isOptedOut;
+    [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
+}
+
 #pragma mark Universal links
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url {
     if (url != nil) {
