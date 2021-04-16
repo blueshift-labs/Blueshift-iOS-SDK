@@ -153,10 +153,10 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
             blueShiftUserInfo.extras = [currentUserInfoDictionary objectForKey:kBSUserExtras];
             blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:kBSUserAdditionalInfo];
         } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]]
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-    return blueShiftUserInfo;
+        return blueShiftUserInfo;
+    }
 }
-
 
 @end
