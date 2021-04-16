@@ -155,8 +155,8 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-        return blueShiftUserInfo;
     }
+    return blueShiftUserInfo;
 }
 
 @end
