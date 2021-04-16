@@ -194,17 +194,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
 
-/// This utility method can be used to opt-out/opt-in for in-app notifications from Blueshift server.
-/// @params isOptedOut BOOL flag to indicate the OptOut status the in-app notifications
-/// @discussion Calling this function will update the optOut status using the `enableInApp` flag of the `BlueshiftAppData` class. After changing the status,
+/// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.
+/// @params isOptedIn BOOL flag to indicate the optIn status of the in-app notifications.
+/// @discussion Calling this function will update the optIn status using the `enableInApp` flag of the `BlueshiftAppData` class. After changing the status,
 /// SDK will automatically fire the identify call in order to update the status on the server. There is no need of firing the identify call manually.
-- (void)optOutFromInAppNotifications:(BOOL)isOptedOut;
+- (void)optInForInAppNotifications:(BOOL)isOptedIn;
 
-/// This utility method can be used to opt-out/opt-in for push notifications from Blueshift server.
-/// @params isOptedOut BOOL flag to indicate the OptOut status the push notifications
-/// @discussion Calling this function will update the optOut status using the `enablePush` flag of the `BlueshiftAppData` class. After changing the status,
+/// This utility method can be used to opt-in/opt-out for push notifications from Blueshift server.
+/// @params isOptedIn BOOL flag to indicate the optIn status of the push notifications.
+/// @discussion Calling this function will update the optIn status using the `enablePush` flag of the `BlueshiftAppData` class. After changing the status,
 /// SDK will automatically fire the identify call in order to update the status on the server. There is no need of firing the identify call manually.
-- (void)optOutFromPushNotifications:(BOOL)isOptedOut;
+- (void)optInForPushNotifications:(BOOL)isOptedIn;
 
 @end
 

@@ -126,32 +126,35 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 + (BlueShiftUserInfo *)parseUserInfoDictionary:(NSDictionary *)currentUserInfoDictionary {
     BlueShiftUserInfo *blueShiftUserInfo = nil;
     if (currentUserInfoDictionary) {
-        blueShiftUserInfo = [[BlueShiftUserInfo alloc] init];
-        blueShiftUserInfo.email = [currentUserInfoDictionary objectForKey:kEmail];
-        blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:kBSUserCustomerId];
-        blueShiftUserInfo.name = [currentUserInfoDictionary objectForKey:kBSUserName];
-        blueShiftUserInfo.firstName = [currentUserInfoDictionary objectForKey:kBSUserFirstName];
-        blueShiftUserInfo.lastName = [currentUserInfoDictionary objectForKey:kBSUserLastName];
-        blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:kBSUserEducation];
-        blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:kBSUserFacebookId];
-        blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:kBSUserGender];
-        if([currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush]) {
-            blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush] boolValue];
+        @try {
+            blueShiftUserInfo = [[BlueShiftUserInfo alloc] init];
+            blueShiftUserInfo.email = [currentUserInfoDictionary objectForKey:kEmail];
+            blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:kBSUserCustomerId];
+            blueShiftUserInfo.name = [currentUserInfoDictionary objectForKey:kBSUserName];
+            blueShiftUserInfo.firstName = [currentUserInfoDictionary objectForKey:kBSUserFirstName];
+            blueShiftUserInfo.lastName = [currentUserInfoDictionary objectForKey:kBSUserLastName];
+            blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:kBSUserEducation];
+            blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:kBSUserFacebookId];
+            blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:kBSUserGender];
+            if([currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush]) {
+                blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush] boolValue];
+            }
+            NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserJoinedAt] doubleValue];
+            
+            if (joinedAtTimeStamp) {
+                blueShiftUserInfo.joinedAt = [NSDate dateWithTimeIntervalSinceReferenceDate:joinedAtTimeStamp];
+            }
+            
+            NSTimeInterval dateOfBirthTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserDOB]doubleValue];
+            
+            if (dateOfBirthTimeStamp) {
+                blueShiftUserInfo.dateOfBirth = [NSDate dateWithTimeIntervalSinceReferenceDate:dateOfBirthTimeStamp];
+            }
+            blueShiftUserInfo.extras = [currentUserInfoDictionary objectForKey:kBSUserExtras];
+            blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:kBSUserAdditionalInfo];
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]]
         }
-        NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserJoinedAt] doubleValue];
-        
-        if (joinedAtTimeStamp) {
-            blueShiftUserInfo.joinedAt = [NSDate dateWithTimeIntervalSinceReferenceDate:joinedAtTimeStamp];
-        }
-        
-        NSTimeInterval dateOfBirthTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserDOB]doubleValue];
-        
-        if (dateOfBirthTimeStamp) {
-            blueShiftUserInfo.dateOfBirth = [NSDate dateWithTimeIntervalSinceReferenceDate:dateOfBirthTimeStamp];
-        }
-        blueShiftUserInfo.extras = [currentUserInfoDictionary objectForKey:kBSUserExtras];
-        blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:kBSUserAdditionalInfo];
-    }
     return blueShiftUserInfo;
 }
 

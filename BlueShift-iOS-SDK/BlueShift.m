@@ -899,15 +899,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     return [status isEqual:kYES] ? YES : NO;
 }
 
-#pragma mark Opt out push notifications
-- (void)optOutFromPushNotifications:(BOOL)isOptedOut {
-    [BlueShiftAppData currentAppData].enablePush = isOptedOut;
+#pragma mark Opt In in-app notifications
+- (void)optInForInAppNotifications:(BOOL)isOptedIn {
+    [BlueShiftAppData currentAppData].enableInApp = isOptedIn;
     [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
 }
 
-#pragma mark Opt out in-app notifications
-- (void)optOutFromInAppNotifications:(BOOL)isOptedOut {
-    [BlueShiftAppData currentAppData].enableInApp = isOptedOut;
+#pragma mark Opt In push notifications
+- (void)optInForPushNotifications:(BOOL)isOptedIn {
+    [BlueShiftAppData currentAppData].enablePush = isOptedIn;
     [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
 }
 
