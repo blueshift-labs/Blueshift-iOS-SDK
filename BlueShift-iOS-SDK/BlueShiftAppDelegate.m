@@ -236,7 +236,6 @@
     [self handleRemoteNotification:userInfo forApplicationState:application.applicationState];
 }
 
-
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
     self.userInfo = userInfo;
     [self application:application handleRemoteNotification:userInfo];
@@ -343,57 +342,33 @@
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
 }
 
-- (void)presentInAppAlert:(NSDictionary *)userInfo {
-    // Track notification view when app is open ...
-    [self trackPushViewedWithParameters:userInfo];
-    self.userInfo = userInfo;
-    // Handle push notification when the app is in active state...
-    @try {
-        if ([BlueShiftInAppNotificationHelper checkAppDelegateWindowPresent] == YES) {
-            UIViewController *topViewController = [self topViewController:[[UIApplication sharedApplication].keyWindow rootViewController]];
-            BlueShiftAlertView *pushNotificationAlertView = [[BlueShiftAlertView alloc] init];
-            pushNotificationAlertView.alertControllerDelegate = (id<BlueShiftAlertControllerDelegate>)self;
-            if (@available(iOS 8.0, *)) {
-                UIAlertController *blueShiftAlertViewController = [pushNotificationAlertView alertViewWithPushDetailsDictionary:userInfo];
-                [topViewController presentViewController:blueShiftAlertViewController animated:YES completion:nil];
-            }
-        }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-    }
-}
-
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+    if (applicationState == UIApplicationStateActive) {
+        return;
+    }
     NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
     self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
     self.userInfo = userInfo;
     NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
     
-    // Way to handle push notification in three states
-    if (applicationState == UIApplicationStateActive) {
-        [self presentInAppAlert:userInfo];
+    // Handle push notification when the app is in inactive or background state ...
+    if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
+        [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
+    } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
+        [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
+    } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
+        [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
     } else {
-        
-        // Handle push notification when the app is in inactive or background state ...
-        if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
-            [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
-        } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
-            [self handleCategoryForViewCartUsingPushDetailsDictionary:userInfo];
-        } else if ([pushCategory isEqualToString:kNotificationCategoryOfferIdentifier]) {
-            [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
-        }
-        else {
-            NSString *categoryName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
-            if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
-                if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
-                    [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
-                } else {
-                    [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
-                }
+        NSString *categoryName = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+        if(categoryName !=nil && ![categoryName isEqualToString:@""]) {
+            if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: userInfo]) {
+                [self handleCarouselPushForCategory:categoryName usingPushDetailsDictionary:userInfo];
             } else {
-                // Track notification when app is in background and when we click the push notification from tray..
-                [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+                [self handleCustomCategory:categoryName UsingPushDetailsDictionary:userInfo];
             }
+        } else {
+            // Track notification when app is in background and when we click the push notification from tray..
+            [self trackPushClickedWithParameters:pushTrackParameterDictionary];
         }
     }
 }
@@ -489,8 +464,6 @@
     if (applicationState == UIApplicationStateActive) {
         if([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
             [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: applicationState];
-        } else if([[userInfo objectForKey: kNotificationTypeIdentifierKey] isEqualToString: kNotificationAlertIdentifierKey]) {
-            [self presentInAppAlert:userInfo];
         } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
             [self validateAndScheduleLocalNotification:userInfo];
         }
@@ -984,41 +957,7 @@
     [anInvocation invokeWithTarget:[self oldDelegate]];
 }
 
-#pragma mark - Handle actions for custom push notificaiton actions
-- (void)handleAlertActionButtonForCategoryBuyWithActionName:(NSString *)name {
-    if([name  isEqual: kBuyButton]) {
-        [self handleActionForBuyUsingPushDetailsDictionary:self.userInfo];
-    }
-    if([name isEqual: kViewButton]) {
-        [self handleActionForViewUsingPushDetailsDictionary:self.userInfo];
-    }
-}
-
-- (void)handleAlertActionButtonForCategoryCartWithActionName:(NSString *)name {
-    if([name isEqual: kOpenButton]) {
-        [self handleActionForOpenCartUsingPushDetailsDictionary:self.userInfo];
-    }
-}
-
-- (void)handleAlertActionButtonForCategoryPromotionWithActionName:(NSString *)name {
-    if([name isEqual: kShowButton]) {
-        [self handleCategoryForPromotionUsingPushDetailsDictionary:self.userInfo];
-    }
-}
-
-- (void)handleAlertActionButtonForCategoryTwoButtonAlertWithActionName:(NSString *)name {
-    if([name isEqual: kShowButton]) {
-        [self handleCustomCategory:kNotificationTwoButtonAlertIdentifier UsingPushDetailsDictionary:self.userInfo];
-    }
-}
-
 #pragma mark - Tracking methods
-- (void)trackAlertDismiss {
-    [[BlueShift sharedInstance] trackEventForEventName:kEventDismissAlert andParameters:nil canBatchThisEvent:YES];
-}
-
-/// SDK triggeres app_open event automatically when app is launched from killed state and is controlled by the enableAppOpenTrackEvent config flag
-/// @discussion The automatic app_open events can be throttled by setting time interval in secods to config.automaticAppOpenTimeInterval.
 - (void)trackAppOpenOnAppLaunch:(NSDictionary *)parameters {
     if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
         if ([BlueShift sharedInstance].config.automaticAppOpenTimeInterval == 0) {
@@ -1050,26 +989,12 @@
     return NO;
 }
 
-/// Track app_open by manually calling this method from the host application
 - (void)trackAppOpenWithParameters:(NSDictionary *)parameters {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
         if (parameters) {
             [parameterMutableDictionary addEntriesFromDictionary:parameters];
         }
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
-}
-
-- (void)trackPushViewedWithParameters:(NSDictionary *)parameters {
-    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
-        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        
-        if (parameters) {
-            [parameterMutableDictionary setObject:@"delivered" forKey:@"a"];
-            [parameterMutableDictionary addEntriesFromDictionary:[BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: parameters]];
-        }
-        
-        [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
-    }
 }
 
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {

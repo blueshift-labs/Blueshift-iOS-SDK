@@ -144,7 +144,9 @@ static NSDictionary *_deepLinkList = nil;
         }
         // Get the last view controller in the view controller list ...
         UINavigationController *navController = (UINavigationController *)[[[UIApplication sharedApplication] delegate] window].rootViewController;
-        return [navController.viewControllers lastObject];
+        if (navController && [navController respondsToSelector:@selector(viewControllers)]) {
+            return [navController.viewControllers lastObject];
+        }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }

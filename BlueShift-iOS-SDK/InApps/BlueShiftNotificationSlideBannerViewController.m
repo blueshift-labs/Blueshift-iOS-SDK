@@ -5,6 +5,9 @@
 //  Created by Noufal Subair on 23/07/19.
 //
 
+#define kSlideToLeftMultiplier -2.0
+#define kSlideToRightMultiplier 2.0
+
 #import "BlueShiftNotificationSlideBannerViewController.h"
 #import "BlueShiftNotificationView.h"
 #import "BlueShiftNotificationWindow.h"
@@ -38,6 +41,7 @@
     if (!self.canTouchesPassThroughWindow) {
         [self setTapGestureForView];
     }
+    [self setSwipeGestureForBannerView];
     [self presentAnimationView];
 }
 
@@ -62,6 +66,16 @@
 -(void)setTapGestureForView {
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideAnimated)];
     [[self view] addGestureRecognizer:tapGesture];
+}
+
+-(void)setSwipeGestureForBannerView {
+    UISwipeGestureRecognizer *leftSwipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(dismissInAppWithSwipeDirection:)];
+    [leftSwipeGesture setDirection:UISwipeGestureRecognizerDirectionLeft];
+    UISwipeGestureRecognizer *rightSwipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(dismissInAppWithSwipeDirection:)];
+    [rightSwipeGesture setDirection:UISwipeGestureRecognizerDirectionRight];
+    
+    [slideBannerView addGestureRecognizer:leftSwipeGesture];
+    [slideBannerView addGestureRecognizer:rightSwipeGesture];
 }
 
 - (void)presentAnimationView {
@@ -106,7 +120,7 @@
     }
 }
 
-- (void)hideFromWindow:(BOOL)animated {
+- (void)hideFromWindow:(BOOL)animated withDirection:(UISwipeGestureRecognizerDirection) direction {
     void (^completionBlock)(void) = ^ {
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear:)]) {
             [[self inAppNotificationDelegate] inAppNotificationWillDisappear : self.notification.notificationPayload];
@@ -121,11 +135,16 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:1.5 animations:^{
-         self.view.frame = CGRectMake(2 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
+        [UIView animateWithDuration:1.0 animations:^{
+            double multiplier = kSlideToRightMultiplier;
+            if (direction == UISwipeGestureRecognizerDirectionLeft) {
+                multiplier = kSlideToLeftMultiplier;
+            }
+            self.view.frame = CGRectMake(multiplier * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
             self.window.alpha = 0;
-     } completion:^(BOOL finished) {
-            completionBlock();        }];
+        } completion:^(BOOL finished) {
+            completionBlock();
+        }];
     }
     else {
         completionBlock();
@@ -359,11 +378,11 @@
 }
 
 -(void)hide:(BOOL)animated {
-    [self hideFromWindow:animated];
+    [self hideFromWindow:animated withDirection:UISwipeGestureRecognizerDirectionRight];
 }
 
 -(void)hideAnimated {
-    [self hideFromWindow:YES];
+    [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
 }
 
 - (IBAction)onOkayButtonTapped:(id)sender {
@@ -372,14 +391,25 @@
         self.notification.notificationContent.actions[0]) {
         [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
     } else {
-        [self hideFromWindow:YES];
+        [self hideAnimated];
+    }
+}
+
+-(void)dismissInAppWithSwipeDirection:(UISwipeGestureRecognizer *)recognizer {
+    switch (recognizer.direction) {
+        case UISwipeGestureRecognizerDirectionLeft:
+            [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionLeft];
+            break;
+        
+        default:
+            [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
+            break;
     }
 }
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
     float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height forWindow:self.window];
-    
     
     float topMargin = [self getTopSafeAreaHeight];
     float bottomMargin = [self getBottomSafeAreaHeight];
@@ -432,7 +462,7 @@
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
-        [self createBottomSafeAreaView];
+//      [self createBottomSafeAreaView];
     } else {
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }

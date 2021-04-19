@@ -10,6 +10,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
+#import "InApps/InAppNotificationEntity.h"
 
 static BlueShiftAppData *_currentAppData = nil;
 
@@ -60,40 +61,57 @@ static BlueShiftAppData *_currentAppData = nil;
     }
 }
 
-- (NSDictionary *)toDictionary {
-    NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
-    if (self.appName) {
-        [appMutableDictionary setObject:self.bundleIdentifier forKey:kAppName];
-    }
-    
-    if (self.appVersion) {
-        [appMutableDictionary setObject:self.appVersion forKey:kAppVersion];
-    }
-    
-    if (self.appBuildNumber) {
-        [appMutableDictionary setObject:self.appBuildNumber forKey:kBuildNumber];
-    }
-    
-    if (self.bundleIdentifier) {
-        [appMutableDictionary setObject:self.bundleIdentifier forKey:kBundleIdentifier];
-    }
-    
+- (BOOL)getCurrentPushNotificationStatus {
     if (@available(iOS 10.0, *)) {
         if (self.enablePush && self.currentUNAuthorizationStatus) {
-            [appMutableDictionary setObject: [NSNumber numberWithBool: YES] forKey:kEnablePush];
+            return YES;
         } else {
-            [appMutableDictionary setObject:[NSNumber numberWithBool: NO] forKey:kEnablePush];
+            return NO;
         }
     } else {
-        //send enablePush value as is to server for iOS 9 and below versions
-        [appMutableDictionary setObject:[NSNumber numberWithBool: self.enablePush] forKey:kEnablePush];
+        //send enablePush value to server for iOS 9 and below versions
+        return self.enablePush;
     }
-    
-    NSNumber *enableInApp = [NSNumber numberWithBool: [[[BlueShift sharedInstance] config] enableInAppNotification]];
-    if (enableInApp) {
-        [appMutableDictionary setObject: enableInApp  forKey:kEnableInApp];
-    }
+}
 
+- (BOOL)enableInApp {
+    NSString *val = [[NSUserDefaults standardUserDefaults] objectForKey:kBlueshiftEnableInApp];
+    BOOL enableInApp = YES;
+    if (val) {
+        enableInApp = [val isEqual:kYES] ? YES : NO;
+    }
+    return enableInApp;
+}
+
+- (void)setEnableInApp:(BOOL)enableInApp {
+    @try {
+        NSString *val = enableInApp ? kYES : kNO;
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:val forKey:kBlueshiftEnableInApp];
+        [defaults synchronize];
+        if (enableInApp == NO) {
+            [InAppNotificationEntity eraseEntityData];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
+- (BOOL)getCurrentInAppNotificationStatus {
+    if (self.enableInApp && [BlueShift sharedInstance].config.enableInAppNotification) {
+        return  YES;
+    }
+    return NO;
+}
+
+- (NSDictionary *)toDictionary {
+    NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppName value:self.bundleIdentifier];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppVersion value:self.appVersion];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBuildNumber value:self.appBuildNumber];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
     return [appMutableDictionary copy];
 }
 

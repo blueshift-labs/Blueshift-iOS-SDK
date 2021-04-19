@@ -120,8 +120,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
     }
     
-    if (config.enableInAppNotification == YES && config.inAppManualTriggerEnabled == NO) {
-        
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && config.inAppManualTriggerEnabled == NO) {
         if (config.BlueshiftInAppNotificationTimeInterval) {
             _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
         } else {
@@ -206,7 +205,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 - (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary *)details canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     if (email) {
-        [parameterMutableDictionary setObject:email forKey:@"email"];
+        [parameterMutableDictionary setObject:email forKey:kEmail];
     }
     
     if (details) {
@@ -462,7 +461,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (email) {
-        [parameterMutableDictionary setObject:email forKey:@"email"];
+        [parameterMutableDictionary setObject:email forKey:kEmail];
     }
     
     if (parameters) {
@@ -482,7 +481,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
     
     if (email) {
-        [parameterMutableDictionary setObject:email forKey:@"email"];
+        [parameterMutableDictionary setObject:email forKey:kEmail];
     }
     
     if (parameters) {
@@ -634,19 +633,18 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
     }
     
-    NSMutableDictionary *requestMutableParameters = [requestParameters mutableCopy];
+    NSMutableDictionary *requestMutableParameters = [[NSMutableDictionary alloc] init];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
     if ([BlueShiftUserInfo sharedInstance]==nil) {
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"Please set BlueshiftUserInfo for sending the user attributes such as email id, customer id"] withDetails:nil methodName:nil];
-    }
-    else {
-        NSString *email = [requestMutableParameters objectForKey:@"email"];
+    } else {
+        NSString *email = [requestMutableParameters objectForKey:kEmail];
         NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy];
         
         if (email) {
-            if ([blueShiftUserInfoMutableDictionary objectForKey:@"email"]) {
-                [blueShiftUserInfoMutableDictionary removeObjectForKey:@"email"];
+            if ([blueShiftUserInfoMutableDictionary objectForKey:kEmail]) {
+                [blueShiftUserInfoMutableDictionary removeObjectForKey:kEmail];
             }
         }
         
@@ -655,6 +653,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
     if (timestamp) {
         [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
+    }
+    if(requestParameters) {
+        [requestMutableParameters addEntriesFromDictionary:requestParameters];
     }
     
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
@@ -748,10 +749,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
 }
 
-/// Display in-app notification when manual trigger mode for displaying in-app notifications is enabled
-/// By calling this method, it displays single in-app notification when the current screen/VC is registered for displaying in-app notifications
 - (void)displayInAppNotification {
-    if (_inAppNotificationMananger && _config.inAppManualTriggerEnabled == YES) {
+    if (_inAppNotificationMananger) {
         [self fetchInAppNotificationFromDB];
         [_inAppNotificationMananger deleteExpireInAppNotificationFromDataStore];
     }
@@ -759,7 +758,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
-    if (_config.enableInAppNotification == YES) {
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
                 if (self->_config.inAppManualTriggerEnabled == NO) {
@@ -797,7 +796,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)(NSError*))failure {
-    if (_config.enableInAppNotification == YES && _inAppNotificationMananger) {
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
         [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
             [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
                 success();
@@ -805,6 +804,8 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         } failure:^(NSError * error) {
             failure(error);
         }];
+    } else {
+        [BlueshiftLog logInfo:@"In-app is opted out, can not fetch in-app notifications from API." withDetails:nil methodName:nil];
     }
 }
 
@@ -896,6 +897,18 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         return YES;
     }
     return [status isEqual:kYES] ? YES : NO;
+}
+
+#pragma mark Opt In in-app notifications
+- (void)optInForInAppNotifications:(BOOL)isOptedIn {
+    [BlueShiftAppData currentAppData].enableInApp = isOptedIn;
+    [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
+}
+
+#pragma mark Opt In push notifications
+- (void)optInForPushNotifications:(BOOL)isOptedIn {
+    [BlueShiftAppData currentAppData].enablePush = isOptedIn;
+    [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
 }
 
 #pragma mark Universal links

@@ -45,6 +45,8 @@
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
 #define kBlueshiftLastAppOpenTimestamp          @"BlueshiftLastAppOpenTimestamp"
 #define kBlueshiftEnableTracking                @"BlueshiftEnableTracking"
+#define kBlueshiftEnableInApp                   @"BlueshiftEnableInApp"
+#define ksavedBlueShiftUserInfoDictionary       @"savedBlueShiftUserInfoDictionary"
 
 //Bool
 #define kYES                                    @"YES"
@@ -70,4 +72,18 @@
 //URLSession constants
 #define kURLSessionLocation                     @"location"
 
+//UserInfo constants
+#define kBSUserCustomerId                       @"customer_id"
+#define kBSUserName                             @"name"
+#define kBSUserFirstName                        @"firstname"
+#define kBSUserLastName                         @"lastname"
+#define kBSUserGender                           @"gender"
+#define kBSUserJoinedAt                         @"joined_at"
+#define kBSUserFacebookId                       @"facebook_id"
+#define kBSUserEducation                        @"education"
+#define kBSUserUnsubscribedPush                 @"unsubscribed_push"
+#define kBSUserDOB                              @"date_of_birth"
+#define kBSUserAdditionalInfo                   @"additional_user_info"
+#define kBSUserExtras                           @"extras"
+            
 #endif /* BlueshiftConstants_h */

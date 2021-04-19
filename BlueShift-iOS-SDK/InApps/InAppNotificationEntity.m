@@ -330,4 +330,44 @@
     }
 }
 
++ (void)eraseEntityData {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *context;
+    @try {
+        if (appDelegate) {
+            context = appDelegate.managedObjectContext;
+        }
+        if (context) {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kInAppNotificationEntityNameKey];
+            if (@available(iOS 9.0, *)) {
+                NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
+                if([context isKindOfClass:[NSManagedObjectContext class]]) {
+                    [context performBlock:^{
+                        @try {
+                            NSError *error = nil;
+                            // check if there are any changes to be saved and save it
+                            if ([context hasChanges]) {
+                                [context save:&error];
+                            }
+                            NSBatchDeleteResult* deleteResult = [context executeRequest:deleteRequest error:&error];
+                            [context save:&error];
+                            if (error) {
+                                [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting InApp notifications." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            } else {
+                                [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the InAppNotification entity", deleteResult.result] withDetails:nil methodName:nil];
+                            }
+                        } @catch (NSException *exception) {
+                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        }
+                    }];
+                }
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
 @end

@@ -21,6 +21,15 @@
 /// The default value for the enablePush is set to true
 @property (nonatomic) BOOL enablePush;
 
+/// Set this flag to false to disable in-app notifications explicitly. You will need to fire the identify call after changing the value of flag.
+/// To enable in-app notifications later, you will need to set it to true and fire identify call.
+/// The default value for the enableInApp is set to true
+@property (nonatomic) BOOL enableInApp;
+
+/// Returns BOOL by taking Logical AND of `enableInApp` and `config.enableInAppNotification` to check the current status of inApp notifications.
+/// This value will be sent to Blueshift server under key `enable_inapp` as part of every event and also it will be checked before displaying in-app notifications.
+- (BOOL)getCurrentInAppNotificationStatus;
+
 + (instancetype) currentAppData;
 
 - (NSDictionary *)toDictionary;

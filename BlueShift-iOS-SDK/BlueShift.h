@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
-/// Displays in-app notification when manual mode is enabled. Calling this method will show only one in-app notification on the screen.
+/// Calling this method will display single in-app notification if the current screen/VC is registered for displaying in-app notifications.
 - (void)displayInAppNotification;
 
 /// Calling this method will fetch in-app notifications manually from api and add them into the SDK database.
@@ -193,6 +193,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method will to get the required payload data to make an api call to the Blueshift In-app notifications api.
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
+
+/// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.
+/// @params isOptedIn BOOL flag to indicate the optIn status of the in-app notifications.
+/// @discussion Calling this function will update the optIn status using the `enableInApp` flag of the `BlueshiftAppData` class. After changing the status,
+/// SDK will automatically fire the identify call in order to update the status on the server. There is no need of firing the identify call manually.
+- (void)optInForInAppNotifications:(BOOL)isOptedIn;
+
+/// This utility method can be used to opt-in/opt-out for push notifications from Blueshift server.
+/// @params isOptedIn BOOL flag to indicate the optIn status of the push notifications.
+/// @discussion Calling this function will update the optIn status using the `enablePush` flag of the `BlueshiftAppData` class. After changing the status,
+/// SDK will automatically fire the identify call in order to update the status on the server. There is no need of firing the identify call manually.
+- (void)optInForPushNotifications:(BOOL)isOptedIn;
 
 @end
 
