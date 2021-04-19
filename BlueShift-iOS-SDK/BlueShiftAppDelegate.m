@@ -343,6 +343,9 @@
 }
 
 - (void)handleLocalNotification:(NSDictionary *)userInfo forApplicationState:(UIApplicationState)applicationState {
+    if (applicationState == UIApplicationStateActive) {
+        return;
+    }
     NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
     self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
     self.userInfo = userInfo;
