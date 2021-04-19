@@ -462,7 +462,7 @@
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
-        [self createBottomSafeAreaView];
+//      [self createBottomSafeAreaView];
     } else {
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }
