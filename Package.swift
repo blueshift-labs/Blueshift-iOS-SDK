@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [],
     targets: [
-        .binaryTarget(name: "BlueShift_iOS_SDK", url: "https://github.com/blueshift-labs/Blueshift-iOS-SDK/releases/download/2.1.16/BlueShift_iOS_SDK.xcframework.zip", checksum: "f0219d38dd85e0c19e548cefaa5257f601a4e50c38875dcfd65b8f1e33f1d08d"),
-        .binaryTarget(name: "BlueShift_iOS_Extension_SDK", url: "https://github.com/blueshift-labs/Blueshift-iOS-SDK/releases/download/2.1.16/BlueShift_iOS_Extension_SDK.xcframework.zip", checksum: "985cbc624d5ed694a43807e769e00c0ef5e07f0117f11a1df5fb6082adc0e613"),
+        .binaryTarget(name: "BlueShift_iOS_SDK", url: "https://github.com/blueshift-labs/Blueshift-iOS-SDK/releases/download/2.1.17/BlueShift_iOS_SDK.xcframework.zip", checksum: "a60bd1fb5f0df698e90283c7f0a45aff95afb9c36978b64e9a9b3ab71bc8fd62"),
+        .binaryTarget(name: "BlueShift_iOS_Extension_SDK", url: "https://github.com/blueshift-labs/Blueshift-iOS-SDK/releases/download/2.1.17/BlueShift_iOS_Extension_SDK.xcframework.zip", checksum: "02b74121a1a12ced145edd752f1a497ceef3bba0211fc8ca5439eacfcbd88491"),
     ]
 )
