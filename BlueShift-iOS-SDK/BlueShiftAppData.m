@@ -10,6 +10,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
+#import "InApps/InAppNotificationEntity.h"
 
 static BlueShiftAppData *_currentAppData = nil;
 
@@ -88,6 +89,9 @@ static BlueShiftAppData *_currentAppData = nil;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:val forKey:kBlueshiftEnableInApp];
         [defaults synchronize];
+        if (enableInApp == NO) {
+            [InAppNotificationEntity eraseEntityData];
+        }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
