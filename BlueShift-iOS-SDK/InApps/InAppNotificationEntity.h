@@ -47,6 +47,9 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 
 + (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn;
 
+/// Erase all the In app notifications records from the SDK database.
++ (void)eraseEntityData;
+
 NS_ASSUME_NONNULL_END
 
 @end

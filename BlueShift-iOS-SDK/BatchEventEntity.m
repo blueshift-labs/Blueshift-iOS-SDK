@@ -150,6 +150,7 @@
             NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
             if (@available(iOS 9.0, *)) {
                 NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
                 if([batchContext isKindOfClass:[NSManagedObjectContext class]]) {
                     [batchContext performBlock:^{
                         @try {
