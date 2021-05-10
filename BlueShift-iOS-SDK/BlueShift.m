@@ -805,7 +805,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
             failure(error);
         }];
     } else {
-        [BlueshiftLog logInfo:@"In-app is opted out, can not fetch in-app notifications from API." withDetails:nil methodName:nil];
+        NSError *error = (NSError*)@"In-app is opted out, can not fetch in-app notifications from API.";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
+        failure(error);
     }
 }
 

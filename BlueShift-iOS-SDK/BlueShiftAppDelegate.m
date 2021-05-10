@@ -474,6 +474,9 @@
             [self validateAndScheduleLocalNotification:userInfo];
         } else {
             // Handle push notification when the app is in inactive or background state ...
+            if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier]) {
+                return;
+            }
             if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
                 [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];
             } else if ([pushCategory isEqualToString:kNotificationCategoryViewCartIdentifier]) {
