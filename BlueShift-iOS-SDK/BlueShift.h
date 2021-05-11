@@ -10,8 +10,6 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftDeepLink.h"
-#import "BlueShiftPushParamDelegate.h"
 #import "BlueShiftNetworkReachabilityManager.h"
 #import "BlueShiftSubscriptionState.h"
 #import "BlueShiftRequestOperation.h"
@@ -54,8 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void) initWithConfiguration:(BlueShiftConfig *)config;
 
 + (void) autoIntegration;
-- (void) setPushDelegate: (id) obj;
-- (void) setPushParamDelegate: (id) obj;
+
 - (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;

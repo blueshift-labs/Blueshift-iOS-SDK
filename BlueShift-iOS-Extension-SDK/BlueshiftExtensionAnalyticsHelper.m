@@ -82,7 +82,7 @@
     return [dateFormatter stringFromDate:[NSDate date]];
 }
 
-+ (NSDictionary *)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request {
++ (NSDictionary * _Nullable)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request {
     NSMutableDictionary *userInfo = [request.content.userInfo mutableCopy];
     NSDictionary* deviceData = (NSDictionary*)[BlueShiftPushAnalytics getDeviceData];
     if (userInfo && deviceData) {

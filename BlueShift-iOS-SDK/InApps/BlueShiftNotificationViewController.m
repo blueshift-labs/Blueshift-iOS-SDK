@@ -136,7 +136,7 @@
 }
 
 -(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
-    NSData *imageData = [[NSData alloc] init];
+    NSData *imageData = nil;
     if([cachedImageData valueForKey: urlString]) {
         imageData = [cachedImageData valueForKey:urlString];
     } else {
@@ -391,7 +391,7 @@
             [self createFontFile: iconLabelView];
         }
     
-        CGFloat iconFontSize = (fontSize !=nil && fontSize > 0)? fontSize.floatValue : 22.0;
+        CGFloat iconFontSize = (fontSize !=nil && fontSize > [NSNumber numberWithInt:0])? fontSize.floatValue : 22.0;
         iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
         iconLabelView.layer.masksToBounds = YES;
     }
@@ -406,17 +406,15 @@
         CFErrorRef error;
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
         CGFontRef font = CGFontCreateWithDataProvider(provider);
-        BOOL failedToRegisterFont = NO;
         if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
             [BlueshiftLog logError:nil withDescription:@"Failed to load FontAwesome" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             CFBridgingRelease(errorDescription);
-            failedToRegisterFont = YES;
         }
         
         CFRelease(font);
         CFRelease(provider);
-    }else {
+    } else {
         [self downloadFileFromURL: iconLabel];
     }
 }

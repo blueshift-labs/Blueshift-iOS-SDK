@@ -29,6 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Check for nil and add the key value to the given dictionary
 + (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value;
 
+
+/// Checks if the string is not nil and not empty
+/// @param string  string value to check
+/// @returns BOOL YES when string is valid
++(BOOL)isNotNilAndNotEmpty:(NSString*)string;
+
 @end
 
 NS_ASSUME_NONNULL_END

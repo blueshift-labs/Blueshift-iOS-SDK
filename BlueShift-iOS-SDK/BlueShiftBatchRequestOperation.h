@@ -12,23 +12,21 @@
 
 @interface BlueShiftBatchRequestOperation : NSObject
 
-// property to hold the request operation parameters list ...
+// property to hold the request operation parameters list
 @property NSArray *paramsArray;
 
-// property to hold the retry count ...
+// property to hold the retry count
 @property NSInteger retryAttemptsCount;
 
-// property to hold the timestamp for which next request to be send ...
+// property to hold the timestamp for which next request to be send
 @property NSInteger nextRetryTimeStamp;
 
 
-// initialize BlueShiftBatchRequestOperation with request based details...
-
+// Initialize BlueShiftRequestOperation instance with url and other request based details
 - (id)initParametersList:(NSArray *)parametersArray andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp;
 
 
-// initialize BlueShiftRequestOperation instance with Core Data entity ...
-
+// Initialize BlueShiftRequestOperation instance with Core Data entity
 - (id)initWithBatchRequestOperationEntity:(BatchEventEntity *)batchEventEntity;
 
 @end

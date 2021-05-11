@@ -489,7 +489,7 @@
     
     /* get the current time (since 1970) */
     NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
-    NSArray *filteredResults = [[NSArray alloc] init];
+    NSArray *filteredResults = nil;
     NSMutableArray *upcomingFilteredResults = [[NSMutableArray alloc] init];
     NSMutableArray *nowFilteredResults = [[NSMutableArray alloc] init];
     

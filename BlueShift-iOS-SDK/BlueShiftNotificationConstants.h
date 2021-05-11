@@ -26,16 +26,8 @@
 #define kNotificationImageURLKey                                        @"image_url"
 #define kDownloadImageNameKey                                           @"image.jpg"
 
-#define kNotificationCategoryBuyIdentifier                              @"buy"
-#define kNotificationActionBuyIdentifier                                @"buy"
-#define kNotificationActionViewIdentifier                               @"view"
-
-#define kNotificationCategoryViewCartIdentifier                         @"view_cart"
-#define kNotificationActionOpenCartIdentifier                           @"open_cart"
 #define kNotificationCategorySilentPushIdentifier                       @"silent_push"
-
-#define kNotificationCategoryOfferIdentifier                            @"promotion"
-#define kNotificationProductIDIdenfierKey                               @"product_id"
+#define kNotificationCategoryPromotionIdentifier                            @"promotion"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
 
 #define kNotificationCarouselIdentifier                                 @"carousel"

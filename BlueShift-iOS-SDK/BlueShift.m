@@ -58,10 +58,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if (@available(iOS 10.0, *)) {
         _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
     }
-    
-    // Initialize deeplinks ...
-    [self initDeepLinks];
-    
+        
     // Getting the original Delegate ...
     NSObject<UIApplicationDelegate> *oldDelegate = [UIApplication sharedApplication].delegate;
     
@@ -155,35 +152,6 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [BlueshiftLog logInfo: [NSString stringWithFormat: @"SDK tracking for custom events and push & in-app metrics is %@.",([self isTrackingEnabled] ? @"enabled" : @"disabled")] withDetails:nil methodName:nil];
 }
 
-- (void)initDeepLinks {
-    
-    BlueShiftDeepLink *deepLink;
-    
-    // map newly allocated deeplink instance to product page route ...
-    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkRouteProductPage andNSURL:self.config.productPageURL];
-    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteProductPage];
-    
-    // map newly allocated deeplink instance to cart page route ...
-    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkRouteCartPage andNSURL:self.config.cartPageURL];
-    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteCartPage];
-    
-    // map newly allocated deeplink instance to cart page route ...
-    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkRouteOfferPage andNSURL:self.config.offerPageURL];
-    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteOfferPage];
-}
-
-- (void) setPushDelegate:(id)obj {
-    if (_newDelegate != nil) {
-        _newDelegate.blueShiftPushDelegate = obj;
-    }
-}
-
-- (void) setPushParamDelegate:(id)obj {
-    if (_newDelegate !=nil) {
-        _newDelegate.blueShiftPushParamDelegate = obj;
-    }
-}
-
 #pragma mark Device token
 - (void)setDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -191,7 +159,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [defaults synchronize];
 }
 
-- (NSString *) getDeviceToken {
+- (NSString * _Nullable) getDeviceToken {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString* deviceToken = (NSString *)[defaults objectForKey:kBlueshiftDeviceToken];
     return deviceToken;
@@ -501,7 +469,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 - (void)trackSubscriptionInitializationForSubscriptionState:(BlueShiftSubscriptionState)subscriptionState andCycleType:(NSString *)cycleType andCycleLength:(NSInteger)cycleLength andSubscriptionType:(NSString *)subscriptionType andPrice:(float)price andStartDate:(NSTimeInterval)startDate andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    NSString *subscriptionEventName;
+    NSString *subscriptionEventName = @"";
     if (subscriptionState == BlueShiftSubscriptionStateStart || subscriptionState == BlueShiftSubscriptionStateUpgrade) {
         subscriptionEventName = kEventSubscriptionUpgrade;
     } else if (subscriptionState == BlueShiftSubscriptionStateDowngrade) {
@@ -626,7 +594,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         return;
     }
     
-    NSString *url = [[NSString alloc]init];
+    NSString *url = nil;
     if(isBatchEvent) {
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
     } else {

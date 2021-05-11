@@ -13,8 +13,6 @@
 #import <UIKit/UIKit.h>
 #import "BlueShift.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftDeepLink.h"
-#import "BlueShiftPushParamDelegate.h"
 #import <CoreData/CoreData.h>
 #import "BlueShiftTrackEvents.h"
 #import "BlueshiftEventAnalyticsHelper.h"
@@ -23,19 +21,10 @@
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate>
 
-@property NSDictionary * _Nullable userInfo;
-@property NSDictionary * _Nullable pushAlertDictionary;
-
 @property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
-@property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
 @property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
-
-@property BlueShiftDeepLink * _Nullable deepLinkToProductPage;
-@property BlueShiftDeepLink * _Nullable deepLinkToCartPage;
-@property BlueShiftDeepLink * _Nullable deepLinkToOfferPage;
-@property BlueShiftDeepLink * _Nullable deepLinkToCustomPage;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable managedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable realEventManagedObjectContext;
@@ -43,7 +32,6 @@
 @property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
 
-- (void)saveContext;
 - (NSURL *_Nullable)applicationDocumentsDirectory;
 
 /// Calling this method will register for push notifications. It will show a push permission dialog to the user.

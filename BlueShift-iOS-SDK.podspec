@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/blueshift-labs/Blueshift-iOS-SDK"
   s.license      = { :type => "MIT", :file => "LICENSE.md" }
   s.author             = { "Blueshift" => "success@getblueshift.com" }
-  s.platform     = :ios, "7.0"
+  s.platform     = :ios, "9.0"
   s.source       = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => "2.1.17" }
   s.exclude_files = "Classes/Exclude"
   s.subspec 'Core' do |ss|
@@ -22,10 +22,7 @@ Pod::Spec.new do |s|
     ss.public_header_files = "BlueShift-iOS-SDK/**/*.h"
     ss.exclude_files = "Classes/Exclude"
     ss.resources = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png}"
-    ss.resource_bundle = { :BlueShiftBundle => 'BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png}' }
-
   end
-
   s.default_subspecs = 'Core'
   s.framework  = "CoreData"
   s.requires_arc = true

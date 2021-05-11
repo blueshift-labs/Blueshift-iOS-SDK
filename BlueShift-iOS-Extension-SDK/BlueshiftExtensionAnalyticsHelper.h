@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method adds the device specific attributes (device_id, app_name) to the push payload.
 /// @param request  Push notification request
 /// @returns dictionary which includes device attributes and push payload
-+ (NSDictionary *)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request API_AVAILABLE(ios(10.0));
++ (NSDictionary * _Nullable)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request API_AVAILABLE(ios(10.0));
 
 @end
 
