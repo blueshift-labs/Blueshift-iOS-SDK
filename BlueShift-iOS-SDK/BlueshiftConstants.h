@@ -86,4 +86,10 @@
 #define kBSUserAdditionalInfo                   @"additional_user_info"
 #define kBSUserExtras                           @"extras"
             
+//Tracking constants
+#define kBSClick                                @"click"
+#define kBSDelivered                            @"delivered"
+#define kBSOpen                                 @"open"
+#define kBSDismiss                              @"dismiss"
+
 #endif /* BlueshiftConstants_h */

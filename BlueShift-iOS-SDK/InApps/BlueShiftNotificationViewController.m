@@ -280,11 +280,11 @@
                 [self hide:YES];
             }
         } else {
-            if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
+            if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
                     NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                    [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
                     [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
                 }
             }

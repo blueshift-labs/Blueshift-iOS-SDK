@@ -21,7 +21,7 @@
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate>
 
-@property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
+@property NSObject<UIApplicationDelegate> * _Nonnull mainAppDelegate;
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
