@@ -137,12 +137,18 @@
 
 -(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
     NSData *imageData = [[NSData alloc] init];
+    if(!urlString || [urlString isEqualToString:@""]) {
+        return imageData;
+    }
     if([cachedImageData valueForKey: urlString]) {
         imageData = [cachedImageData valueForKey:urlString];
     } else {
-        imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
-        if (imageData) {
-            [cachedImageData setObject:imageData forKey:urlString];
+        NSURL *url = [NSURL URLWithString: urlString];
+        if (url) {
+            imageData = [[NSData alloc] initWithContentsOfURL: url];
+            if (imageData) {
+                [cachedImageData setObject:imageData forKey:urlString];
+            }
         }
     }
     return imageData;
@@ -174,8 +180,22 @@
     self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent: backgroundDimAmount];
 }
 
+- (BOOL)checkDefaultCloseButtonStatusForInApp {
+    if((self.notification.inAppType == BlueShiftInAppTypeModal && self.notification.notificationContent.actions.count == 0) || self.notification.inAppType == BlueShiftInAppTypeHTML) {
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)shouldShowCloseButton {
+    if (self.notification.templateStyle.enableCloseButton) {
+        return [self.notification.templateStyle.enableCloseButton boolValue];
+    }
+    return [self checkDefaultCloseButtonStatusForInApp];
+}
+
 - (void)createCloseButton:(CGRect)frame {
-    BOOL showCloseButton = ((self.notification.inAppType == BlueShiftInAppTypeModal && self.notification.notificationContent.actions.count == 0) || self.notification.inAppType == BlueShiftInAppTypeHTML) ? YES : self.notification.templateStyle.enableCloseButton;
+    BOOL showCloseButton = [self shouldShowCloseButton];
     if (self.notification.templateStyle && showCloseButton) {
         if ( self.notification.templateStyle.closeButton
             && self.notification.templateStyle.closeButton.text
@@ -227,6 +247,8 @@
         }
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
+        } else {
+            [button setBackgroundColor:UIColor.clearColor];
         }
     }
 }

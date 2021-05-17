@@ -174,15 +174,13 @@
             }
             if(masterContext) {
                 NSEntityDescription *entity;
-                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
                     entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-                    [fetchRequest setEntity:entity];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
-                if(entity != nil && fetchRequest.entity != nil) {
+                if(entity != nil) {
                     InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
                     
                     if(inAppNotificationEntity != nil) {
@@ -551,49 +549,53 @@
 }
 
 // Present ViewController
-- (void)presentInAppNotification:(BlueShiftNotificationViewController*)notificationController {
-    if ([self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
-        self.currentNotificationController = notificationController;
+- (void)presentInAppViewController:(BlueShiftNotificationViewController*)notificationController forNotification:(BlueShiftInAppNotification*)notification {
+    if (notificationController.displayOnScreen && ![notificationController.displayOnScreen isEqual:@""]) {
+        if(![self.inAppNotificationDisplayOnPage isEqualToString:notificationController.displayOnScreen]) {
+            return;
+        }
+    }
+    if (notificationController && [self inAppNotificationDisplayOnPage]) {
+        notificationController.delegate = self;
+        notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
+        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
         [notificationController show:YES];
     }
 }
 
-
-- (void)createNotification:(BlueShiftInAppNotification*)notification {
-    BlueShiftNotificationViewController *notificationController;
-    NSString *errorString = nil;
-    
-    switch (notification.inAppType) {
-        case BlueShiftInAppTypeHTML:
-            notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftInAppTypeModal:
-            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftNotificationSlideBanner:
-            notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftNotificationRating:
-            [self displayReviewController];
-            
-            /* delete this notification from coreData */
-            [self removeInAppNotificationFromDB: notification.objectID];
-            return;
-            
-            
-        default:
-            errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
-            break;
+- (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    if (self.currentNotificationController != nil) {
+        return;
     }
-    if (notificationController) {
-        notificationController.delegate = self;
-        notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
-        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
-        [self presentInAppNotification:notificationController];
-    }
-    if (errorString) {
-        [BlueshiftLog logError:nil withDescription:errorString methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        switch (notification.inAppType) {
+            case BlueShiftInAppTypeHTML:
+                [self processHTMLNotification:notification displayOnScreen:displayOnScreen];
+                break;
+                
+            case BlueShiftInAppTypeModal:
+                [self processModalNotification:notification displayOnScreen:displayOnScreen];
+                break;
+                
+            case BlueShiftNotificationSlideBanner:
+                [self processSlideInBannerNotification:notification displayOnScreen:displayOnScreen];
+                break;
+                
+            case BlueShiftNotificationRating:
+            {
+                [self displayReviewController];
+                [self removeInAppNotificationFromDB: notification.objectID];
+                return;;
+            }
+                
+            default:
+            {
+                NSString* errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
+                [BlueshiftLog logError:nil withDescription:errorString methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            }
+            break;
+        }
+    });
 }
 
 - (void)displayReviewController {
@@ -602,10 +604,70 @@
     }
 }
 
+-(void)processSlideInBannerNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
+    notificationVC.displayOnScreen = displayOnScreen;
+    self.currentNotificationController = notificationVC;
+
+    BOOL isSlideInIconImagePresent = [self isSlideInIconImagePresent:notification];
+    BOOL isBackgroundImagePresent = [self isBackgroundImagePresentForNotification:notification];
+    if (isSlideInIconImagePresent || isBackgroundImagePresent) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSString *backgroundImageURL = nil;
+            if(isSlideInIconImagePresent) {
+                backgroundImageURL = notification.notificationContent.iconImage;
+            } else if (isBackgroundImagePresent) {
+                backgroundImageURL = notification.templateStyle.backgroundImage;
+            }
+            [notificationVC loadAndCacheImageForURLString:backgroundImageURL];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentInAppViewController:notificationVC forNotification:notification];
+            });
+        });
+    } else {
+        [self presentInAppViewController:notificationVC forNotification:notification];
+    }
+}
+
+-(void)processModalNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+    notificationVC.displayOnScreen = displayOnScreen;
+    self.currentNotificationController = notificationVC;
+    if ([self isBackgroundImagePresentForNotification:notification]) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSString *backgroundImageURL = notification.templateStyle.backgroundImage;
+            [notificationVC loadAndCacheImageForURLString:backgroundImageURL];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentInAppViewController:notificationVC forNotification:notification];
+            });
+        });
+    } else {
+        [self presentInAppViewController:notificationVC forNotification:notification];
+    }
+}
+
+-(void)processHTMLNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
+    notificationVC.displayOnScreen = displayOnScreen;
+    BlueShiftNotificationWebViewController *webViewController = (BlueShiftNotificationWebViewController*) notificationVC;
+    self.currentNotificationController = notificationVC;
+    [webViewController setupWebView:^{
+        [self presentInAppViewController:notificationVC forNotification:notification];
+    }];
+}
+
+- (BOOL)isBackgroundImagePresentForNotification:(BlueShiftInAppNotification*)notification {
+    return (notification.templateStyle && notification.templateStyle.backgroundImage && ![notification.templateStyle.backgroundImage isEqualToString:@""]);
+}
+
+- (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification {
+    return (notification.notificationContent && notification.notificationContent.iconImage && ![notification.templateStyle.backgroundImage isEqualToString:@""]);
+}
+
 - (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
     BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
     [BlueshiftLog logInfo:@"Created in-app message to display, message Id: " withDetails:inAppEntity.id methodName:nil];
-    [self createNotification: inAppNotification];
+    [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
 }
 
 // Notification Click Callbacks

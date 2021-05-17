@@ -18,6 +18,7 @@ API_AVAILABLE(ios(8.0))
     WKWebView *webView;
     BOOL isAutoHeight;
     BOOL isAutoWidth;
+    void (^ didLoadWebView)(void);
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -39,9 +40,14 @@ API_AVAILABLE(ios(8.0))
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (void)setupWebView:(void (^)(void))block {
+    didLoadWebView = block;
     [self setAutomaticScale];
     [self configureBackground];
     [self presentWebViewNotification];
+    [self initialiseWebView];
 }
 
 - (void) viewWillLayoutSubviews {
@@ -224,7 +230,7 @@ API_AVAILABLE(ios(8.0))
     
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
-    int extra = (int) (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
+    int extra = (int) (self.notification.templateStyle && [self.notification.templateStyle.enableCloseButton boolValue] ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
@@ -285,7 +291,8 @@ API_AVAILABLE(ios(8.0))
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
-            [self resizeWebViewAsPerContent:webView];
+                self->didLoadWebView();
+                [self resizeWebViewAsPerContent:webView];
         }
     }];
 }

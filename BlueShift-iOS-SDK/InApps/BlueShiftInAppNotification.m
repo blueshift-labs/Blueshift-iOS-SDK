@@ -217,7 +217,7 @@
                     }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] &&
                         [templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] != [NSNull null]){
-                        self.enableCloseButton = [[templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] boolValue];
+                        self.enableCloseButton = (NSNumber*)[templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey];
                     }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
                         [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
