@@ -17,6 +17,15 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 @implementation BlueShift
 
+static dispatch_queue_t bsft_serial_queue() {
+    static dispatch_queue_t bsft_serial_queue;
+    static dispatch_once_t s_done;
+    dispatch_once(&s_done, ^{
+        bsft_serial_queue = dispatch_queue_create(BLUESHIFT_SERIAL_QUEUE, DISPATCH_QUEUE_SERIAL);
+    });
+    return bsft_serial_queue;
+}
+
 + (instancetype) sharedInstance {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -583,52 +592,55 @@ static BlueShift *_sharedBlueShiftInstance = nil;
         return;
     }
     
-    NSString *url = nil;
-    if(isBatchEvent) {
-        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
-    } else {
-        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
-    }
-    
-    NSMutableDictionary *requestMutableParameters = [[NSMutableDictionary alloc] init];
-    [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
-    [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
-    if ([BlueShiftUserInfo sharedInstance]==nil) {
-        [BlueshiftLog logInfo:[NSString stringWithFormat:@"Please set BlueshiftUserInfo for sending the user attributes such as email id, customer id"] withDetails:nil methodName:nil];
-    } else {
-        NSString *email = [requestMutableParameters objectForKey:kEmail];
-        NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy];
-        
-        if (email) {
-            if ([blueShiftUserInfoMutableDictionary objectForKey:kEmail]) {
-                [blueShiftUserInfoMutableDictionary removeObjectForKey:kEmail];
-            }
+    dispatch_async(bsft_serial_queue(), ^{
+        NSString *url = nil;
+        if(isBatchEvent) {
+            url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
+        } else {
+            url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
         }
         
-        [requestMutableParameters addEntriesFromDictionary:[blueShiftUserInfoMutableDictionary copy]];
-    }
-    NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
-    if (timestamp) {
-        [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
-    }
-    if(requestParameters) {
-        [requestMutableParameters addEntriesFromDictionary:requestParameters];
-    }
-    
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-    [BlueShiftRequestQueue addRequestOperation:requestOperation];
+        NSMutableDictionary *requestMutableParameters = [[NSMutableDictionary alloc] init];
+        [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
+        [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
+        if ([BlueShiftUserInfo sharedInstance]==nil) {
+            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Please set BlueshiftUserInfo for sending the user attributes such as email id, customer id"] withDetails:nil methodName:nil];
+        } else {
+            NSString *email = [requestMutableParameters objectForKey:kEmail];
+            NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy];
+            
+            if (email) {
+                if ([blueShiftUserInfoMutableDictionary objectForKey:kEmail]) {
+                    [blueShiftUserInfoMutableDictionary removeObjectForKey:kEmail];
+                }
+            }
+            
+            [requestMutableParameters addEntriesFromDictionary:[blueShiftUserInfoMutableDictionary copy]];
+        }
+        NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
+        if (timestamp) {
+            [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
+        }
+        if(requestParameters) {
+            [requestMutableParameters addEntriesFromDictionary:requestParameters];
+        }
+        
+        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+        [BlueShiftRequestQueue addRequestOperation:requestOperation];
+    });
 }
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     if([self validateSDKTrackingRequirements] == false) {
         return;
     }
-
-    if (parameters != nil) {
-        NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-        [BlueShiftRequestQueue addRequestOperation:requestOperation];
-    }
+    dispatch_async(bsft_serial_queue(), ^{
+        if (parameters != nil) {
+            NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+            BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+            [BlueShiftRequestQueue addRequestOperation:requestOperation];
+        }
+    });
 }
 
 - (BOOL)validateSDKTrackingRequirements {
@@ -666,8 +678,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     [self sendPushAnalytics:kBSClick withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
-- (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
-                                 canBacthThisEvent:(BOOL)isBatchEvent {
+- (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload canBacthThisEvent:(BOOL)isBatchEvent {
     [self sendPushAnalytics:kBSDismiss withParams: notificationPayload canBatchThisEvent: isBatchEvent];
 }
 

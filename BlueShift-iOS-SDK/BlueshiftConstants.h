@@ -92,4 +92,7 @@
 #define kBSOpen                                 @"open"
 #define kBSDismiss                              @"dismiss"
 
+//Serial queue
+#define BLUESHIFT_SERIAL_QUEUE                  "com.blueshift.sdk"
+
 #endif /* BlueshiftConstants_h */
