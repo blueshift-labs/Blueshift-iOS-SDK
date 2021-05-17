@@ -30,7 +30,6 @@
 @property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable realEventManagedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
 
 - (NSURL *_Nullable)applicationDocumentsDirectory;
 
@@ -71,5 +70,6 @@
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 
+- (void)initializeCoreData;
 @end
 #endif
