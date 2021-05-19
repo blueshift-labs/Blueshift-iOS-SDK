@@ -17,14 +17,12 @@
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
+    UIView *bottomSafeAreaView;
 }
 
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
-
-- (IBAction)onOkayButtonTapped:(id)sender;
-
 @end
 
 @implementation BlueShiftNotificationSlideBannerViewController
@@ -57,10 +55,8 @@
 }
 
 - (void)enableSingleTap {
-    UITapGestureRecognizer *singleFingerTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self
-                                              action:@selector(onOkayButtonTapped:)];
-    [slideBannerView addGestureRecognizer:singleFingerTap];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSlideInTap)];
+    [slideBannerView addGestureRecognizer:tapGesture];
 }
 
 -(void)setTapGestureForView {
@@ -79,14 +75,17 @@
 }
 
 - (void)presentAnimationView {
+    [slideBannerView.layer addAnimation:[self getAnimationTransition] forKey:nil];
+    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+}
+
+- (CATransition*)getAnimationTransition {
     CATransition *transition = [CATransition animation];
     transition.duration = 1.0;
     transition.type = kCATransitionPush;
     transition.subtype = kCATransitionFromLeft;
     [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-    [slideBannerView.layer addAnimation:transition forKey:nil];
-    
-    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+    return transition;
 }
 
 - (void)createNotificationView {
@@ -351,18 +350,25 @@
     return actionButtonlabel;
 }
 
-- (void)createBottomSafeAreaView {
-    if([self getBottomSafeAreaHeight] > 0){
-        CGRect frame = slideBannerView.frame;
-        frame.size.height = [self getBottomSafeAreaHeight];
-        frame.origin.y = frame.origin.y;
-        UIView *bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
-        if (self.notification.templateStyle && self.notification.templateStyle.bottomSafeAreaColor && ![self.notification.templateStyle.bottomSafeAreaColor isEqualToString: @""]) {
+- (void)createBottomSafeAreaViewForFrame:(CGRect)slideInFrame {
+    if(slideInFrame.size.height > 0 && [self getBottomSafeAreaHeight] > 0 && self.notification.templateStyle) {
+        //Show safe area view only if bottom margin is zero and color is not empty/nil.
+        if (self.notification.templateStyle.margin.bottom == 0 && self.notification.templateStyle.bottomSafeAreaColor && ![self.notification.templateStyle.bottomSafeAreaColor isEqualToString: @""]) {
+            [bottomSafeAreaView removeFromSuperview];
+            CGRect frame = slideInFrame;
+            frame.size.height = [self getBottomSafeAreaHeight];
+            frame.origin.y = slideInFrame.origin.y + slideInFrame.size.height;
+            if (bottomSafeAreaView) {
+                bottomSafeAreaView.frame = frame;
+            } else {
+                bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
+                [bottomSafeAreaView.layer addAnimation:[self getAnimationTransition] forKey:nil];
+                [bottomSafeAreaView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSlideInTap)]];
+            }
             UIColor *backgroundColor = [self colorWithHexString: self.notification.templateStyle.bottomSafeAreaColor];
             [bottomSafeAreaView setBackgroundColor: backgroundColor];
+            [self.view addSubview: bottomSafeAreaView];
         }
-        
-        [self.view addSubview: bottomSafeAreaView];
     }
 }
 
@@ -385,7 +391,7 @@
     [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
 }
 
-- (IBAction)onOkayButtonTapped:(id)sender {
+- (void)handleSlideInTap {
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
         self.notification.notificationContent.actions.count > 0 &&
         self.notification.notificationContent.actions[0]) {
@@ -462,7 +468,7 @@
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
-//      [self createBottomSafeAreaView];
+        [self createBottomSafeAreaViewForFrame:frame];
     } else {
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }
