@@ -8,6 +8,7 @@
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueshiftLog.h"
 
 @implementation BlueShiftInAppNotificationButton
 
@@ -57,8 +58,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -134,8 +135,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -165,8 +166,8 @@
                 [marginDictionary objectForKey: kInAppNotificationModalLayoutMarginRightKey] != [NSNull null]) {
                 self.right = [[marginDictionary objectForKey: kInAppNotificationModalLayoutMarginRightKey] floatValue];
             }
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     
@@ -241,8 +242,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -384,8 +385,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -446,8 +447,8 @@
                 
                 }
             }
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
