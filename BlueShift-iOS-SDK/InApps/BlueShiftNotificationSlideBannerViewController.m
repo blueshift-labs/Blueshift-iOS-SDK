@@ -160,10 +160,11 @@
             xPadding = iconLabel.frame.size.width;
         }
         
-        UIImageView *imageView;
+        UIView *iconView;
         if ([self isValidString: self.notification.notificationContent.iconImage]) {
-            imageView = [self createImageView];
-            xPadding = xPadding + imageView.frame.size.width;
+            // get empty default width height view for calculating the padding
+            iconView = [self createIconViewWithHeight:0];
+            xPadding = xPadding + iconView.frame.size.width;
         }
         
         UILabel *actionButtonLabel;
@@ -201,8 +202,8 @@
             if (descriptionLabelHeight < kSlideInInAppNotificationMinimumHeight) {
                 if (iconLabel.frame.size.height > 0) {
                     descriptionLabelHeight = iconLabel.frame.size.height;
-                } else if (imageView.frame.size.height > 0) {
-                    descriptionLabelHeight = imageView.frame.size.height;
+                } else if (iconView.frame.size.height > 0) {
+                    descriptionLabelHeight = iconView.frame.size.height;
                 } else {
                     descriptionLabelHeight = kSlideInInAppNotificationMinimumHeight;
                 }
@@ -219,48 +220,61 @@
             [self createNotificationView];
         }
         
-        imageView.frame = CGRectMake(0.0, 0.0, imageView.frame.size.width, slideBannerView.frame.size.height);
-        iconLabel.frame = CGRectMake(0.0, 0.0, iconLabel.frame.size.width, slideBannerView.frame.size.height);
-        
+        if ([self isValidString: self.notification.notificationContent.icon]) {
+            iconLabel.frame = CGRectMake(0.0, 0.0, iconLabel.frame.size.width, slideBannerView.frame.size.height);
+            [slideBannerView addSubview: iconLabel];
+        } else if ([self isValidString: self.notification.notificationContent.iconImage]) {
+            // Recreate the icon view after getting exact size of the banner
+            iconView = [self createIconViewWithHeight:slideBannerView.frame.size.height];
+            [slideBannerView addSubview: iconView];
+        }
+
         CGFloat actionXposition = slideBannerView.frame.size.width - actionButtonLabel.frame.size.width;
         actionButtonLabel.frame = CGRectMake(actionXposition, [self getCenterYPosition: actionButtonLabel.frame.size.height], actionButtonLabel.frame.size.width, actionButtonLabel.frame.size.height);
-        
-        [slideBannerView addSubview: iconLabel];
-        [slideBannerView addSubview: imageView];
         [slideBannerView addSubview: actionButtonLabel];
         [slideBannerView addSubview: descriptionLabel];
     }
 }
 
-- (UIImageView *)createImageView {
+- (UIView *)createIconViewWithHeight:(CGFloat)bannerHeight {
     BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
     CGFloat leftPadding = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
     CGFloat topPadding = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
     CGFloat rightPadding = (iconImagePadding && iconImagePadding.right > 0) ? iconImagePadding.right : 0.0;
     CGFloat bottomPadding= (iconImagePadding && iconImagePadding.bottom > 0) ? iconImagePadding.bottom : 0.0;
     
-    CGFloat imageViewWidth = kInAppNotificationModalIconWidth + (leftPadding + rightPadding);
-    CGFloat imageViewHeight = kInAppNotificationModalIconHeight+ (topPadding + bottomPadding);
-    CGRect cgRect = CGRectMake(0.0, 0.0, imageViewWidth, imageViewHeight);
+    CGFloat iconImageWidth = kInAppNotificationModalIconWidth - (leftPadding + rightPadding);
+    CGFloat iconImageHeight = kInAppNotificationModalIconHeight - (topPadding + bottomPadding);
     
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
+    CGFloat iconViewHeight = bannerHeight == 0 ? kInAppNotificationModalIconHeight : bannerHeight;
+    // Create a container view for the image
+    UIView* iconView = [[UIView alloc] initWithFrame: CGRectMake(0, 0, kInAppNotificationModalIconWidth, iconViewHeight)];
+    // Return the iconView if bannerHeight is 0.
+    if (bannerHeight == 0) {
+        return iconView;
+    }
+    
+    // Create imageView and set the image, padding and corner radius
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame: CGRectMake(leftPadding, topPadding, iconImageWidth, iconImageHeight)];
+    // Set iconview center to show the image in the center when iconView height is more than the imageview height
+    imageView.center = iconView.center;
     if (self.notification.notificationContent.iconImage) {
        [self loadImageFromURL:self.notification.notificationContent.iconImage forImageView:imageView];
     }
-    
-    if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
-        NSString *backgroundColorCode = self.notification.contentStyle.iconImageBackgroundColor;
-        imageView.backgroundColor = [self colorWithHexString:backgroundColorCode];
-    }
-    
     CGFloat backgroundRadius = (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundRadius && self.notification.contentStyle.iconImageBackgroundRadius.floatValue > 0) ? self.notification.contentStyle.iconImageBackgroundRadius.floatValue : 0.0;
-    
     imageView.layer.cornerRadius = backgroundRadius;
     imageView.clipsToBounds = YES;
     imageView.contentMode = UIViewContentModeScaleAspectFit;
-    imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+
+    // Set background color to the iconView
+    if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
+        NSString *backgroundColorCode = self.notification.contentStyle.iconImageBackgroundColor;
+        iconView.backgroundColor = [self colorWithHexString:backgroundColorCode];
+    }
     
-    return imageView;
+    [iconView addSubview:imageView];
+    iconView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    return iconView;
 }
 
 - (UILabel *)createIconLabel:(CGFloat)xPosition {
