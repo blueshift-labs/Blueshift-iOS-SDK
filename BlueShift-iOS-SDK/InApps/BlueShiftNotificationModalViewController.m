@@ -85,7 +85,7 @@
         }
     };
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:0.5 animations:^{
             self.window.alpha = 1.0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -118,7 +118,7 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:0.5 animations:^{
             self.window.alpha = 0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -444,7 +444,7 @@
     float height = 0;
     
     // Check if this modal is image modal
-    if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&        ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
+    if ([self isBackgroundImagePresentForNotification:self.notification] && (self.notification.templateStyle.width < 0 || self.notification.templateStyle.height < 0)) {
         // Get max width & height in points which device can support
         float maxWidthInPoints = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
         float maxHeightInPoints = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
@@ -454,8 +454,8 @@
         if (image.size.width < maxWidthInPoints && image.size.height < maxHeightInPoints) {
             width = image.size.width;
             height = image.size.height;
-        } else if (image.size.width > 0) {
-            // If image width & height is more than device width & height, modify the image height and width based on aspect ratio
+        } else {
+            // If image width/height is more than device width & height, modify the image height and width based on aspect ratio
             float ratio = image.size.height/image.size.width;
             width = maxWidthInPoints;
             height = maxWidthInPoints * ratio;
@@ -477,6 +477,7 @@
         // If auto width, get the adjusted height using image width.
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
     } else {
+        // Default width
         width = self.notification.width;
     }
     
@@ -487,6 +488,7 @@
         // If auto height, get the adjusted height from the image height
         height = [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: imageSize.height forWindow:self.window];
     } else {
+        // Default width
         height = [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height forWindow:self.window];
     }
     

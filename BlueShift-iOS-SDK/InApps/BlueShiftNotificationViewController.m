@@ -128,8 +128,7 @@
 }
 
 - (void)setBackgroundImageFromURL:(UIView *)notificationView {
-    if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
-    ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
+    if (notificationView && [self isBackgroundImagePresentForNotification:self.notification]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
         UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
@@ -141,19 +140,25 @@
 
 -(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
     NSData *imageData = [[NSData alloc] init];
-    if(!urlString || [urlString isEqualToString:@""]) {
-        return imageData;
-    }
-    if([cachedImageData valueForKey: urlString]) {
-        imageData = [cachedImageData valueForKey:urlString];
-    } else {
-        NSURL *url = [NSURL URLWithString: urlString];
-        if (url) {
-            imageData = [[NSData alloc] initWithContentsOfURL: url];
-            if (imageData) {
-                [cachedImageData setObject:imageData forKey:urlString];
+    @try {
+        if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:urlString]) {
+            if([cachedImageData valueForKey: urlString]) {
+                imageData = [cachedImageData valueForKey:urlString];
+                [BlueshiftLog logInfo:@"Loading image from image cache for url" withDetails:urlString methodName:nil];
+            } else {
+                NSURL *url = [NSURL URLWithString:urlString];
+                if (url) {
+                    [BlueshiftLog logInfo:@"Downloading image using url" withDetails:urlString methodName:nil];
+                    imageData = [[NSData alloc] initWithContentsOfURL:url];
+                    if (imageData) {
+                        [cachedImageData setObject:imageData forKey:urlString];
+                        [BlueshiftLog logInfo:@"Downloaded image successfully with size in KB" withDetails:[NSNumber numberWithFloat:(imageData.length/1024.0f)] methodName:nil];
+                    }
+                }
             }
         }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return imageData;
 }
@@ -488,6 +493,14 @@
     }
 
     return NO;
+}
+
+- (BOOL)isBackgroundImagePresentForNotification:(BlueShiftInAppNotification*)notification {
+    return (notification && notification.templateStyle && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.templateStyle.backgroundImage]);
+}
+
+- (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification {
+    return (notification && notification.notificationContent && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.notificationContent.iconImage]);
 }
 
 @end

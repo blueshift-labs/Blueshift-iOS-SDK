@@ -28,7 +28,7 @@ controller;
 @property (nonatomic, assign) BOOL canTouchesPassThroughWindow;
 @property (nonatomic, weak) id <BlueShiftNotificationDelegate> delegate;
 @property (nonatomic, weak) id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
-@property (nonatomic, assign) NSString* _Nullable displayOnScreen;
+@property (nonatomic, strong) NSString* _Nullable displayOnScreen;
 
 - (instancetype)initWithNotification:(BlueShiftInAppNotification *)notification;
 
@@ -64,6 +64,14 @@ controller;
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton;
 
 -(NSData*)loadAndCacheImageForURLString:(NSString*)urlString;
+
+/// Check if the notification has a valid background image present.
+/// @param notification notification object to perfor the check
+- (BOOL)isBackgroundImagePresentForNotification:(BlueShiftInAppNotification*)notification;
+
+/// Check if the slide in notification has in icon background image present.
+/// @param notification notification object to perfor the check
+- (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification;
 
 @end
 

@@ -363,7 +363,7 @@ API_AVAILABLE(ios(8.0))
         }
     };
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:0.5 animations:^{
             self.window.alpha = 1.0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -389,7 +389,7 @@ API_AVAILABLE(ios(8.0))
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:0.5 animations:^{
             self.window.alpha = 0;
         } completion:^(BOOL finished) {
             completionBlock();
