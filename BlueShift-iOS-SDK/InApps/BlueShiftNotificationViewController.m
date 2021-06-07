@@ -499,6 +499,10 @@
     return (notification && notification.templateStyle && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.templateStyle.backgroundImage]);
 }
 
+- (BOOL)isBannerImagePresentForNotification:(BlueShiftInAppNotification*)notification {
+    return (notification && notification.notificationContent && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.notificationContent.banner]);
+}
+
 - (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification {
     return (notification && notification.notificationContent && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.notificationContent.iconImage]);
 }

@@ -445,9 +445,18 @@
     
     // Check if this modal is image modal
     if ([self isBackgroundImagePresentForNotification:self.notification] && (self.notification.templateStyle.width < 0 || self.notification.templateStyle.height < 0)) {
+        
+        float templateWidth = 0;
+        if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
+            templateWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:self.notification.templateStyle.width forWindow:self.window];
+        }
+        float templateHeight = 0;
+        if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
+            templateHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: self.notification.templateStyle.height forWindow:self.window];
+        }
         // Get max width & height in points which device can support
-        float maxWidthInPoints = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
-        float maxHeightInPoints = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
+        float maxWidthInPoints = templateWidth > 0 ? templateWidth : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+        float maxHeightInPoints = templateHeight > 0 ? templateHeight : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
         NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
         UIImage* image = [[UIImage alloc] initWithData:imageData];
         // If image resolution is less than the device height and width, use the image dimention.
@@ -469,24 +478,28 @@
 }
 
 - (CGRect)positionNotificationView {
-    CGSize imageSize = [self getAutoImageSizeForNotificationView];
+    BOOL isBackgroundImageModal = [self isBackgroundImagePresentForNotification:self.notification];
+    CGSize imageSize = CGSizeZero;
+    if (isBackgroundImageModal) {
+        imageSize = [self getAutoImageSizeForNotificationView];
+    }
     float width = 0;
-    if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
-        width = self.notification.templateStyle.width;
-    } else if (imageSize.width > 0 && self.notification.templateStyle && self.notification.templateStyle.width < 0) {
-        // If auto width, get the adjusted height using image width.
+    // If auto width, get the adjusted height using image width.
+    if (isBackgroundImageModal && imageSize.width > 0) {
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
+    } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
+        width = self.notification.templateStyle.width;
     } else {
         // Default width
         width = self.notification.width;
     }
     
     float height = 0;
-    if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
-        height = self.notification.templateStyle.height;
-    } else if (imageSize.height > 0 && self.notification.templateStyle && self.notification.templateStyle.height < 0) {
-        // If auto height, get the adjusted height from the image height
+    // If auto height, get the adjusted height from the image height
+    if (isBackgroundImageModal && imageSize.height > 0) {
         height = [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: imageSize.height forWindow:self.window];
+    } else if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
+        height = self.notification.templateStyle.height;
     } else {
         // Default width
         height = [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height forWindow:self.window];

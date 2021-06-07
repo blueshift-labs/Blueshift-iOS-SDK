@@ -73,6 +73,10 @@ controller;
 /// @param notification notification object to perfor the check
 - (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification;
 
+/// Check if the notification has a valid banner image present.
+/// @param notification notification object to perfor the check
+- (BOOL)isBannerImagePresentForNotification:(BlueShiftInAppNotification*)notification;
+
 @end
 
 NS_ASSUME_NONNULL_END

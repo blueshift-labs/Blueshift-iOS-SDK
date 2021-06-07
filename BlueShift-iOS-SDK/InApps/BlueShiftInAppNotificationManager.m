@@ -613,14 +613,13 @@
     BOOL isSlideInIconImagePresent = [notificationVC isSlideInIconImagePresent:notification];
     BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
     if (isSlideInIconImagePresent || isBackgroundImagePresent) {
-        NSString *backgroundImageURL = nil;
-        if(isSlideInIconImagePresent) {
-            backgroundImageURL = notification.notificationContent.iconImage;
-        } else if (isBackgroundImagePresent) {
-            backgroundImageURL = notification.templateStyle.backgroundImage;
-        }
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [notificationVC loadAndCacheImageForURLString:backgroundImageURL];
+            if(isSlideInIconImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.notificationContent.iconImage];
+            }
+            if (isBackgroundImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
+            }
             [NSThread sleepForTimeInterval:1];
             [self presentInAppViewController:notificationVC forNotification:notification];
         });
@@ -634,11 +633,17 @@
     BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
     notificationVC.displayOnScreen = displayOnScreen;
     self.currentNotificationController = notificationVC;
-    
-    if ([notificationVC isBackgroundImagePresentForNotification:notification]) {
+    BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
+    BOOL isBannerImagePresent = [notificationVC isBannerImagePresentForNotification:notification];
+
+    if (isBackgroundImagePresent || isBannerImagePresent) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSString *backgroundImageURL = notification.templateStyle.backgroundImage;
-            [notificationVC loadAndCacheImageForURLString:backgroundImageURL];
+            if (isBackgroundImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
+            }
+            if (isBannerImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.notificationContent.banner];
+            }
             [NSThread sleepForTimeInterval:1];
             [self presentInAppViewController:notificationVC forNotification:notification];
         });
