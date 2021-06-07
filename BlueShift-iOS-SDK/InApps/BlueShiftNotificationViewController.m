@@ -16,7 +16,6 @@
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
-    NSMutableDictionary *cachedImageData;
 }
 @end
 
@@ -28,7 +27,6 @@
         notification.contentStyle = ([self isDarkThemeEnabled] && notification.contentStyleDark) ? notification.contentStyleDark : notification.contentStyle;
         notification.templateStyle = ([self isDarkThemeEnabled] && notification.templateStyleDark) ? notification.templateStyleDark : notification.templateStyle;
         _notification = notification;
-        cachedImageData = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -142,8 +140,8 @@
     NSData *imageData = [[NSData alloc] init];
     @try {
         if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:urlString]) {
-            if([cachedImageData valueForKey: urlString]) {
-                imageData = [cachedImageData valueForKey:urlString];
+            if([BlueShift sharedInstance].inAppImageDataCache && [[BlueShift sharedInstance].inAppImageDataCache objectForKey: urlString]) {
+                imageData = [[BlueShift sharedInstance].inAppImageDataCache objectForKey:urlString];
                 [BlueshiftLog logInfo:@"Loading image from image cache for url" withDetails:urlString methodName:nil];
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
@@ -151,7 +149,10 @@
                     [BlueshiftLog logInfo:@"Downloading image using url" withDetails:urlString methodName:nil];
                     imageData = [[NSData alloc] initWithContentsOfURL:url];
                     if (imageData) {
-                        [cachedImageData setObject:imageData forKey:urlString];
+                        if ([BlueShift sharedInstance].inAppImageDataCache == nil) {
+                            [BlueShift sharedInstance].inAppImageDataCache = [[NSCache alloc] init];
+                        }
+                        [[BlueShift sharedInstance].inAppImageDataCache setObject:imageData forKey:urlString];
                         [BlueshiftLog logInfo:@"Downloaded image successfully with size in KB" withDetails:[NSNumber numberWithFloat:(imageData.length/1024.0f)] methodName:nil];
                     }
                 }

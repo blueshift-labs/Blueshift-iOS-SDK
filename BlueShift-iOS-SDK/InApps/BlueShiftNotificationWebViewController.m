@@ -291,8 +291,10 @@ API_AVAILABLE(ios(8.0))
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
-                self->didLoadWebView();
+            self->didLoadWebView();
+            dispatch_async(dispatch_get_main_queue(), ^{
                 [self resizeWebViewAsPerContent:webView];
+            });
         }
     }];
 }
@@ -363,7 +365,7 @@ API_AVAILABLE(ios(8.0))
         }
     };
     if (animated) {
-        [UIView animateWithDuration:0.5 animations:^{
+        [UIView animateWithDuration:0.25 animations:^{
             self.window.alpha = 1.0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -389,7 +391,7 @@ API_AVAILABLE(ios(8.0))
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.5 animations:^{
+        [UIView animateWithDuration:0.25 animations:^{
             self.window.alpha = 0;
         } completion:^(BOOL finished) {
             completionBlock();

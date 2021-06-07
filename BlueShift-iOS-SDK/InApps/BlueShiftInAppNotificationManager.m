@@ -673,24 +673,25 @@
             return;
         }
     }
-    if (notificationController && [self inAppNotificationDisplayOnPage]) {
-        [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
-        notificationController.delegate = self;
-        notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
-        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (notificationController && [self inAppNotificationDisplayOnPage]) {
+            [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+            notificationController.delegate = self;
+            notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
+            [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
             [notificationController show:YES];
-        });
-    } else {
-        self.currentNotificationController = nil;
-        [BlueshiftLog logInfo:@"Skipping preseting in-app notification as screen is not registered to receive in-app notification" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
-    }
+        } else {
+            self.currentNotificationController = nil;
+            [BlueshiftLog logInfo:@"Skipping preseting in-app notification as screen is not registered to receive in-app notification" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+        }
+    });
 }
 
 #pragma mark - In App events
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     self.currentNotificationController = nil;
+    [[BlueShift sharedInstance].inAppImageDataCache removeAllObjects];
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self startInAppMessageFetchTimer];
     }

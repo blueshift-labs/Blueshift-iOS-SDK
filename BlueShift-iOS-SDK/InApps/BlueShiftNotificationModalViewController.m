@@ -85,7 +85,7 @@
         }
     };
     if (animated) {
-        [UIView animateWithDuration:0.5 animations:^{
+        [UIView animateWithDuration:0.25 animations:^{
             self.window.alpha = 1.0;
         } completion:^(BOOL finished) {
             completionBlock();
@@ -118,7 +118,7 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.5 animations:^{
+        [UIView animateWithDuration:0.25 animations:^{
             self.window.alpha = 0;
         } completion:^(BOOL finished) {
             completionBlock();
