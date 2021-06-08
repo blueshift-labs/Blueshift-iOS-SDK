@@ -216,10 +216,6 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] != [NSNull null]) {
                         self.backgroundImage = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey];
                     }
-                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] &&
-                        [templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] != [NSNull null]){
-                        self.enableCloseButton = (NSNumber*)[templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey];
-                    }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
                         [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
                         self.backgroundRadius = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
@@ -227,6 +223,9 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] != [NSNull null]) {
                         NSDictionary *closeButtonPayload = [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey];
                         self.closeButton =  [[BlueShiftInAppNotificationButton alloc] initFromDictionary: closeButtonPayload withType: inAppType];
+                        if ([closeButtonPayload objectForKey: kInAppNotificationModalEnableCloseButtonKey]){
+                            self.enableCloseButton = (NSNumber*)[closeButtonPayload objectForKey: kInAppNotificationModalEnableCloseButtonKey];
+                        }
                     }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] != [NSNull null]) {
                         self.backgroundDimAmount = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey];

@@ -206,12 +206,13 @@
 
 - (void)createCloseButton:(CGRect)frame {
     BOOL showCloseButton = [self shouldShowCloseButton];
+    CGFloat margin = 5;
     if (self.notification.templateStyle && showCloseButton) {
         if ( self.notification.templateStyle.closeButton
             && self.notification.templateStyle.closeButton.text
             && ![self.notification.templateStyle.closeButton.text isEqualToString:@""]) {
-            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - 5;
-            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + 5, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - margin;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + margin, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
             UIButton *closeButtonLabel = [[UIButton alloc] initWithFrame:cgRect];
             BlueShiftInAppNotificationButton *closeButton = self.notification.templateStyle.closeButton;
             CGFloat closeButtonFontSize = (closeButton && closeButton.textSize && closeButton.textSize.floatValue > 0)
@@ -235,8 +236,8 @@
             [closeButtonLabel.titleLabel setTextAlignment: NSTextAlignmentCenter];
             [self.view addSubview: closeButtonLabel];
         } else {
-            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth;
-            CGRect cgRect = CGRectMake(xPosition, frame.origin.y, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - margin;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + margin, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
             _closeButton = [BlueShiftNotificationCloseButton new];
             [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
             _closeButton.frame = cgRect;
