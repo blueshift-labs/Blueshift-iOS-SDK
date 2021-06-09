@@ -19,11 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) double inAppNotificationTimeInterval;
 @property (nonatomic) NSString * _Nullable inAppNotificationDisplayOnPage;
 
-- (void) load;
-- (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
+- (void)load;
+- (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler;
-- (void) deleteExpireInAppNotificationFromDataStore;
+- (void)deleteExpireInAppNotificationFromDataStore;
 - (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray;
 
 @end

@@ -64,6 +64,7 @@
 #define openURLOptionsInAppType                 @"inAppType"
 #define openURLOptionsButtonIndex               @"clickedButtonIndex"
 #define openURLOptionsButtonText                @"clickedButtonText"
+#define openURLOptionsPushUserInfo              @"userInfo"
 
 //Core data entities
 #define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"
