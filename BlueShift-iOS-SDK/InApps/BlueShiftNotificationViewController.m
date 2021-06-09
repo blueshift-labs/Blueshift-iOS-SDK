@@ -258,8 +258,6 @@
         }
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-        } else {
-            [button setBackgroundColor:UIColor.clearColor];
         }
     }
 }

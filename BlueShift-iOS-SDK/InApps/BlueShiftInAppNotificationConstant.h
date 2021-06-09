@@ -46,6 +46,7 @@
 #define kInAppNotificationModalSecondaryIconRadiusKey           @"secondary_icon_background_color"
 #define kInAppNotificationModalIconImageBackgroundColorKey      @"icon_image_background_color"
 #define kInAppNotificationModalIconImageBackgroundRadiusKey     @"icon_image_background_radius"
+#define kInAppNotificationIconImageCornerRadiusKey              @"icon_image_corner_radius"
 
 #define kInAppNotificationModalTemplateStyleKey                 @"template_style"
 #define kInAppNotificationModalTemplateStyleDarkKey             @"template_style_dark"

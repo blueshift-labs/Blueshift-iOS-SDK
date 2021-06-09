@@ -25,6 +25,8 @@
             [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
         }
         [parameterMutableDictionary setObject:type forKey:@"a"];
+        NSString *browserPlatform = [NSString stringWithFormat:@"%@ %@", kiOS, [[UIDevice currentDevice] systemVersion]];
+        [parameterMutableDictionary setObject:browserPlatform forKey:kBrowserPlatform];
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         [self fireAPICallWithURL:url data:parameterMutableDictionary andRetryCount:3];
     }

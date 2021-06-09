@@ -110,10 +110,11 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     }
     if (config.enablePushNotification == YES) {
         [blueShiftAppDelegate registerForNotification];
-        [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
     } else if (config.enableSilentPushNotification == YES) {
         [blueShiftAppDelegate registerForSilentPushNotification];
     }
+    [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
+    
     // Initialize In App Manager
     _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
     if (config.inAppNotificationDelegate) {
@@ -666,7 +667,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if([self validateSDKTrackingRequirements] == false) {
         return;
     }
-
+    
+    parameters[kBrowserPlatform] = [BlueShiftDeviceData currentDeviceData].operatingSystem;
+    
     if (parameters != nil) {
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];

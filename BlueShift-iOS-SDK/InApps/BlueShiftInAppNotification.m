@@ -378,6 +378,11 @@
                         self.iconImageBackgroundRadius =(NSNumber *)[contenStyletDictionary objectForKey:kInAppNotificationModalIconImageBackgroundRadiusKey];
                     }
                     
+                    if ([contenStyletDictionary objectForKey: kInAppNotificationIconImageCornerRadiusKey] &&
+                        [contenStyletDictionary objectForKey: kInAppNotificationIconImageCornerRadiusKey] != [NSNull null] ) {
+                        self.iconImageBackgroundRadius = (NSNumber *)[contenStyletDictionary objectForKey:kInAppNotificationIconImageCornerRadiusKey];
+                    }
+                    
                     break;
                     
                 default:

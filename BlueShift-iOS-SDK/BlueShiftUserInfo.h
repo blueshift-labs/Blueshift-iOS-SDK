@@ -31,7 +31,8 @@
 @property (nonatomic, strong) NSString *facebookID;
 
 /// Unsubscribe from the push notifications.
-@property BOOL unsubscribed;
+/// Set this flag to true if you want to stop receiving push notifications for that user.
+@property NSNumber* unsubscribed;
 
 /// The data stored in the additionalUserInfo will be populated on server with `additional_user_info__` prefix to every key name.
 /// If key is stored as `profession`, then server will popluate it as `additional_user_info__profession` in the events.
