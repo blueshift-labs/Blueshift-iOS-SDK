@@ -109,6 +109,7 @@
 
 #define kInAppNotificationDefaultWidth                          90.0
 #define kInAppNotificationDefaultHeight                         90.0
+#define kInAppNotificationImageModalDefaultHeight               100.0
 
 #define kHTMLInAppNotificationMaximumWidthInPoints              470.0
 #define kHTMLInAppNotificationMinimumHeight                     25.0
