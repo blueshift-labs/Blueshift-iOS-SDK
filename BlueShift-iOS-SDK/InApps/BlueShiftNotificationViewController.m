@@ -13,6 +13,7 @@
 #import "BlueShiftNotificationCloseButton.h"
 #import "../BlueshiftLog.h"
 #import "../BlueshiftConstants.h"
+#import "../BlueshiftEventAnalyticsHelper.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -52,7 +53,7 @@
 - (void)closeButtonDidTapped {
     NSString *closeButtonIndex = [NSString stringWithFormat:@"%@%@",kInAppNotificationButtonIndex,kInAppNotificationButtonTypeCloseKey];
     NSDictionary *details = @{kNotificationClickElementKey:closeButtonIndex};
-    [self sendActionEventAnalytics: details];
+    [self sendActionEventAnalytics:details forActionType:kNotificationDismissEvent];
     [self hide:YES];
 }
 
@@ -289,7 +290,7 @@
     }
 }
 
-- (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails {
+- (void)handleInAppButtonAction:(BlueShiftInAppNotificationButton *)buttonDetails {
     NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
     NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:deepLinkURL.absoluteString];
     NSMutableDictionary *details = [[NSMutableDictionary alloc]init];
@@ -299,19 +300,11 @@
     if (buttonDetails.buttonIndex) {
         [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
     }
-    [self sendActionEventAnalytics: details];
+    [self processInAppActionForDeepLinkURL:buttonDetails.iosLink details:details];
     
-    if (buttonDetails && buttonDetails.buttonType) {
+    if (![buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
-        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeDismissKey]) {
-            [self hide:YES];
-        } else if ([buttonDetails.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]){
-            if (buttonDetails.shareableText != nil && ![buttonDetails.shareableText isEqualToString:@""]) {
-                [self shareData: buttonDetails.shareableText];
-            } else{
-                [self hide:YES];
-            }
         } else {
             if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
@@ -321,8 +314,16 @@
                     [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
                 }
             }
-            [self hide:YES];
         }
+    }
+    [self hide:YES];
+}
+
+- (void)processInAppActionForDeepLinkURL:(NSString*)url details:(NSDictionary*)details {
+    if ([url isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+        [self sendActionEventAnalytics:details forActionType:kNotificationDismissEvent];
+    } else {
+        [self sendActionEventAnalytics:details forActionType:kNotificationClickEvent];
     }
 }
 
@@ -348,10 +349,10 @@
             [options setValue:inAppType forKey:openURLOptionsInAppType];
         }
         if (inAppbutton) {
-            if (inAppbutton.buttonIndex) {
+            if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:inAppbutton.buttonIndex]) {
                 [options setValue:inAppbutton.buttonIndex forKey:openURLOptionsButtonIndex];
             }
-            if(inAppbutton.text) {
+            if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:inAppbutton.text]) {
                 [options setValue:inAppbutton.text forKey:openURLOptionsButtonText];
             }
         }
@@ -362,44 +363,25 @@
 }
 
 - (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {
-    NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
-    if (actionButton.buttonType && [actionButton.buttonType isEqualToString: kInAppNotificationButtonTypeShareKey]) {
-        NSString *sharableLink = actionButton.shareableText ? actionButton.shareableText : @"";
-        [actionPayload setObject: sharableLink forKey: kInAppNotificationModalSharableTextKey];
-    } else {
-        NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
-        [actionPayload setObject: iosLink forKey: kInAppNotificationModalPageKey];
-    }
+    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:actionButton];
+    NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:inAppOptions];
+    NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
+    [actionPayload setObject: iosLink forKey: kInAppNotificationModalPageKey];
 
     NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
     [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-    [self hide:YES];
 }
 
-- (void)sendActionEventAnalytics:(NSDictionary *)details {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped: fromViewController:)]
+- (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(NSString*)action {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped:withAction:fromViewController:)]
         && self.notification) {
         NSMutableDictionary *notificationPayload = [self.notification.notificationPayload mutableCopy];
         if (details) {
             [notificationPayload addEntriesFromDictionary: details];
         }
-        [self.delegate inAppActionDidTapped : notificationPayload fromViewController:self];
+        [self.delegate inAppActionDidTapped:notificationPayload withAction:action fromViewController:self];
     }
-}
-
-- (void)shareData:(NSString *)sharableData{
-    UIActivityViewController* activityView = [[UIActivityViewController alloc] initWithActivityItems:@[sharableData] applicationActivities:nil];
-    
-    if (@available(iOS 8.0, *)) {
-        activityView.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-            if (completed){
-                [self hide:YES];
-            }
-        };
-    }
-    
-    [self presentViewController:activityView animated:YES completion:nil];
 }
 
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {

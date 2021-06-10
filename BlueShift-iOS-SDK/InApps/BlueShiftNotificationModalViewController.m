@@ -68,7 +68,7 @@
 - (void)onOkayButtonTapped:(UIButton *)customButton{
     NSInteger position = customButton.tag;
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions && self.notification.notificationContent.actions[position]) {
-        [self handleActionButtonNavigation: self.notification.notificationContent.actions[position]];
+        [self handleInAppButtonAction: self.notification.notificationContent.actions[position]];
     }
 }
 

@@ -92,10 +92,8 @@
 
 /*  Define a Button type */
 #define kInAppNotificationButtonTypeKey                         @"type"
-#define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
 #define kInAppNotificationButtonTypeCloseKey                    @"close"
 #define kInAppNotificationButtonTypeOpenKey                     @"open"
-#define kInAppNotificationButtonTypeShareKey                    @"share"
 
 /* Define size of view */
 #define kInAppNotificationModalIconWidth                        50.0
@@ -137,5 +135,6 @@
 #define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+#define kInAppNotificationDismissDeepLinkURL                    @"blueshift://dismiss"
 
 #endif /* BlueShiftInAppNotificationConstant_h */

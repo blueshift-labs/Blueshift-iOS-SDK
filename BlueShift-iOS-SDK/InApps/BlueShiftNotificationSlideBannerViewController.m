@@ -14,6 +14,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueshiftConstants.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
@@ -60,7 +61,7 @@
 }
 
 -(void)setTapGestureForView {
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideAnimated)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissInApp)];
     [[self view] addGestureRecognizer:tapGesture];
 }
 
@@ -409,13 +410,15 @@
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
         self.notification.notificationContent.actions.count > 0 &&
         self.notification.notificationContent.actions[0]) {
-        [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
+        [self handleInAppButtonAction: self.notification.notificationContent.actions[0]];
     } else {
         [self hideAnimated];
     }
 }
 
+/// Dismiss in-app notification when user swipes the slide-in banner
 -(void)dismissInAppWithSwipeDirection:(UISwipeGestureRecognizer *)recognizer {
+    [self sendActionEventAnalytics:@{} forActionType:kNotificationDismissEvent];
     switch (recognizer.direction) {
         case UISwipeGestureRecognizerDirectionLeft:
             [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionLeft];
@@ -425,6 +428,12 @@
             [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
             break;
     }
+}
+
+/// Dismiss in-app notification when tapped outside the slide in notification
+-(void)dismissInApp {
+    [self sendActionEventAnalytics:@{} forActionType:kNotificationDismissEvent];
+    [self hideAnimated];
 }
 
 - (CGRect)positionNotificationView {

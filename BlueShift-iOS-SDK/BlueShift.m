@@ -28,7 +28,13 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 #pragma mark SDK initialisation
 + (void) initWithConfiguration:(BlueShiftConfig *)config {
-    [[BlueShift sharedInstance] setupWithConfiguration:config];
+    if([NSThread isMainThread] == YES) {
+        [[BlueShift sharedInstance] setupWithConfiguration:config];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[BlueShift sharedInstance] setupWithConfiguration:config];
+        });
+    }
 }
 
 + (void) autoIntegration {
@@ -690,28 +696,28 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 #pragma mark Track delivered, open and click events
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"click" withParams:userInfo canBatchThisEvent:isBatchEvent];
+    [self sendPushAnalytics:kNotificationClickEvent withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"delivered" withParams:userInfo canBatchThisEvent:isBatchEvent];
+    [self sendPushAnalytics:kNotificationDeliveredEvent withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
 
 - (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"delivered" withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendPushAnalytics:kNotificationDeliveredEvent withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationShowingWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"open" withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendPushAnalytics:kNotificationOpenEvent withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"click" withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendPushAnalytics:kNotificationClickEvent withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
                                  canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:@"dismiss" withParams: notificationPayload canBatchThisEvent: isBatchEvent];
+    [self sendPushAnalytics:kNotificationDismissEvent withParams: notificationPayload canBatchThisEvent: isBatchEvent];
 }
 
 - (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {

@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BlueShiftNotificationDelegate <NSObject>
 @optional
 - (void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
-- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload fromViewController:(BlueShiftNotificationViewController *)
+- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload withAction:(NSString*)action fromViewController:(BlueShiftNotificationViewController *)
 controller;
 - (void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
 @end
@@ -45,11 +45,12 @@ controller;
 - (void)loadImageFromURL:(NSString *)imageURL forImageView:(UIImageView *)imageView;
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value labelColor:(NSString *)labelColorCode backgroundColor:(NSString *)backgroundColorCode;
 - (void)applyIconToLabelView:(UILabel *)iconLabelView andFontIconSize:(NSNumber *)fontSize;
-- (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails;
+- (void)handleInAppButtonAction:(BlueShiftInAppNotificationButton *)buttonDetails;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
-- (void)sendActionEventAnalytics:(NSDictionary *)details;
+- (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(NSString*)action;
+- (void)processInAppActionForDeepLinkURL:(NSString*)url details:(NSDictionary*)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
 - (void)setBackgroundImageFromURL:(UIView *)notificationView;
