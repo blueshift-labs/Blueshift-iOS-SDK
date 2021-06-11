@@ -613,14 +613,13 @@
     BOOL isSlideInIconImagePresent = [notificationVC isSlideInIconImagePresent:notification];
     BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
     if (isSlideInIconImagePresent || isBackgroundImagePresent) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             if(isSlideInIconImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.notificationContent.iconImage];
             }
             if (isBackgroundImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
             }
-            [NSThread sleepForTimeInterval:1];
             [self presentInAppViewController:notificationVC forNotification:notification];
         });
     } else {
@@ -637,14 +636,13 @@
     BOOL isBannerImagePresent = [notificationVC isBannerImagePresentForNotification:notification];
 
     if (isBackgroundImagePresent || isBannerImagePresent) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             if (isBackgroundImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
             }
             if (isBannerImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.notificationContent.banner];
             }
-            [NSThread sleepForTimeInterval:1];
             [self presentInAppViewController:notificationVC forNotification:notification];
         });
     } else {
@@ -673,7 +671,7 @@
             return;
         }
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
+    void(^ presentInAppBlock)(void) = ^{
         if (notificationController && [self inAppNotificationDisplayOnPage]) {
             [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
             notificationController.delegate = self;
@@ -684,7 +682,15 @@
             self.currentNotificationController = nil;
             [BlueshiftLog logInfo:@"Skipping preseting in-app notification as screen is not registered to receive in-app notification" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
         }
-    });
+    };
+    
+    if ([NSThread isMainThread] == YES) {
+        presentInAppBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            presentInAppBlock();
+        });
+    }
 }
 
 #pragma mark - In App events
