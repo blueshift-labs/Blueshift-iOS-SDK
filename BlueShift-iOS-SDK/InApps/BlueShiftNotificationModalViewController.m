@@ -444,8 +444,7 @@
     float height = 0;
     
     // Check if this modal is image modal
-    if ([self isBackgroundImagePresentForNotification:self.notification]) {
-        //&& (self.notification.templateStyle.width < 0 || self.notification.templateStyle.height < 0)) { //for auto  width & height
+    if ([self isBackgroundImagePresentForNotification:self.notification] && (self.notification.templateStyle.width < 0 || self.notification.templateStyle.height < 0)) {
         
         float templateWidth = 0;
         if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
@@ -457,7 +456,7 @@
         }
         // Get max width & height in points which device can support
         float maxWidthInPoints = templateWidth > 0 ? templateWidth : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
-        float maxHeightInPoints = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationImageModalDefaultHeight forWindow:self.window];
+        float maxHeightInPoints = templateHeight > 0 ? templateHeight : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
         NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
         UIImage* image = [[UIImage alloc] initWithData:imageData];
         // If image resolution is less than the device height and width, use the image dimention.
