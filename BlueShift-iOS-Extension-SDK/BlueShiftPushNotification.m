@@ -9,7 +9,7 @@
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
 #import "BlueshiftExtensionAnalyticsHelper.h"
-
+@import UserNotifications;
 
 API_AVAILABLE(ios(10.0))
 static BlueShiftPushNotification *_sharedInstance = nil;
@@ -53,6 +53,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     if ([request.content.categoryIdentifier isEqualToString: @"carousel"] || [request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
         return [self carouselAttachmentsDownload:request];
     } else {
+        [self addNotificationCategory:request];
         return [self mediaAttachmentDownlaod:request];
     }
 }
@@ -203,6 +204,55 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         }
     }
     return attachments;
+}
+
+- (void)addNotificationCategory:(UNNotificationRequest *)request{
+    NSDictionary* userInfo = request.content.userInfo;
+    NSDictionary* aps = userInfo[@"aps"];
+    if([userInfo[@"notification_type"] isEqualToString:@"actionable_notification"] && aps[@"category"]) {
+        @try {
+            NSString* pushCategory = aps[@"category"];
+            NSArray* actionsArray = (NSArray*) userInfo[@"actions"];
+            NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
+            UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+            [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
+                NSMutableSet<UNNotificationCategory *> * newCategories = [categories mutableCopy];
+                [self removeDuplicateCategory:category.identifier FromSet:newCategories];
+                [newCategories addObject:category];
+                [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
+            }];
+            [NSThread sleepForTimeInterval:2];
+        } @catch (NSException *exception) {
+        }
+    }
+}
+
+- (NSMutableArray*)getNotificationActions:(NSArray*) actionsDict {
+    NSMutableArray<UNNotificationAction *>* notificationActions = [NSMutableArray new];
+
+    for(NSDictionary* actionItem in actionsDict) {
+        UNNotificationActionOptions actionOption = UNNotificationActionOptionForeground;
+        NSString* actionType = actionItem[@"type"];
+        if([actionType isEqualToString:@"destructive"])
+            actionOption = UNNotificationActionOptionDestructive;
+        else if([actionType isEqualToString: @"autheticationRequired"])
+            actionOption = UNNotificationActionOptionAuthenticationRequired;
+        else if([actionType isEqualToString:@"none"])
+            actionOption = UNNotificationActionOptionNone;
+        UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionItem[@"identifier"] title:actionItem[@"title"] options:actionOption];
+        [notificationActions addObject:action];
+    }
+    return notificationActions;
+}
+
+- (NSSet*)removeDuplicateCategory:(NSString*)category FromSet:(NSMutableSet*)categories {
+    NSArray* categoriesArray = [categories allObjects];
+    for(UNNotificationCategory* categoryItem in categoriesArray) {
+        if ([categoryItem.identifier isEqualToString:category]) {
+            [categories removeObject:categoryItem];
+        }
+    }
+    return categories;
 }
 
 @end
