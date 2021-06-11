@@ -469,16 +469,18 @@
             // Set max width in points which device can support
             float maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             // Set max width in points to default height except when width is automatic and height is fixed
-            float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationImageModalDefaultHeight forWindow:self.window];
+            float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
             
             NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
             UIImage* image = [[UIImage alloc] initWithData:imageData];
+            [BlueshiftLog logInfo:@"Downloaded Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
             
             // If auto height and auto width is set for image modal
             // and image resolution is less than the device height and width, use the image dimention.
             if (isAutoWidth == YES && isAutoHeight == YES && image.size.width < maxWidthInPoints && image.size.height < maxHeightInPoints) {
                 width = image.size.width;
                 height = image.size.height;
+                [BlueshiftLog logInfo:@"Image size using auto height and auto width" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
             } else {
                 float ratio = image.size.height/image.size.width;
                 
@@ -491,6 +493,7 @@
                         width = maxWidthInPoints;
                         height = maxWidthInPoints * ratio;
                     }
+                    [BlueshiftLog logInfo:@"Image size using fixed height and auto width" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
                 } else {
                     // Resize the image using the maxWidth based on the image aspect ratio
                     width = maxWidthInPoints;
@@ -499,6 +502,7 @@
                         height = maxHeightInPoints;
                         width = maxHeightInPoints/ratio;
                     }
+                    [BlueshiftLog logInfo:@"Image size using fixed width and auto height" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
                 }
             }
         } @catch (NSException *exception) {
