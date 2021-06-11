@@ -121,10 +121,10 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
-    if (!self.networkCarrierName) {
-        self.networkCarrierName = [self getNetworkCarrierName];
-    }
     if(self.networkCarrierName) {
+        [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
+    } else {
+        self.networkCarrierName = [self getNetworkCarrierName];
         [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
     }
     
