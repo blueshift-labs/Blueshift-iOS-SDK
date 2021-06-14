@@ -382,7 +382,7 @@
         NSString *pushUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
         NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
         if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier] || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
-            [BlueshiftLog logInfo:@"Skipped processing notification due to following reasons" withDetails:@"1. The push notification is silent push notification 2. The push notification click is already processed." methodName:nil];
+            [BlueshiftLog logInfo:@"Skipped processing notification due to one of the following reasons." withDetails:@"1. The push notification is silent push notification 2. The push notification click is already processed." methodName:nil];
             return;
         }
         self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
