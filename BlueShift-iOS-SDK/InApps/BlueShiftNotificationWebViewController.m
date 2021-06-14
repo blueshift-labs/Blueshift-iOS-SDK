@@ -291,8 +291,9 @@ API_AVAILABLE(ios(8.0))
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
-            self->didLoadWebView();
-            dispatch_async(dispatch_get_main_queue(), ^{
+            [BlueshiftLog logInfo:@"Webview loaded the content successfully." withDetails:nil methodName:nil];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                self->didLoadWebView();
                 [self resizeWebViewAsPerContent:webView];
             });
         }
@@ -305,6 +306,7 @@ API_AVAILABLE(ios(8.0))
 
 //resize webview as per content height & width when all the content/media is loaded
 - (void)resizeWebViewAsPerContent:(WKWebView *)webView  {
+    [BlueshiftLog logInfo:@"Resizing the in-app webview size based on the loaded content." withDetails:nil methodName:nil];
     [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
         [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
             dispatch_async(dispatch_get_main_queue(), ^{

@@ -12,6 +12,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "../BlueshiftLog.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -444,34 +445,68 @@
     float height = 0;
     
     // Check if this modal is image modal
-    if ([self isBackgroundImagePresentForNotification:self.notification] && (self.notification.templateStyle.width < 0 || self.notification.templateStyle.height < 0)) {
-        
-        float templateWidth = 0;
-        if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
-            templateWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:self.notification.templateStyle.width forWindow:self.window];
-        }
-        float templateHeight = 0;
-        if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
-            templateHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: self.notification.templateStyle.height forWindow:self.window];
-        }
-        // Get max width & height in points which device can support
-        float maxWidthInPoints = templateWidth > 0 ? templateWidth : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
-        float maxHeightInPoints = templateHeight > 0 ? templateHeight : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
-        NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
-        UIImage* image = [[UIImage alloc] initWithData:imageData];
-        // If image resolution is less than the device height and width, use the image dimention.
-        if (image.size.width < maxWidthInPoints && image.size.height < maxHeightInPoints) {
-            width = image.size.width;
-            height = image.size.height;
-        } else {
-            // If image width/height is more than device width & height, modify the image height and width based on aspect ratio
-            float ratio = image.size.height/image.size.width;
-            width = maxWidthInPoints;
-            height = maxWidthInPoints * ratio;
-            if (height > maxHeightInPoints) {
-                width = maxHeightInPoints/ratio;
-                height = maxHeightInPoints;
+    if ([self isBackgroundImagePresentForNotification:self.notification]) {
+        @try {
+            BOOL isAutoHeight = NO;
+            BOOL isAutoWidth = NO;
+            
+            // Get width from template
+            float templateWidthInPoints = 0;
+            if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
+                templateWidthInPoints = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:self.notification.templateStyle.width forWindow:self.window];
+            } else {
+                isAutoWidth = YES;
             }
+            
+            // Get height from template
+            float templateHeightInPoints = 0;
+            if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
+                templateHeightInPoints = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: self.notification.templateStyle.height forWindow:self.window];
+            } else {
+                isAutoHeight = YES;
+            }
+            
+            // Set max width in points which device can support
+            float maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+            // Set max width in points to default height except when width is automatic and height is fixed
+            float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
+            
+            NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
+            UIImage* image = [[UIImage alloc] initWithData:imageData];
+            [BlueshiftLog logInfo:@"Downloaded Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
+            
+            // If auto height and auto width is set for image modal
+            // and image resolution is less than the device height and width, use the image dimention.
+            if (isAutoWidth == YES && isAutoHeight == YES && image.size.width < maxWidthInPoints && image.size.height < maxHeightInPoints) {
+                width = image.size.width;
+                height = image.size.height;
+                [BlueshiftLog logInfo:@"Image size using auto height and auto width" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
+            } else {
+                float ratio = image.size.height/image.size.width;
+                
+                // For fixed height and auto width,
+                // Resize the image using the maxHeight based on the image aspect ratio
+                if (isAutoWidth == YES && isAutoHeight == NO) {
+                    height = maxHeightInPoints;
+                    width = maxHeightInPoints/ratio;
+                    if (width > maxWidthInPoints) {
+                        width = maxWidthInPoints;
+                        height = maxWidthInPoints * ratio;
+                    }
+                    [BlueshiftLog logInfo:@"Image size using fixed height and auto width" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
+                } else {
+                    // Resize the image using the maxWidth based on the image aspect ratio
+                    width = maxWidthInPoints;
+                    height = maxWidthInPoints * ratio;
+                    if (height > maxHeightInPoints) {
+                        height = maxHeightInPoints;
+                        width = maxHeightInPoints/ratio;
+                    }
+                    [BlueshiftLog logInfo:@"Image size using fixed width and auto height" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
+                }
+            }
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return CGSizeMake(width, height);
