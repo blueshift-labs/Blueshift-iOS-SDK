@@ -667,9 +667,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     if([self validateSDKTrackingRequirements] == false) {
         return;
     }
-    NSMutableDictionary* mutableParams = [parameters mutableCopy];
-    [mutableParams setValue:[BlueShiftDeviceData currentDeviceData].operatingSystem forKey:kBrowserPlatform];
-    if (mutableParams != nil) {
+    if (parameters != nil) {
+        NSMutableDictionary* mutableParams = [parameters mutableCopy];
+        [mutableParams setValue:[BlueShiftDeviceData currentDeviceData].operatingSystem forKey:kBrowserPlatform];
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[mutableParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
         [BlueShiftRequestQueue addRequestOperation:requestOperation];
