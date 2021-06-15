@@ -16,7 +16,9 @@
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
-@implementation BlueShiftAppDelegate
+@implementation BlueShiftAppDelegate {
+    NSString *lastProcessedPushNotificationUUID;
+}
 
 - (id) init {
     self = [super init];
@@ -78,12 +80,11 @@
 
 // Handles the push notification payload when the app is killed and lauched from push notification tray ...
 - (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
-    NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-
-    if (userInfo) {
-        // Handling the push notification if we get the userInfo from launchOptions ...
-        // It's the only way to track notification payload while app is on launch (i.e after the app is killed) ...
-        [self handleRemoteNotification:userInfo];
+    if (launchOptions) {
+        NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        if (userInfo) {
+            [self handleRemoteNotification:userInfo];
+        }
     }
     
     return YES;
@@ -378,7 +379,12 @@
     if ([BlueshiftEventAnalyticsHelper isSilenPushNotificationPayload: userInfo]) {
         [[BlueShift sharedInstance] handleSilentPushNotification: userInfo forApplicationState: UIApplicationStateActive];
     } else {
+        NSString *pushUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
         NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+        if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier] || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
+            [BlueshiftLog logInfo:@"Skipped processing notification due to one of the following reasons." withDetails:@"1. The push notification is silent push notification 2. The push notification click is already processed." methodName:nil];
+            return;
+        }
         self.pushAlertDictionary = [userInfo objectForKey: kNotificationAPSIdentifierKey];
         self.userInfo = userInfo;
         NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:userInfo];
@@ -416,6 +422,8 @@
         [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo];
     }
 
+    lastProcessedPushNotificationUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
+    
     [self trackAppOpenWithParameters:userInfo];
 
     if (userInfo != nil && ([userInfo objectForKey: kPushNotificationDeepLinkURLKey] || [userInfo objectForKey: kNotificationURLElementKey])) {
@@ -425,7 +433,7 @@
         }
         if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush};
+                NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush,openURLOptionsPushUserInfo:userInfo};
                 [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
             }
@@ -473,6 +481,11 @@
         } else if([BlueshiftEventAnalyticsHelper isSchedulePushNotification:userInfo]) {
             [self validateAndScheduleLocalNotification:userInfo];
         } else {
+            NSString *pushUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
+            if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier] || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
+                [BlueshiftLog logInfo:@"Skipped processing notification due to following reasons" withDetails:@"1. The push notification is silent push notification 2. The push notification click is already processed." methodName:nil];
+                return;
+            }
             // Handle push notification when the app is in inactive or background state ...
             if ([pushCategory isEqualToString:kNotificationCategoryBuyIdentifier]) {
                 [self handleCategoryForBuyUsingPushDetailsDictionary:userInfo];

@@ -47,6 +47,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property BlueShiftAppDelegate * _Nullable appDelegate;
 @property BlueShiftUserNotificationCenterDelegate * _Nullable userNotificationDelegate;
 
+/// Image cache for storing downloaded images from the in-app notifications. The cache will be cleared when in-app gets dismissed.
+@property (nonatomic, strong) NSCache<NSString*, NSData *> *inAppImageDataCache;
+
 + (instancetype _Nullable)sharedInstance;
 
 /// Initialise the SDK using BlueShiftConfig

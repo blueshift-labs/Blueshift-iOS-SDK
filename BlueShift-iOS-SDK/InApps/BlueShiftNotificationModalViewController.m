@@ -12,6 +12,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "../BlueshiftLog.h"
 
 @interface BlueShiftNotificationModalViewController ()<UIGestureRecognizerDelegate>{
     UIView *notificationView;
@@ -439,9 +440,105 @@
     : xPadding;
 }
 
+- (CGSize)getAutoImageSizeForNotificationView {
+    float width = 0;
+    float height = 0;
+    
+    // Check if this modal is image modal
+    if ([self isBackgroundImagePresentForNotification:self.notification]) {
+        @try {
+            BOOL isAutoHeight = NO;
+            BOOL isAutoWidth = NO;
+            
+            // Get width from template
+            float templateWidthInPoints = 0;
+            if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
+                templateWidthInPoints = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:self.notification.templateStyle.width forWindow:self.window];
+            } else {
+                isAutoWidth = YES;
+            }
+            
+            // Get height from template
+            float templateHeightInPoints = 0;
+            if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
+                templateHeightInPoints = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: self.notification.templateStyle.height forWindow:self.window];
+            } else {
+                isAutoHeight = YES;
+            }
+            
+            // Set max width in points which device can support
+            float maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+            // Set max width in points to default height except when width is automatic and height is fixed
+            float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
+            
+            NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
+            UIImage* image = [[UIImage alloc] initWithData:imageData];
+            [BlueshiftLog logInfo:@"Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
+            
+            // If auto height and auto width is set for image modal
+            // and image resolution is less than the device height and width, use the image dimention.
+            if (isAutoWidth == YES && isAutoHeight == YES && image.size.width < maxWidthInPoints && image.size.height < maxHeightInPoints) {
+                width = image.size.width;
+                height = image.size.height;
+                [BlueshiftLog logInfo:@"Image size using auto height and auto width" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
+            } else {
+                float ratio = image.size.height/image.size.width;
+                
+                // For fixed height and auto width,
+                // Resize the image using the maxHeight based on the image aspect ratio
+                if (isAutoWidth == YES && isAutoHeight == NO) {
+                    height = maxHeightInPoints;
+                    width = maxHeightInPoints/ratio;
+                    if (width > maxWidthInPoints) {
+                        width = maxWidthInPoints;
+                        height = maxWidthInPoints * ratio;
+                    }
+                    [BlueshiftLog logInfo:@"Image size using fixed height and auto width" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
+                } else {
+                    // Resize the image using the maxWidth based on the image aspect ratio
+                    width = maxWidthInPoints;
+                    height = maxWidthInPoints * ratio;
+                    if (height > maxHeightInPoints) {
+                        height = maxHeightInPoints;
+                        width = maxHeightInPoints/ratio;
+                    }
+                    [BlueshiftLog logInfo:@"Image size using fixed width and auto height" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",height,width] methodName:nil];
+                }
+            }
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        }
+    }
+    return CGSizeMake(width, height);
+}
+
 - (CGRect)positionNotificationView {
-    float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height :[BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height forWindow:self.window];
+    BOOL isBackgroundImageModal = [self isBackgroundImagePresentForNotification:self.notification];
+    CGSize imageSize = CGSizeZero;
+    if (isBackgroundImageModal) {
+        imageSize = [self getAutoImageSizeForNotificationView];
+    }
+    float width = 0;
+    // If auto width, get the adjusted height using image width.
+    if (isBackgroundImageModal && imageSize.width > 0) {
+        width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
+    } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
+        width = self.notification.templateStyle.width;
+    } else {
+        // Default width
+        width = self.notification.width;
+    }
+    
+    float height = 0;
+    // If auto height, get the adjusted height from the image height
+    if (isBackgroundImageModal && imageSize.height > 0) {
+        height = [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: imageSize.height forWindow:self.window];
+    } else if(self.notification.templateStyle && self.notification.templateStyle.height > 0) {
+        height = self.notification.templateStyle.height;
+    } else {
+        // Default width
+        height = [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage: notificationView.frame.size.height forWindow:self.window];
+    }
     
     float topMargin = 0.0;
     float bottomMargin = 0.0;

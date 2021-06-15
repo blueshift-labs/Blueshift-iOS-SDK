@@ -8,6 +8,7 @@
 #import "BlueShiftInAppNotification.h"
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueshiftLog.h"
 
 @implementation BlueShiftInAppNotificationButton
 
@@ -57,8 +58,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -134,8 +135,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -165,8 +166,8 @@
                 [marginDictionary objectForKey: kInAppNotificationModalLayoutMarginRightKey] != [NSNull null]) {
                 self.right = [[marginDictionary objectForKey: kInAppNotificationModalLayoutMarginRightKey] floatValue];
             }
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     
@@ -215,10 +216,6 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey] != [NSNull null]) {
                         self.backgroundImage = (NSString *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundImageKey];
                     }
-                    if ([templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] &&
-                        [templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] != [NSNull null]){
-                        self.enableCloseButton = [[templateStyleDictionary objectForKey: kInAppNotificationModalEnableCloseButtonKey] boolValue];
-                    }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] &&
                         [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey] != [NSNull null]) {
                         self.backgroundRadius = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundRadiusKey];
@@ -226,6 +223,9 @@
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey] != [NSNull null]) {
                         NSDictionary *closeButtonPayload = [templateStyleDictionary objectForKey: kInAppNotificationModalCloseButtonKey];
                         self.closeButton =  [[BlueShiftInAppNotificationButton alloc] initFromDictionary: closeButtonPayload withType: inAppType];
+                        if ([closeButtonPayload objectForKey: kInAppNotificationModalEnableCloseButtonKey]){
+                            self.enableCloseButton = (NSNumber*)[closeButtonPayload objectForKey: kInAppNotificationModalEnableCloseButtonKey];
+                        }
                     }
                     if ([templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] && [templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey] != [NSNull null]) {
                         self.backgroundDimAmount = (NSNumber *)[templateStyleDictionary objectForKey: kInAppNotificationModalBackgroundDimAmountKey];
@@ -241,8 +241,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -384,8 +384,8 @@
                     break;
             }
             
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;
@@ -446,8 +446,8 @@
                 
                 }
             }
-        } @catch (NSException *e) {
-            
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
     return self;

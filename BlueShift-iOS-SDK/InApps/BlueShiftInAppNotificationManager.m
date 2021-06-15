@@ -28,6 +28,7 @@
 
 @implementation BlueShiftInAppNotificationManager
 
+#pragma mark - Set up
 // init
 - (void)load {
     
@@ -35,26 +36,26 @@
 
     /* register for app background / foreground notification */
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(OnApplicationEnteringBackground:)
+                                             selector:@selector(onApplicationEnteringBackground:)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(OnApplicationEnteringForeground:)
+                                             selector:@selector(onApplicationEnteringForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
     
      [self deleteExpireInAppNotificationFromDataStore];
 }
 
-- (void) OnApplicationEnteringBackground:(NSNotification *)notification {
+- (void)onApplicationEnteringBackground:(NSNotification *)notification {
     // stop the timer once app enters background.
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self stopInAppMessageFetchTimer];
     }
 }
 
-- (void) OnApplicationEnteringForeground:(NSNotification *)notification {
+- (void)onApplicationEnteringForeground:(NSNotification *)notification {
     // start the timer once app enters foreground.
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         [self fetchNowAndUpcomingInAppMessageFromDB];
@@ -63,21 +64,33 @@
     }
 }
 
-- (void) initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
-    if (notificationArray !=nil && notificationArray.count > 0) {
-        for (int i = 0; i < notificationArray.count ; i++) {
-            [self addInAppNotificationToDataStore: [notificationArray objectAtIndex: i]];
-        }
-        
-        handler(YES);
-    } else {
-        handler(YES);
+- (void)startInAppMessageFetchTimer {
+    if (self.inAppMessageFetchTimer == nil) {
+        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: [self inAppNotificationTimeInterval]
+                                                                    target:self
+                                                                  selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
+                                                                  userInfo:nil
+                                                                   repeats: YES];
+        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer" withDetails:nil methodName:nil];
     }
+}
+
+// Method to stop time gap b/w loading inAppNotification timer
+- (void)stopInAppMessageFetchTimer {
+    if (self.inAppMessageFetchTimer != nil) {
+        [self.inAppMessageFetchTimer invalidate];
+        self.inAppMessageFetchTimer = nil;
+        [BlueshiftLog logInfo:@"Stopped InAppMessageFetchTimer" withDetails:nil methodName:nil];
+    }
+}
+
+- (void)fetchNowAndUpcomingInAppMessageFromDB {
+    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
 }
 
 //Remove the in-apps on receciving `in_app_mark_as_open` silent push which
 //are displayed on the other deivce for same user.
--(void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray {
+- (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray {
     if (messageUUIDArray != nil && messageUUIDArray.count > 0) {
         for (int count = 0; count< messageUUIDArray.count; count++) {
             NSString *messageUUID = [messageUUIDArray objectAtIndex:count];
@@ -89,6 +102,64 @@
     }
 }
 
+#pragma mark - Insert, delete, update in-app notifications
+- (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
+    if (notificationArray !=nil && notificationArray.count > 0) {
+        for (int i = 0; i < notificationArray.count ; i++) {
+            [self addInAppNotificationToDataStore: [notificationArray objectAtIndex: i]];
+        }
+    }
+    handler(YES);
+}
+
+- (void) addInAppNotificationToDataStore: (NSDictionary *) payload {
+    [self checkInAppNotificationExist: payload handler:^(BOOL status){
+        if (status == NO) {
+            if (nil == self.privateObjectContext) {
+                self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+            }
+            
+            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+            NSManagedObjectContext *masterContext;
+            if (appDelegate) {
+                @try {
+                    masterContext = appDelegate.managedObjectContext;
+                }
+                @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+            }
+            if(masterContext) {
+                NSEntityDescription *entity;
+                @try {
+                    entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+                }
+                @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+                if(entity != nil) {
+                    InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
+                    
+                    if(inAppNotificationEntity != nil) {
+                        [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
+                            if(status) {
+                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
+                                // invoke the inApp clicked callback method
+                                if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
+                                    [self.inAppNotificationDelegate inAppNotificationDidDeliver:payload];
+                                }
+                            }
+                        }];
+                    }
+                }
+            }
+        }
+    }];
+}
+
+/// Returns true if the In-App exists in the SDK database.
+/// @param payload  In-App notification payload
+/// @param handler completion handler
 - (void)checkInAppNotificationExist:(NSDictionary *)payload handler:(void (^)(BOOL))handler{
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
@@ -116,11 +187,7 @@
             NSString *notificationID = [self getInAppMessageID: payload];
             if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
                 [InAppNotificationEntity fetchNotificationByID:masterContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
-                    if (status) {
-                        handler(NO);
-                    } else {
-                        handler(YES);
-                    }
+                        handler(status);
                 }];
             }
         }
@@ -142,67 +209,7 @@
     return @"";
 }
 
-- (double)checkInAppNotificationExpired:(double)createdTime {
-    double currentTime =  [[NSDate date] timeIntervalSince1970];
-    NSDate *createdDate = [self convertMillisecondToDate: createdTime];
-    NSDate *currentDate = [self convertMillisecondToDate:currentTime];
-    
-    NSTimeInterval timeDifference = [currentDate timeIntervalSinceDate: createdDate];
-    return (timeDifference / (3600 * 24));
-}
-
-- (NSDate *)convertMillisecondToDate:(double)seconds {
-    return [NSDate dateWithTimeIntervalSince1970:seconds];
-}
-
-- (void) addInAppNotificationToDataStore: (NSDictionary *) payload {
-    [self checkInAppNotificationExist: payload handler:^(BOOL status){
-        if (status) {
-            if (nil == self.privateObjectContext) {
-                self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            }
-            
-            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            NSManagedObjectContext *masterContext;
-            if (appDelegate) {
-                @try {
-                    masterContext = appDelegate.managedObjectContext;
-                }
-                @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                }
-            }
-            if(masterContext) {
-                NSEntityDescription *entity;
-                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-                @try {
-                    entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-                    [fetchRequest setEntity:entity];
-                }
-                @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                }
-                if(entity != nil && fetchRequest.entity != nil) {
-                    InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
-                    
-                    if(inAppNotificationEntity != nil) {
-                        [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
-                            if(status) {
-                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
-                                // invoke the inApp clicked callback method
-                                if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
-                                    [self.inAppNotificationDelegate inAppNotificationDidDeliver:payload];
-                                }
-                            }
-                        }];
-                    }
-                }
-            }
-        }
-    }];
-}
-
-- (void) deleteExpireInAppNotificationFromDataStore {
+- (void)deleteExpireInAppNotificationFromDataStore {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     if (appDelegate) {
@@ -279,6 +286,19 @@
             }
         }];
     }
+}
+
+- (double)checkInAppNotificationExpired:(double)createdTime {
+    double currentTime =  [[NSDate date] timeIntervalSince1970];
+    NSDate *createdDate = [self convertMillisecondToDate: createdTime];
+    NSDate *currentDate = [self convertMillisecondToDate:currentTime];
+    
+    NSTimeInterval timeDifference = [currentDate timeIntervalSinceDate: createdDate];
+    return (timeDifference / (3600 * 24));
+}
+
+- (NSDate *)convertMillisecondToDate:(double)seconds {
+    return [NSDate dateWithTimeIntervalSince1970:seconds];
 }
 
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler {
@@ -400,7 +420,40 @@
     }
 }
 
+- (void)updateInAppNotification:(NSDictionary *)notificationPayload {
+    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *masterContext;
+    if (appDelegate) {
+        @try {
+            masterContext = appDelegate.managedObjectContext;
+        }
+        @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        }
+    }
+    if(masterContext) {
+        NSEntityDescription *entity;
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        @try {
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+            [fetchRequest setEntity:entity];
+        }
+        @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        }
+        
+        NSString *notificationID = [self getInAppMessageID: notificationPayload];
+        if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
+        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
+            if (status) {
+                [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
+            }
+        }];
+        }
+    }
+}
 
+#pragma mark - Fetch in-app from the Datastore, filter and process it to display notification
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
     if([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] && [self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
@@ -413,6 +466,9 @@
                 [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
         }
+        if(masterContext == nil) {
+            return;
+        }
         [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
             if (status) {
                 NSArray *sortedArray = [self sortedInAppNotification: results];
@@ -421,9 +477,15 @@
                     InAppNotificationEntity *entity = [filteredResults objectAtIndex:0];
                     [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display message id - " withDetails:entity.id methodName:nil];
                     [self createNotificationFromDictionary: entity];
+                } else {
+                    [BlueshiftLog logInfo:@"There are no pending in-apps to display at this moment for page." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                 }
+            } else {
+                [BlueshiftLog logInfo:@"There are no pending in-apps to display for page." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
             }
         }];
+    } else {
+        [BlueshiftLog logInfo:@"In-app fetch from DB skipped due to one of the below reasons." withDetails:@" 1. In-App notifications are not enabled, 2. Screen is not registered to receive in-apps. 3. Active or in-progress In-app notification detected." methodName:nil];
     }
 }
 
@@ -450,40 +512,6 @@
     
     return sortedArrayList;
 }
-
-- (void)updateInAppNotification:(NSDictionary *)notificationPayload {
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
-    if(masterContext) {
-        NSEntityDescription *entity;
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        @try {
-            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-            [fetchRequest setEntity:entity];
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-        
-        NSString *notificationID = [self getInAppMessageID: notificationPayload];
-        if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
-            if (status) {   
-                [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
-            }
-        }];
-        }
-    }
-}
-
 
 - (NSArray *) filterInAppNotificationResults: (NSArray*) results {
     
@@ -526,74 +554,48 @@
     return filteredResults;
 }
 
-- (void)startInAppMessageFetchTimer {
-    if (self.inAppMessageFetchTimer == nil) {
-        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: [self inAppNotificationTimeInterval]
-                                                                    target:self
-                                                                  selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
-                                                                  userInfo:nil
-                                                                   repeats: YES];
-        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer" withDetails:nil methodName:nil];
-    }
+#pragma mark - Display in-app notification
+- (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
+    BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
+    [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
+    [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
 }
 
-// Method to stop time gap b/w loading inAppNotification timer
-- (void) stopInAppMessageFetchTimer {
-    if (self.inAppMessageFetchTimer != nil) {
-        [self.inAppMessageFetchTimer invalidate];
-        self.inAppMessageFetchTimer = nil;
-        [BlueshiftLog logInfo:@"Stopped InAppMessageFetchTimer" withDetails:nil methodName:nil];
-    }
-}
-
-- (void)fetchNowAndUpcomingInAppMessageFromDB {
-    [self fetchInAppNotificationsFromDataStore: BlueShiftInAppTriggerNowAndUpComing];
-}
-
-// Present ViewController
-- (void)presentInAppNotification:(BlueShiftNotificationViewController*)notificationController {
-    if ([self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
-        self.currentNotificationController = notificationController;
-        [notificationController show:YES];
-    }
-}
-
-
-- (void)createNotification:(BlueShiftInAppNotification*)notification {
-    BlueShiftNotificationViewController *notificationController;
-    NSString *errorString = nil;
-    
-    switch (notification.inAppType) {
-        case BlueShiftInAppTypeHTML:
-            notificationController = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftInAppTypeModal:
-            notificationController = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftNotificationSlideBanner:
-            notificationController = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
-            break;
-        case BlueShiftNotificationRating:
-            [self displayReviewController];
-            
-            /* delete this notification from coreData */
-            [self removeInAppNotificationFromDB: notification.objectID];
+- (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.currentNotificationController != nil) {
+            [BlueshiftLog logInfo:@"Active In-app notification detected, skipped displaying current in-app." withDetails:nil methodName:nil];
             return;
-            
-            
-        default:
-            errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
+        }
+        
+        switch (notification.inAppType) {
+            case BlueShiftInAppTypeHTML:
+                [self processHTMLNotification:notification displayOnScreen:displayOnScreen];
+                break;
+                
+            case BlueShiftInAppTypeModal:
+                [self processModalNotification:notification displayOnScreen:displayOnScreen];
+                break;
+                
+            case BlueShiftNotificationSlideBanner:
+                [self processSlideInBannerNotification:notification displayOnScreen:displayOnScreen];
+                break;
+                
+            case BlueShiftNotificationRating:
+            {
+                [self displayReviewController];
+                [self removeInAppNotificationFromDB: notification.objectID];
+                return;;
+            }
+                
+            default:
+            {
+                NSString* errorString = [NSString stringWithFormat:@"Unhandled notification type: %lu", (unsigned long)notification.inAppType];
+                [BlueshiftLog logError:nil withDescription:errorString methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            }
             break;
-    }
-    if (notificationController) {
-        notificationController.delegate = self;
-        notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
-        [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
-        [self presentInAppNotification:notificationController];
-    }
-    if (errorString) {
-        [BlueshiftLog logError:nil withDescription:errorString methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-    }
+        }
+    });
 }
 
 - (void)displayReviewController {
@@ -602,15 +604,115 @@
     }
 }
 
-- (void)createNotificationFromDictionary:(InAppNotificationEntity *) inAppEntity {
-    BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
-    [BlueshiftLog logInfo:@"Created in-app message to display, message Id: " withDetails:inAppEntity.id methodName:nil];
-    [self createNotification: inAppNotification];
+-(void)processSlideInBannerNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    [BlueshiftLog logInfo:@"Creating HTML in-app notification to display on screen name" withDetails:displayOnScreen methodName:nil];
+    BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationSlideBannerViewController alloc] initWithNotification:notification];
+    notificationVC.displayOnScreen = displayOnScreen;
+    self.currentNotificationController = notificationVC;
+
+    BOOL isSlideInIconImagePresent = [notificationVC isSlideInIconImagePresent:notification];
+    BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
+    if (isSlideInIconImagePresent || isBackgroundImagePresent) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            if(isSlideInIconImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.notificationContent.iconImage];
+            }
+            if (isBackgroundImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
+            }
+            [self presentInAppViewController:notificationVC forNotification:notification];
+        });
+    } else {
+        [self presentInAppViewController:notificationVC forNotification:notification];
+    }
 }
 
+-(void)processModalNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    [BlueshiftLog logInfo:@"Creating Modal in-app notification to display on screen name" withDetails:displayOnScreen methodName:nil];
+    BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationModalViewController alloc] initWithNotification:notification];
+    notificationVC.displayOnScreen = displayOnScreen;
+    self.currentNotificationController = notificationVC;
+    BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
+    BOOL isBannerImagePresent = [notificationVC isBannerImagePresentForNotification:notification];
+
+    if (isBackgroundImagePresent || isBannerImagePresent) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            if (isBackgroundImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
+            }
+            if (isBannerImagePresent) {
+                [notificationVC loadAndCacheImageForURLString:notification.notificationContent.banner];
+            }
+            [self presentInAppViewController:notificationVC forNotification:notification];
+        });
+    } else {
+        [self presentInAppViewController:notificationVC forNotification:notification];
+    }
+}
+
+-(void)processHTMLNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    [BlueshiftLog logInfo:@"Creating HTML in-app notification to display on screen name" withDetails:displayOnScreen methodName:nil];
+    BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
+    notificationVC.displayOnScreen = displayOnScreen;
+    notificationVC.delegate = self;
+    self.currentNotificationController = notificationVC;
+
+    BlueShiftNotificationWebViewController *webViewController = (BlueShiftNotificationWebViewController*) notificationVC;
+    [webViewController setupWebView];
+}
+
+// Present ViewController
+- (void)presentInAppViewController:(BlueShiftNotificationViewController*)notificationController forNotification:(BlueShiftInAppNotification*)notification {
+    void(^ presentInAppBlock)(void) = ^{
+        @try {
+            if (notificationController && [self shouldDisplayInAppNotification:notificationController.displayOnScreen] == YES) {
+                [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                if(notificationController.delegate == nil) {
+                    notificationController.delegate = self;
+                }
+                notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
+                [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
+                [notificationController show:YES];
+            } else {
+                self.currentNotificationController = nil;
+                [BlueshiftLog logInfo:@"Skipped preseting in-app notification as screen is not registered to receive in-app notification or current screen is different than in-app notification display on screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+            }
+
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        }
+    };
+    
+    if ([NSThread isMainThread] == YES) {
+        presentInAppBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            presentInAppBlock();
+        });
+    }
+}
+
+
+/// Check if the notification is eligible to display on the current screen.
+/// @param displayOnScreen Name of screen where notification should be displayed
+- (BOOL)shouldDisplayInAppNotification:(NSString*)displayOnScreen {
+    if ([self inAppNotificationDisplayOnPage] == nil) {
+        return false;
+    } else if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:displayOnScreen]) {
+        if(![[self inAppNotificationDisplayOnPage] isEqualToString:displayOnScreen]) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    return true;
+}
+
+#pragma mark - In App events
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     self.currentNotificationController = nil;
+    [[BlueShift sharedInstance].inAppImageDataCache removeAllObjects];
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self startInAppMessageFetchTimer];
     }

@@ -16,9 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BlueShiftNotificationDelegate <NSObject>
 @optional
 - (void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
-- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload fromViewController:(BlueShiftNotificationViewController *)
-controller;
+- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload fromViewController:(BlueShiftNotificationViewController *)controller;
 - (void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
+- (void)presentInAppViewController:(BlueShiftNotificationViewController*)notificationController forNotification:(BlueShiftInAppNotification*)notification;
 @end
 
 @interface BlueShiftNotificationViewController : UIViewController
@@ -28,6 +28,7 @@ controller;
 @property (nonatomic, assign) BOOL canTouchesPassThroughWindow;
 @property (nonatomic, weak) id <BlueShiftNotificationDelegate> delegate;
 @property (nonatomic, weak) id<BlueShiftInAppNotificationDelegate> inAppNotificationDelegate;
+@property (nonatomic, strong) NSString* _Nullable displayOnScreen;
 
 - (instancetype)initWithNotification:(BlueShiftInAppNotification *)notification;
 
@@ -61,6 +62,20 @@ controller;
 /// returns dictionary with in-app notification details to share to openURL method of appDelegate
 /// @param inAppbutton nullable in-app notification clicked button object
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton;
+
+-(NSData*)loadAndCacheImageForURLString:(NSString*)urlString;
+
+/// Check if the notification has a valid background image present.
+/// @param notification notification object to perfor the check
+- (BOOL)isBackgroundImagePresentForNotification:(BlueShiftInAppNotification*)notification;
+
+/// Check if the slide in notification has in icon background image present.
+/// @param notification notification object to perfor the check
+- (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification;
+
+/// Check if the notification has a valid banner image present.
+/// @param notification notification object to perfor the check
+- (BOOL)isBannerImagePresentForNotification:(BlueShiftInAppNotification*)notification;
 
 @end
 

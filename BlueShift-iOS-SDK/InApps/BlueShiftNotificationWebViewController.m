@@ -39,9 +39,13 @@ API_AVAILABLE(ios(8.0))
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (void)setupWebView {
     [self setAutomaticScale];
     [self configureBackground];
     [self presentWebViewNotification];
+    [self initialiseWebView];
 }
 
 - (void) viewWillLayoutSubviews {
@@ -224,7 +228,7 @@ API_AVAILABLE(ios(8.0))
     
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
-    int extra = (int) (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
+    int extra = (int) (self.notification.templateStyle && [self.notification.templateStyle.enableCloseButton boolValue] ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
@@ -285,7 +289,13 @@ API_AVAILABLE(ios(8.0))
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
-            [self resizeWebViewAsPerContent:webView];
+            [BlueshiftLog logInfo:@"Webview loaded the content successfully." withDetails:nil methodName:nil];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                if ([self delegate] && [[self delegate] respondsToSelector:@selector(presentInAppViewController:forNotification:)]) {
+                    [[self delegate] presentInAppViewController:self forNotification:self.notification];
+                }
+                [self resizeWebViewAsPerContent:webView];
+            });
         }
     }];
 }
@@ -296,6 +306,7 @@ API_AVAILABLE(ios(8.0))
 
 //resize webview as per content height & width when all the content/media is loaded
 - (void)resizeWebViewAsPerContent:(WKWebView *)webView  {
+    [BlueshiftLog logInfo:@"Resizing the in-app webview size based on the loaded content." withDetails:nil methodName:nil];
     [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
         [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
             dispatch_async(dispatch_get_main_queue(), ^{
