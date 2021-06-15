@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueShiftNotificationWebViewController : BlueShiftNotificationViewController
-- (void)setupWebView:(void (^)(void))block;
+- (void)setupWebView;
 @end
 
 NS_ASSUME_NONNULL_END

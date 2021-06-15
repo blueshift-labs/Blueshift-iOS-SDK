@@ -18,7 +18,6 @@ API_AVAILABLE(ios(8.0))
     WKWebView *webView;
     BOOL isAutoHeight;
     BOOL isAutoWidth;
-    void (^ didLoadWebView)(void);
 }
 
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
@@ -42,8 +41,7 @@ API_AVAILABLE(ios(8.0))
     [super viewDidLoad];
 }
 
-- (void)setupWebView:(void (^)(void))block {
-    didLoadWebView = block;
+- (void)setupWebView {
     [self setAutomaticScale];
     [self configureBackground];
     [self presentWebViewNotification];
@@ -293,7 +291,9 @@ API_AVAILABLE(ios(8.0))
         if (complete) {
             [BlueshiftLog logInfo:@"Webview loaded the content successfully." withDetails:nil methodName:nil];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                self->didLoadWebView();
+                if ([self delegate] && [[self delegate] respondsToSelector:@selector(presentInAppViewController:forNotification:)]) {
+                    [[self delegate] presentInAppViewController:self forNotification:self.notification];
+                }
                 [self resizeWebViewAsPerContent:webView];
             });
         }

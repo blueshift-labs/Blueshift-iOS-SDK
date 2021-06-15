@@ -473,7 +473,7 @@
             
             NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
             UIImage* image = [[UIImage alloc] initWithData:imageData];
-            [BlueshiftLog logInfo:@"Downloaded Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
+            [BlueshiftLog logInfo:@"Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
             
             // If auto height and auto width is set for image modal
             // and image resolution is less than the device height and width, use the image dimention.
