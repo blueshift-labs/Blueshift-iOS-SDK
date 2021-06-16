@@ -290,14 +290,26 @@ API_AVAILABLE(ios(8.0))
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
             [BlueshiftLog logInfo:@"Webview loaded the content successfully." withDetails:nil methodName:nil];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                if ([self delegate] && [[self delegate] respondsToSelector:@selector(presentInAppViewController:forNotification:)]) {
-                    [[self delegate] presentInAppViewController:self forNotification:self.notification];
-                }
-                [self resizeWebViewAsPerContent:webView];
-            });
+            [self showInAppOnWebViewLoad];
+        } else if(error) {
+            [BlueshiftLog logInfo:@"Failed to load Webview content." withDetails:nil methodName:nil];
+            [self showInAppOnWebViewLoad];
         }
     }];
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [BlueshiftLog logInfo:@"Failed to finish webview navigation." withDetails:nil methodName:nil];
+    [self showInAppOnWebViewLoad];
+}
+
+- (void)showInAppOnWebViewLoad {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if ([self delegate] && [[self delegate] respondsToSelector:@selector(presentInAppViewController:forNotification:)]) {
+            [[self delegate] presentInAppViewController:self forNotification:self.notification];
+        }
+        [self resizeWebViewAsPerContent:self->webView];
+    });
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
