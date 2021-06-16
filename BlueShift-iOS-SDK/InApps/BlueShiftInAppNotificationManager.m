@@ -671,7 +671,9 @@
                     notificationController.delegate = self;
                 }
                 notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
-                [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
+                if (notification && notification.templateStyle) {
+                    [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
+                }
                 [notificationController show:YES];
             } else {
                 self.currentNotificationController = nil;
@@ -680,6 +682,9 @@
 
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            if (notificationController && notificationController.window == nil) {
+                self.currentNotificationController = nil;
+            }
         }
     };
     
