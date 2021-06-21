@@ -167,8 +167,12 @@
 }
 
 +(BOOL)isNotNilAndNotEmpty:(NSString*)string {
-    if (string && ![string isEqualToString:@""]) {
-        return YES;
+    @try {
+        if (string && ![string isEqualToString:@""]) {
+            return YES;
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return NO;
 }

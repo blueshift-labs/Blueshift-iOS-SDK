@@ -23,6 +23,7 @@
 #define kDeviceID                               @"device_id"
 #define kApple                                  @"apple"
 #define kiOS                                    @"iOS"
+#define kBrowserPlatform                        @"browser_platform"
 
 //App Data
 #define kEnablePush                             @"enable_push"
@@ -64,6 +65,7 @@
 #define openURLOptionsInAppType                 @"inAppType"
 #define openURLOptionsButtonIndex               @"clickedButtonIndex"
 #define openURLOptionsButtonText                @"clickedButtonText"
+#define openURLOptionsPushUserInfo              @"userInfo"
 
 //Core data entities
 #define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"

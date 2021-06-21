@@ -323,12 +323,13 @@
 #pragma mark - Process remote notification
 // Handles the push notification payload when the app is in killed state and lauched using push notification
 - (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
-    NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    if (userInfo) {
-        [self handleRemoteNotification:userInfo];
-        return YES;
+    if (launchOptions) {
+        NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        if (userInfo) {
+            [self handleRemoteNotification:userInfo];
+            return YES;
+        }
     }
-    
     return NO;
 }
 
@@ -377,6 +378,7 @@
     } else {
         NSString *pushCategory = [[userInfo objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
         if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier] || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
+            [BlueshiftLog logInfo:@"Skipped processing notification due to one of the following reasons." withDetails:@"1. The push notification is silent push notification 2. The push notification click is already processed." methodName:nil];
             return;
         } else if ([pushCategory isEqualToString:kNotificationCategoryPromotionIdentifier]) {
             [self handleCategoryForPromotionUsingPushDetailsDictionary:userInfo];
@@ -416,8 +418,8 @@
         }
         if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush};
-                [self.mainAppDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
+                NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush,openURLOptionsPushUserInfo:userInfo};
+                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
             }
         }

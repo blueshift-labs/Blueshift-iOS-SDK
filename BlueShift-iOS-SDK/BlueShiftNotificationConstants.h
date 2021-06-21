@@ -26,8 +26,8 @@
 #define kNotificationImageURLKey                                        @"image_url"
 #define kDownloadImageNameKey                                           @"image.jpg"
 
-#define kNotificationCategorySilentPushIdentifier                       @"silent_push"
-#define kNotificationCategoryPromotionIdentifier                            @"promotion"
+#define kNotificationCategorySilentPushIdentifier                       @"silent push"
+#define kNotificationCategoryOfferIdentifier                            @"promotion"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
 
 #define kNotificationCarouselIdentifier                                 @"carousel"

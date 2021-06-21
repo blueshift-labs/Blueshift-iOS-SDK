@@ -111,6 +111,8 @@ static dispatch_queue_t bsft_serial_queue() {
     } else if (config.enableSilentPushNotification == YES) {
         [_sharedBlueShiftInstance.appDelegate registerForSilentPushNotification];
     }
+    [blueShiftAppDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
+    
     // Initialize In App Manager
     _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
     if (config.inAppNotificationDelegate) {
@@ -626,7 +628,29 @@ static dispatch_queue_t bsft_serial_queue() {
             [requestMutableParameters addEntriesFromDictionary:requestParameters];
         }
         
-        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+        [requestMutableParameters addEntriesFromDictionary:[blueShiftUserInfoMutableDictionary copy]];
+    }
+    NSString* timestamp = [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp];
+    if (timestamp) {
+        [requestMutableParameters setObject:timestamp forKey:kInAppNotificationModalTimestampKey];
+    }
+    if(requestParameters) {
+        [requestMutableParameters addEntriesFromDictionary:requestParameters];
+    }
+    
+    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[requestMutableParameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+    [BlueShiftRequestQueue addRequestOperation:requestOperation];
+}
+
+- (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+    if([self validateSDKTrackingRequirements] == false) {
+        return;
+    }
+    if (parameters != nil) {
+        NSMutableDictionary* mutableParams = [parameters mutableCopy];
+        [mutableParams setValue:[BlueShiftDeviceData currentDeviceData].operatingSystem forKey:kBrowserPlatform];
+        NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[mutableParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
         [BlueShiftRequestQueue addRequestOperation:requestOperation];
     });
 }

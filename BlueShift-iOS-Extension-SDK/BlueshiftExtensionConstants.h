@@ -51,5 +51,7 @@
 
 #define kAppName                                                        @"app_name"
 #define kDeviceID                                                       @"device_id"
+#define kBrowserPlatform                                                @"browser_platform"
+#define kiOS                                                            @"iOS"
 
 #endif
