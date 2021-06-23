@@ -94,6 +94,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         _sharedUserInfo = nil;
         _sharedUserInfo = [BlueShiftUserInfo currentUserInfo];
     }
+    [BlueshiftLog logInfo:@"User info saved in the BlueshiftUserInfo class" withDetails:userInfoDictionary methodName:nil];
 }
 
 + (void)removeCurrentUserInfo {
@@ -104,6 +105,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
             _sharedUserInfo = nil;
             _sharedUserInfo = [[BlueShiftUserInfo alloc] init];
         }
+        [BlueshiftLog logInfo:@"Removed user info from the BlueshiftUserInfo class" withDetails:nil methodName:nil];
     }
 }
 

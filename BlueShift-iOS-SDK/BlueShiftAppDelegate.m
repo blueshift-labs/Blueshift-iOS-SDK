@@ -33,7 +33,6 @@
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
             }
-            [self checkUNAuthorizationStatus];
             if (granted) {
                 [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
             } else {
@@ -56,7 +55,6 @@
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
-                [self checkUNAuthorizationStatus];
                 [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered for background silent notifications" withDetails:nil methodName:nil];
             } else {
                 [self registerForNotification];
@@ -80,6 +78,7 @@
     } else if (deviceTokenString) {
         [self fireIdentifyCall];
     }
+    [self checkUNAuthorizationStatus];
 }
 
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
@@ -419,7 +418,7 @@
         if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
                 NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush,openURLOptionsPushUserInfo:userInfo};
-                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
+                [self.mainAppDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
             }
         }
