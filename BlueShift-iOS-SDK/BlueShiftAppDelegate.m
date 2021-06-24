@@ -16,6 +16,10 @@
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
+static NSManagedObjectContext * _Nullable managedObjectContext;
+static NSManagedObjectContext * _Nullable realEventManagedObjectContext;
+static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
+
 @implementation BlueShiftAppDelegate {
     NSString *lastProcessedPushNotificationUUID;
 }
@@ -1029,119 +1033,69 @@
 
 
 #pragma mark - Core Data stack
-
-@synthesize managedObjectContext = _managedObjectContext;
-@synthesize realEventManagedObjectContext = _realEventManagedObjectContext;
-@synthesize batchEventManagedObjectContext = _batchEventManagedObjectContext;
-@synthesize managedObjectModel = _managedObjectModel;
-@synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
-- (NSManagedObjectModel *)managedObjectModel {
-    // The managed object model for the application. It is a fatal error for the application not to be able to find and load its model.
-    if (_managedObjectModel != nil) {
-        return _managedObjectModel;
-    }
-    
+- (NSURL* _Nullable)getManagedObjectModelURL {
+    NSURL* modelURL = nil;
     NSString * path = @"";
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"];
     }
-    
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"];
     }
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd"];
     }
-
-    NSURL *modelURL = [NSURL fileURLWithPath:path];
     
-    _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-    return _managedObjectModel;
+    modelURL = [NSURL fileURLWithPath:path];
+    return modelURL;
 }
 
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
-    // The persistent store coordinator for the application. This implementation creates and return a coordinator, having added the store for the application to it.
-    NSString* key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
-    @synchronized (key) {
+- (void)initializeCoreData {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         @try {
-            if (_persistentStoreCoordinator != nil) {
-                return _persistentStoreCoordinator;
-            }
-            
-            // Create the coordinator and store
-            _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
-            NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"BlueShift-iOS-SDK.sqlite"];
-            NSError *error = nil;
-            NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
-            NSString *failureReason = @"There was an error creating or loading the application's saved data.";
-            if (![_persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error]) {
-                // Report any error we got.
-                NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-                dict[NSLocalizedDescriptionKey] = @"Failed to initialize the application's saved data";
-                dict[NSLocalizedFailureReasonErrorKey] = failureReason;
-                dict[NSUnderlyingErrorKey] = error;
-                error = [NSError errorWithDomain:@"YOUR_ERROR_DOMAIN" code:9999 userInfo:dict];
-                // Replace this with code to handle the error appropriately.
-                // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            NSURL* url = [self getManagedObjectModelURL];
+            if (url) {
+                NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];
+                NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mom];
+                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"BlueShift-iOS-SDK.sqlite"];
+                NSError *error = nil;
+                NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
+                NSPersistentStore* store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
+                if (!store) {
+                    [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    return;
+                }
+                managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                [managedObjectContext setPersistentStoreCoordinator:coordinator];
+
+                realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                [realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
+
+                batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                [batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
             }
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-        
-        return _persistentStoreCoordinator;
-    }
+    });
 }
 
 - (NSManagedObjectContext *)managedObjectContext {
-    // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
-    if (_managedObjectContext != nil) {
-        return _managedObjectContext;
-    }
-    
-    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-    if (!coordinator) {
-        return nil;
-    }
-    _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [_managedObjectContext setPersistentStoreCoordinator:coordinator];
-    return _managedObjectContext;
+    return managedObjectContext;
 }
 
 - (NSManagedObjectContext *)realEventManagedObjectContext {
-    // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
-    if (_realEventManagedObjectContext != nil) {
-        return _realEventManagedObjectContext;
-    }
-    
-    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-    if (!coordinator) {
-        return nil;
-    }
-    _realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [_realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
-    return _realEventManagedObjectContext;
+    return realEventManagedObjectContext;
 }
 
 - (NSManagedObjectContext *)batchEventManagedObjectContext {
-    // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
-    if (_batchEventManagedObjectContext != nil) {
-        return _batchEventManagedObjectContext;
-    }
-    
-    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-    if (!coordinator) {
-        return nil;
-    }
-    _batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [_batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
-    return _batchEventManagedObjectContext;
+    return batchEventManagedObjectContext;
 }
 
 #pragma mark - Core Data Saving support

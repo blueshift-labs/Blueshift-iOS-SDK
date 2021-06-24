@@ -37,14 +37,12 @@
 @property BlueShiftDeepLink * _Nullable deepLinkToOfferPage;
 @property BlueShiftDeepLink * _Nullable deepLinkToCustomPage;
 
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable managedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable realEventManagedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
-
 - (void)saveContext;
 - (NSURL *_Nullable)applicationDocumentsDirectory;
+- (void)initializeCoreData;
+- (NSManagedObjectContext * _Nullable)managedObjectContext;
+- (NSManagedObjectContext * _Nullable)realEventManagedObjectContext;
+- (NSManagedObjectContext * _Nullable)batchEventManagedObjectContext;
 
 /// Calling this method will register for push notifications. It will show a push permission dialog to the user.
 - (void)registerForNotification;
