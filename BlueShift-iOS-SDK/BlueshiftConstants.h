@@ -23,6 +23,7 @@
 #define kDeviceID                               @"device_id"
 #define kApple                                  @"apple"
 #define kiOS                                    @"iOS"
+#define kBrowserPlatform                        @"browser_platform"
 
 //App Data
 #define kEnablePush                             @"enable_push"

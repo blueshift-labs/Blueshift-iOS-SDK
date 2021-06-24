@@ -141,8 +141,9 @@
     NSData *imageData = [[NSData alloc] init];
     @try {
         if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:urlString]) {
-            if([BlueShift sharedInstance].inAppImageDataCache && [[BlueShift sharedInstance].inAppImageDataCache objectForKey: urlString]) {
-                imageData = [[BlueShift sharedInstance].inAppImageDataCache objectForKey:urlString];
+            NSString *urlMD5Hash = [BlueShiftInAppNotificationHelper getMD5ForString: urlString];
+            if([BlueShift sharedInstance].inAppImageDataCache && [[BlueShift sharedInstance].inAppImageDataCache objectForKey: urlMD5Hash]) {
+                imageData = [[BlueShift sharedInstance].inAppImageDataCache objectForKey:urlMD5Hash];
                 [BlueshiftLog logInfo:@"Loading image from image cache for url" withDetails:urlString methodName:nil];
             } else {
                 NSURL *url = [NSURL URLWithString:urlString];
@@ -153,7 +154,7 @@
                         if ([BlueShift sharedInstance].inAppImageDataCache == nil) {
                             [BlueShift sharedInstance].inAppImageDataCache = [[NSCache alloc] init];
                         }
-                        [[BlueShift sharedInstance].inAppImageDataCache setObject:imageData forKey:urlString];
+                        [[BlueShift sharedInstance].inAppImageDataCache setObject:imageData forKey:urlMD5Hash];
                         [BlueshiftLog logInfo:@"Downloaded image successfully with size in KB" withDetails:[NSNumber numberWithFloat:(imageData.length/1024.0f)] methodName:nil];
                     }
                 }
@@ -259,8 +260,6 @@
         }
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
-        } else {
-            [button setBackgroundColor:UIColor.clearColor];
         }
     }
 }

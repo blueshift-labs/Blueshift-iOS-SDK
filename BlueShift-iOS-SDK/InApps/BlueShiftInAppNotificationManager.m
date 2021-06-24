@@ -614,14 +614,13 @@
     BOOL isSlideInIconImagePresent = [notificationVC isSlideInIconImagePresent:notification];
     BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
     if (isSlideInIconImagePresent || isBackgroundImagePresent) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             if(isSlideInIconImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.notificationContent.iconImage];
             }
             if (isBackgroundImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
             }
-            [NSThread sleepForTimeInterval:1];
             [self presentInAppViewController:notificationVC forNotification:notification];
         });
     } else {
@@ -638,14 +637,13 @@
     BOOL isBannerImagePresent = [notificationVC isBannerImagePresentForNotification:notification];
 
     if (isBackgroundImagePresent || isBannerImagePresent) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             if (isBackgroundImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
             }
             if (isBannerImagePresent) {
                 [notificationVC loadAndCacheImageForURLString:notification.notificationContent.banner];
             }
-            [NSThread sleepForTimeInterval:1];
             [self presentInAppViewController:notificationVC forNotification:notification];
         });
     } else {
@@ -657,35 +655,63 @@
     [BlueshiftLog logInfo:@"Creating HTML in-app notification to display on screen name" withDetails:displayOnScreen methodName:nil];
     BlueShiftNotificationViewController* notificationVC = [[BlueShiftNotificationWebViewController alloc] initWithNotification:notification];
     notificationVC.displayOnScreen = displayOnScreen;
+    notificationVC.delegate = self;
     self.currentNotificationController = notificationVC;
-    
+
     BlueShiftNotificationWebViewController *webViewController = (BlueShiftNotificationWebViewController*) notificationVC;
-    [webViewController setupWebView:^{
-        [self presentInAppViewController:notificationVC forNotification:notification];
-    }];
+    [webViewController setupWebView];
 }
 
 // Present ViewController
 - (void)presentInAppViewController:(BlueShiftNotificationViewController*)notificationController forNotification:(BlueShiftInAppNotification*)notification {
-    if (notificationController && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notificationController.displayOnScreen]) {
-        if(self.inAppNotificationDisplayOnPage == nil || ![self.inAppNotificationDisplayOnPage isEqualToString:notificationController.displayOnScreen]) {
-            self.currentNotificationController = nil;
-            [BlueshiftLog logInfo:@"Skipping preseting in-app notification as current screen is different than in-app notification display on screen" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
-            return;
+    void(^ presentInAppBlock)(void) = ^{
+        @try {
+            if (notificationController && [self shouldDisplayInAppNotification:notificationController.displayOnScreen] == YES) {
+                [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                if(notificationController.delegate == nil) {
+                    notificationController.delegate = self;
+                }
+                notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
+                if (notification && notification.templateStyle) {
+                    [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
+                }
+                [notificationController show:YES];
+            } else {
+                self.currentNotificationController = nil;
+                [BlueshiftLog logInfo:@"Skipped preseting in-app notification as screen is not registered to receive in-app notification or current screen is different than in-app notification display on screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+            }
+
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            if (notificationController && notificationController.window == nil) {
+                self.currentNotificationController = nil;
+            }
+        }
+    };
+    
+    if ([NSThread isMainThread] == YES) {
+        presentInAppBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            presentInAppBlock();
+        });
+    }
+}
+
+
+/// Check if the notification is eligible to display on the current screen.
+/// @param displayOnScreen Name of screen where notification should be displayed
+- (BOOL)shouldDisplayInAppNotification:(NSString*)displayOnScreen {
+    if ([self inAppNotificationDisplayOnPage] == nil) {
+        return false;
+    } else if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:displayOnScreen]) {
+        if(![[self inAppNotificationDisplayOnPage] isEqualToString:displayOnScreen]) {
+            return false;
+        } else {
+            return true;
         }
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (notificationController && [self inAppNotificationDisplayOnPage]) {
-            [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
-            notificationController.delegate = self;
-            notificationController.inAppNotificationDelegate = self.inAppNotificationDelegate;
-            [notificationController setTouchesPassThroughWindow: notification.templateStyle.enableBackgroundAction];
-            [notificationController show:YES];
-        } else {
-            self.currentNotificationController = nil;
-            [BlueshiftLog logInfo:@"Skipping preseting in-app notification as screen is not registered to receive in-app notification" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
-        }
-    });
+    return true;
 }
 
 #pragma mark - In App events
