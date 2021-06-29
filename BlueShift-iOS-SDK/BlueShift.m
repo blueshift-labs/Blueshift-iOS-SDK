@@ -67,6 +67,9 @@ static BlueShift *_sharedBlueShiftInstance = nil;
     
     // initiating the newDelegate ...
     _newDelegate = [[BlueShiftAppDelegate alloc] init];
+    
+    // Initialise core data
+    [_newDelegate initializeCoreData];
     BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
     
     // assigning the current application delegate with the app delegate we are going to use in the SDK ...
