@@ -26,12 +26,11 @@
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable managedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable realEventManagedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
-
 - (NSURL *_Nullable)applicationDocumentsDirectory;
+- (void)initializeCoreData;
+- (NSManagedObjectContext * _Nullable)managedObjectContext;
+- (NSManagedObjectContext * _Nullable)realEventManagedObjectContext;
+- (NSManagedObjectContext * _Nullable)batchEventManagedObjectContext;
 
 /// Calling this method will register for push notifications. It will show a push permission dialog to the user.
 - (void)registerForNotification;

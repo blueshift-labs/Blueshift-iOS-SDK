@@ -16,6 +16,10 @@
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
+static NSManagedObjectContext * _Nullable managedObjectContext;
+static NSManagedObjectContext * _Nullable realEventManagedObjectContext;
+static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
+
 @implementation BlueShiftAppDelegate {
     NSString *lastProcessedPushNotificationUUID;
 }
@@ -587,60 +591,68 @@
 }
 
 #pragma mark - Core Data stack
-
-@synthesize managedObjectContext = _managedObjectContext;
-@synthesize realEventManagedObjectContext = _realEventManagedObjectContext;
-@synthesize batchEventManagedObjectContext = _batchEventManagedObjectContext;
-@synthesize managedObjectModel = _managedObjectModel;
-
 - (NSURL *)applicationDocumentsDirectory {
     // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
-- (NSManagedObjectModel *)managedObjectModel {
-    // The managed object model for the application. It is a fatal error for the application not to be able to find and load its model.
-    if (_managedObjectModel != nil) {
-        return _managedObjectModel;
-    }
-    
+- (NSURL* _Nullable)getManagedObjectModelURL {
+    NSURL* modelURL = nil;
     NSString * path = @"";
     if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"];
     } else if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd"] != nil) {
         path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd"];
     }
-
-    NSURL *modelURL = [NSURL fileURLWithPath:path];
-    _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-    return _managedObjectModel;
+    
+    modelURL = [NSURL fileURLWithPath:path];
+    return modelURL;
 }
 
 - (void)initializeCoreData {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         @try {
-            NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
-            NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"BlueShift-iOS-SDK.sqlite"];
-            NSError *error = nil;
-            NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
-            if (![coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error]) {
-                [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            NSURL* url = [self getManagedObjectModelURL];
+            if (url) {
+                NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];
+                NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mom];
+                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"BlueShift-iOS-SDK.sqlite"];
+                NSError *error = nil;
+                NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
+                NSPersistentStore* store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
+                if (!store) {
+                    [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    return;
+                }
+                managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                [managedObjectContext setPersistentStoreCoordinator:coordinator];
+
+                realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                [realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
+
+                batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                [batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
             }
-            _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            [_managedObjectContext setPersistentStoreCoordinator:coordinator];
-
-            _realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            [_realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
-
-            _batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            [_batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
-
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     });
 }
+
+- (NSManagedObjectContext *)managedObjectContext {
+    return managedObjectContext;
+}
+
+- (NSManagedObjectContext *)realEventManagedObjectContext {
+    return realEventManagedObjectContext;
+}
+
+- (NSManagedObjectContext *)batchEventManagedObjectContext {
+    return batchEventManagedObjectContext;
+}
+
+
 
 #pragma mark - Font awesome support
 - (void)downloadFileFromURL {

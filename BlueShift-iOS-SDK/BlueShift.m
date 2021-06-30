@@ -72,6 +72,8 @@ static dispatch_queue_t bsft_serial_queue() {
     _sharedBlueShiftInstance.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
 
     _sharedBlueShiftInstance.appDelegate = [[BlueShiftAppDelegate alloc] init];
+
+    // Initialise core data
     [_sharedBlueShiftInstance.appDelegate initializeCoreData];
     _sharedBlueShiftInstance.appDelegate.mainAppDelegate = [UIApplication sharedApplication].delegate;
     
