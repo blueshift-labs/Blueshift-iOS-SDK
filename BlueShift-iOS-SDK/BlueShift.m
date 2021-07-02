@@ -585,9 +585,7 @@ static dispatch_queue_t bsft_serial_queue() {
     }
     if (parameters) {
         [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }
-    [parameterMutableDictionary setObject:kSDKVersionNumber forKey:kInAppNotificationModalSDKVersionKey];
-    
+    }    
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
@@ -808,8 +806,7 @@ static dispatch_queue_t bsft_serial_queue() {
             NSMutableDictionary *apiPayload = [@{
                 kInAppNotificationModalMessageUDIDKey : notificationID,
                 kAPIKey : apiKey,
-                kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0,
-                kInAppNotificationModalSDKVersionKey : kSDKVersionNumber
+                kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0
             } mutableCopy];
             [apiPayload addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
             [apiPayload addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];

@@ -7,6 +7,7 @@
 
 #import "BlueshiftExtensionAnalyticsHelper.h"
 #import "BlueShiftPushAnalytics.h"
+#import "BlueshiftExtensionConstants.h"
 
 @implementation BlueshiftExtensionAnalyticsHelper
 
@@ -17,7 +18,7 @@
         NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
         NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
         NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
-        NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
+        NSString *sdkVersion = [[[NSBundle bundleForClass:self.class] infoDictionary] objectForKey:kCFBundleShortVersionString];
         NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
         NSString *timestamp = [self getCurrentUTCTimestamp];
         NSString *deviceId = (NSString *)[pushDetailsDictionary objectForKey:kDeviceID];

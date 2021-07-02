@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong) NSString *appName;
 @property (nonatomic, strong) NSString *appVersion;
+@property (nonatomic, strong) NSString *sdkVersion;
 @property (nonatomic, strong) NSString *appBuildNumber;
 @property (nonatomic, strong) NSString *bundleIdentifier;
 @property BOOL currentUNAuthorizationStatus;

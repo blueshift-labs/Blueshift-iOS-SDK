@@ -22,7 +22,6 @@
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftBatchUploadConfig.h"
 #import "BlueShiftAppData.h"
-#import "SDKVersion.h"
 #import "BlueShiftPushNotificationSettings.h"
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftUserNotificationCenterDelegate.h"

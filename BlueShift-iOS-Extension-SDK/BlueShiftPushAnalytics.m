@@ -6,7 +6,6 @@
 //
 
 #import "BlueShiftPushAnalytics.h"
-#import "ExtensionSDKVersion.h"
 #import "BlueShiftPushNotification.h"
 #import "BlueshiftExtensionConstants.h"
 #import "BlueshiftExtensionAnalyticsHelper.h"

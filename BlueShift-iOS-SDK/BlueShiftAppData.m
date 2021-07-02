@@ -32,6 +32,10 @@ static BlueShiftAppData *_currentAppData = nil;
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:kCFBundleShortVersionString];
 }
 
+- (NSString *)sdkVersion {
+    return [[[NSBundle bundleForClass:self.class] infoDictionary] objectForKey:kCFBundleShortVersionString];
+}
+
 - (NSString *)appBuildNumber {
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleVersionKey];
 }
@@ -112,6 +116,7 @@ static BlueShiftAppData *_currentAppData = nil;
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kInAppNotificationModalSDKVersionKey value:self.sdkVersion];
     return [appMutableDictionary copy];
 }
 

@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import "BlueShiftNotificationConstants.h"
-#import "SDKVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
