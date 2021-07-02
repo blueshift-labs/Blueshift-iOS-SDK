@@ -652,8 +652,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     return batchEventManagedObjectContext;
 }
 
-
-
 #pragma mark - Font awesome support
 - (void)downloadFileFromURL {
     NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];

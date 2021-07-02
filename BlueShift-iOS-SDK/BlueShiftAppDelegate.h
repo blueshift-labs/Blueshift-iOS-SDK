@@ -27,6 +27,8 @@
 @property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
 - (NSURL *_Nullable)applicationDocumentsDirectory;
+
+/// initialise core data objects
 - (void)initializeCoreData;
 - (NSManagedObjectContext * _Nullable)managedObjectContext;
 - (NSManagedObjectContext * _Nullable)realEventManagedObjectContext;
@@ -69,6 +71,5 @@
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 
-- (void)initializeCoreData;
 @end
 #endif
