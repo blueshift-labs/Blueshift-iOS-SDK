@@ -11,8 +11,8 @@
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
-#import "../BlueshiftLog.h"
-#import "../BlueshiftConstants.h"
+#import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;

@@ -11,7 +11,7 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
-#import "../BlueshiftLog.h"
+#import "BlueshiftLog.h"
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
