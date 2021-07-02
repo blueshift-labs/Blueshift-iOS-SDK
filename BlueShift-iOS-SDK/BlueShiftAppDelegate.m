@@ -616,7 +616,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             if (url) {
                 NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];
                 NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mom];
-                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"BlueShift-iOS-SDK.sqlite"];
+                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
                 NSError *error = nil;
                 NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
                 NSPersistentStore* store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
