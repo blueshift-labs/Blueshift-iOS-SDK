@@ -60,8 +60,9 @@ static BlueShiftAppData *_currentAppData = nil;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:val forKey:kBlueshiftEnablePush];
         [defaults synchronize];
+        [BlueshiftLog logInfo:@"Modified the enablePush value to -" withDetails:val methodName:nil];
     } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        [BlueshiftLog logException:exception withDescription:[NSString stringWithFormat:@"Failed to set enablePush value to - %@",enablePush?kYES:kNO] methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -96,8 +97,9 @@ static BlueShiftAppData *_currentAppData = nil;
         if (enableInApp == NO) {
             [InAppNotificationEntity eraseEntityData];
         }
+        [BlueshiftLog logInfo:@"Modified the enableInApp value to -" withDetails:val methodName:nil];
     } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        [BlueshiftLog logException:exception withDescription:[NSString stringWithFormat:@"Failed to set enableInApp value to - %@",enableInApp?kYES:kNO] methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

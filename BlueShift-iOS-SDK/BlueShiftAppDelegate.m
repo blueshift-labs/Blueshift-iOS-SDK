@@ -686,6 +686,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 -(void)processUniversalLinks:(NSURL * _Nonnull)url {
     @try {
+        [BlueshiftLog logInfo:@"Started universal links processing for the url:" withDetails:url methodName:nil];
         if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didStartLinkProcessing)]) {
             [self.blueshiftUniversalLinksDelegate didStartLinkProcessing];
         }
@@ -707,10 +708,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
             [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
+            [BlueshiftLog logInfo:@"Universal link is of /track type. Passing the redirectURL to host app." withDetails:redirectURL methodName:nil];
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing: redirectURL];
             }
         } else {
+            [BlueshiftLog logInfo:@"Universal link is not from the Blueshift. Passing the url to app without processing." withDetails:url methodName:nil];
             if ([[BlueShift sharedInstance] isBlueshiftUniversalLinkURL:url]) {
                 [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             }
