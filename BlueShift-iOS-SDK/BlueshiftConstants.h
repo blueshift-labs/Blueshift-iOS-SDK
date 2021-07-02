@@ -95,6 +95,12 @@
 #define kBSDismiss                              @"dismiss"
 
 //Serial queue
-#define BLUESHIFT_SERIAL_QUEUE                  "com.blueshift.sdk"
+#define kBSSerialQueue                          "com.blueshift.sdk"
+
+//Core Data
+#define kBSCoreDataDataModel                    @"BlueShiftSDKDataModel"
+#define kBSCoreDataMOMD                         @"momd"
+#define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
 
 #endif /* BlueshiftConstants_h */

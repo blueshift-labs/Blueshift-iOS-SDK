@@ -21,7 +21,7 @@ static dispatch_queue_t bsft_serial_queue() {
     static dispatch_queue_t bsft_serial_queue;
     static dispatch_once_t s_done;
     dispatch_once(&s_done, ^{
-        bsft_serial_queue = dispatch_queue_create(BLUESHIFT_SERIAL_QUEUE, DISPATCH_QUEUE_SERIAL);
+        bsft_serial_queue = dispatch_queue_create(kBSSerialQueue, DISPATCH_QUEUE_SERIAL);
     });
     return bsft_serial_queue;
 }
