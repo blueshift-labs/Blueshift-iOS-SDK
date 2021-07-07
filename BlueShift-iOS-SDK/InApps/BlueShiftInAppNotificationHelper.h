@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BlueShiftInAppType)inAppTypeFromString:(NSString*_Nonnull)inAppType;
 + (NSString *)getLocalDirectory:(NSString *)fileName;
 + (BOOL)hasFileExist:(NSString *)fileName;
-+ (NSString *)createFileNameFromURL:(NSString *)imageURL;
++ (NSString *)createFileNameFromURL:(NSString *)fileURL;
 + (BOOL)hasDigits:(NSString *)digits;
 + (void)deleteFileFromLocal:(NSString *) fileName;
 + (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window;

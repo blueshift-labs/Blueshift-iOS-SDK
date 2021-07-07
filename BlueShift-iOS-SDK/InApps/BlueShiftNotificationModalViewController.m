@@ -108,14 +108,7 @@
         self.window = nil;
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidDismiss:fromViewController:)]) {
             [self.delegate inAppDidDismiss:self.notification.notificationPayload fromViewController:self];
-        }
-        
-        if (self.notification.notificationContent.banner) {
-            NSString *fileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: self.notification.notificationContent.banner];
-            if (fileName && [BlueShiftInAppNotificationHelper hasFileExist: fileName]) {
-                [BlueShiftInAppNotificationHelper deleteFileFromLocal: fileName];
-            }
-        }
+        }        
     };
     
     if (animated) {

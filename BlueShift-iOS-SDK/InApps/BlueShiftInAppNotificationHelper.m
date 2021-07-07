@@ -38,9 +38,9 @@ static NSDictionary *_inAppTypeDictionay;
     return [fileManager fileExistsAtPath: [self getLocalDirectory: fileName]];
 }
 
-+ (NSString *)createFileNameFromURL:(NSString *) imageURL {
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
++ (NSString *)createFileNameFromURL:(NSString *) fileURL {
+    NSString *fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: fileURL];
     NSString *extension = [url pathExtension];
     fileName = [fileName stringByAppendingString:@"."];
     return [fileName stringByAppendingString: extension];

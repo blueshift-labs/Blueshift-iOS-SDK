@@ -263,12 +263,6 @@
     }
 }
 
-- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
-    if (filePath) {
-        imageView.image = [UIImage imageWithContentsOfFile: filePath];
-    }
-}
-
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value
           labelColor:(NSString *)labelColorCode
      backgroundColor:(NSString *)backgroundColorCode {
