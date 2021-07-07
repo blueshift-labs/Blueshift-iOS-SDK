@@ -8,11 +8,11 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
-#import "InApps/BlueShiftInAppNotificationManager.h"
-#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
-#import "InApps/BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationHelper.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 

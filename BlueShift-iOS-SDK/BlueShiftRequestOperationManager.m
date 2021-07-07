@@ -7,7 +7,7 @@
 
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftNotificationConstants.h"
-#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 
