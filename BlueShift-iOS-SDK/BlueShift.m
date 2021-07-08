@@ -720,6 +720,13 @@ static dispatch_queue_t bsft_serial_queue() {
     }
 }
 
+- (NSString* _Nullable)getRegisteredForInAppScreenName {
+    if (_inAppNotificationMananger) {
+        return  _inAppNotificationMananger.inAppNotificationDisplayOnPage;
+    }
+    return nil;
+}
+
 - (void)displayInAppNotification {
     if (_inAppNotificationMananger) {
         [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];

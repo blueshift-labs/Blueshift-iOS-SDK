@@ -67,6 +67,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Unregister a VC or screen in the `viewDidDisappear` lifecycle method of VC. This is required to be done before registering a new screen for in-app notifications.
 - (void)unregisterForInAppMessage;
 
+/// Get current registered screen name for the in app notifications.
+- (NSString* _Nullable)getRegisteredForInAppScreenName;
+
 // track events functions
 - (void)identifyUserWithDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
