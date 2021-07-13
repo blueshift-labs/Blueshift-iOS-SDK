@@ -101,7 +101,7 @@
 #define kBSAction                               @"a"
 
 //Serial queue
-#define kBSSerialQueue                          "com.blueshift.sdk"
+#define kBSSerialQueue                          "com.blueshift.coresdk"
 
 //Core Data
 #define kBSCoreDataDataModel                    @"BlueShiftSDKDataModel"
