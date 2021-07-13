@@ -263,12 +263,6 @@
     }
 }
 
-- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
-    if (filePath) {
-        imageView.image = [UIImage imageWithContentsOfFile: filePath];
-    }
-}
-
 - (void)setLabelText:(UILabel *)label andString:(NSString *)value
           labelColor:(NSString *)labelColorCode
      backgroundColor:(NSString *)backgroundColorCode {
@@ -312,11 +306,11 @@
                 [self hide:YES];
             }
         } else {
-            if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
+            if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
                     NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                    [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
                     [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
                 }
             }
@@ -423,7 +417,7 @@
             [self createFontFile: iconLabelView];
         }
     
-        CGFloat iconFontSize = (fontSize !=nil && fontSize > 0)? fontSize.floatValue : 22.0;
+        CGFloat iconFontSize = (fontSize !=nil && fontSize > [NSNumber numberWithInt:0])? fontSize.floatValue : 22.0;
         iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
         iconLabelView.layer.masksToBounds = YES;
     }
@@ -438,34 +432,19 @@
         CFErrorRef error;
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
         CGFontRef font = CGFontCreateWithDataProvider(provider);
-        BOOL failedToRegisterFont = NO;
         if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
             [BlueshiftLog logError:nil withDescription:@"Failed to load FontAwesome" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             CFBridgingRelease(errorDescription);
-            failedToRegisterFont = YES;
         }
         
         CFRelease(font);
         CFRelease(provider);
-    }else {
-        [self downloadFileFromURL: iconLabel];
+    } else {
+        [BlueShiftInAppNotificationHelper downloadFontAwesomeFile:^{
+            [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
+        }];
     }
-}
-
-- (void)downloadFileFromURL:(UILabel *)iconLabel {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-        NSData *urlData = [NSData dataWithContentsOfURL:url];
-        if (urlData) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
-                NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
-                [urlData writeToFile: fontFilePath  atomically:YES];
-                [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
-            });
-        }
-    });
 }
 
 - (int)getTextAlignement:(NSString *)alignmentString {

@@ -48,7 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleActionButtonNavigation:(BlueShiftInAppNotificationButton *)buttonDetails;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
-- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
 - (void)sendActionEventAnalytics:(NSDictionary *)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
