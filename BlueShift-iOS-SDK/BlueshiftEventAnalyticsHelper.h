@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import "BlueShiftNotificationConstants.h"
-#import "SDKVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,9 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value;
 
 
-/// Returns true if string is not nil and not empty.
-/// @param string string to perform check
-+ (BOOL)isNotNilAndNotEmpty:(NSString*)string;
+/// Checks if the string is not nil and not empty
+/// @param string  string value to check
+/// @returns BOOL YES when string is valid
++(BOOL)isNotNilAndNotEmpty:(NSString*)string;
 
 @end
 

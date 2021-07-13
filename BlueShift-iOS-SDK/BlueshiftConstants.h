@@ -88,4 +88,24 @@
 #define kBSUserAdditionalInfo                   @"additional_user_info"
 #define kBSUserExtras                           @"extras"
             
+//Tracking constants
+#define kBSClick                                @"click"
+#define kBSDelivered                            @"delivered"
+#define kBSOpen                                 @"open"
+#define kBSDismiss                              @"dismiss"
+#define kBSAction                               @"a"
+
+//Serial queue
+#define kBSSerialQueue                          "com.blueshift.sdk"
+
+//Core Data
+#define kBSCoreDataDataModel                    @"BlueShiftSDKDataModel"
+#define kBSCoreDataMOMD                         @"momd"
+#define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
+
+//NSNotificationCenter constant
+#define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
+#define kBSStatus                               @"status"
+
 #endif /* BlueshiftConstants_h */
