@@ -51,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// Returns MD5 hash for the given string
 + (NSString *)getMD5ForString:(NSString*)string;
 
+/// Download font awesome file if not downloaded alredy.
+/// @param completionHandler  block to be called after downloading the font file.
++ (void)downloadFontAwesomeFile:(void(^)(void))completionHandler;
+
 @end
 
 NS_ASSUME_NONNULL_END

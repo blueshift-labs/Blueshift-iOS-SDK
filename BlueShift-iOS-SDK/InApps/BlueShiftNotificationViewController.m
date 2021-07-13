@@ -441,23 +441,10 @@
         CFRelease(font);
         CFRelease(provider);
     } else {
-        [self downloadFileFromURL: iconLabel];
+        [BlueShiftInAppNotificationHelper downloadFontAwesomeFile:^{
+            [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
+        }];
     }
-}
-
-- (void)downloadFileFromURL:(UILabel *)iconLabel {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-        NSData *urlData = [NSData dataWithContentsOfURL:url];
-        if (urlData) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
-                NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
-                [urlData writeToFile: fontFilePath  atomically:YES];
-                [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
-            });
-        }
-    });
 }
 
 - (int)getTextAlignement:(NSString *)alignmentString {

@@ -32,11 +32,15 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         center.delegate = self.userNotificationDelegate;
         [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
         [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
+            if([[BlueShift sharedInstance] getDeviceToken] == nil) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kBSPushAuthorizationStatusDidChangeNotification object:nil userInfo:@{kBSStatus:[NSNumber numberWithBool:granted]}];
+            }
             if(!error){
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
             }
+            [self checkUNAuthorizationStatus];
             if (granted) {
                 [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
             } else {
@@ -49,7 +53,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [[UIApplication sharedApplication] registerForRemoteNotifications];
         }
     }
-    [self downloadFileFromURL];
 }
 
 - (void)registerForSilentPushNotification {
@@ -59,13 +62,13 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
+                [self checkUNAuthorizationStatus];
                 [BlueshiftLog logInfo:@"config.enablePushNotification is set to false. Registered for background silent notifications" withDetails:nil methodName:nil];
             } else {
                 [self registerForNotification];
             }
         }];
     }
-    [self downloadFileFromURL];
 }
 
 #pragma mark - Device token processing
@@ -82,7 +85,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     } else if (deviceTokenString) {
         [self fireIdentifyCall];
     }
-    [self checkUNAuthorizationStatus];
 }
 
 - (void) failedToRegisterForRemoteNotificationWithError:(NSError *)error {
@@ -141,7 +143,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 /// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
 - (BOOL)validateChangeInUNAuthorizationStatus {
      NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
-    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
+    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus].boolValue == YES) {
         if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kNO]) {
             [self setLastModifiedUNAuthorizationStatus: kYES];
             [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
@@ -173,9 +175,9 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@YES];
             } else {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@NO];
             }
             //Fire auto identify call in case any device attribute changes
             [self autoIdentifyCheck];
@@ -649,23 +651,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 - (NSManagedObjectContext *)batchEventManagedObjectContext {
     return batchEventManagedObjectContext;
-}
-
-#pragma mark - Font awesome support
-- (void)downloadFileFromURL {
-    NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
-    if (![BlueShiftInAppNotificationHelper hasFileExist: fontFileName]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-            NSData *urlData = [NSData dataWithContentsOfURL:url];
-            if (urlData) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
-                    [urlData writeToFile: fontFilePath atomically:YES];
-                });
-            }
-        });
-    }
 }
 
 #pragma mark - Universal links
