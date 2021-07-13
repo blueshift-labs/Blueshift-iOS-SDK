@@ -8,8 +8,8 @@
 #import "BlueshiftEventAnalyticsHelper.h"
 #import "BlueShiftDeviceData.h"
 #import "BlueShiftAppData.h"
-#import "InApps/BlueShiftInAppNotificationHelper.h"
-#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 

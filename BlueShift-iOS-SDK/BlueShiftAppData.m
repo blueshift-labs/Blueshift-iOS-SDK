@@ -10,7 +10,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
-#import "InApps/InAppNotificationEntity.h"
+#import "InAppNotificationEntity.h"
 
 static BlueShiftAppData *_currentAppData = nil;
 
