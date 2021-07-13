@@ -71,5 +71,8 @@
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 
+///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+- (void)checkUNAuthorizationStatus;
+
 @end
 #endif

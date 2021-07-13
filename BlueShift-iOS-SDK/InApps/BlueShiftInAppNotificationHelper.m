@@ -183,4 +183,22 @@ static NSDictionary *_inAppTypeDictionay;
     ];
 }
 
+#pragma mark - Font awesome support
++ (void)downloadFontAwesomeFile:(void(^)(void))completionHandler {
+    NSString *fontFileName = [self createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+    if (![self hasFileExist: fontFileName]) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
+            NSData *urlData = [NSData dataWithContentsOfURL:url];
+            if (urlData) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *fontFilePath = [self getLocalDirectory: fontFileName];
+                    [urlData writeToFile: fontFilePath atomically:YES];
+                    completionHandler();
+                });
+            }
+        });
+    }
+}
+
 @end

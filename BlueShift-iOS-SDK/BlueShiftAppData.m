@@ -68,15 +68,21 @@ static BlueShiftAppData *_currentAppData = nil;
 
 - (BOOL)getCurrentPushNotificationStatus {
     if (@available(iOS 10.0, *)) {
-        if (self.enablePush && self.currentUNAuthorizationStatus) {
-            return YES;
+        if (self.currentUNAuthorizationStatus != nil) {
+            if (self.enablePush && [self.currentUNAuthorizationStatus boolValue]) {
+                return YES;
+            } else {
+                return NO;
+            }
         } else {
-            return NO;
+            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
         }
     } else {
-        //send enablePush value to server for iOS 9 and below versions
-        return self.enablePush;
+        BOOL isRegistered = UIApplication.sharedApplication.isRegisteredForRemoteNotifications;
+        return (isRegistered && self.enablePush);
     }
+    //send enablePush value to server if currentUNAuthorizationStatus is found nil.
+    return self.enablePush;
 }
 
 - (BOOL)enableInApp {

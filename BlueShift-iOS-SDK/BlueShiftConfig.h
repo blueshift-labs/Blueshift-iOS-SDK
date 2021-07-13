@@ -47,7 +47,8 @@
 @property BOOL inAppBackgroundFetchEnabled;
 @property BOOL debug;
 
-@property NSArray * _Nullable customPushNotificationCategories;
+/// Set custom push notification categories. The SDK will register them while registering f
+@property NSArray * _Nullable customPushNotificationCategories API_AVAILABLE(ios(10.0));
 @property UNAuthorizationOptions customAuthorizationOptions API_AVAILABLE(ios(10.0));
 
 @property NSString * _Nullable appGroupID;

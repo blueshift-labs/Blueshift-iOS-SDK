@@ -32,7 +32,7 @@ static BlueShiftBatchUploadConfig *_sharedInstance = nil;
 
 // Method to get intervell timer
 - (double)fetchBatchUploadTimer {
-    if(_batchUploadTimer == 0) {
+    if(_batchUploadTimer <= 0) {
         return kDefaultBatchUploadTimer;
     } else {
         return _batchUploadTimer;
