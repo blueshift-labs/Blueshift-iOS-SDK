@@ -34,10 +34,15 @@
 #define kAppName                                @"app_name"
 #define kCFBundleShortVersionString             @"CFBundleShortVersionString"
 
-//Fetch InApp API params
+// API params
 #define kEmail                                  @"email"
 #define kAPIKey                                 @"api_key"
 #define kLastTimestamp                          @"last_timestamp"
+#define kBSAuthorization                        @"Authorization"
+#define kBSContentType                          @"Content-Type"
+#define kBSApplicationJSON                      @"application/json"
+#define kBSGETMethod                            @"GET"
+#define kBSPOSTMethod                           @"POST"
 
 //UserDefaults
 #define kBlueshiftDeviceIdSourceUUID            @"BlueshiftDeviceIdSourceUUID"

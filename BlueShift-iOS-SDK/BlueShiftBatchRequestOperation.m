@@ -8,9 +8,6 @@
 #import "BlueShiftBatchRequestOperation.h"
 
 @implementation BlueShiftBatchRequestOperation
-
-// initialize BlueShiftRequestOperation instance with url and other request based details...
-
 - (id)initParametersList:(NSArray *)parametersArray andRetryAttemptsCount:(NSInteger)retryAttemptsCount andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp {
     self = [super init];
     if (self) {
@@ -21,11 +18,6 @@
     
     return self;
 }
-
-
-
-
-// initialize BlueShiftRequestOperation instance with Core Data entity ...
 
 - (id)initWithBatchRequestOperationEntity:(BatchEventEntity *)batchEventEntity {
     self = [super init];

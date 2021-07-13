@@ -52,7 +52,7 @@
 - (NSSet *)notificationCategories {
     NSMutableSet *categories = [NSMutableSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
     if ([BlueShift sharedInstance].config.customCategories) {
-        categories = [categories setByAddingObjectsFromSet:[BlueShift sharedInstance].config.customCategories];
+        return [categories setByAddingObjectsFromSet:[BlueShift sharedInstance].config.customCategories];
     }
     return categories;
 }
