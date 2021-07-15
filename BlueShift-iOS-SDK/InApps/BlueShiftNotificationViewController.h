@@ -11,12 +11,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef enum {
+    BlueshiftInAppClickAction,
+    BlueshiftInAppDismissAction
+} BlueshiftInAppActions;
+
 @class BlueShiftNotificationViewController;
 
 @protocol BlueShiftNotificationDelegate <NSObject>
 @optional
 - (void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
-- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload withAction:(NSString*)action fromViewController:(BlueShiftNotificationViewController *)
+- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload withAction:(BlueshiftInAppActions)action fromViewController:(BlueShiftNotificationViewController *)
 controller;
 - (void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
 - (void)presentInAppViewController:(BlueShiftNotificationViewController* _Nullable)notificationController forNotification:(BlueShiftInAppNotification* _Nullable)notification;
@@ -50,7 +55,7 @@ controller;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
-- (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(NSString*)action;
+- (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action;
 - (void)processInAppActionForDeepLinkURL:(NSString*)url details:(NSDictionary*)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;

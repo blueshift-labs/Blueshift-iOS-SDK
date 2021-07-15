@@ -53,7 +53,7 @@
 - (void)closeButtonDidTapped {
     NSString *closeButtonIndex = [NSString stringWithFormat:@"%@%@",kInAppNotificationButtonIndex,kInAppNotificationButtonTypeCloseKey];
     NSDictionary *details = @{kNotificationClickElementKey:closeButtonIndex};
-    [self sendActionEventAnalytics:details forActionType:kNotificationDismissEvent];
+    [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
     [self hide:YES];
 }
 
@@ -320,9 +320,9 @@
 
 - (void)processInAppActionForDeepLinkURL:(NSString*)url details:(NSDictionary*)details {
     if ([url isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
-        [self sendActionEventAnalytics:details forActionType:kNotificationDismissEvent];
+        [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
     } else {
-        [self sendActionEventAnalytics:details forActionType:kNotificationClickEvent];
+        [self sendActionEventAnalytics:details forActionType:BlueshiftInAppClickAction];
     }
 }
 
@@ -372,7 +372,7 @@
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
 }
 
-- (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(NSString*)action {
+- (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action {
     if (self.delegate && [self.delegate respondsToSelector:@selector(inAppActionDidTapped:withAction:fromViewController:)]
         && self.notification) {
         NSMutableDictionary *notificationPayload = [self.notification.notificationPayload mutableCopy];
