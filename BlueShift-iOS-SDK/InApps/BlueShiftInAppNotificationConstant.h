@@ -122,6 +122,9 @@
 #define kInAppNotificationModalGravityStartKey                  @"start"
 #define kInAppNotificationModalGravityEndKey                    @"end"
 
+#define kInAppNotificationSwipeAction                           @"swipe"
+#define kInAppNotificationTapOutsideAction                      @"tap_outside"
+
 #define kNotificationClickElementKey                            @"clk_elmt"
 #define kNotificationURLElementKey                              @"clk_url"
 #define kInAppNotificationFontFileDownlaodURL                   @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf"

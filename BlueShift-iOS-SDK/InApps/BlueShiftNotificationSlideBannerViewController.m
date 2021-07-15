@@ -418,7 +418,7 @@
 
 /// Dismiss in-app notification when user swipes the slide-in banner
 -(void)dismissInAppWithSwipeDirection:(UISwipeGestureRecognizer *)recognizer {
-    [self sendActionEventAnalytics:@{} forActionType:kNotificationDismissEvent];
+    [self sendActionEventAnalytics:@{kNotificationClickElementKey:kInAppNotificationSwipeAction} forActionType:kNotificationDismissEvent];
     switch (recognizer.direction) {
         case UISwipeGestureRecognizerDirectionLeft:
             [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionLeft];
@@ -432,7 +432,7 @@
 
 /// Dismiss in-app notification when tapped outside the slide in notification
 -(void)dismissInApp {
-    [self sendActionEventAnalytics:@{} forActionType:kNotificationDismissEvent];
+    [self sendActionEventAnalytics:@{kNotificationClickElementKey:kInAppNotificationTapOutsideAction} forActionType:kNotificationDismissEvent];
     [self hideAnimated];
 }
 

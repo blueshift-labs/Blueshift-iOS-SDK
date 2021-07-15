@@ -28,13 +28,7 @@ static BlueShift *_sharedBlueShiftInstance = nil;
 
 #pragma mark SDK initialisation
 + (void) initWithConfiguration:(BlueShiftConfig *)config {
-    if([NSThread isMainThread] == YES) {
-        [[BlueShift sharedInstance] setupWithConfiguration:config];
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[BlueShift sharedInstance] setupWithConfiguration:config];
-        });
-    }
+    [[BlueShift sharedInstance] setupWithConfiguration:config];
 }
 
 + (void) autoIntegration {
