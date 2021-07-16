@@ -92,10 +92,8 @@
 
 /*  Define a Button type */
 #define kInAppNotificationButtonTypeKey                         @"type"
-#define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
 #define kInAppNotificationButtonTypeCloseKey                    @"close"
 #define kInAppNotificationButtonTypeOpenKey                     @"open"
-#define kInAppNotificationButtonTypeShareKey                    @"share"
 
 /* Define size of view */
 #define kInAppNotificationModalIconWidth                        50.0
@@ -124,6 +122,9 @@
 #define kInAppNotificationModalGravityStartKey                  @"start"
 #define kInAppNotificationModalGravityEndKey                    @"end"
 
+#define kInAppNotificationSwipeAction                           @"swipe"
+#define kInAppNotificationTapOutsideAction                      @"tap_outside"
+
 #define kNotificationClickElementKey                            @"clk_elmt"
 #define kNotificationURLElementKey                              @"clk_url"
 #define kInAppNotificationFontFileDownlaodURL                   @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf"
@@ -137,5 +138,6 @@
 #define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+#define kInAppNotificationDismissDeepLinkURL                    @"blueshift://dismiss"
 
 #endif /* BlueShiftInAppNotificationConstant_h */

@@ -16,6 +16,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "../BlueShift.h"
 #import "../BlueshiftLog.h"
+#import "../BlueshiftConstants.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -723,8 +724,12 @@
     }
 }
 
--(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: NO];
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload withAction:(BlueshiftInAppActions)action  fromViewController:(BlueShiftNotificationViewController *)controller {
+    if (action == BlueshiftInAppDismissAction) {
+        [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:NO];
+    } else {
+        [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:notificationPayload canBacthThisEvent:NO];
+    }
     // invoke the inApp clicked callback method
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidClick:)]) {
         [self.inAppNotificationDelegate inAppNotificationDidClick:notificationPayload];

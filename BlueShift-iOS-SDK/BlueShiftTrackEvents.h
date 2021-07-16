@@ -27,7 +27,5 @@
 #define kEventSubscriptionCancel                       @"subscription_cancel"
 
 #define kEventAppOpen                                  @"app_open"
-#define kEventPushView                                 @"open"
-#define kEventPushClicked                              @"click"
 
 #endif

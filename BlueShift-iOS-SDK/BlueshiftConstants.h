@@ -87,5 +87,11 @@
 #define kBSUserDOB                              @"date_of_birth"
 #define kBSUserAdditionalInfo                   @"additional_user_info"
 #define kBSUserExtras                           @"extras"
-            
+
+//Metrics
+#define kNotificationDeliveredEvent             @"delivered"
+#define kNotificationOpenEvent                  @"open"
+#define kNotificationDismissEvent               @"dismiss"
+#define kNotificationClickEvent                 @"click"
+
 #endif /* BlueshiftConstants_h */
