@@ -21,8 +21,7 @@ typedef enum {
 @protocol BlueShiftNotificationDelegate <NSObject>
 @optional
 - (void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController*)controller;
-- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload withAction:(BlueshiftInAppActions)action fromViewController:(BlueShiftNotificationViewController *)
-controller;
+- (void)inAppActionDidTapped:(NSDictionary *)notificationActionButtonPayload withAction:(BlueshiftInAppActions)action fromViewController:(BlueShiftNotificationViewController *)controller;
 - (void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController*)controller;
 - (void)presentInAppViewController:(BlueShiftNotificationViewController* _Nullable)notificationController forNotification:(BlueShiftInAppNotification* _Nullable)notification;
 @end
@@ -56,7 +55,7 @@ controller;
 - (UIView *)createNotificationWindow;
 - (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
 - (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action;
-- (void)processInAppActionForDeepLinkURL:(NSString*)url details:(NSDictionary*)details;
+- (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
 - (void)setBackgroundImageFromURL:(UIView *)notificationView;

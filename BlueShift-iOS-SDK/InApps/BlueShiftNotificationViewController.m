@@ -290,36 +290,35 @@
 }
 
 - (void)handleInAppButtonAction:(BlueShiftInAppNotificationButton *)buttonDetails {
-    NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
-    NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:deepLinkURL.absoluteString];
-    NSMutableDictionary *details = [[NSMutableDictionary alloc]init];
-    if (encodedURLString) {
-        [details setValue:encodedURLString forKey:kNotificationURLElementKey];
-    }
-    if (buttonDetails.buttonIndex) {
-        [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
-    }
-    [self processInAppActionForDeepLinkURL:buttonDetails.iosLink details:details];
-    
-    if (![buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+    @try {
+        NSMutableDictionary *details = [[NSMutableDictionary alloc]init];
+        NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:buttonDetails.iosLink];
+        if (encodedURLString) {
+            [details setValue:encodedURLString forKey:kNotificationURLElementKey];
+        }
+        if (buttonDetails.buttonIndex) {
+            [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
+        }
+        [self processInAppActionForDeepLink:buttonDetails.iosLink details:details];
+        
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
-        } else {
-            if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
-                    && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
-                if (@available(iOS 9.0, *)) {
-                    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
-                    [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
-                }
+        } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink] && ![buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+            if (@available(iOS 9.0, *)) {
+                NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
+                NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
+                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
             }
         }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     [self hide:YES];
 }
 
-- (void)processInAppActionForDeepLinkURL:(NSString*)url details:(NSDictionary*)details {
-    if ([url isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+- (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details {
+    if (deepLink == nil || [deepLink isEqualToString:@""] || [deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
     } else {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppClickAction];
@@ -370,6 +369,7 @@
     NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
     [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
+    [BlueshiftLog logInfo:@"Delivered in-app notification deeplink to the actionButtonDidTapped delegate method" withDetails:actionPayload methodName:nil];
 }
 
 - (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action {
@@ -381,6 +381,7 @@
         }
         [self.delegate inAppActionDidTapped:notificationPayload withAction:action fromViewController:self];
     }
+    [BlueshiftLog logInfo:[NSString stringWithFormat:@"Sending tracking analytics for the %@ action of the in-app notification",action == 1 ? @"dismiss" : @"click"] withDetails:nil methodName:nil];
 }
 
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {
