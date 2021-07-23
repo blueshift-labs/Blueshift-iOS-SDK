@@ -19,6 +19,7 @@
 @dynamic paramsArray;
 @dynamic nextRetryTimeStamp;
 @dynamic retryAttemptsCount;
+@dynamic createdAt;
 
 // Method to insert Entry for a particular request operation in core data ...
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
@@ -45,6 +46,7 @@
         }
         self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
         self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
+        self.createdAt = [[NSDate date] timeIntervalSince1970];
         @try {
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
@@ -111,6 +113,8 @@
 + (void *)fetchBatchesFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
+    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+    [fetchRequest setSortDescriptors:@[sortByDate]];
     [fetchRequest setPredicate:predicate];
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {

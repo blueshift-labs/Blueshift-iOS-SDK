@@ -17,6 +17,7 @@
 @dynamic nextRetryTimeStamp;
 @dynamic retryAttemptsCount;
 @dynamic isBatchEvent;
+@dynamic createdAt;
 
 // Method to insert Entry for a particular request operation in core data ...
 
@@ -50,7 +51,7 @@
         self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
         self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
         self.isBatchEvent = isBatchEvent;
-        
+        self.createdAt = [[NSDate date] timeIntervalSince1970];
         @try {
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
@@ -109,6 +110,8 @@
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
+                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+                    [fetchRequest setSortDescriptors:@[sortByDate]];
                     [fetchRequest setPredicate:predicate];
                     [fetchRequest setFetchLimit:1];
                     @try {
@@ -170,6 +173,8 @@
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
+                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+                    [fetchRequest setSortDescriptors:@[sortByDate]];
                     [fetchRequest setPredicate:predicate];
                     @try {
                         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
