@@ -80,8 +80,12 @@
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 
-///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+/// Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
 - (void)checkUNAuthorizationStatus;
+
+/// Get last modified status of the push notification authorization.
+/// Returns "YES" if authorization status is enabled, returns "NO" if it is disabled.
+- (NSString*_Nullable)getLastModifiedUNAuthorizationStatus;
 
 @end
 #endif

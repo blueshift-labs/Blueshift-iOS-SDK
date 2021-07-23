@@ -75,6 +75,10 @@ static BlueShiftAppData *_currentAppData = nil;
                 return NO;
             }
         } else {
+            NSString* lastModifiedStatus = [[BlueShift sharedInstance].appDelegate getLastModifiedUNAuthorizationStatus];
+            if (lastModifiedStatus != nil) {
+                return self.enablePush && [lastModifiedStatus boolValue];
+            }
             [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
         }
     } else {
