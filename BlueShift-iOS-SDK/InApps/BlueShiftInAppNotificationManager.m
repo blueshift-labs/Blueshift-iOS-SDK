@@ -472,10 +472,10 @@
         }
         [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
             if (status) {
-                NSArray *sortedArray = [self sortedInAppNotification: results];
-                NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray];
-                if ([filteredResults count] > 0) {
-                    InAppNotificationEntity *entity = [filteredResults objectAtIndex:0];
+                NSArray* filteredEntities = [self filterInAppNotificationResults: [self sortedInAppNotification: results]];
+                NSArray* eligibleEntities = [self filterInAppNotificationssForOfflineMode:filteredEntities];
+                if ([eligibleEntities count] > 0) {
+                    InAppNotificationEntity *entity = [eligibleEntities objectAtIndex:0];
                     [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display message id - " withDetails:entity.id methodName:nil];
                     [self createNotificationFromDictionary: entity];
                 } else {
@@ -552,6 +552,31 @@
     }
     NSArray *filteredResults = [nowFilteredResults arrayByAddingObjectsFromArray: upcomingFilteredResults];
     return filteredResults;
+}
+
+/// Skip showing html and modal with image in-apps if internet is not availble
+-(NSArray*)filterInAppNotificationssForOfflineMode:(NSArray*) inAppEntityArray {
+    // Filter in-app notification if device is offline, else return array as it is.
+    if ([BlueShiftNetworkReachabilityManager networkConnected] == NO) {
+        NSMutableArray* filteredEntities = [inAppEntityArray mutableCopy];
+        for(int counter = 0; counter < [inAppEntityArray count]; counter++) {
+            InAppNotificationEntity *entity = inAppEntityArray[counter];
+            if ([entity.type isEqualToString: kInAppNotificationModalHTMLKey]) {
+                [filteredEntities removeObject:entity];
+            } else if([entity.type isEqualToString: kInAppNotificationTypeCenterPopUpKey]) {
+                BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:entity];
+                if (inAppNotification && inAppNotification.templateStyle && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:inAppNotification.templateStyle.backgroundImage]) {
+                    [filteredEntities removeObject:entity];
+                } else {
+                    continue;;
+                }
+            } else {
+                continue;;
+            }
+        }
+        return  filteredEntities;
+    }
+    return inAppEntityArray;
 }
 
 #pragma mark - Display in-app notification
