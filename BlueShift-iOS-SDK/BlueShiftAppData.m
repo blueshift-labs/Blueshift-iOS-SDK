@@ -85,7 +85,7 @@ static BlueShiftAppData *_currentAppData = nil;
         BOOL isRegistered = UIApplication.sharedApplication.isRegisteredForRemoteNotifications;
         return (isRegistered && self.enablePush);
     }
-    //send enablePush value to server if currentUNAuthorizationStatus is found nil.
+    //send enablePush value to server in rest of cases.
     return self.enablePush;
 }
 

@@ -994,7 +994,14 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 #pragma mark - Track Push click
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
-    [[BlueShift sharedInstance] trackPushClickedWithParameters:parameters canBatchThisEvent:NO];
+    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
+        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        if (parameters) {
+            [parameterMutableDictionary addEntriesFromDictionary:parameters];
+            [parameterMutableDictionary setObject:kBSClick forKey:kBSAction];
+        }
+        [[BlueShift sharedInstance] performRequestQueue:[parameters copy] canBatchThisEvent:NO];
+    }
 }
 
 #pragma mark - Core Data stack

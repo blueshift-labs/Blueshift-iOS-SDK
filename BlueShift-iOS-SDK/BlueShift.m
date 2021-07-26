@@ -107,14 +107,14 @@ static dispatch_queue_t bsft_serial_queue() {
             }
         }
         
+        // Initialize custom deeplinks
+        [self initDeepLinks];
+        
         // Push notification callback delegate
         if(config.blueShiftPushDelegate) {
             _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
         }
-        
-        // Process app launch from push notification
-        [_sharedBlueShiftInstance.appDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
-        
+                
         // Register for Push/Silent push notifications
         if (config.enablePushNotification == YES) {
             [_sharedBlueShiftInstance.appDelegate registerForNotification];
@@ -123,6 +123,9 @@ static dispatch_queue_t bsft_serial_queue() {
         } else {
             [_sharedBlueShiftInstance.appDelegate checkUNAuthorizationStatus];
         }
+        
+        // Process app launch from push notification
+        [_sharedBlueShiftInstance.appDelegate handleRemoteNotificationOnLaunchWithLaunchOptions:config.applicationLaunchOptions];
         
         // Download font awesome file
         [BlueShiftInAppNotificationHelper downloadFontAwesomeFile:^{}];
@@ -134,7 +137,6 @@ static dispatch_queue_t bsft_serial_queue() {
         
         // Initialise timer for batch upload
         [BlueShiftHttpRequestBatchUpload startBatchUpload];
-        
         
         // Initialize In App Manager
         _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
@@ -197,15 +199,15 @@ static dispatch_queue_t bsft_serial_queue() {
     [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteOfferPage];
 }
 
-- (void) setPushDelegate:(id)obj {
+- (void) setPushDelegate:(id)delegate {
     if (_sharedBlueShiftInstance.appDelegate != nil) {
-        _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = obj;
+        _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = delegate;
     }
 }
 
-- (void) setPushParamDelegate:(id)obj {
+- (void) setPushParamDelegate:(id)delegate {
     if (_sharedBlueShiftInstance.appDelegate !=nil) {
-        _sharedBlueShiftInstance.appDelegate.blueShiftPushParamDelegate = obj;
+        _sharedBlueShiftInstance.appDelegate.blueShiftPushParamDelegate = delegate;
     }
 }
 
