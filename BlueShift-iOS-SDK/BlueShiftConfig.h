@@ -52,10 +52,10 @@
 @property BOOL inAppBackgroundFetchEnabled;
 @property BOOL debug;
 
-/// Set custom push notification categories. The SDK will register them while registering for push notifications
-@property NSSet * _Nullable customCategories API_AVAILABLE(ios(10.0));
+/// Set custom push notification categories. The SDK will merge the given categories with default SDK categories and register them to UNUserNotificationCenter while registering for push notifications
+@property NSSet<UNNotificationCategory *> * _Nullable customCategories API_AVAILABLE(ios(10.0));
 
-/// Set custom push notification authorization options. The SDK will register them while registering for push notifications
+/// Set custom push notification authorization options. The SDK will override the default SDK authorization options with given options while registering for push notifications
 @property UNAuthorizationOptions customAuthorizationOptions API_AVAILABLE(ios(10.0));
 
 @property NSString * _Nullable appGroupID;
