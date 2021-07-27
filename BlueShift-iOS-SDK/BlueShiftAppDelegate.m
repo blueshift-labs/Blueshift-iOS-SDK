@@ -916,7 +916,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
     [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-    [self checkUNAuthorizationStatus];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

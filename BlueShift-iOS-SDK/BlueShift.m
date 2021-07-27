@@ -157,6 +157,8 @@ static dispatch_queue_t bsft_serial_queue() {
             } failure:^(NSError *error){ }];
         }
         
+        [self setupObservers];
+        
         [self logSDKInitializationDetails];
         
         [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
@@ -171,7 +173,7 @@ static dispatch_queue_t bsft_serial_queue() {
 }
 
 /// Print debug logs on SDK initialization
-- (void) logSDKInitializationDetails {
+- (void)logSDKInitializationDetails {
     [BlueshiftLog logInfo:@"SDK configured successfully. Below are the config details" withDetails:[_config getConfigStringToLog] methodName:nil];
 
     if ([[BlueShiftAppData currentAppData] enablePush] == YES) {
@@ -180,6 +182,26 @@ static dispatch_queue_t bsft_serial_queue() {
         [BlueshiftLog logInfo: @"EnablePush has been set to NO. The app will not receive any push notifications from Blueshift. To enable receiving push notifications, set enablePush to true and fire identify call from Blueshift SDK." withDetails:nil methodName:nil];
     }
     [BlueshiftLog logInfo: [NSString stringWithFormat: @"SDK tracking for custom events and push & in-app metrics is %@.",([self isTrackingEnabled] ? @"enabled" : @"disabled")] withDetails:nil methodName:nil];
+}
+
+- (void)setupObservers {
+    BOOL isSceneDelegateConfiguration = NO;
+    // If sceneDelegate enabled app, then set scene lifecycle notification observers
+    if (@available(iOS 13.0, *)) {
+        if ([BlueShift sharedInstance].config.isSceneDelegateConfiguration == YES) {
+            isSceneDelegateConfiguration = YES;
+            [[NSNotificationCenter defaultCenter] addObserverForName:UISceneWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
+                [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
+            }];
+        }
+    }
+    
+    // If non sceneDelegate enabled app, then set app lifecycle notification observers
+    if (isSceneDelegateConfiguration == NO) {
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
+            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
+        }];
+    }
 }
 
 - (void)initDeepLinks {
