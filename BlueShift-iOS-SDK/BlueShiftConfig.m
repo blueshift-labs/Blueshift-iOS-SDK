@@ -19,7 +19,6 @@
         self.enablePushNotification = YES;
         
         self.enableLocationAccess = YES;
-        self.enableAnalytics = YES;
         
         // App open
         self.enableAppOpenTrackEvent = false;

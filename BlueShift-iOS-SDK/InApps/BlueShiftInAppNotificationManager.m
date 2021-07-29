@@ -11,11 +11,12 @@
 #import "BlueShiftNotificationModalViewController.h"
 #import "BlueShiftNotificationSlideBannerViewController.h"
 #import "InAppNotificationEntity.h"
-#import "../BlueShiftAppDelegate.h"
+#import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftInAppNotificationConstant.h"
-#import "../BlueShift.h"
-#import "../BlueshiftLog.h"
+#import "BlueShift.h"
+#import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -66,12 +67,9 @@
 
 - (void)startInAppMessageFetchTimer {
     if (self.inAppMessageFetchTimer == nil) {
-        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: [self inAppNotificationTimeInterval]
-                                                                    target:self
-                                                                  selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
-                                                                  userInfo:nil
-                                                                   repeats: YES];
-        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer" withDetails:nil methodName:nil];
+        double timeInterval = (self.inAppNotificationTimeInterval > [NSNumber numberWithDouble: kMinimumInAppTimeInterval]) ? self.inAppNotificationTimeInterval.doubleValue : kDefaultInAppTimeInterval;
+        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: timeInterval target:self selector:@selector(fetchNowAndUpcomingInAppMessageFromDB) userInfo:nil repeats: YES];
+        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer with time interval in seconds -" withDetails:[NSNumber numberWithDouble: timeInterval] methodName:nil];
     }
 }
 
@@ -455,6 +453,7 @@
 
 #pragma mark - Fetch in-app from the Datastore, filter and process it to display notification
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
+    
     if([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] && [self inAppNotificationDisplayOnPage] && self.currentNotificationController == nil) {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         NSManagedObjectContext *masterContext;
@@ -517,7 +516,6 @@
     
     /* get the current time (since 1970) */
     NSTimeInterval currentTime =  [[NSDate date] timeIntervalSince1970];
-    NSArray *filteredResults = [[NSArray alloc] init];
     NSMutableArray *upcomingFilteredResults = [[NSMutableArray alloc] init];
     NSMutableArray *nowFilteredResults = [[NSMutableArray alloc] init];
     
@@ -550,7 +548,7 @@
             }
         }
     }
-    filteredResults = [nowFilteredResults arrayByAddingObjectsFromArray: upcomingFilteredResults];
+    NSArray *filteredResults = [nowFilteredResults arrayByAddingObjectsFromArray: upcomingFilteredResults];
     return filteredResults;
 }
 
