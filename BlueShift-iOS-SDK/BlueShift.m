@@ -883,9 +883,9 @@ static dispatch_queue_t bsft_serial_queue() {
             if([BlueShift sharedInstance].config.apiKey) {
                 apiKey = [BlueShift sharedInstance].config.apiKey;
             } else {
-            #ifdef DEBUG
-                NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
-            #endif
+                #ifdef DEBUG
+                    NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
+                #endif
             }
             
             if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
