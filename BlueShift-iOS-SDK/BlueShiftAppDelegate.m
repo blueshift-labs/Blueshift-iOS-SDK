@@ -44,14 +44,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         center.delegate = self.userNotificationDelegate;
         [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
         [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
-            if([[BlueShift sharedInstance] getDeviceToken] == nil) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:kBSPushAuthorizationStatusDidChangeNotification object:nil userInfo:@{kBSStatus:[NSNumber numberWithBool:granted]}];
-            }
             if(!error){
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
             }
+            [self broadcastNotificationOnRespondingToPushPermission:granted];
             [self checkUNAuthorizationStatus];
             if (granted) {
                 [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
@@ -81,6 +79,15 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             }
         }];
     }
+}
+
+- (void)broadcastNotificationOnRespondingToPushPermission:(BOOL)status {
+    @try {
+        if([[NSUserDefaults standardUserDefaults] objectForKey:kBlueshiftDidAskPushPermission] == nil) {
+            [[NSUserDefaults standardUserDefaults] setObject:kYES forKey:kBlueshiftDidAskPushPermission];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kBSPushAuthorizationStatusDidChangeNotification object:nil userInfo:@{kBSStatus:[NSNumber numberWithBool:status]}];
+        }
+    } @catch (NSException *exception) {}
 }
 
 // Handles the push notification payload when the app is in killed state and lauched using push notification

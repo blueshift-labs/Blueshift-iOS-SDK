@@ -16,6 +16,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -66,12 +67,9 @@
 
 - (void)startInAppMessageFetchTimer {
     if (self.inAppMessageFetchTimer == nil) {
-        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: [self inAppNotificationTimeInterval]
-                                                                    target:self
-                                                                  selector:@selector(fetchNowAndUpcomingInAppMessageFromDB)
-                                                                  userInfo:nil
-                                                                   repeats: YES];
-        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer" withDetails:nil methodName:nil];
+        double timeInterval = (self.inAppNotificationTimeInterval > [NSNumber numberWithDouble: kMinimumInAppTimeInterval]) ? self.inAppNotificationTimeInterval.doubleValue : kDefaultInAppTimeInterval;
+        self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: timeInterval target:self selector:@selector(fetchNowAndUpcomingInAppMessageFromDB) userInfo:nil repeats: YES];
+        [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer with time interval in seconds -" withDetails:[NSNumber numberWithDouble: timeInterval] methodName:nil];
     }
 }
 

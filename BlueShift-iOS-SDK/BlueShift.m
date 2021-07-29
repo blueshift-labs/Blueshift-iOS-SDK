@@ -73,7 +73,7 @@ static dispatch_queue_t bsft_serial_queue() {
             
             //Custom device id provision for DeviceIDSourceCUSTOM
             if (config.blueshiftDeviceIdSource == BlueshiftDeviceIdSourceCustom) {
-                if (config.customDeviceId && ![config.customDeviceId isEqualToString:@""]) {
+                if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:config.customDeviceId]) {
                     [[BlueShiftDeviceData currentDeviceData] setCustomDeviceID:config.customDeviceId];
                     [BlueshiftLog logInfo: [NSString stringWithFormat:@"CUSTOM device id is set as - %@",config.customDeviceId] withDetails:nil methodName:nil];
                 } else {
@@ -145,11 +145,7 @@ static dispatch_queue_t bsft_serial_queue() {
         }
         
         if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && config.inAppManualTriggerEnabled == NO) {
-            if (config.BlueshiftInAppNotificationTimeInterval >= 0) {
-                _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
-            } else {
-                _inAppNotificationMananger.inAppNotificationTimeInterval = 60;
-            }
+            _inAppNotificationMananger.inAppNotificationTimeInterval = [NSNumber numberWithDouble:config.BlueshiftInAppNotificationTimeInterval];
             [_inAppNotificationMananger load];
             
             [self fetchInAppNotificationFromAPI:^(void) {
@@ -864,7 +860,7 @@ static dispatch_queue_t bsft_serial_queue() {
 - (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
     if (apiResponse && [apiResponse objectForKey: kInAppNotificationContentPayloadKey]) {
         NSMutableArray *inAppNotifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
-        if (inAppNotifications.count > 0) {
+        if (inAppNotifications.count > 0 && _inAppNotificationMananger) {
             [_inAppNotificationMananger initializeInAppNotificationFromAPI:inAppNotifications handler:^(BOOL status) {
                 completionHandler(YES);
             }];
@@ -878,40 +874,42 @@ static dispatch_queue_t bsft_serial_queue() {
 }
 
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
-    [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString * notificationID, NSString * lastTimestamp) {
-        NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
-        NSString *email = [BlueShiftUserInfo sharedInstance].email;
-        
-        NSString *apiKey = @"";
-        if([BlueShift sharedInstance].config.apiKey) {
-            apiKey = [BlueShift sharedInstance].config.apiKey;
-        } else {
+    if (_inAppNotificationMananger) {
+        [_inAppNotificationMananger fetchLastInAppMessageIDFromDB:^(BOOL status, NSString * notificationID, NSString * lastTimestamp) {
+            NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID.lowercaseString;
+            NSString *email = [BlueShiftUserInfo sharedInstance].email;
+            
+            NSString *apiKey = @"";
+            if([BlueShift sharedInstance].config.apiKey) {
+                apiKey = [BlueShift sharedInstance].config.apiKey;
+            } else {
             #ifdef DEBUG
                 NSLog(@"[Blueshift] Error : SDK API key not found or SDK not initialised. Please set the API key in the config and initialise the SDK");
             #endif
-        }
-        
-        if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
-            NSMutableDictionary *apiPayload = [@{
-                kInAppNotificationModalMessageUDIDKey : notificationID,
-                kAPIKey : apiKey,
-                kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0
-            } mutableCopy];
-            [apiPayload addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
-            [apiPayload addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
-            [apiPayload addEntriesFromDictionary:[[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy]];
-            if (deviceID && apiPayload[kDeviceID] == nil) {
-                [apiPayload setValue:deviceID forKey:kDeviceID];
             }
-            if (email && [apiPayload objectForKey:kEmail] == nil) {
-                [apiPayload setValue:email forKey:kEmail];
+            
+            if ((deviceID && ![deviceID isEqualToString:@""]) || (email && ![email isEqualToString:@""])) {
+                NSMutableDictionary *apiPayload = [@{
+                    kInAppNotificationModalMessageUDIDKey : notificationID,
+                    kAPIKey : apiKey,
+                    kLastTimestamp : (lastTimestamp && ![lastTimestamp isEqualToString:@""]) ? lastTimestamp :@0
+                } mutableCopy];
+                [apiPayload addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
+                [apiPayload addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
+                [apiPayload addEntriesFromDictionary:[[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy]];
+                if (deviceID && apiPayload[kDeviceID] == nil) {
+                    [apiPayload setValue:deviceID forKey:kDeviceID];
+                }
+                if (email && [apiPayload objectForKey:kEmail] == nil) {
+                    [apiPayload setValue:email forKey:kEmail];
+                }
+                completionHandler(apiPayload);
+            } else {
+                [BlueshiftLog logInfo:@"Unable to fetch in-app messages as device_id is missing." withDetails:nil methodName:nil];
+                completionHandler(nil);
             }
-            completionHandler(apiPayload);
-        } else {
-            [BlueshiftLog logInfo:@"Unable to fetch in-app messages as device_id is missing." withDetails:nil methodName:nil];
-            completionHandler(nil);
-        }
-    }];
+        }];
+    }
 }
 
 #pragma mark Enable/Disable events tracking
