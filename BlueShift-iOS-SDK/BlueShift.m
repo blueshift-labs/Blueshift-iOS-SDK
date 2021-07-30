@@ -93,9 +93,7 @@ static dispatch_queue_t bsft_serial_queue() {
         BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
         _sharedBlueShiftInstance.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
         
-        if (@available(iOS 8.0, *)) {
-            _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
-        }
+        
         if (@available(iOS 10.0, *)) {
             _sharedBlueShiftInstance.userNotification = [[BlueShiftUserNotificationSettings alloc] init];
             
@@ -104,6 +102,10 @@ static dispatch_queue_t bsft_serial_queue() {
                 _sharedBlueShiftInstance.appDelegate.userNotificationDelegate = config.userNotificationDelegate;
             } else {
                 _sharedBlueShiftInstance.appDelegate.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
+            }
+        } else {
+            if (@available(iOS 8.0, *)) {
+                _sharedBlueShiftInstance.pushNotification = [[BlueShiftPushNotificationSettings alloc] init];
             }
         }
         
