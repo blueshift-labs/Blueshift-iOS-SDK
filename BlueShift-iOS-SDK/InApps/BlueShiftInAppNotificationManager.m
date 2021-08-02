@@ -475,23 +475,23 @@
                         NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray];
                         if ([filteredResults count] > 0) {
                             InAppNotificationEntity *entity = [filteredResults objectAtIndex:0];
-                            [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display message id - " withDetails:entity.id methodName:nil];
+                            [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display, message id - " withDetails:entity.id methodName:nil];
                             [self createNotificationFromDictionary: entity];
                         } else {
-                            [BlueshiftLog logInfo:@"There are no pending in-apps to display at this moment for page." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                            [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                         }
                     } else {
-                        [BlueshiftLog logInfo:@"There are no pending in-apps to display for page." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                        [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                     }
                 }];
             } else {
-                [BlueshiftLog logInfo:@"In-app fetch from DB skipped due to active or in-progress In-app notification detected." withDetails:nil methodName:nil];
+                [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: In-progress or active in-app detected." withDetails:nil methodName:nil];
             }
         } else {
-            [BlueshiftLog logInfo:@"In-app fetch from DB skipped due to screen is not registered to receive in-apps." withDetails:nil methodName:nil];
+            [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: screen is not registered to receive in-apps." withDetails:nil methodName:nil];
         }
     } else {
-        [BlueshiftLog logInfo:@"In-app fetch from DB skipped due to In-App notifications are not enabled" withDetails:nil methodName:nil];
+        [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: In-App notifications are not enabled" withDetails:nil methodName:nil];
     }
 }
 

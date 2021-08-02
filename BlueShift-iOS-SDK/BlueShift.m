@@ -180,6 +180,13 @@ static dispatch_queue_t bsft_serial_queue() {
         } else {
             [BlueshiftLog logInfo: @"EnablePush has been set to NO. The app will not receive any push notifications from Blueshift. To enable receiving push notifications, set enablePush to true and fire identify call from Blueshift SDK." withDetails:nil methodName:nil];
         }
+        
+        if ([[BlueShiftAppData currentAppData] enableInApp] == YES) {
+            [BlueshiftLog logInfo: @"EnableInApp has been set to YES. If SDK is set up for receiving In-app, then app will start receiving in-app notifications from Blueshift." withDetails:nil methodName:nil];
+        } else {
+            [BlueshiftLog logInfo: @"EnableInApp has been set to NO. The app will not receive any in-app notifications from Blueshift. To enable receiving in-app notifications, set enableInApp to true and fire identify call from Blueshift SDK." withDetails:nil methodName:nil];
+        }
+        
         [BlueshiftLog logInfo: [NSString stringWithFormat: @"SDK tracking for custom events and push & in-app metrics is %@.",([self isTrackingEnabled] ? @"enabled" : @"disabled")] withDetails:nil methodName:nil];
     }
 }
