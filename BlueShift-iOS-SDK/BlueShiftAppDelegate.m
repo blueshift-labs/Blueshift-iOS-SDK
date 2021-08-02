@@ -1006,7 +1006,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [parameterMutableDictionary addEntriesFromDictionary:parameters];
             [parameterMutableDictionary setObject:kBSClick forKey:kBSAction];
         }
-        [[BlueShift sharedInstance] performRequestQueue:[parameters copy] canBatchThisEvent:NO];
+        [[BlueShift sharedInstance] performRequestQueue:[parameterMutableDictionary copy] canBatchThisEvent:NO];
     }
 }
 
