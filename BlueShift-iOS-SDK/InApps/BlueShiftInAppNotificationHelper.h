@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BlueShiftInAppType)inAppTypeFromString:(NSString*_Nonnull)inAppType;
 + (NSString *)getLocalDirectory:(NSString *)fileName;
 + (BOOL)hasFileExist:(NSString *)fileName;
-+ (NSString *)createFileNameFromURL:(NSString *)imageURL;
++ (NSString *)createFileNameFromURL:(NSString *)fileURL;
 + (BOOL)hasDigits:(NSString *)digits;
 + (void)deleteFileFromLocal:(NSString *) fileName;
 + (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window;
@@ -50,6 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns MD5 hash for the given string
 + (NSString *)getMD5ForString:(NSString*)string;
+
+/// Download font awesome file if not downloaded alredy.
+/// @param completionHandler  block to be called after downloading the font file.
++ (void)downloadFontAwesomeFile:(void(^)(void))completionHandler;
 
 @end
 

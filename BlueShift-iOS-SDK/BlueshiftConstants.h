@@ -34,12 +34,18 @@
 #define kAppName                                @"app_name"
 #define kCFBundleShortVersionString             @"CFBundleShortVersionString"
 
-//Fetch InApp API params
+// API params
 #define kEmail                                  @"email"
 #define kAPIKey                                 @"api_key"
 #define kLastTimestamp                          @"last_timestamp"
+#define kBSAuthorization                        @"Authorization"
+#define kBSContentType                          @"Content-Type"
+#define kBSApplicationJSON                      @"application/json"
+#define kBSGETMethod                            @"GET"
+#define kBSPOSTMethod                           @"POST"
 
 //UserDefaults
+#define kBlueshiftDidAskPushPermission          @"BlueshiftDidAskPushPermission"
 #define kBlueshiftDeviceIdSourceUUID            @"BlueshiftDeviceIdSourceUUID"
 #define kBlueshiftUNAuthorizationStatus         @"BlueshiftUNAuthorizationStatus"
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
@@ -88,4 +94,28 @@
 #define kBSUserAdditionalInfo                   @"additional_user_info"
 #define kBSUserExtras                           @"extras"
             
+//Tracking constants
+#define kBSClick                                @"click"
+#define kBSDelivered                            @"delivered"
+#define kBSOpen                                 @"open"
+#define kBSDismiss                              @"dismiss"
+#define kBSAction                               @"a"
+
+//Serial queue
+#define kBSSerialQueue                          "com.blueshift.coresdk"
+
+//Core Data
+#define kBSCoreDataDataModel                    @"BlueShiftSDKDataModel"
+#define kBSCoreDataMOMD                         @"momd"
+#define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
+
+//NSNotificationCenter constant
+#define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
+#define kBSStatus                               @"status"
+
+//Default time interval for in-app notificaiton
+#define kDefaultInAppTimeInterval               60
+#define kMinimumInAppTimeInterval               5
+
 #endif /* BlueshiftConstants_h */

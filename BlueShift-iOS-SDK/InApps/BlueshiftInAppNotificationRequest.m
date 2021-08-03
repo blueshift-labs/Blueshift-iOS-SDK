@@ -6,7 +6,7 @@
 //
 
 #import "BlueshiftInAppNotificationRequest.h"
-#import "../BlueshiftLog.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueshiftInAppNotificationRequest
 

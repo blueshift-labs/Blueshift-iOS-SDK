@@ -197,81 +197,72 @@
 
 - (void) positionContentView:(UIView *)contentView topOfTheView:(UIView *)view andLeftAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self leftAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView topOfTheView:(UIView *)view andCenterAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self centerAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView topOfTheView:(UIView *)view andRightAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self rightAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyTop:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView middleOfTheView:(UIView *)view andLeftAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self leftAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView middleOfTheView:(UIView *)view andCenterAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self centerAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView middleOfTheView:(UIView *)view andRightAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self rightAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyMiddle:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView bottomOfTheView:(UIView *)view andLeftAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self leftAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView bottomOfTheView:(UIView *)view andCenterAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self centerAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
 
 - (void) positionContentView:(UIView *)contentView bottomOfTheView:(UIView *)view andRightAlignTitle:(UILabel*)titleLabel andSubTitle:(UILabel *)subTitleLabel {
     CGRect newFrame = contentView.frame;
-    CGPoint newPoint = newFrame.origin;
     [self rightAlignTitle:titleLabel andSubTitle:subTitleLabel];
-    newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
+    CGPoint newPoint = [self alignContentViewVerticallyBottom:contentView onTopOfTheView:view];
     newFrame.origin = newPoint;
     contentView.frame = newFrame;
 }
@@ -413,8 +404,7 @@
     self.carouselElements = [notification.request.content.userInfo objectForKey:@"carousel_elements"];
     [self fetchDeepLinkURLs:self.carouselElements];
     if(self.items.count < self.carouselElements.count) {
-        NSMutableArray *images = [[NSMutableArray alloc]init];
-        images = [self.items mutableCopy];
+        NSMutableArray *images = [self.items mutableCopy];
         NSMutableArray *attachmentIDs = [[NSMutableArray alloc]init];
         for(UNNotificationAttachment *attachment in attachments) {
             [attachmentIDs addObject:attachment.identifier];
