@@ -51,7 +51,7 @@
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
         }
         if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
-            // If pushDeepLinkURL is nil, then reasssign url from pushDetailsDictionary
+            // If pushDeepLinkURL is nil, then reassign url from pushDetailsDictionary
             if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
                 pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
             }

@@ -45,6 +45,7 @@
 #define kBSPOSTMethod                           @"POST"
 
 //UserDefaults
+#define kBlueshiftDidAskPushPermission          @"BlueshiftDidAskPushPermission"
 #define kBlueshiftDeviceIdSourceUUID            @"BlueshiftDeviceIdSourceUUID"
 #define kBlueshiftUNAuthorizationStatus         @"BlueshiftUNAuthorizationStatus"
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
@@ -112,5 +113,9 @@
 //NSNotificationCenter constant
 #define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
 #define kBSStatus                               @"status"
+
+//Default time interval for in-app notificaiton
+#define kDefaultInAppTimeInterval               60
+#define kMinimumInAppTimeInterval               5
 
 #endif /* BlueshiftConstants_h */

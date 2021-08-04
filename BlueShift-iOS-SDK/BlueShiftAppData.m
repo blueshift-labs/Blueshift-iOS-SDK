@@ -76,16 +76,16 @@ static BlueShiftAppData *_currentAppData = nil;
             }
         } else {
             NSString* lastModifiedStatus = [[BlueShift sharedInstance].appDelegate getLastModifiedUNAuthorizationStatus];
+            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
             if (lastModifiedStatus != nil) {
                 return self.enablePush && [lastModifiedStatus boolValue];
             }
-            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
         }
     } else {
         BOOL isRegistered = UIApplication.sharedApplication.isRegisteredForRemoteNotifications;
         return (isRegistered && self.enablePush);
     }
-    //send enablePush value to server if currentUNAuthorizationStatus is found nil.
+    //send enablePush value to server in rest of cases.
     return self.enablePush;
 }
 
