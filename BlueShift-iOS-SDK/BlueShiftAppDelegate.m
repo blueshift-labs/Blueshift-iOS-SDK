@@ -8,11 +8,11 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftHttpRequestBatchUpload.h"
-#import "InApps/BlueShiftInAppNotificationManager.h"
-#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationManager.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
-#import "InApps/BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationHelper.h"
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -49,6 +49,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
             }
+            [self broadcastNotificationOnRespondingToPushPermission:granted];
             [self checkUNAuthorizationStatus];
             if (granted) {
                 [BlueshiftLog logInfo:@"Push notification permission is granted. Registered for push notifications" withDetails:nil methodName:nil];
@@ -62,7 +63,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [[UIApplication sharedApplication] registerForRemoteNotifications];
         }
     }
-    [self downloadFileFromURL];
 }
 
 - (void)registerForSilentPushNotification {
@@ -79,19 +79,27 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             }
         }];
     }
-    [self downloadFileFromURL];
 }
 
-// Handles the push notification payload when the app is killed and lauched from push notification tray ...
+- (void)broadcastNotificationOnRespondingToPushPermission:(BOOL)status {
+    @try {
+        if([[NSUserDefaults standardUserDefaults] objectForKey:kBlueshiftDidAskPushPermission] == nil) {
+            [[NSUserDefaults standardUserDefaults] setObject:kYES forKey:kBlueshiftDidAskPushPermission];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kBSPushAuthorizationStatusDidChangeNotification object:nil userInfo:@{kBSStatus:[NSNumber numberWithBool:status]}];
+        }
+    } @catch (NSException *exception) {}
+}
+
+// Handles the push notification payload when the app is in killed state and lauched using push notification
 - (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
     if (launchOptions) {
         NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
         if (userInfo) {
             [self handleRemoteNotification:userInfo];
+            return YES;
         }
     }
-    
-    return YES;
+    return NO;
 }
 
 - (void) registerForRemoteNotification:(NSData *)deviceToken {
@@ -131,18 +139,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 
     [[BlueShift sharedInstance] setDeviceToken];
-    NSString *email = [BlueShiftUserInfo sharedInstance].email;
-    if (email && ![email isEqualToString:@""]) {
-        [[BlueShift sharedInstance] identifyUserWithEmail:email andDetails:nil canBatchThisEvent:NO];
-    } else {
-        [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
-    }
+    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
     
     //fire delayed app_open after firing the identify call
     if(fireAppOpen) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [self trackAppOpenOnAppLaunch:nil];
-        });
+        [self trackAppOpenOnAppLaunch:nil];
     }
 }
 
@@ -168,7 +169,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 /// update the last Modified UNAuthorizationStatus in userdefault and fire identify call
 - (BOOL)validateChangeInUNAuthorizationStatus {
      NSString* lastModifiedUNAuthorizationStatus = [self getLastModifiedUNAuthorizationStatus];
-    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus]) {
+    if ([[BlueShiftAppData currentAppData] currentUNAuthorizationStatus].boolValue == YES) {
         if(!lastModifiedUNAuthorizationStatus || [lastModifiedUNAuthorizationStatus isEqualToString:kNO]) {
             [self setLastModifiedUNAuthorizationStatus: kYES];
             [BlueshiftLog logInfo:@"UNAuthorizationStatus status changed to YES" withDetails:nil methodName:nil];
@@ -191,20 +192,19 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 - (void) autoIdentifyCheck {
     BOOL autoIdentify = [self validateChangeInUNAuthorizationStatus];
     if (autoIdentify) {
-        dispatch_async(dispatch_get_main_queue(), ^(void) {
-            [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
-            [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
-        });
+        [BlueshiftLog logInfo:@"Initiated auto ideantify" withDetails:nil methodName:nil];
+        [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
     }
 }
+
 ///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
 - (void)checkUNAuthorizationStatus {
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:YES];
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@YES];
             } else {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:NO];
+                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@NO];
             }
             //Fire auto identify call in case any device attribute changes
             [self autoIdentifyCheck];
@@ -258,11 +258,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             NSArray *notifications = (NSArray*)[dataPayload valueForKey:kNotificationsArrayKey];
             for (NSDictionary *notification in notifications) {
                 NSNumber *expiryTimeStamp = (NSNumber *)[notification objectForKey: kNotificationTimestampToExpireDisplay];
-                if (expiryTimeStamp && expiryTimeStamp > 0) {
+                if (expiryTimeStamp && expiryTimeStamp > [NSNumber numberWithInt:0]) {
                     double currentTimeStamp = (double)[[NSDate date] timeIntervalSince1970];
                     if([expiryTimeStamp doubleValue] > currentTimeStamp) {
                         NSNumber *fireTimeStamp = (NSNumber *)[notification valueForKey:kNotificationTimestampToDisplayKey];
-                        if (fireTimeStamp && fireTimeStamp > 0) {
+                        if (fireTimeStamp && fireTimeStamp > [NSNumber numberWithInt:0]) {
                             NSDate *fireDate = [NSDate dateWithTimeIntervalSince1970: [fireTimeStamp doubleValue]];
                             if ([fireTimeStamp doubleValue] < [[NSDate date] timeIntervalSince1970]) {
                                 [BlueshiftLog logInfo:@"The notification cant be scheduled as it has been already expired" withDetails:notification methodName:nil];
@@ -435,10 +435,10 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         if (!deepLinkURL) {
             deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
         }
-        if ([self.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+        if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
                 NSDictionary *pushOptions = @{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsPush,openURLOptionsPushUserInfo:userInfo};
-                [self.oldDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
+                [self.mainAppDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
             }
         }
@@ -908,35 +908,26 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 #pragma mark - Application lifecyle events
 - (void)applicationWillResignActive:(UIApplication *)application {
-    if (self.oldDelegate) {
-        if ([self.oldDelegate respondsToSelector:@selector(applicationWillResignActive:)]) {
-            [self.oldDelegate applicationWillResignActive:application];
-        }
+    if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationWillResignActive:)]) {
+        [self.mainAppDelegate applicationWillResignActive:application];
     }
-    
-    // Will have to handled by SDK .....
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    if (self.oldDelegate && [self.oldDelegate respondsToSelector:@selector(applicationWillEnterForeground:)]) {
-        [self.oldDelegate applicationWillEnterForeground:application];
+    if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationWillEnterForeground:)]) {
+        [self.mainAppDelegate applicationWillEnterForeground:application];
     }
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {
     // Uploading previous Batch events if anything exists
     //To make the code block asynchronous
-    if ([BlueShift sharedInstance].config.enableAnalytics) {
-        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-    }
-    [self checkUNAuthorizationStatus];
+    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    if (self.oldDelegate) {
-        if ([self.oldDelegate respondsToSelector:@selector(applicationDidBecomeActive:)]) {
-            [self.oldDelegate applicationDidBecomeActive:application];
-        }
+    if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationDidBecomeActive:)]) {
+        [self.mainAppDelegate applicationDidBecomeActive:application];
     }
     [self appDidBecomeActive:application];
 }
@@ -951,27 +942,20 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [application endBackgroundTask: background_task];
             background_task = UIBackgroundTaskInvalid;
         }];
-        
-        // Uploading Batch events
-        //To make the code block asynchronous
-        if ([BlueShift sharedInstance].config.enableAnalytics) {
-            [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-        }
+        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
     }
 }
 
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    if (self.oldDelegate) {
-        if([self.oldDelegate respondsToSelector:@selector(applicationDidEnterBackground:)]) {
-            [self.oldDelegate applicationDidEnterBackground:application];
-        }
+    if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationDidEnterBackground:)]) {
+        [self.mainAppDelegate applicationDidEnterBackground:application];
     }
     [self appDidEnterBackground:application];
 }
 
 - (void) forwardInvocation:(NSInvocation *)anInvocation {
-    [anInvocation invokeWithTarget:[self oldDelegate]];
+    [anInvocation invokeWithTarget:[self mainAppDelegate]];
 }
 
 #pragma mark - Tracking methods
@@ -1014,56 +998,45 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }
 
+#pragma mark - Track Push click
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        
         if (parameters) {
             [parameterMutableDictionary addEntriesFromDictionary:parameters];
-            [parameterMutableDictionary setObject:@"click" forKey:@"a"];
+            [parameterMutableDictionary setObject:kBSClick forKey:kBSAction];
         }
-        
-        [self trackPushEventWithParameters:parameterMutableDictionary canBatchThisEvent:NO];
+        [[BlueShift sharedInstance] performRequestQueue:[parameterMutableDictionary copy] canBatchThisEvent:NO];
     }
 }
-
-- (void)trackPushEventWithParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
-    [[BlueShift sharedInstance] performRequestQueue:[parameters copy] canBatchThisEvent:isBatchEvent];
-}
-
 
 #pragma mark - Core Data stack
 - (NSURL *)applicationDocumentsDirectory {
-    // The directory the application uses to store the Core Data store file. This code uses a directory in the application's documents directory.
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
-- (NSURL* _Nullable)getManagedObjectModelURL {
-    NSURL* modelURL = nil;
-    NSString * path = @"";
-    if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"] != nil) {
-        path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_Bundle.framework"];
-    }
-    if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"] != nil) {
-        path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd" inDirectory:@"Frameworks/BlueShift_iOS_SDK.framework"];
-    }
-    if ([[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd"] != nil) {
-        path = [[NSBundle mainBundle] pathForResource:@"BlueShiftSDKDataModel" ofType:@"momd"];
+- (NSString*)getManagedObjectModelPath {
+    NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+    if (path != nil) {
+        return path;
     }
     
-    modelURL = [NSURL fileURLWithPath:path];
-    return modelURL;
+    path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+    if(path != nil) {
+        return path;
+    }
+    return @"";
 }
 
 - (void)initializeCoreData {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         @try {
-            NSURL* url = [self getManagedObjectModelURL];
+            NSURL* url = [NSURL fileURLWithPath:[self getManagedObjectModelPath]];
             if (url) {
                 NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];
                 NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mom];
-                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"BlueShift-iOS-SDK.sqlite"];
+                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
                 NSError *error = nil;
                 NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
                 NSPersistentStore* store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
@@ -1081,7 +1054,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 [batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
             }
         } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            [BlueshiftLog logException:exception withDescription:@"Failed to initialise core data." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     });
 }
@@ -1096,36 +1069,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 - (NSManagedObjectContext *)batchEventManagedObjectContext {
     return batchEventManagedObjectContext;
-}
-
-#pragma mark - Core Data Saving support
-
-- (void)saveContext {
-    NSManagedObjectContext *managedObjectContext = self.managedObjectContext;
-    if (managedObjectContext != nil) {
-        NSError *error = nil;
-        if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
-            // Replace this implementation with code to handle the error appropriately.
-            // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            [BlueshiftLog logError:error withDescription:@"Unresolved error" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
-}
-
-- (void)downloadFileFromURL {
-    NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
-    if (![BlueShiftInAppNotificationHelper hasFileExist: fontFileName]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-            NSData *urlData = [NSData dataWithContentsOfURL:url];
-            if (urlData) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
-                    [urlData writeToFile: fontFilePath atomically:YES];
-                });
-            }
-        });
-    }
 }
 
 #pragma mark - Universal links
@@ -1146,6 +1089,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 -(void)processUniversalLinks:(NSURL * _Nonnull)url {
     @try {
+        [BlueshiftLog logInfo:@"Started universal links processing for the url:" withDetails:url methodName:nil];
         if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didStartLinkProcessing)]) {
             [self.blueshiftUniversalLinksDelegate didStartLinkProcessing];
         }
@@ -1167,10 +1111,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
             [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
+            [BlueshiftLog logInfo:@"Universal link is of /track type. Passing the redirectURL to host app." withDetails:redirectURL methodName:nil];
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing: redirectURL];
             }
         } else {
+            [BlueshiftLog logInfo:@"Universal link is not from the Blueshift. Passing the url to app without processing." withDetails:url methodName:nil];
             if ([[BlueShift sharedInstance] isBlueshiftUniversalLinkURL:url]) {
                 [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             }
@@ -1183,6 +1129,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
+#pragma mark - Handle sceneDelegate lifecycle methods
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
     if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
         [self appDidBecomeActive:UIApplication.sharedApplication];

@@ -53,5 +53,6 @@
 #define kDeviceID                                                       @"device_id"
 #define kBrowserPlatform                                                @"browser_platform"
 #define kiOS                                                            @"iOS"
+#define kCFBundleShortVersionString                                     @"CFBundleShortVersionString"
 
 #endif

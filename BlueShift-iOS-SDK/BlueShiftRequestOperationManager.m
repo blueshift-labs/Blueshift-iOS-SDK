@@ -7,7 +7,7 @@
 
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftNotificationConstants.h"
-#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 
@@ -26,33 +26,27 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 // Method to add Basic authentication request Header ...
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
-    
-    if (password==nil || password == NULL) {
+    if(self.sessionConfiguraion) {
+        return;
+    }
+    if (!password) {
         password = @"";
     }
     
-    // Generates the Base 64 encryption for the request ...
-    // Adds it to the request Header ...
     NSString *credentials = [NSString stringWithFormat:@"%@:%@",username,password];
     NSData *credentialsData = [credentials dataUsingEncoding:NSUTF8StringEncoding];
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
     NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-
     defaultConfigObject.HTTPAdditionalHeaders = @{
-                                                  @"Authorization":credentialsBase64String,
-                                                  @"Content-Type":@"application/json"
+                                                  kBSAuthorization:credentialsBase64String,
+                                                  kBSContentType:kBSApplicationJSON
                                                   };
     self.sessionConfiguraion = defaultConfigObject;
-    
 }
 
-- (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
-    [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
-    if(_backgroundSession == NULL) {
-        _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
-    }
+- (NSString*)getRequestParamStringForDictionary:(NSDictionary*)params {
     //add below params to the end of get url
-    NSArray *keysAddedInEnd = [NSArray arrayWithObjects:@"device_id", @"app_name", kNotificationClickElementKey,kNotificationURLElementKey,nil];
+    NSArray *keysAddedInEnd = [NSArray arrayWithObjects:kDeviceID, kAppName, kNotificationClickElementKey,kNotificationURLElementKey,nil];
     NSMutableArray *availbleKeysToAddAtEnd = [[NSMutableArray alloc] init];
     //remove the params which needs to be added in the end
     NSMutableDictionary *filteredParams = [params mutableCopy];
@@ -73,14 +67,22 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
             paramsString = [NSString stringWithFormat:@"%@=%@", key, [params objectForKey:key]];
         }
     }
+    return  paramsString;
+}
+
+- (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+    [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
+    if(!_mainURLSession) {
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    }
     
-    NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, paramsString];
+    NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, [self getRequestParamStringForDictionary:params]];
     NSString *encodedString = [urlWithParams stringByReplacingOccurrencesOfString:@" " withString:kBsftEncodedSpace];
-    NSURL * url = [NSURL URLWithString:encodedString];
+    NSURL *url = [NSURL URLWithString:encodedString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
+    [urlRequest setHTTPMethod:kBSGETMethod];
     
-    [urlRequest setHTTPMethod:@"GET"];
-    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask * dataTask = [_mainURLSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         NSString *url = [[response URL] absoluteString];
         if(error == nil)
@@ -102,23 +104,21 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
-- (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+- (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
-    if(_backgroundSession == NULL) {
-        _backgroundSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+    if(!_mainURLSession) {
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     }
     
     NSURL * url = [NSURL URLWithString:urlString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
-    NSDictionary *paramsDictionary = params;
-    [urlRequest setHTTPMethod:@"POST"];
-    NSData *JSONData = [NSJSONSerialization dataWithJSONObject:paramsDictionary
-                                                       options:0
-                                                         error:nil];
-    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated POST %@",urlString] withDetails:params statusCode:0];
+    [urlRequest setHTTPMethod:kBSPOSTMethod];
+    NSData *JSONData = [NSJSONSerialization dataWithJSONObject:params options:0 error:nil];
     [urlRequest setHTTPBody:JSONData];
-    [urlRequest setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    NSURLSessionDataTask * dataTask =[_backgroundSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    [urlRequest setValue:kBSApplicationJSON forHTTPHeaderField:kBSContentType];
+    [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated POST %@",urlString] withDetails:params statusCode:0];
+
+    NSURLSessionDataTask * dataTask = [_mainURLSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         NSString *url = [[response URL] absoluteString];
         if(error == nil)
@@ -135,19 +135,20 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
             [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];
             handler(false, nil, error);
         }
-        
     }];
     [dataTask resume];
 }
 
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
-    if(_replayURLSesion == NULL) {
+    if(!_replayURLSesion) {
         NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
         _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: self delegateQueue: [NSOperationQueue mainQueue]];
     }
+    
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
-    [urlRequest setHTTPMethod:@"GET"];
+    [urlRequest setHTTPMethod:kBSGETMethod];
     [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated ULReplay for - %@", url.absoluteString] withDetails:nil statusCode:0];
+    
     NSURLSessionDataTask *dataTask = [_replayURLSesion dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         if(error == nil)

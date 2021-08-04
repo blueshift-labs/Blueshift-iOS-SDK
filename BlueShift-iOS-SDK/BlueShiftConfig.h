@@ -41,7 +41,6 @@
 @property BOOL enablePushNotification;
 
 @property BOOL enableLocationAccess;
-@property BOOL enableAnalytics;
 
 /// From SDK v2.1.13, the automatic app_open tracking will be disabled by default. In order to track the app_open set this flag to true.
 /// @discussion You can set the time interval for automatic app_open events using config.automaticAppOpenTimeInterval to throttle them. Default value for automaticAppOpenTimeInterval is once in 24 hours.
@@ -53,7 +52,11 @@
 @property BOOL inAppBackgroundFetchEnabled;
 @property BOOL debug;
 
-@property NSSet * _Nullable customCategories;
+/// Set custom push notification categories. The SDK will merge the given categories with default SDK categories and register them to UNUserNotificationCenter while registering for push notifications
+@property NSSet<UNNotificationCategory *> * _Nullable customCategories API_AVAILABLE(ios(10.0));
+
+/// Set custom push notification authorization options. The SDK will override the default SDK authorization options with given options while registering for push notifications
+@property UNAuthorizationOptions customAuthorizationOptions API_AVAILABLE(ios(10.0));
 
 @property NSString * _Nullable appGroupID;
 
