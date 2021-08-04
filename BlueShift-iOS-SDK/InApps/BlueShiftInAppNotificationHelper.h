@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BlueShiftInAppType)inAppTypeFromString:(NSString*_Nonnull)inAppType;
 + (NSString *)getLocalDirectory:(NSString *)fileName;
 + (BOOL)hasFileExist:(NSString *)fileName;
-+ (NSString *)createFileNameFromURL:(NSString *)imageURL;
++ (NSString *)createFileNameFromURL:(NSString *)fileURL;
 + (BOOL)hasDigits:(NSString *)digits;
 + (void)deleteFileFromLocal:(NSString *) fileName;
 + (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window;
@@ -47,6 +47,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// Returns application key window based on multi window app or single window app
 /// @warning In the sceneDelegate enabled apps, In order to access multiple windows to find the keyWindow, this function needs to be executed on the main thread
 + (UIWindow *)getApplicationKeyWindow;
+
+/// Returns MD5 hash for the given string
++ (NSString *)getMD5ForString:(NSString*)string;
+
+/// Download font awesome file if not downloaded alredy.
+/// @param completionHandler  block to be called after downloading the font file.
++ (void)downloadFontAwesomeFile:(void(^)(void))completionHandler;
 
 @end
 

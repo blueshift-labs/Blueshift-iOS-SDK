@@ -46,7 +46,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         NSLog(@"[Blueshift] Error - Please set the api key in the Notification Service Extension, otherwise push notification delivered events will not reflect on the dashboard");
     }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         [self trackPushViewedWithRequest:request];
     });
     
@@ -66,8 +66,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
-    NSArray *images = [[NSArray alloc]init];
-    images = [request.content.userInfo objectForKey:@"carousel_elements"];
+    NSArray *images = [request.content.userInfo objectForKey:@"carousel_elements"];
     NSMutableArray *attachments = [[NSMutableArray alloc]init];
     self.attachments = attachments;
     [images enumerateObjectsUsingBlock:

@@ -6,7 +6,6 @@
 //
 
 #import "BlueShiftPushAnalytics.h"
-#import "ExtensionSDKVersion.h"
 #import "BlueShiftPushNotification.h"
 #import "BlueshiftExtensionConstants.h"
 #import "BlueshiftExtensionAnalyticsHelper.h"
@@ -25,6 +24,8 @@
             [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
         }
         [parameterMutableDictionary setObject:type forKey:@"a"];
+        NSString *browserPlatform = [NSString stringWithFormat:@"%@ %@", kiOS, [[UIDevice currentDevice] systemVersion]];
+        [parameterMutableDictionary setObject:browserPlatform forKey:kBrowserPlatform];
         NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
         [self fireAPICallWithURL:url data:parameterMutableDictionary andRetryCount:3];
     }
@@ -63,9 +64,6 @@
     if (password==nil || password == NULL) {
         password = @"";
     }
-    // Generates the Base 64 encryption for the request ...
-    // Adds it to the request Header ...
-    
     NSString *credentials = [NSString stringWithFormat:@"%@:%@",username,password];
     NSData *credentialsData = [credentials dataUsingEncoding:NSUTF8StringEncoding];
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
@@ -78,10 +76,7 @@
     return defaultConfigObject;
 }
 
-+ (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler API_AVAILABLE(ios(10.0)){
-    NSURLSessionConfiguration* sessionConfiguraion = [self addBasicAuthenticationRequestHeaderForUsername:[[BlueShiftPushNotification sharedInstance] apiKey] andPassword:@""];
-    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
-    
++ (NSString*)getRequestParamStringForDictionary:(NSDictionary*)params {
     NSString *paramsString = [[NSString alloc] init];
     NSArray *keys = [[params allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     for(id key in keys) {
@@ -103,8 +98,14 @@
             }
         }
     }
+    return paramsString;
+}
+
++ (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler API_AVAILABLE(ios(10.0)){
+    NSURLSessionConfiguration* sessionConfiguraion = [self addBasicAuthenticationRequestHeaderForUsername:[[BlueShiftPushNotification sharedInstance] apiKey] andPassword:@""];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     
-    NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, paramsString];
+    NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, [self getRequestParamStringForDictionary:params]];
     NSString *encodedString = [urlWithParams stringByReplacingOccurrencesOfString:@" " withString:kBsftEncodedSpace];
     NSURL * url = [NSURL URLWithString:encodedString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];

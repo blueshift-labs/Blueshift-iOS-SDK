@@ -25,8 +25,7 @@
 
 @property NSDictionary * _Nullable userInfo;
 @property NSDictionary * _Nullable pushAlertDictionary;
-
-@property NSObject<UIApplicationDelegate> * _Nonnull oldDelegate;
+@property NSObject<UIApplicationDelegate> * _Nonnull mainAppDelegate;
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 @property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
@@ -36,15 +35,13 @@
 @property BlueShiftDeepLink * _Nullable deepLinkToCartPage;
 @property BlueShiftDeepLink * _Nullable deepLinkToOfferPage;
 @property BlueShiftDeepLink * _Nullable deepLinkToCustomPage;
-
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable managedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable realEventManagedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectModel * _Nullable managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator * _Nullable persistentStoreCoordinator;
-
-- (void)saveContext;
 - (NSURL *_Nullable)applicationDocumentsDirectory;
+
+/// initialise core data objects
+- (void)initializeCoreData;
+- (NSManagedObjectContext * _Nullable)managedObjectContext;
+- (NSManagedObjectContext * _Nullable)realEventManagedObjectContext;
+- (NSManagedObjectContext * _Nullable)batchEventManagedObjectContext;
 
 /// Calling this method will register for push notifications. It will show a push permission dialog to the user.
 - (void)registerForNotification;
@@ -82,6 +79,13 @@
 // SceneDelegate lifecycle methods
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
+
+/// Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+- (void)checkUNAuthorizationStatus;
+
+/// Get last modified status of the push notification authorization.
+/// Returns "YES" if authorization status is enabled, returns "NO" if it is disabled.
+- (NSString*_Nullable)getLastModifiedUNAuthorizationStatus;
 
 @end
 #endif

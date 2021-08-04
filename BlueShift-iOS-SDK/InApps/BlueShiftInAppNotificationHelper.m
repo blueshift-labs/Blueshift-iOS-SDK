@@ -4,10 +4,11 @@
 //
 //  Created by shahas kp on 11/07/19.
 //
+#import <CommonCrypto/CommonDigest.h>
 
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
-#import "../BlueShift.h"
+#import "BlueShift.h"
 
 static NSDictionary *_inAppTypeDictionay;
 
@@ -37,9 +38,9 @@ static NSDictionary *_inAppTypeDictionay;
     return [fileManager fileExistsAtPath: [self getLocalDirectory: fileName]];
 }
 
-+ (NSString *)createFileNameFromURL:(NSString *) imageURL {
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
++ (NSString *)createFileNameFromURL:(NSString *) fileURL {
+    NSString *fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: fileURL];
     NSString *extension = [url pathExtension];
     fileName = [fileName stringByAppendingString:@"."];
     return [fileName stringByAppendingString: extension];
@@ -166,6 +167,38 @@ static NSDictionary *_inAppTypeDictionay;
         return YES;
     }
     return NO;
+}
+
++ (NSString *)getMD5ForString:(NSString*)string {
+    const char *cStr = [string UTF8String];
+    unsigned char result[CC_MD5_DIGEST_LENGTH];
+    CC_MD5( cStr, (CC_LONG)strlen(cStr), result );
+
+    return [NSString stringWithFormat:
+        @"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+        result[0], result[1], result[2], result[3],
+        result[4], result[5], result[6], result[7],
+        result[8], result[9], result[10], result[11],
+        result[12], result[13], result[14], result[15]
+    ];
+}
+
+#pragma mark - Font awesome support
++ (void)downloadFontAwesomeFile:(void(^)(void))completionHandler {
+    NSString *fontFileName = [self createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+    if (![self hasFileExist: fontFileName]) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
+            NSData *urlData = [NSData dataWithContentsOfURL:url];
+            if (urlData) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *fontFilePath = [self getLocalDirectory: fontFileName];
+                    [urlData writeToFile: fontFilePath atomically:YES];
+                    completionHandler();
+                });
+            }
+        });
+    }
 }
 
 @end

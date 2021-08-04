@@ -11,12 +11,11 @@
 #import <CoreText/CoreText.h>
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftNotificationCloseButton.h"
-#import "../BlueshiftLog.h"
-#import "../BlueshiftConstants.h"
+#import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
-    NSMutableDictionary *cachedImageData;
 }
 @end
 
@@ -28,7 +27,6 @@
         notification.contentStyle = ([self isDarkThemeEnabled] && notification.contentStyleDark) ? notification.contentStyleDark : notification.contentStyle;
         notification.templateStyle = ([self isDarkThemeEnabled] && notification.templateStyleDark) ? notification.templateStyleDark : notification.templateStyle;
         _notification = notification;
-        cachedImageData = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -105,13 +103,17 @@
 }
 
 - (UIColor *)colorWithHexString:(NSString *)str {
-    unsigned char r, g, b;
-    const char *cStr = [str cStringUsingEncoding:NSASCIIStringEncoding];
-    long x = strtol(cStr+1, NULL, 16);
-    b =  x & 0xFF;
-    g = (x >> 8) & 0xFF;
-    r = (x >> 16) & 0xFF;
-    return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
+    if (str) {
+        unsigned char r, g, b;
+        const char *cStr = [str cStringUsingEncoding:NSASCIIStringEncoding];
+        long x = strtol(cStr+1, NULL, 16);
+        b =  x & 0xFF;
+        g = (x >> 8) & 0xFF;
+        r = (x >> 16) & 0xFF;
+        return [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:1];
+    } else {
+        return [UIColor clearColor];
+    }
 }
 
 
@@ -124,8 +126,7 @@
 }
 
 - (void)setBackgroundImageFromURL:(UIView *)notificationView {
-    if (notificationView && self.notification.templateStyle && self.notification.templateStyle.backgroundImage &&
-    ![self.notification.templateStyle.backgroundImage isEqualToString:@""]) {
+    if (notificationView && [self isBackgroundImagePresentForNotification:self.notification]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
         UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
@@ -137,13 +138,29 @@
 
 -(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
     NSData *imageData = [[NSData alloc] init];
-    if([cachedImageData valueForKey: urlString]) {
-        imageData = [cachedImageData valueForKey:urlString];
-    } else {
-        imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: urlString]];
-        if (imageData) {
-            [cachedImageData setObject:imageData forKey:urlString];
+    @try {
+        if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:urlString]) {
+            NSString *urlMD5Hash = [BlueShiftInAppNotificationHelper getMD5ForString: urlString];
+            if([BlueShift sharedInstance].inAppImageDataCache && [[BlueShift sharedInstance].inAppImageDataCache objectForKey: urlMD5Hash]) {
+                imageData = [[BlueShift sharedInstance].inAppImageDataCache objectForKey:urlMD5Hash];
+                [BlueshiftLog logInfo:@"Loading image from image cache for url" withDetails:urlString methodName:nil];
+            } else {
+                NSURL *url = [NSURL URLWithString:urlString];
+                if (url) {
+                    [BlueshiftLog logInfo:@"Downloading image using url" withDetails:urlString methodName:nil];
+                    imageData = [[NSData alloc] initWithContentsOfURL:url];
+                    if (imageData) {
+                        if ([BlueShift sharedInstance].inAppImageDataCache == nil) {
+                            [BlueShift sharedInstance].inAppImageDataCache = [[NSCache alloc] init];
+                        }
+                        [[BlueShift sharedInstance].inAppImageDataCache setObject:imageData forKey:urlMD5Hash];
+                        [BlueshiftLog logInfo:@"Downloaded image successfully with size in KB" withDetails:[NSNumber numberWithFloat:(imageData.length/1024.0f)] methodName:nil];
+                    }
+                }
+            }
         }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return imageData;
 }
@@ -174,14 +191,29 @@
     self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent: backgroundDimAmount];
 }
 
+- (BOOL)checkDefaultCloseButtonStatusForInApp {
+    if((self.notification.inAppType == BlueShiftInAppTypeModal && self.notification.notificationContent.actions.count == 0) || self.notification.inAppType == BlueShiftInAppTypeHTML) {
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)shouldShowCloseButton {
+    if (self.notification.templateStyle.enableCloseButton) {
+        return [self.notification.templateStyle.enableCloseButton boolValue];
+    }
+    return [self checkDefaultCloseButtonStatusForInApp];
+}
+
 - (void)createCloseButton:(CGRect)frame {
-    BOOL showCloseButton = ((self.notification.inAppType == BlueShiftInAppTypeModal && self.notification.notificationContent.actions.count == 0) || self.notification.inAppType == BlueShiftInAppTypeHTML) ? YES : self.notification.templateStyle.enableCloseButton;
+    BOOL showCloseButton = [self shouldShowCloseButton];
+    CGFloat margin = 5;
     if (self.notification.templateStyle && showCloseButton) {
         if ( self.notification.templateStyle.closeButton
             && self.notification.templateStyle.closeButton.text
             && ![self.notification.templateStyle.closeButton.text isEqualToString:@""]) {
-            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - 5;
-            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + 5, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - margin;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + margin, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
             UIButton *closeButtonLabel = [[UIButton alloc] initWithFrame:cgRect];
             BlueShiftInAppNotificationButton *closeButton = self.notification.templateStyle.closeButton;
             CGFloat closeButtonFontSize = (closeButton && closeButton.textSize && closeButton.textSize.floatValue > 0)
@@ -205,8 +237,8 @@
             [closeButtonLabel.titleLabel setTextAlignment: NSTextAlignmentCenter];
             [self.view addSubview: closeButtonLabel];
         } else {
-            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth;
-            CGRect cgRect = CGRectMake(xPosition, frame.origin.y, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
+            CGFloat xPosition = frame.origin.x + frame.size.width - KInAppNotificationModalCloseButtonWidth - margin;
+            CGRect cgRect = CGRectMake(xPosition, frame.origin.y + margin, KInAppNotificationModalCloseButtonWidth, KInAppNotificationModalCloseButtonHeight);
             _closeButton = [BlueShiftNotificationCloseButton new];
             [_closeButton addTarget:self action:@selector(closeButtonDidTapped) forControlEvents:UIControlEventTouchUpInside];
             _closeButton.frame = cgRect;
@@ -228,12 +260,6 @@
         if (backgroundColorCode != (id)[NSNull null] && backgroundColorCode.length > 0) {
             [button setBackgroundColor:[self colorWithHexString:backgroundColorCode]];
         }
-    }
-}
-
-- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath {
-    if (filePath) {
-        imageView.image = [UIImage imageWithContentsOfFile: filePath];
     }
 }
 
@@ -280,11 +306,11 @@
                 [self hide:YES];
             }
         } else {
-            if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]
+            if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]
                     && buttonDetails.iosLink && ![buttonDetails.iosLink isEqualToString:@""]) {
                 if (@available(iOS 9.0, *)) {
                     NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-                    [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                    [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
                     [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
                 }
             }
@@ -391,7 +417,7 @@
             [self createFontFile: iconLabelView];
         }
     
-        CGFloat iconFontSize = (fontSize !=nil && fontSize > 0)? fontSize.floatValue : 22.0;
+        CGFloat iconFontSize = (fontSize !=nil && fontSize > [NSNumber numberWithInt:0])? fontSize.floatValue : 22.0;
         iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
         iconLabelView.layer.masksToBounds = YES;
     }
@@ -406,34 +432,19 @@
         CFErrorRef error;
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(( CFDataRef)fontData);
         CGFontRef font = CGFontCreateWithDataProvider(provider);
-        BOOL failedToRegisterFont = NO;
         if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
             [BlueshiftLog logError:nil withDescription:@"Failed to load FontAwesome" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             CFBridgingRelease(errorDescription);
-            failedToRegisterFont = YES;
         }
         
         CFRelease(font);
         CFRelease(provider);
-    }else {
-        [self downloadFileFromURL: iconLabel];
+    } else {
+        [BlueShiftInAppNotificationHelper downloadFontAwesomeFile:^{
+            [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
+        }];
     }
-}
-
-- (void)downloadFileFromURL:(UILabel *)iconLabel {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-        NSData *urlData = [NSData dataWithContentsOfURL:url];
-        if (urlData) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSString *fontFileName = [BlueShiftInAppNotificationHelper createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
-                NSString *fontFilePath = [BlueShiftInAppNotificationHelper getLocalDirectory: fontFileName];
-                [urlData writeToFile: fontFilePath  atomically:YES];
-                [self applyIconToLabelView: iconLabel andFontIconSize: [NSNumber numberWithInt: 22]];
-            });
-        }
-    });
 }
 
 - (int)getTextAlignement:(NSString *)alignmentString {
@@ -462,6 +473,18 @@
     }
 
     return NO;
+}
+
+- (BOOL)isBackgroundImagePresentForNotification:(BlueShiftInAppNotification*)notification {
+    return (notification && notification.templateStyle && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.templateStyle.backgroundImage]);
+}
+
+- (BOOL)isBannerImagePresentForNotification:(BlueShiftInAppNotification*)notification {
+    return (notification && notification.notificationContent && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.notificationContent.banner]);
+}
+
+- (BOOL)isSlideInIconImagePresent:(BlueShiftInAppNotification*)notification {
+    return (notification && notification.notificationContent && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:notification.notificationContent.iconImage]);
 }
 
 @end

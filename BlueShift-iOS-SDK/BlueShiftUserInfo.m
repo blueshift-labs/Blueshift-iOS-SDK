@@ -58,7 +58,9 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         }
         [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFacebookId value:self.facebookID];
         [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserEducation value:self.education];
-        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserUnsubscribedPush value:[NSNumber numberWithBool:self.unsubscribed]];
+        if (self.unsubscribed != nil) {
+            [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserUnsubscribedPush value:self.unsubscribed];
+        }
         [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserAdditionalInfo value:self.additionalUserInfo];
         if (self.dateOfBirth) {
             NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
@@ -92,6 +94,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         _sharedUserInfo = nil;
         _sharedUserInfo = [BlueShiftUserInfo currentUserInfo];
     }
+    [BlueshiftLog logInfo:@"User info saved in the BlueshiftUserInfo class" withDetails:userInfoDictionary methodName:nil];
 }
 
 + (void)removeCurrentUserInfo {
@@ -102,6 +105,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
             _sharedUserInfo = nil;
             _sharedUserInfo = [[BlueShiftUserInfo alloc] init];
         }
+        [BlueshiftLog logInfo:@"Removed user info from the BlueshiftUserInfo class" withDetails:nil methodName:nil];
     }
 }
 
@@ -136,8 +140,8 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
             blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:kBSUserEducation];
             blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:kBSUserFacebookId];
             blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:kBSUserGender];
-            if([currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush]) {
-                blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush] boolValue];
+            if([currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush] != nil) {
+                blueShiftUserInfo.unsubscribed = (NSNumber*)[currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush];
             }
             NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserJoinedAt] doubleValue];
             

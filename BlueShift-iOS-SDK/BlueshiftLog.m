@@ -49,7 +49,7 @@
 }
 
 + (void)logInfo:(NSString*)info withDetails: (id) details methodName:(NSString*)method{
-    if ([[BlueShift sharedInstance] config].debug) {
+    if ([BlueShift sharedInstance].config && [BlueShift sharedInstance].config.debug) {
         NSString* log = @"[Blueshift] info : ";
         @try {
             if (info) {
@@ -69,7 +69,7 @@
 }
 
 +(void)logAPICallInfo:(NSString*)info withDetails: (NSDictionary*) details statusCode:(NSInteger)statusCode {
-    if ([[BlueShift sharedInstance] config].debug) {
+    if ([BlueShift sharedInstance].config && [BlueShift sharedInstance].config.debug) {
         NSString* log = @"[Blueshift] API call info : ";
         @try {
         if (info) {

@@ -8,8 +8,8 @@
 #import "BlueshiftEventAnalyticsHelper.h"
 #import "BlueShiftDeviceData.h"
 #import "BlueShiftAppData.h"
-#import "InApps/BlueShiftInAppNotificationHelper.h"
-#import "InApps/BlueShiftInAppNotificationConstant.h"
+#import "BlueShiftInAppNotificationHelper.h"
+#import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 
@@ -22,7 +22,7 @@
         NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
         NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
         NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
-        NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
+        NSString *sdkVersion = [BlueShiftAppData currentAppData].sdkVersion;
         NSString *clickElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationClickElementKey];
         NSString *urlElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
         NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
@@ -51,9 +51,11 @@
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
         }
         if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
+            // If pushDeepLinkURL is nil, then reassign url from pushDetailsDictionary
             if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
                 pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
             }
+            // If not nil, encode and add to track dictionary
             if ([self isNotNilAndNotEmpty:pushDeepLinkURL]) {
                 NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
                 if (encodedUrl) {
@@ -165,8 +167,12 @@
 }
 
 +(BOOL)isNotNilAndNotEmpty:(NSString*)string {
-    if (string && ![string isEqualToString:@""]) {
-        return YES;
+    @try {
+        if (string && ![string isEqualToString:@""]) {
+            return YES;
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return NO;
 }

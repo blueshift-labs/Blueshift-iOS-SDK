@@ -10,7 +10,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
-#import "InApps/InAppNotificationEntity.h"
+#import "InAppNotificationEntity.h"
 
 static BlueShiftAppData *_currentAppData = nil;
 
@@ -30,6 +30,10 @@ static BlueShiftAppData *_currentAppData = nil;
 
 - (NSString *)appVersion {
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:kCFBundleShortVersionString];
+}
+
+- (NSString *)sdkVersion {
+    return [[[NSBundle bundleForClass:self.class] infoDictionary] objectForKey:kCFBundleShortVersionString];
 }
 
 - (NSString *)appBuildNumber {
@@ -56,22 +60,33 @@ static BlueShiftAppData *_currentAppData = nil;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:val forKey:kBlueshiftEnablePush];
         [defaults synchronize];
+        [BlueshiftLog logInfo:@"Modified the enablePush value to -" withDetails:val methodName:nil];
     } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        [BlueshiftLog logException:exception withDescription:[NSString stringWithFormat:@"Failed to set enablePush value to - %@",enablePush?kYES:kNO] methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
 - (BOOL)getCurrentPushNotificationStatus {
     if (@available(iOS 10.0, *)) {
-        if (self.enablePush && self.currentUNAuthorizationStatus) {
-            return YES;
+        if (self.currentUNAuthorizationStatus != nil) {
+            if (self.enablePush && [self.currentUNAuthorizationStatus boolValue]) {
+                return YES;
+            } else {
+                return NO;
+            }
         } else {
-            return NO;
+            NSString* lastModifiedStatus = [[BlueShift sharedInstance].appDelegate getLastModifiedUNAuthorizationStatus];
+            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
+            if (lastModifiedStatus != nil) {
+                return self.enablePush && [lastModifiedStatus boolValue];
+            }
         }
     } else {
-        //send enablePush value to server for iOS 9 and below versions
-        return self.enablePush;
+        BOOL isRegistered = UIApplication.sharedApplication.isRegisteredForRemoteNotifications;
+        return (isRegistered && self.enablePush);
     }
+    //send enablePush value to server in rest of cases.
+    return self.enablePush;
 }
 
 - (BOOL)enableInApp {
@@ -92,8 +107,9 @@ static BlueShiftAppData *_currentAppData = nil;
         if (enableInApp == NO) {
             [InAppNotificationEntity eraseEntityData];
         }
+        [BlueshiftLog logInfo:@"Modified the enableInApp value to -" withDetails:val methodName:nil];
     } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        [BlueshiftLog logException:exception withDescription:[NSString stringWithFormat:@"Failed to set enableInApp value to - %@",enableInApp?kYES:kNO] methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -112,6 +128,7 @@ static BlueShiftAppData *_currentAppData = nil;
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
+    [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kInAppNotificationModalSDKVersionKey value:self.sdkVersion];
     return [appMutableDictionary copy];
 }
 
