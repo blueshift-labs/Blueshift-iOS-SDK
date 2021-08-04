@@ -53,7 +53,6 @@ typedef enum {
 - (void)handleInAppButtonAction:(BlueShiftInAppNotificationButton *)buttonDetails;
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
-- (void)loadImageFromLocal:(UIImageView *)imageView imageFilePath:(NSString *)filePath;
 - (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action;
 - (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details;
 - (int)getTextAlignement:(NSString *)alignmentString;

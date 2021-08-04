@@ -11,7 +11,7 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
-#import "../BlueshiftLog.h"
+#import "BlueshiftLog.h"
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
@@ -281,9 +281,9 @@ API_AVAILABLE(ios(8.0))
             [actionPayload setObject: deepLink forKey: kInAppNotificationModalPageKey];
             [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
             [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-        } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString] && ![url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString] && ![url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
             if (@available(iOS 9.0, *)) {
-                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
+                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
             }
         }

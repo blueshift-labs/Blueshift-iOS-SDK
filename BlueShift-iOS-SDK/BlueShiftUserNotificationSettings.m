@@ -8,6 +8,7 @@
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftNotificationConstants.h"
 #import <UserNotificationsUI/UserNotificationsUI.h>
+#import "BlueShift.h"
 
 @implementation BlueShiftUserNotificationSettings
 
@@ -49,13 +50,19 @@
 }
 
 - (NSSet *)notificationCategories {
-    return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
+    NSMutableSet *categories = [NSMutableSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
+    if ([BlueShift sharedInstance].config.customCategories) {
+        return [categories setByAddingObjectsFromSet:[BlueShift sharedInstance].config.customCategories];
+    }
+    return categories;
 }
 
-- (UNAuthorizationOptions)notificationTypes  API_AVAILABLE(ios(10.0)){
-    return (UNAuthorizationOptionAlert|
-            UNAuthorizationOptionSound|
-            UNAuthorizationOptionBadge);
+- (UNAuthorizationOptions)notificationTypes API_AVAILABLE(ios(10.0)){
+    if ([BlueShift sharedInstance].config.customAuthorizationOptions) {
+        return  [BlueShift sharedInstance].config.customAuthorizationOptions;
+    } else {
+        return (UNAuthorizationOptionAlert| UNAuthorizationOptionSound| UNAuthorizationOptionBadge);
+    }
 }
 
 @end
