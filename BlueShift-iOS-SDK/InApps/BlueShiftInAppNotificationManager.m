@@ -471,10 +471,10 @@
                 }
                 [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
                     if (status) {
-                        NSArray *sortedArray = [self sortedInAppNotification: results];
-                        NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray];
-                        if ([filteredResults count] > 0) {
-                            InAppNotificationEntity *entity = [filteredResults objectAtIndex:0];
+                        NSArray* filteredEntities = [self filterInAppNotificationResults: [self sortedInAppNotification: results]];
+                        NSArray* eligibleEntities = [self filterInAppNotificationssForOfflineMode:filteredEntities];
+                        if ([eligibleEntities count] > 0) {
+                            InAppNotificationEntity *entity = [eligibleEntities objectAtIndex:0];
                             [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display, message id - " withDetails:entity.id methodName:nil];
                             [self createNotificationFromDictionary: entity];
                         } else {
