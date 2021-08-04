@@ -5,6 +5,9 @@
 //  Created by Noufal Subair on 23/07/19.
 //
 
+#define kSlideToLeftMultiplier -2.0
+#define kSlideToRightMultiplier 2.0
+
 #import "BlueShiftNotificationSlideBannerViewController.h"
 #import "BlueShiftNotificationView.h"
 #import "BlueShiftNotificationWindow.h"
@@ -14,14 +17,12 @@
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
+    UIView *bottomSafeAreaView;
 }
 
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
 @property(nonatomic, assign) CGFloat originalCenter;
-
-- (IBAction)onOkayButtonTapped:(id)sender;
-
 @end
 
 @implementation BlueShiftNotificationSlideBannerViewController
@@ -38,6 +39,7 @@
     if (!self.canTouchesPassThroughWindow) {
         [self setTapGestureForView];
     }
+    [self setSwipeGestureForBannerView];
     [self presentAnimationView];
 }
 
@@ -53,10 +55,8 @@
 }
 
 - (void)enableSingleTap {
-    UITapGestureRecognizer *singleFingerTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self
-                                              action:@selector(onOkayButtonTapped:)];
-    [slideBannerView addGestureRecognizer:singleFingerTap];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSlideInTap)];
+    [slideBannerView addGestureRecognizer:tapGesture];
 }
 
 -(void)setTapGestureForView {
@@ -64,15 +64,28 @@
     [[self view] addGestureRecognizer:tapGesture];
 }
 
+-(void)setSwipeGestureForBannerView {
+    UISwipeGestureRecognizer *leftSwipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(dismissInAppWithSwipeDirection:)];
+    [leftSwipeGesture setDirection:UISwipeGestureRecognizerDirectionLeft];
+    UISwipeGestureRecognizer *rightSwipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(dismissInAppWithSwipeDirection:)];
+    [rightSwipeGesture setDirection:UISwipeGestureRecognizerDirectionRight];
+    
+    [slideBannerView addGestureRecognizer:leftSwipeGesture];
+    [slideBannerView addGestureRecognizer:rightSwipeGesture];
+}
+
 - (void)presentAnimationView {
+    [slideBannerView.layer addAnimation:[self getAnimationTransition] forKey:nil];
+    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+}
+
+- (CATransition*)getAnimationTransition {
     CATransition *transition = [CATransition animation];
     transition.duration = 1.0;
     transition.type = kCATransitionPush;
     transition.subtype = kCATransitionFromLeft;
     [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-    [slideBannerView.layer addAnimation:transition forKey:nil];
-    
-    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+    return transition;
 }
 
 - (void)createNotificationView {
@@ -106,7 +119,7 @@
     }
 }
 
-- (void)hideFromWindow:(BOOL)animated {
+- (void)hideFromWindow:(BOOL)animated withDirection:(UISwipeGestureRecognizerDirection) direction {
     void (^completionBlock)(void) = ^ {
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear:)]) {
             [[self inAppNotificationDelegate] inAppNotificationWillDisappear : self.notification.notificationPayload];
@@ -121,11 +134,16 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:1.5 animations:^{
-         self.view.frame = CGRectMake(2 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
+        [UIView animateWithDuration:1.0 animations:^{
+            double multiplier = kSlideToRightMultiplier;
+            if (direction == UISwipeGestureRecognizerDirectionLeft) {
+                multiplier = kSlideToLeftMultiplier;
+            }
+            self.view.frame = CGRectMake(multiplier * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
             self.window.alpha = 0;
-     } completion:^(BOOL finished) {
-            completionBlock();        }];
+        } completion:^(BOOL finished) {
+            completionBlock();
+        }];
     }
     else {
         completionBlock();
@@ -142,10 +160,11 @@
             xPadding = iconLabel.frame.size.width;
         }
         
-        UIImageView *imageView;
+        UIView *iconView;
         if ([self isValidString: self.notification.notificationContent.iconImage]) {
-            imageView = [self createImageView];
-            xPadding = xPadding + imageView.frame.size.width;
+            // get empty default width height view for calculating the padding
+            iconView = [self createIconViewWithHeight:0];
+            xPadding = xPadding + iconView.frame.size.width;
         }
         
         UILabel *actionButtonLabel;
@@ -183,8 +202,8 @@
             if (descriptionLabelHeight < kSlideInInAppNotificationMinimumHeight) {
                 if (iconLabel.frame.size.height > 0) {
                     descriptionLabelHeight = iconLabel.frame.size.height;
-                } else if (imageView.frame.size.height > 0) {
-                    descriptionLabelHeight = imageView.frame.size.height;
+                } else if (iconView.frame.size.height > 0) {
+                    descriptionLabelHeight = iconView.frame.size.height;
                 } else {
                     descriptionLabelHeight = kSlideInInAppNotificationMinimumHeight;
                 }
@@ -201,48 +220,61 @@
             [self createNotificationView];
         }
         
-        imageView.frame = CGRectMake(0.0, 0.0, imageView.frame.size.width, slideBannerView.frame.size.height);
-        iconLabel.frame = CGRectMake(0.0, 0.0, iconLabel.frame.size.width, slideBannerView.frame.size.height);
-        
+        if ([self isValidString: self.notification.notificationContent.icon]) {
+            iconLabel.frame = CGRectMake(0.0, 0.0, iconLabel.frame.size.width, slideBannerView.frame.size.height);
+            [slideBannerView addSubview: iconLabel];
+        } else if ([self isValidString: self.notification.notificationContent.iconImage]) {
+            // Recreate the icon view after getting exact size of the banner
+            iconView = [self createIconViewWithHeight:slideBannerView.frame.size.height];
+            [slideBannerView addSubview: iconView];
+        }
+
         CGFloat actionXposition = slideBannerView.frame.size.width - actionButtonLabel.frame.size.width;
         actionButtonLabel.frame = CGRectMake(actionXposition, [self getCenterYPosition: actionButtonLabel.frame.size.height], actionButtonLabel.frame.size.width, actionButtonLabel.frame.size.height);
-        
-        [slideBannerView addSubview: iconLabel];
-        [slideBannerView addSubview: imageView];
         [slideBannerView addSubview: actionButtonLabel];
         [slideBannerView addSubview: descriptionLabel];
     }
 }
 
-- (UIImageView *)createImageView {
+- (UIView *)createIconViewWithHeight:(CGFloat)bannerHeight {
     BlueShiftInAppLayoutMargin *iconImagePadding = [self fetchNotificationIconImagePadding];
     CGFloat leftPadding = (iconImagePadding && iconImagePadding.left > 0) ? iconImagePadding.left : 0.0;
     CGFloat topPadding = (iconImagePadding && iconImagePadding.top > 0) ? iconImagePadding.top : 0.0;
     CGFloat rightPadding = (iconImagePadding && iconImagePadding.right > 0) ? iconImagePadding.right : 0.0;
     CGFloat bottomPadding= (iconImagePadding && iconImagePadding.bottom > 0) ? iconImagePadding.bottom : 0.0;
     
-    CGFloat imageViewWidth = kInAppNotificationModalIconWidth + (leftPadding + rightPadding);
-    CGFloat imageViewHeight = kInAppNotificationModalIconHeight+ (topPadding + bottomPadding);
-    CGRect cgRect = CGRectMake(0.0, 0.0, imageViewWidth, imageViewHeight);
+    CGFloat iconImageWidth = kInAppNotificationModalIconWidth - (leftPadding + rightPadding);
+    CGFloat iconImageHeight = kInAppNotificationModalIconHeight - (topPadding + bottomPadding);
     
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
+    CGFloat iconViewHeight = bannerHeight == 0 ? kInAppNotificationModalIconHeight : bannerHeight;
+    // Create a container view for the image
+    UIView* iconView = [[UIView alloc] initWithFrame: CGRectMake(0, 0, kInAppNotificationModalIconWidth, iconViewHeight)];
+    // Return the iconView if bannerHeight is 0.
+    if (bannerHeight == 0) {
+        return iconView;
+    }
+    
+    // Create imageView and set the image, padding and corner radius
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame: CGRectMake(leftPadding, topPadding, iconImageWidth, iconImageHeight)];
+    // Set iconview center to show the image in the center when iconView height is more than the imageview height
+    imageView.center = iconView.center;
     if (self.notification.notificationContent.iconImage) {
        [self loadImageFromURL:self.notification.notificationContent.iconImage forImageView:imageView];
     }
-    
-    if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
-        NSString *backgroundColorCode = self.notification.contentStyle.iconImageBackgroundColor;
-        imageView.backgroundColor = [self colorWithHexString:backgroundColorCode];
-    }
-    
     CGFloat backgroundRadius = (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundRadius && self.notification.contentStyle.iconImageBackgroundRadius.floatValue > 0) ? self.notification.contentStyle.iconImageBackgroundRadius.floatValue : 0.0;
-    
     imageView.layer.cornerRadius = backgroundRadius;
     imageView.clipsToBounds = YES;
     imageView.contentMode = UIViewContentModeScaleAspectFit;
-    imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+
+    // Set background color to the iconView
+    if (self.notification.contentStyle && self.notification.contentStyle.iconImageBackgroundColor != (id)[NSNull null] && self.notification.contentStyle.iconImageBackgroundColor.length > 0) {
+        NSString *backgroundColorCode = self.notification.contentStyle.iconImageBackgroundColor;
+        iconView.backgroundColor = [self colorWithHexString:backgroundColorCode];
+    }
     
-    return imageView;
+    [iconView addSubview:imageView];
+    iconView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    return iconView;
 }
 
 - (UILabel *)createIconLabel:(CGFloat)xPosition {
@@ -332,18 +364,25 @@
     return actionButtonlabel;
 }
 
-- (void)createBottomSafeAreaView {
-    if([self getBottomSafeAreaHeight] > 0){
-        CGRect frame = slideBannerView.frame;
-        frame.size.height = [self getBottomSafeAreaHeight];
-        frame.origin.y = frame.origin.y;
-        UIView *bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
-        if (self.notification.templateStyle && self.notification.templateStyle.bottomSafeAreaColor && ![self.notification.templateStyle.bottomSafeAreaColor isEqualToString: @""]) {
+- (void)createBottomSafeAreaViewForFrame:(CGRect)slideInFrame {
+    if(slideInFrame.size.height > 0 && [self getBottomSafeAreaHeight] > 0 && self.notification.templateStyle) {
+        //Show safe area view only if bottom margin is zero and color is not empty/nil.
+        if (self.notification.templateStyle.margin.bottom == 0 && self.notification.templateStyle.bottomSafeAreaColor && ![self.notification.templateStyle.bottomSafeAreaColor isEqualToString: @""]) {
+            [bottomSafeAreaView removeFromSuperview];
+            CGRect frame = slideInFrame;
+            frame.size.height = [self getBottomSafeAreaHeight];
+            frame.origin.y = slideInFrame.origin.y + slideInFrame.size.height;
+            if (bottomSafeAreaView) {
+                bottomSafeAreaView.frame = frame;
+            } else {
+                bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
+                [bottomSafeAreaView.layer addAnimation:[self getAnimationTransition] forKey:nil];
+                [bottomSafeAreaView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSlideInTap)]];
+            }
             UIColor *backgroundColor = [self colorWithHexString: self.notification.templateStyle.bottomSafeAreaColor];
             [bottomSafeAreaView setBackgroundColor: backgroundColor];
+            [self.view addSubview: bottomSafeAreaView];
         }
-        
-        [self.view addSubview: bottomSafeAreaView];
     }
 }
 
@@ -359,27 +398,38 @@
 }
 
 -(void)hide:(BOOL)animated {
-    [self hideFromWindow:animated];
+    [self hideFromWindow:animated withDirection:UISwipeGestureRecognizerDirectionRight];
 }
 
 -(void)hideAnimated {
-    [self hideFromWindow:YES];
+    [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
 }
 
-- (IBAction)onOkayButtonTapped:(id)sender {
+- (void)handleSlideInTap {
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
         self.notification.notificationContent.actions.count > 0 &&
         self.notification.notificationContent.actions[0]) {
         [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
     } else {
-        [self hideFromWindow:YES];
+        [self hideAnimated];
+    }
+}
+
+-(void)dismissInAppWithSwipeDirection:(UISwipeGestureRecognizer *)recognizer {
+    switch (recognizer.direction) {
+        case UISwipeGestureRecognizerDirectionLeft:
+            [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionLeft];
+            break;
+        
+        default:
+            [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
+            break;
     }
 }
 
 - (CGRect)positionNotificationView {
     float width = (self.notification.templateStyle && self.notification.templateStyle.width > 0) ? self.notification.templateStyle.width : self.notification.width;
-    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height];
-    
+    float height = (self.notification.templateStyle && self.notification.templateStyle.height > 0) ? self.notification.templateStyle.height : [BlueShiftInAppNotificationHelper convertPointsHeightToPercentage :slideBannerView.frame.size.height forWindow:self.window];
     
     float topMargin = [self getTopSafeAreaHeight];
     float bottomMargin = [self getBottomSafeAreaHeight];
@@ -405,8 +455,8 @@
         size.width = width;
         size.height = height;
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth =  (CGFloat) ceil([[UIScreen mainScreen] bounds].size.width * (width / 100.0f));
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height forWindow:self.window];
+        CGFloat itemWidth =  (CGFloat) round([BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window].width * (width / 100.0f));
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);
@@ -420,7 +470,7 @@
     frame.size = size;
     slideBannerView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
     frame.origin.x = leftMargin;
@@ -432,7 +482,7 @@
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.y = screenSize.height - (size.height + bottomMargin);
         slideBannerView.autoresizingMask = slideBannerView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
-        [self createBottomSafeAreaView];
+        [self createBottomSafeAreaViewForFrame:frame];
     } else {
         frame.origin.y = (screenSize.height - size.height) / 2.0f;
     }
@@ -445,22 +495,20 @@
     return frame;
 }
 
+/// get bottom safe area height for the current in-app window
 - (CGFloat)getBottomSafeAreaHeight {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
     CGFloat extraBottomPadding = 0.0;
     if (@available(iOS 11.0, *)) {
-        extraBottomPadding = window.safeAreaInsets.bottom;
+        extraBottomPadding = [BlueShiftInAppNotificationHelper getApplicationWindowSafeAreaInsets: self.window].bottom;
     }
-    
     return extraBottomPadding;
 }
 
-/// get top safe area height
+/// get top safe area height for the current in-app window
 - (CGFloat)getTopSafeAreaHeight {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
     CGFloat topSafeAreaHeight = 0.0;
     if (@available(iOS 11.0, *)) {
-        topSafeAreaHeight = window.safeAreaInsets.top;
+        topSafeAreaHeight = [BlueShiftInAppNotificationHelper getApplicationWindowSafeAreaInsets: self.window].top;
     } else {
         topSafeAreaHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }

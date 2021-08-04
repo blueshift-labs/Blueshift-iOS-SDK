@@ -14,20 +14,31 @@
 - (id)init {
     self = [super init];
     if (self) {
+        // Remote notifications
+        self.enableSilentPushNotification = YES;
         self.enablePushNotification = YES;
+        
         self.enableLocationAccess = YES;
-        self.enableAnalytics = YES;
-        self.enableAppOpenTrackEvent = YES;
+        
+        // App open
+        self.enableAppOpenTrackEvent = false;
+        self.automaticAppOpenTimeInterval = 60*60*24; // 24 Hours
         
         self.debug = NO;
         
-        //In App
+        // In-app notifications
         self.enableInAppNotification = NO;
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
         
-        //Default BlueshiftDeviceIdSource
+        // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
+        
+        if (@available(iOS 13.0, *)) {
+            self.isSceneDelegateConfiguration = NO;
+        }
+        
+        self.enableIDFACollection = YES;
     }
     return self;
 }

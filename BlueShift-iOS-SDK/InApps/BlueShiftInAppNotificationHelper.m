@@ -4,9 +4,11 @@
 //
 //  Created by shahas kp on 11/07/19.
 //
+#import <CommonCrypto/CommonDigest.h>
 
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "BlueShift.h"
 
 static NSDictionary *_inAppTypeDictionay;
 
@@ -36,9 +38,9 @@ static NSDictionary *_inAppTypeDictionay;
     return [fileManager fileExistsAtPath: [self getLocalDirectory: fileName]];
 }
 
-+ (NSString *)createFileNameFromURL:(NSString *) imageURL {
-    NSString *fileName = [[imageURL lastPathComponent] stringByDeletingPathExtension];
-    NSURL *url = [NSURL URLWithString: imageURL];
++ (NSString *)createFileNameFromURL:(NSString *) fileURL {
+    NSString *fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL URLWithString: fileURL];
     NSString *extension = [url pathExtension];
     fileName = [fileName stringByAppendingString:@"."];
     return [fileName stringByAppendingString: extension];
@@ -57,55 +59,90 @@ static NSDictionary *_inAppTypeDictionay;
     }
 }
 
-+ (CGFloat)convertPointsHeightToPercentage:(float) height {
-    CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
++ (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window {
+    CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
     CGFloat heightInPercentage = (CGFloat) (((height/presentationAreaHeight) * 100.0f));
     return heightInPercentage;
 }
 
-+ (CGFloat)convertPointsWidthToPercentage:(float) width {
-    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
++ (CGFloat)convertPointsWidthToPercentage:(float) width forWindow:(UIWindow*)window {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
     CGFloat widthInPercentage = (CGFloat) (((width/presentationAreaWidth) * 100.0f));
     return  widthInPercentage;
 }
 
-+ (CGFloat)convertPercentageHeightToPoints:(float) height {
-    CGFloat presentationAreaHeight = [self getPresentationAreaHeight];
-    CGFloat heightInPoints = (CGFloat) ceil(presentationAreaHeight * (height / 100.0f));
++ (CGFloat)convertPercentageHeightToPoints:(float) height forWindow:(UIWindow*)window {
+    CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
+    CGFloat heightInPoints = (CGFloat) round(presentationAreaHeight * (height / 100.0f));
     return heightInPoints;
 }
 
-+ (CGFloat)convertPercentageWidthToPoints:(float) width {
-    CGFloat presentationAreaWidth = [self getPresentationAreaWidth];
-    CGFloat widthInPoints = (CGFloat) ceil(presentationAreaWidth * (width / 100.0f));
++ (CGFloat)convertPercentageWidthToPoints:(float) width forWindow:(UIWindow*)window {
+    CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
+    CGFloat widthInPoints = (CGFloat) round(presentationAreaWidth * (width / 100.0f));
     return widthInPoints;
 }
 
-+ (CGFloat)getPresentationAreaHeight {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
++ (CGFloat)getPresentationAreaHeightForWindow:(UIWindow*)window {
     CGFloat topMargin = 0.0;
     CGFloat bottomMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        topMargin =  window.safeAreaInsets.top;
-        bottomMargin = window.safeAreaInsets.bottom;
+        UIEdgeInsets safeAreaInsets = [self getApplicationWindowSafeAreaInsets:window];
+        topMargin =  safeAreaInsets.top;
+        bottomMargin = safeAreaInsets.bottom;
     } else {
         topMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
         bottomMargin = [[UIApplication sharedApplication] statusBarFrame].size.height;
     }
-    CGFloat presentationAreaHeight = [[UIScreen mainScreen] bounds].size.height - topMargin - bottomMargin;
+    CGFloat windowHeight = [self getApplicationWindowSize:window].height;
+    CGFloat presentationAreaHeight = windowHeight - topMargin - bottomMargin;
     return presentationAreaHeight;
 }
 
-+ (CGFloat)getPresentationAreaWidth {
-    UIWindow *window = UIApplication.sharedApplication.keyWindow;
++ (CGFloat)getPresentationAreaWidthForWindow:(UIWindow*)window {
     CGFloat leftMargin = 0.0;
     CGFloat rightMargin = 0.0;
     if (@available(iOS 11.0, *)) {
-        leftMargin = window.safeAreaInsets.left;
-        rightMargin = window.safeAreaInsets.right;
+        UIEdgeInsets safeAreaInsets = [self getApplicationWindowSafeAreaInsets:window];
+        leftMargin = safeAreaInsets.left;
+        rightMargin = safeAreaInsets.right;
     }
-    CGFloat presentationAreaWidth = [[UIScreen mainScreen] bounds].size.width - leftMargin - rightMargin;
+    CGFloat windowWidth = [self getApplicationWindowSize:window].width;
+    CGFloat presentationAreaWidth = windowWidth - leftMargin - rightMargin;
     return presentationAreaWidth;
+}
+
++ (UIWindow *)getApplicationKeyWindow {
+    if (@available(iOS 13.0, *)) {
+        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES && [NSThread isMainThread] == YES) {
+            for (UIWindow *window in [UIApplication sharedApplication].windows) {
+                if (window && window.isKeyWindow) {
+                    return window;
+                }
+            }
+        }
+    }
+    return [UIApplication sharedApplication].keyWindow;
+}
+
++ (CGSize)getApplicationWindowSize:(UIWindow *)window {
+    if (window) {
+        return window.bounds.size;
+    } else if ([self getApplicationKeyWindow]) {
+        return [self getApplicationKeyWindow].bounds.size;
+    } else {
+        return [[UIScreen mainScreen] bounds].size;
+    }
+}
+
++ (UIEdgeInsets)getApplicationWindowSafeAreaInsets:(UIWindow*)window API_AVAILABLE(ios(11.0)) {
+    if (window) {
+        return window.safeAreaInsets;
+    } else if ([BlueShiftInAppNotificationHelper getApplicationKeyWindow]) {
+        return [BlueShiftInAppNotificationHelper getApplicationKeyWindow].safeAreaInsets;
+    } else {
+        return  UIEdgeInsetsZero;
+    }
 }
 
 + (BOOL)checkAppDelegateWindowPresent {
@@ -130,6 +167,38 @@ static NSDictionary *_inAppTypeDictionay;
         return YES;
     }
     return NO;
+}
+
++ (NSString *)getMD5ForString:(NSString*)string {
+    const char *cStr = [string UTF8String];
+    unsigned char result[CC_MD5_DIGEST_LENGTH];
+    CC_MD5( cStr, (CC_LONG)strlen(cStr), result );
+
+    return [NSString stringWithFormat:
+        @"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+        result[0], result[1], result[2], result[3],
+        result[4], result[5], result[6], result[7],
+        result[8], result[9], result[10], result[11],
+        result[12], result[13], result[14], result[15]
+    ];
+}
+
+#pragma mark - Font awesome support
++ (void)downloadFontAwesomeFile:(void(^)(void))completionHandler {
+    NSString *fontFileName = [self createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
+    if (![self hasFileExist: fontFileName]) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
+            NSData *urlData = [NSData dataWithContentsOfURL:url];
+            if (urlData) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *fontFilePath = [self getLocalDirectory: fontFileName];
+                    [urlData writeToFile: fontFilePath atomically:YES];
+                    completionHandler();
+                });
+            }
+        });
+    }
 }
 
 @end

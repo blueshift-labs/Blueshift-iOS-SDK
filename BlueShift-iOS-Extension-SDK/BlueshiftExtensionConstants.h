@@ -49,4 +49,10 @@
 
 #define kBsftEncodedSpace                                               @"%20"
 
+#define kAppName                                                        @"app_name"
+#define kDeviceID                                                       @"device_id"
+#define kBrowserPlatform                                                @"browser_platform"
+#define kiOS                                                            @"iOS"
+#define kCFBundleShortVersionString                                     @"CFBundleShortVersionString"
+
 #endif

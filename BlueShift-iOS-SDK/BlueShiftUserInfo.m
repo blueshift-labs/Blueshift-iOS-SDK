@@ -7,6 +7,7 @@
 
 #import "BlueShiftUserInfo.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 static BlueShiftUserInfo *_sharedUserInfo = nil;
 
@@ -27,91 +28,84 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     return _sharedUserInfo;
 }
 
-- (NSDictionary *)toDictionary {
+- (NSMutableDictionary *)convertToDictionary {
     NSMutableDictionary *sharedUserInfoMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (self.email) {
-        [sharedUserInfoMutableDictionary setObject:self.email forKey:@"email"];
-    } else {
-        if (!isEmailIdNotSetInfoDisplayed) {
-            [BlueshiftLog logInfo:@"EmailId is not set for BlueShiftUserInfo. Please set email id." withDetails:nil methodName:nil];
-            isEmailIdNotSetInfoDisplayed = YES;
+    @try {
+        if (self.email) {
+            [sharedUserInfoMutableDictionary setValue:self.email forKey:kEmail];
+        } else {
+            if (!isEmailIdNotSetInfoDisplayed) {
+                [BlueshiftLog logInfo:@"EmailId is not set for BlueShiftUserInfo. Please set email id." withDetails:nil methodName:nil];
+                isEmailIdNotSetInfoDisplayed = YES;
+            }
         }
-    }
-    
-    if (self.name) {
-        [sharedUserInfoMutableDictionary setObject:self.name forKey:@"name"];
-    }
-    
-    if (self.retailerCustomerID) {
-        [sharedUserInfoMutableDictionary setObject:self.retailerCustomerID forKey:@"customer_id"];
-    } else {
-        if (!isCustomerIdNotSetInfoDisplayed) {
-            [BlueshiftLog logInfo:@"Retails customer ID is not set for BlueShiftUserInfo. Please set customer Id" withDetails:nil methodName:nil];
-            isCustomerIdNotSetInfoDisplayed = YES;
+        if (self.retailerCustomerID) {
+            [sharedUserInfoMutableDictionary setValue:self.retailerCustomerID forKey:kBSUserCustomerId];
+        } else {
+            if (!isCustomerIdNotSetInfoDisplayed) {
+                [BlueshiftLog logInfo:@"Retails customer ID is not set for BlueShiftUserInfo. Please set customer Id" withDetails:nil methodName:nil];
+                isCustomerIdNotSetInfoDisplayed = YES;
+            }
         }
+        
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserName value:self.name];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFirstName value:self.firstName];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserLastName value:self.lastName];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserGender value:self.gender];
+        if (self.joinedAt) {
+            NSNumber *joinedAtTimeStamp = [NSNumber numberWithDouble:[self.joinedAt timeIntervalSinceReferenceDate]];
+            [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserJoinedAt value:joinedAtTimeStamp];
+        }
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserFacebookId value:self.facebookID];
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserEducation value:self.education];
+        if (self.unsubscribed != nil) {
+            [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserUnsubscribedPush value:self.unsubscribed];
+        }
+        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserAdditionalInfo value:self.additionalUserInfo];
+        if (self.dateOfBirth) {
+            NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
+            [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserDOB value:dateOfBirthTimeStamp];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    
-    if (self.firstName) {
-        [sharedUserInfoMutableDictionary setObject:self.firstName forKey:@"firstname"];
-    }
-    
-    if (self.lastName) {
-        [sharedUserInfoMutableDictionary setObject:self.lastName forKey:@"lastname"];
-    }
-    
-    if  (self.gender) {
-        [sharedUserInfoMutableDictionary setObject:self.gender forKey:@"gender"];
-    }
-    
-    if (self.joinedAt) {
-        NSNumber *joinedAtTimeStamp = [NSNumber numberWithDouble:[self.joinedAt timeIntervalSinceReferenceDate]];
-        [sharedUserInfoMutableDictionary setObject:joinedAtTimeStamp forKey:@"joined_at"];
-    }
-    
-    if (self.facebookID) {
-        [sharedUserInfoMutableDictionary setObject:self.facebookID forKey:@"facebook_id"];
-    }
-    
-    if (self.education) {
-        [sharedUserInfoMutableDictionary setObject:self.education forKey:@"education"];
-    }
-    
-    if (self.unsubscribed) {
-        [sharedUserInfoMutableDictionary setObject:[NSNumber numberWithBool:self.unsubscribed] forKey:@"unsubscribed_push"];
-    }
-    
-    if (self.additionalUserInfo) {
-        [sharedUserInfoMutableDictionary setObject:self.additionalUserInfo forKey:@"additional_user_info"];
-    }
-    
-    if (self.dateOfBirth) {
-        NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
-        [sharedUserInfoMutableDictionary setObject:dateOfBirthTimeStamp forKey:@"date_of_birth"];
-    }
-    
-    return [sharedUserInfoMutableDictionary copy];
+    return [sharedUserInfoMutableDictionary mutableCopy];
 }
 
+- (NSDictionary *)toDictionary {
+    NSMutableDictionary *savedData = [self convertToDictionary];
+    if (self.extras) {
+        [savedData addEntriesFromDictionary:self.extras];
+    }
+    return savedData;
+}
+
+- (NSDictionary *)toDictionaryToSaveData {
+    NSMutableDictionary *savedData = [self convertToDictionary];
+    [BlueshiftEventAnalyticsHelper addToDictionary:savedData key:kBSUserExtras value:self.extras];
+    return savedData;
+}
 
 - (void)save {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *userInfoDictionary = [self toDictionary];
-    [defaults setObject:userInfoDictionary forKey:@"savedBlueShiftUserInfoDictionary"];
+    NSDictionary *userInfoDictionary = [self toDictionaryToSaveData];
+    [defaults setValue:userInfoDictionary forKey:ksavedBlueShiftUserInfoDictionary];
     if ([defaults synchronize]==YES) {
         _sharedUserInfo = nil;
         _sharedUserInfo = [BlueShiftUserInfo currentUserInfo];
     }
+    [BlueshiftLog logInfo:@"User info saved in the BlueshiftUserInfo class" withDetails:userInfoDictionary methodName:nil];
 }
 
 + (void)removeCurrentUserInfo {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if ([BlueShiftUserInfo isCurrentUserInfoSavedInUserDefaults]==YES) {
-        [defaults removeObjectForKey:@"savedBlueShiftUserInfoDictionary"];
+        [defaults removeObjectForKey:ksavedBlueShiftUserInfoDictionary];
         if ([defaults synchronize]==YES) {
             _sharedUserInfo = nil;
             _sharedUserInfo = [[BlueShiftUserInfo alloc] init];
         }
+        [BlueshiftLog logInfo:@"Removed user info from the BlueshiftUserInfo class" withDetails:nil methodName:nil];
     }
 }
 
@@ -126,7 +120,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 + (BlueShiftUserInfo *)currentUserInfo {
     if (_sharedUserInfo==nil) {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        NSDictionary *currentUserInfoDictionary = (NSDictionary *)[defaults objectForKey:@"savedBlueShiftUserInfoDictionary"];
+        NSDictionary *currentUserInfoDictionary = (NSDictionary *)[defaults objectForKey:ksavedBlueShiftUserInfoDictionary];
         _sharedUserInfo = [BlueShiftUserInfo parseUserInfoDictionary:currentUserInfoDictionary];
     }
     
@@ -136,34 +130,37 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 + (BlueShiftUserInfo *)parseUserInfoDictionary:(NSDictionary *)currentUserInfoDictionary {
     BlueShiftUserInfo *blueShiftUserInfo = nil;
     if (currentUserInfoDictionary) {
-        blueShiftUserInfo = [[BlueShiftUserInfo alloc] init];
-        blueShiftUserInfo.email = [currentUserInfoDictionary objectForKey:@"email"];
-        blueShiftUserInfo.name = [currentUserInfoDictionary objectForKey:@"name"];
-        blueShiftUserInfo.firstName = [currentUserInfoDictionary objectForKey:@"firstname"];
-        blueShiftUserInfo.lastName = [currentUserInfoDictionary objectForKey:@"lastname"];
-        blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:@"education"];
-        blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:@"facebook_id"];
-        blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:@"gender"];
-        if([currentUserInfoDictionary objectForKey:@"unsubscribed_push"] && [[currentUserInfoDictionary objectForKey:@"unsubscribed_push"] boolValue]) {
-            blueShiftUserInfo.unsubscribed = [[currentUserInfoDictionary objectForKey:@"unsubscribed_push"] boolValue];
+        @try {
+            blueShiftUserInfo = [[BlueShiftUserInfo alloc] init];
+            blueShiftUserInfo.email = [currentUserInfoDictionary objectForKey:kEmail];
+            blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:kBSUserCustomerId];
+            blueShiftUserInfo.name = [currentUserInfoDictionary objectForKey:kBSUserName];
+            blueShiftUserInfo.firstName = [currentUserInfoDictionary objectForKey:kBSUserFirstName];
+            blueShiftUserInfo.lastName = [currentUserInfoDictionary objectForKey:kBSUserLastName];
+            blueShiftUserInfo.education = [currentUserInfoDictionary objectForKey:kBSUserEducation];
+            blueShiftUserInfo.facebookID = [currentUserInfoDictionary objectForKey:kBSUserFacebookId];
+            blueShiftUserInfo.gender = [currentUserInfoDictionary objectForKey:kBSUserGender];
+            if([currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush] != nil) {
+                blueShiftUserInfo.unsubscribed = (NSNumber*)[currentUserInfoDictionary objectForKey:kBSUserUnsubscribedPush];
+            }
+            NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserJoinedAt] doubleValue];
+            
+            if (joinedAtTimeStamp) {
+                blueShiftUserInfo.joinedAt = [NSDate dateWithTimeIntervalSinceReferenceDate:joinedAtTimeStamp];
+            }
+            
+            NSTimeInterval dateOfBirthTimeStamp = [[currentUserInfoDictionary objectForKey:kBSUserDOB]doubleValue];
+            
+            if (dateOfBirthTimeStamp) {
+                blueShiftUserInfo.dateOfBirth = [NSDate dateWithTimeIntervalSinceReferenceDate:dateOfBirthTimeStamp];
+            }
+            blueShiftUserInfo.extras = [currentUserInfoDictionary objectForKey:kBSUserExtras];
+            blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:kBSUserAdditionalInfo];
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-        NSTimeInterval joinedAtTimeStamp = [[currentUserInfoDictionary objectForKey:@"joined_at"] doubleValue];
-        
-        if (joinedAtTimeStamp) {
-            blueShiftUserInfo.joinedAt = [NSDate dateWithTimeIntervalSinceReferenceDate:joinedAtTimeStamp];
-        }
-        
-        NSTimeInterval dateOfBirthTimeStamp = [[currentUserInfoDictionary objectForKey:@"date_of_birth"]doubleValue];
-        
-        if (dateOfBirthTimeStamp) {
-            blueShiftUserInfo.dateOfBirth = [NSDate dateWithTimeIntervalSinceReferenceDate:dateOfBirthTimeStamp];
-        }
-        
-        blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:@"additional_user_info"];
-        blueShiftUserInfo.retailerCustomerID = [currentUserInfoDictionary objectForKey:@"customer_id"];
     }
     return blueShiftUserInfo;
 }
-
 
 @end

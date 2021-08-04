@@ -13,8 +13,6 @@ API_AVAILABLE(ios(10.0))
 
 @property (nonatomic, strong) UNNotificationCategory *buyCategory;
 @property (nonatomic, strong) UNNotificationCategory *viewCartCategory;
-@property (nonatomic, strong) UNNotificationCategory *oneButtonAlertCategory;
-@property (nonatomic, strong) UNNotificationCategory *twoButtonAlertCategory;
 @property (nonatomic, strong) UNNotificationCategory *carouselCategory;
 @property (nonatomic, strong) UNNotificationCategory *carouselAnimationCategory;
 @property (nonatomic, strong) NSSet *notificationCategories;

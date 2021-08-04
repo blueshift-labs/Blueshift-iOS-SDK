@@ -11,57 +11,68 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @implementation BlueshiftEventAnalyticsHelper
 
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
-    NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalExperimentIDKey];
-    NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
-    NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
-    NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
-    NSString *sdkVersion = [NSString stringWithFormat:@"%@", kSDKVersionNumber];
-    NSString *clickElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationClickElementKey];
-    NSString *urlElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
-    NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
-    NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
-    NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
-    NSString *lastTimestamp = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTimestampKey];
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
-    if (bsft_user_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
+    if (pushDetailsDictionary) {
+        NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalExperimentIDKey];
+        NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
+        NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
+        NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
+        NSString *sdkVersion = [BlueShiftAppData currentAppData].sdkVersion;
+        NSString *clickElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationClickElementKey];
+        NSString *urlElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
+        NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
+        NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
+        NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
+        NSString *timestamp = [self getCurrentUTCTimestamp];
+        if (bsft_user_uuid) {
+            [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
+        }
+        if(bsft_experiment_uuid) {
+            [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey: kInAppNotificationModalEIDKey];
+        }
+        if (message_uuid) {
+            [pushTrackParametersMutableDictionary setObject:message_uuid forKey: kInAppNotificationModalMIDKey];
+        }
+        if (transactional_uuid) {
+            [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey: kInAppNotificationModalTXNIDKey];
+        }
+        if (sdkVersion) {
+            [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kInAppNotificationModalSDKVersionKey];
+        }
+        if ([self isNotNilAndNotEmpty:clickElement]) {
+            [pushTrackParametersMutableDictionary setObject:clickElement forKey: kNotificationClickElementKey];
+        }
+        if ([self isNotNilAndNotEmpty:urlElement]) {
+            [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
+        }
+        if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
+            // If pushDeepLinkURL is nil, then reassign url from pushDetailsDictionary
+            if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
+                pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
+            }
+            // If not nil, encode and add to track dictionary
+            if ([self isNotNilAndNotEmpty:pushDeepLinkURL]) {
+                NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
+                if (encodedUrl) {
+                    [pushTrackParametersMutableDictionary setObject:encodedUrl forKey: kNotificationURLElementKey];
+                }
+            }
+        }
+        if (deviceId) {
+            [pushTrackParametersMutableDictionary setObject:deviceId forKey: kDeviceID];
+        }
+        if (appName) {
+            [pushTrackParametersMutableDictionary setObject:appName forKey: kAppName];
+        }
+        if (timestamp) {
+            [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
+        }
     }
-    if(bsft_experiment_uuid) {
-        [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey: kInAppNotificationModalEIDKey];
-    }
-    if (message_uuid) {
-        [pushTrackParametersMutableDictionary setObject:message_uuid forKey: kInAppNotificationModalMIDKey];
-    }
-    if (transactional_uuid) {
-        [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey: kInAppNotificationModalTXNIDKey];
-    }
-    if (sdkVersion) {
-        [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kInAppNotificationModalSDKVersionKey];
-    }
-    if ([self isNotNilAndNotEmpty:clickElement]) {
-        [pushTrackParametersMutableDictionary setObject:clickElement forKey: kNotificationClickElementKey];
-    }
-    if ([self isNotNilAndNotEmpty:urlElement]) {
-        [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
-    }
-    if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey] && [self isNotNilAndNotEmpty:pushDeepLinkURL]) {
-        NSString *encodedUrl = [BlueShiftInAppNotificationHelper getEncodedURLString:pushDeepLinkURL];
-        [pushTrackParametersMutableDictionary setObject:encodedUrl forKey: kNotificationURLElementKey];
-    }
-    if (deviceId) {
-        [pushTrackParametersMutableDictionary setObject:deviceId forKey: @"device_id"];
-    }
-    if (appName) {
-        [pushTrackParametersMutableDictionary setObject:appName forKey: @"app_name"];
-    }
-    if (lastTimestamp) {
-        [pushTrackParametersMutableDictionary setObject:lastTimestamp forKey: kInAppNotificationCreatedTimestampKey];
-    }
-    
     return [pushTrackParametersMutableDictionary copy];
 }
 
@@ -135,28 +146,33 @@
 }
 
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)URL {
+    NSMutableDictionary *queryDictionary = [[NSMutableDictionary alloc] init];
     @try {
-        NSMutableDictionary *queryDictionary =[[NSMutableDictionary alloc] init];
         if (URL !=  nil && [URL absoluteString] != nil && ![URL.absoluteString isEqualToString:@""]) {
             NSURLComponents *URLComponents =[[NSURLComponents alloc] initWithString: URL.absoluteString];
              if (@available(iOS 8.0, *)) {
                  if (URLComponents != nil && [URLComponents queryItems] != nil && [URLComponents.queryItems count] > 0) {
                      for (NSURLQueryItem *queryItem in URLComponents.queryItems) {
-                        [queryDictionary setObject:queryItem.value forKey:queryItem.name];
+                         if (queryItem && queryItem.value && queryItem.name) {
+                             [queryDictionary setObject:queryItem.value forKey:queryItem.name];
+                         }
                     }
                  }
              }
         }
-        
-        return queryDictionary;
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+    return queryDictionary;
 }
 
 +(BOOL)isNotNilAndNotEmpty:(NSString*)string {
-    if (string && ![string isEqualToString:@""]) {
-        return YES;
+    @try {
+        if (string && ![string isEqualToString:@""]) {
+            return YES;
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return NO;
 }
@@ -169,6 +185,23 @@
         }
     }
     return isSchedulePushNotification;
+}
+
++ (NSString *)getCurrentUTCTimestamp {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    return [dateFormatter stringFromDate:[NSDate date]];
+}
+
++ (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value {
+    @try {
+        if (dictionary && key && value) {
+            [dictionary setValue:value forKey:key];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
 }
 
 @end

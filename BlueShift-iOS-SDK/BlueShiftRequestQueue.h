@@ -40,7 +40,4 @@
 // Method to add Batch Request Operation to Queue ....
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation;
 
-// Method to set the request queue status explicity ...
-+ (void)setRequestQueueStatus:(BlueShiftRequestQueueStatus)requestQueueStatus;
-
 @end

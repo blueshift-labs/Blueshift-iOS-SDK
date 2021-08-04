@@ -26,7 +26,7 @@
         }
         NSLog(@"%@", log);
     } @catch (NSException *exception) {
-        NSLog(@"Failed to log error %@",exception);
+        NSLog(@"[Blueshift] : Failed to log error %@",exception);
     }
 }
 
@@ -44,12 +44,12 @@
         }
         NSLog(@"%@", log);
     } @catch (NSException *exception) {
-        NSLog(@"Failed to log exception %@",exception);
+        NSLog(@"[Blueshift] : Failed to log exception %@",exception);
     }
 }
 
 + (void)logInfo:(NSString*)info withDetails: (id) details methodName:(NSString*)method{
-    if ([[BlueShift sharedInstance] config].debug) {
+    if ([BlueShift sharedInstance].config && [BlueShift sharedInstance].config.debug) {
         NSString* log = @"[Blueshift] info : ";
         @try {
             if (info) {
@@ -63,13 +63,13 @@
             }
             NSLog(@"%@", log);
         } @catch (NSException *exception) {
-            NSLog(@"Failed to log info %@",exception);
+            NSLog(@"[Blueshift] : Failed to log info %@",exception);
         }
     }
 }
 
 +(void)logAPICallInfo:(NSString*)info withDetails: (NSDictionary*) details statusCode:(NSInteger)statusCode {
-    if ([[BlueShift sharedInstance] config].debug) {
+    if ([BlueShift sharedInstance].config && [BlueShift sharedInstance].config.debug) {
         NSString* log = @"[Blueshift] API call info : ";
         @try {
         if (info) {
@@ -88,7 +88,7 @@
         }
         NSLog(@"%@", log);
         } @catch (NSException *exception) {
-            NSLog(@"Failed to log API call info %@",exception);
+            NSLog(@"[Blueshift] : Failed to log API call info %@",exception);
         }
     }
 

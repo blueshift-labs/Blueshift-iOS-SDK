@@ -7,6 +7,7 @@
 
 #import "BatchEventEntity.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BatchEventEntity ()
 
@@ -47,15 +48,23 @@
         @try {
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
-                    NSError *error = nil;
-                    [context save:&error];
-                    if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        [masterContext performBlock:^{
-                            NSError *error = nil;
-                            if (masterContext) {
-                                [masterContext save:&error];
-                            }
-                        }];
+                    @try {
+                        NSError *error = nil;
+                        [context save:&error];
+                        if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                            [masterContext performBlock:^{
+                                @try {
+                                    NSError *error = nil;
+                                    if (masterContext) {
+                                        [masterContext save:&error];
+                                    }
+                                } @catch (NSException *exception) {
+                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                                }
+                            }];
+                        }
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }];
             }
@@ -63,8 +72,6 @@
         @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-    } else {
-        return ;
     }
 }
 
@@ -84,7 +91,7 @@
             if(context) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
-                    [fetchRequest setEntity:[NSEntityDescription entityForName:@"BatchEventEntity" inManagedObjectContext:context]];
+                    [fetchRequest setEntity:[NSEntityDescription entityForName:kBatchEventEntity inManagedObjectContext:context]];
                 }
                 @catch (NSException *exception) {
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -103,17 +110,22 @@
 
 + (void *)fetchBatchesFromCoreDataFromContext:(NSManagedObjectContext*) context request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-    NSPredicate *nextRetryTimeStampLessThanCurrentTimePredicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
-    [fetchRequest setPredicate:nextRetryTimeStampLessThanCurrentTimePredicate];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
+    [fetchRequest setPredicate:predicate];
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
-                NSError *error;
-                NSArray *results = [[NSArray alloc]init];
-                results = [context executeFetchRequest:fetchRequest error:&error];
-                if (results && results.count > 0) {
-                    handler(YES, results);
-                } else {
+                @try {
+                    NSError *error;
+                    NSArray *results = [[NSArray alloc]init];
+                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    if (results && results.count > 0) {
+                        handler(YES, results);
+                    } else {
+                        handler(NO, nil);
+                    }
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     handler(NO, nil);
                 }
             }];
@@ -123,9 +135,48 @@
     }
     @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        handler(NO, nil);
     }
 }
 
-
++ (void)eraseEntityData {
+    BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    NSManagedObjectContext *batchContext;
+    @try {
+        if (appDelegate) {
+            batchContext = appDelegate.batchEventManagedObjectContext;
+        }
+        if (batchContext) {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
+            if (@available(iOS 9.0, *)) {
+                NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
+                [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
+                if([batchContext isKindOfClass:[NSManagedObjectContext class]]) {
+                    [batchContext performBlock:^{
+                        @try {
+                            NSError *error = nil;
+                            // check if there are any changes to be saved and save it
+                            if ([batchContext hasChanges]) {
+                                [batchContext save:&error];
+                            }
+                            NSBatchDeleteResult* deleteResult = [batchContext executeRequest:deleteRequest error:&error];
+                            [batchContext save:&error];
+                            if (error) {
+                                [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            } else {
+                                [BlueshiftLog logInfo:[NSString stringWithFormat:@"Deleted %@ records from the BatchEventEntity entity", deleteResult.result] withDetails:nil methodName:nil];
+                            }
+                        } @catch (NSException *exception) {
+                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        }
+                    }];
+                }
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
 
 @end

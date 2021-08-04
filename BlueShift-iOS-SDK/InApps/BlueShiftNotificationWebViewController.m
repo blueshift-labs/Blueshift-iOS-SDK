@@ -11,6 +11,7 @@
 #import "BlueShiftNotificationWindow.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
+#import "BlueshiftLog.h"
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
@@ -38,9 +39,13 @@ API_AVAILABLE(ios(8.0))
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (void)setupWebView {
     [self setAutomaticScale];
     [self configureBackground];
     [self presentWebViewNotification];
+    [self initialiseWebView];
 }
 
 - (void) viewWillLayoutSubviews {
@@ -108,6 +113,7 @@ API_AVAILABLE(ios(8.0))
     webView.opaque = NO;
     webView.tag = 188293;
     webView.clipsToBounds = TRUE;
+    [self setBackgroundRadius:webView];
     return webView;
 }
 
@@ -136,12 +142,12 @@ API_AVAILABLE(ios(8.0))
     if (isAutoWidth && width == 0) {
         //If ipad, set the width to max width
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
         } else {
-            float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
+            float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             //If iPhone orientation is landscape, set the width to max width
             if (deviceWidth > kHTMLInAppNotificationMaximumWidthInPoints) {
-                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints];
+                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
             } else {
                 //If iPhone orientation is portrait, set the width to default 95%
                 width = kInAppNotificationDefaultWidth;
@@ -177,21 +183,21 @@ API_AVAILABLE(ios(8.0))
     
     CGSize size = CGSizeZero;
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPointsKey]) {
-        CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidth];
+        CGFloat maxWidth = [BlueShiftInAppNotificationHelper getPresentationAreaWidthForWindow:self.window];
         if(maxWidth > width) {
             size.width = width;
         } else {
             size.width = maxWidth;
         }
-        CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+        CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeightForWindow:self.window];
         if(maxHeight > height) {
             size.height = height;
         } else {
             size.height = maxHeight;
         }
     } else if([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height];
-        CGFloat itemWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width];
+        CGFloat itemHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:height forWindow:self.window];
+        CGFloat itemWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:width forWindow:self.window];
         
         if (width == 100) {
             itemWidth = itemWidth - (leftMargin + rightMargin);
@@ -218,10 +224,11 @@ API_AVAILABLE(ios(8.0))
     frame.size = size;
     webView.autoresizingMask = UIViewAutoresizingNone;
     
-    CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
+    
     NSString* position = (self.notification.templateStyle && self.notification.templateStyle.position) ? self.notification.templateStyle.position : self.notification.position;
     
-    int extra = (int) (self.notification.templateStyle && self.notification.templateStyle.enableCloseButton ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
+    int extra = (int) (self.notification.templateStyle && [self.notification.templateStyle.enableCloseButton boolValue] ? ( KInAppNotificationModalCloseButtonWidth/ 2.0f) : 0.0f);
     
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
@@ -262,11 +269,15 @@ API_AVAILABLE(ios(8.0))
             [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
             [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
             [self hideFromWindow:YES];
-        } else if([BlueShift sharedInstance].appDelegate.oldDelegate && [[BlueShift sharedInstance].appDelegate.oldDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
             if (@available(iOS 9.0, *)) {
-                [[BlueShift sharedInstance].appDelegate.oldDelegate application:[UIApplication sharedApplication] openURL: url options:@{}];
-                [self hideFromWindow:YES];
+                NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
+                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
+                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
             }
+            [self hideFromWindow:YES];
+        } else {
+            [self hideFromWindow:YES];
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
@@ -278,9 +289,27 @@ API_AVAILABLE(ios(8.0))
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [webView evaluateJavaScript:@"document.readyState" completionHandler:^(id _Nullable complete, NSError * _Nullable error) {
         if (complete) {
-            [self resizeWebViewAsPerContent:webView];
+            [BlueshiftLog logInfo:@"Webview loaded the content successfully." withDetails:nil methodName:nil];
+            [self showInAppOnWebViewLoad];
+        } else if(error) {
+            [BlueshiftLog logInfo:@"Failed to load Webview content." withDetails:nil methodName:nil];
+            [self showInAppOnWebViewLoad];
         }
     }];
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [BlueshiftLog logInfo:@"Failed to finish webview navigation." withDetails:nil methodName:nil];
+    [self showInAppOnWebViewLoad];
+}
+
+- (void)showInAppOnWebViewLoad {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if ([self delegate] && [[self delegate] respondsToSelector:@selector(presentInAppViewController:forNotification:)]) {
+            [[self delegate] presentInAppViewController:self forNotification:self.notification];
+        }
+        [self resizeWebViewAsPerContent:self->webView];
+    });
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
@@ -289,6 +318,7 @@ API_AVAILABLE(ios(8.0))
 
 //resize webview as per content height & width when all the content/media is loaded
 - (void)resizeWebViewAsPerContent:(WKWebView *)webView  {
+    [BlueshiftLog logInfo:@"Resizing the in-app webview size based on the loaded content." withDetails:nil methodName:nil];
     [webView evaluateJavaScript:@"document.body.scrollHeight" completionHandler:^(id _Nullable height, NSError * _Nullable error) {
         [webView evaluateJavaScript:@"document.body.scrollWidth" completionHandler:^(id _Nullable width, NSError * _Nullable error) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -304,7 +334,7 @@ API_AVAILABLE(ios(8.0))
     if(isAutoHeight || isAutoWidth) {
         self.notification.dimensionType = kInAppNotificationModalResolutionPointsKey;
         if (isAutoWidth) {
-            CGFloat maxWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth];
+            CGFloat maxWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             //If content width is greater than the screen width, then set width to max width else set to content height
             if(maxWidth > width) {
                 self.notification.templateStyle.width = width;
@@ -315,7 +345,7 @@ API_AVAILABLE(ios(8.0))
             self.notification.templateStyle.width = webView.frame.size.width;
         }
         if (isAutoHeight) {
-            CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeight];
+            CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeightForWindow:self.window];
             //If content height is greater than the screen width, then set width to max height else set to content height
             if(maxHeight > height) {
                 self.notification.templateStyle.height = height;

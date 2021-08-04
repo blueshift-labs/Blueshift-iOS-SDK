@@ -209,7 +209,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
         else
         {
 #ifdef DEBUG
-            NSLog(@"SCNetworkReachabilitySetDispatchQueue() failed: %s", SCErrorString(SCError()));
+            NSLog(@"[Blueshift] : SCNetworkReachabilitySetDispatchQueue() failed: %s", SCErrorString(SCError()));
 #endif
 
             // UH OH - FAILURE - stop any callbacks!
@@ -219,7 +219,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     else
     {
 #ifdef DEBUG
-        NSLog(@"SCNetworkReachabilitySetCallback() failed: %s", SCErrorString(SCError()));
+        NSLog(@"[Blueshift] : SCNetworkReachabilitySetCallback() failed: %s", SCErrorString(SCError()));
 #endif
     }
 
@@ -467,8 +467,8 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 
 - (NSString *) description
 {
-    NSString *description = [NSString stringWithFormat:@"<%@: %#x (%@)>",
-                             NSStringFromClass([self class]), (unsigned int) self, [self currentReachabilityFlags]];
+    NSString *description = [NSString stringWithFormat:@"<%@: %#lx (%@)>",
+                             NSStringFromClass([self class]), (long int) self, [self currentReachabilityFlags]];
     return description;
 }
 

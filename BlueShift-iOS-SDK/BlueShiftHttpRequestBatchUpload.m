@@ -28,16 +28,22 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Method to start batch uploading
 + (void)startBatchUpload {
-    [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer]
-                                     target:self
-                                   selector:@selector(batchEventsUploadInBackground)
-                                   userInfo:nil
-                                    repeats:YES];
+    // Create timer only if tracking is enabled
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer]
+                                         target:self
+                                       selector:@selector(batchEventsUploadInBackground)
+                                       userInfo:nil
+                                        repeats:YES];
+    }
 }
 
 // Perform uploading task in background (inclues core data operations)
 + (void)batchEventsUploadInBackground {
-    [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
+    // Upload the events only if tracking is enabled
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
+    }
 }
 
 
@@ -113,24 +119,31 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 }
             }
             [self createBatch:paramsArray];
-        }
-    }
-    @try {
-        if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-            [context performBlock:^{
-                NSError *saveError = nil;
-                [context save:&saveError];
-                [masterContext performBlock:^{
-                    NSError *saveError = nil;
-                    if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
-                        [masterContext save:&saveError];
+            if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                [context performBlockAndWait:^{
+                    @try {
+                        NSError *saveError = nil;
+                        if ([context hasChanges]) {
+                            [context save:&saveError];
+                        }
+                        [masterContext performBlockAndWait:^{
+                            @try {
+                                NSError *saveError = nil;
+                                if (masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
+                                    [masterContext save:&saveError];
+                                }
+                            }
+                            @catch (NSException *exception) {
+                                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            }
+                        }];
+                    }
+                    @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
                 }];
-            }];
+            }
         }
-    }
-    @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -210,21 +223,31 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
-                [context deleteObject:batchEvent];
-                [context performBlock:^{
+                @try {
+                    [context deleteObject:batchEvent];
                     NSError *saveError = nil;
-                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    if(context) {
                         [context save:&saveError];
                     }
                     _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                }];
+                    handler(YES);
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                    handler(NO);
+                }
             }];
+        }
+        else {
+            _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+            handler(NO);
         }
     }
     @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+        handler(NO);
     }
-    handler(YES);
 }
 
 + (void) handleRetryBatchUpload:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*)context requestOperation: (BlueShiftBatchRequestOperation*)requestOperation completetionHandler:(void (^)(BOOL))handler {
@@ -232,10 +255,10 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
-                [context deleteObject:batchEvent];
-                [context performBlock:^{
+                @try {
+                    [context deleteObject:batchEvent];
                     NSError *saveError = nil;
-                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                    if(context) {
                         [context save:&saveError];
                         NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
                         requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
@@ -248,14 +271,23 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         }
                     }
                     _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
-                }];
+                    handler(YES);
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+                    handler(NO);
+                }
             }];
+        } else {
+            _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+            handler(NO);
         }
     }
     @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+        handler(NO);
     }
-    handler(NO);
 }
 
 
@@ -270,7 +302,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Perform uploading task in background (inclues core data operations)
 + (void)retryBatchEventsUploadInBackground {
-    [self performSelectorInBackground:@selector(uploadBatches) withObject:nil];
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [self performSelectorInBackground:@selector(uploadBatches) withObject:nil];
+    }
 }
 
 + (void)performRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {

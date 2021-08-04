@@ -14,7 +14,7 @@
 
 @interface BlueShiftRequestOperationManager : NSObject<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
-@property NSURLSession *backgroundSession;
+@property NSURLSession *mainURLSession;
 @property NSURLSessionConfiguration *sessionConfiguraion;
 @property NSURLSession *replayURLSesion;
 

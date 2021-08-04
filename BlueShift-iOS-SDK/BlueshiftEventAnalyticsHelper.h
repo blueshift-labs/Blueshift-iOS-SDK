@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import "BlueShiftNotificationConstants.h"
-#import "SDKVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,6 +21,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
 + (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
 + (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;
+
+/// Returns current UTC timestamp with format 2020-12-14T13:35:34.034000Z
++ (NSString *)getCurrentUTCTimestamp;
+
+/// Check for nil and add the key value to the given dictionary
++ (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value;
+
+
+/// Checks if the string is not nil and not empty
+/// @param string  string value to check
+/// @returns BOOL YES when string is valid
++(BOOL)isNotNilAndNotEmpty:(NSString*)string;
 
 @end
 

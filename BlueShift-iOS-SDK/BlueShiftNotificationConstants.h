@@ -33,12 +33,10 @@
 #define kNotificationCategoryViewCartIdentifier                         @"view_cart"
 #define kNotificationActionOpenCartIdentifier                           @"open_cart"
 
+#define kNotificationCategorySilentPushIdentifier                       @"silent push"
 #define kNotificationCategoryOfferIdentifier                            @"promotion"
 #define kNotificationProductIDIdenfierKey                               @"product_id"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
-
-#define kNotificationOneButtonAlertIdentifier                           @"alert_box_1_button"
-#define kNotificationTwoButtonAlertIdentifier                           @"alert_box"
 
 #define kNotificationCarouselIdentifier                                 @"carousel"
 #define kNotificationCarouselAnimationIdentifier                        @"carousel_animation"
@@ -77,5 +75,16 @@
 #define kUniversalLinkTrackURLKey                                       @"/track"
 
 #define kBsftEncodedSpace                                               @"%20"
+
+#define kInAppTriggerModeNow                                            @"now"
+#define kInAppTriggerModeUpcoming                                       @"upcoming"
+#define kInAppTriggerModeEvent                                          @"event"
+#define kInAppTriggerModeNowAndUpcoming                                 @"NowAndUpComing"
+
+#define kInAppPriorityMedium                                            @"medium"
+#define kInAppId                                                        @"id"
+
+#define kInAppStatus                                                    @"status"
+#define kInAppStatusPending                                             @"pending"
 
 #endif

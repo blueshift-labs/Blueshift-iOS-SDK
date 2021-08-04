@@ -23,6 +23,7 @@
 #define kDeviceID                               @"device_id"
 #define kApple                                  @"apple"
 #define kiOS                                    @"iOS"
+#define kBrowserPlatform                        @"browser_platform"
 
 //App Data
 #define kEnablePush                             @"enable_push"
@@ -33,14 +34,88 @@
 #define kAppName                                @"app_name"
 #define kCFBundleShortVersionString             @"CFBundleShortVersionString"
 
+// API params
+#define kEmail                                  @"email"
+#define kAPIKey                                 @"api_key"
+#define kLastTimestamp                          @"last_timestamp"
+#define kBSAuthorization                        @"Authorization"
+#define kBSContentType                          @"Content-Type"
+#define kBSApplicationJSON                      @"application/json"
+#define kBSGETMethod                            @"GET"
+#define kBSPOSTMethod                           @"POST"
+
 //UserDefaults
+#define kBlueshiftDidAskPushPermission          @"BlueshiftDidAskPushPermission"
 #define kBlueshiftDeviceIdSourceUUID            @"BlueshiftDeviceIdSourceUUID"
 #define kBlueshiftUNAuthorizationStatus         @"BlueshiftUNAuthorizationStatus"
 #define kBlueshiftDeviceToken                   @"BlueshiftDeviceToken"
 #define kBlueshiftEnablePush                    @"BlueshiftEnablePush"
+#define kBlueshiftLastAppOpenTimestamp          @"BlueshiftLastAppOpenTimestamp"
+#define kBlueshiftEnableTracking                @"BlueshiftEnableTracking"
+#define kBlueshiftEnableInApp                   @"BlueshiftEnableInApp"
+#define ksavedBlueShiftUserInfoDictionary       @"savedBlueShiftUserInfoDictionary"
 
 //Bool
 #define kYES                                    @"YES"
 #define kNO                                     @"NO"
+
+//OpenURL options keys and values
+#define openURLOptionsSource                    @"source"
+#define openURLOptionsBlueshift                 @"Blueshift"
+#define openURLOptionsChannel                   @"channel"
+#define openURLOptionsInApp                     @"inApp"
+#define openURLOptionsPush                      @"push"
+#define openURLOptionsModal                     @"modal"
+#define openURLOptionsSlideIn                   @"slideInBanner"
+#define openURLOptionsHTML                      @"HTML"
+#define openURLOptionsInAppType                 @"inAppType"
+#define openURLOptionsButtonIndex               @"clickedButtonIndex"
+#define openURLOptionsButtonText                @"clickedButtonText"
+#define openURLOptionsPushUserInfo              @"userInfo"
+
+//Core data entities
+#define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"
+#define kBatchEventEntity                       @"BatchEventEntity"
+
+//URLSession constants
+#define kURLSessionLocation                     @"location"
+
+//UserInfo constants
+#define kBSUserCustomerId                       @"customer_id"
+#define kBSUserName                             @"name"
+#define kBSUserFirstName                        @"firstname"
+#define kBSUserLastName                         @"lastname"
+#define kBSUserGender                           @"gender"
+#define kBSUserJoinedAt                         @"joined_at"
+#define kBSUserFacebookId                       @"facebook_id"
+#define kBSUserEducation                        @"education"
+#define kBSUserUnsubscribedPush                 @"unsubscribed_push"
+#define kBSUserDOB                              @"date_of_birth"
+#define kBSUserAdditionalInfo                   @"additional_user_info"
+#define kBSUserExtras                           @"extras"
+            
+//Tracking constants
+#define kBSClick                                @"click"
+#define kBSDelivered                            @"delivered"
+#define kBSOpen                                 @"open"
+#define kBSDismiss                              @"dismiss"
+#define kBSAction                               @"a"
+
+//Serial queue
+#define kBSSerialQueue                          "com.blueshift.coresdk"
+
+//Core Data
+#define kBSCoreDataDataModel                    @"BlueShiftSDKDataModel"
+#define kBSCoreDataMOMD                         @"momd"
+#define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
+
+//NSNotificationCenter constant
+#define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
+#define kBSStatus                               @"status"
+
+//Default time interval for in-app notificaiton
+#define kDefaultInAppTimeInterval               60
+#define kMinimumInAppTimeInterval               5
 
 #endif /* BlueshiftConstants_h */
