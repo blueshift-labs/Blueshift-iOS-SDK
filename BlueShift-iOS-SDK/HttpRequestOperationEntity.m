@@ -110,7 +110,7 @@
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate] ];
                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == NO", currentTimeStamp];
-                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:YES];
                     [fetchRequest setSortDescriptors:@[sortByDate]];
                     [fetchRequest setPredicate:predicate];
                     [fetchRequest setFetchLimit:1];
@@ -173,7 +173,7 @@
                 if(fetchRequest.entity != nil) {
                     NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@ && isBatchEvent == YES", currentTimeStamp];
-                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:YES];
                     [fetchRequest setSortDescriptors:@[sortByDate]];
                     [fetchRequest setPredicate:predicate];
                     @try {

@@ -109,6 +109,7 @@
 #define kBSCoreDataMOMD                         @"momd"
 #define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
 #define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
+#define kBSCreatedAt                              @"createdAt"
 
 //NSNotificationCenter constant
 #define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
