@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @returns push tracking attributes dictionary
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary;
 
-+ (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
++ (NSString * _Nullable)getValueFrom:(NSDictionary *)notificationPayload usingKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
 + (NSString *)getCurrentUTCTimestamp;
 

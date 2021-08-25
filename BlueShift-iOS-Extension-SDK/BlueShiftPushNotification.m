@@ -9,6 +9,8 @@
 #import "BlueShiftPushNotification.h"
 #import "BlueShiftPushAnalytics.h"
 #import "BlueshiftExtensionAnalyticsHelper.h"
+#import "BlueshiftExtensionConstants.h"
+
 @import UserNotifications;
 
 API_AVAILABLE(ios(10.0))
@@ -25,7 +27,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request {
-    if([request.content.userInfo objectForKey:@"image_url"] || [request.content.userInfo objectForKey:@"gif_url"] || [request.content.userInfo objectForKey:@"audio_url"] || [request.content.userInfo objectForKey:@"video_url"] || [request.content.userInfo objectForKey:@"carousel_elements"] || [request.content.userInfo objectForKey:@"bsft_message_uuid"]) {
+    if([request.content.userInfo objectForKey:kNotificationMediaImageURL] || [request.content.userInfo objectForKey:kNotificationMediaGIFURL] || [request.content.userInfo objectForKey:kNotificationMediaAudioURL] || [request.content.userInfo objectForKey:kNotificationMediaVideoURL] || [request.content.userInfo objectForKey:kNotificationCarouselElements] || [request.content.userInfo objectForKey:kNotificationMessageUDIDKey]) {
         return YES;
     } else {
         return NO;
@@ -50,7 +52,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         [self trackPushViewedWithRequest:request];
     });
     
-    if ([request.content.categoryIdentifier isEqualToString: @"carousel"] || [request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
+    if ([request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return [self carouselAttachmentsDownload:request];
     } else {
         [self addNotificationCategory:request];
@@ -61,18 +63,18 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 - (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
     NSDictionary *userInfo = request.content.userInfo;
     if(userInfo && [[BlueShiftPushNotification sharedInstance] apiKey] && ![[[BlueShiftPushNotification sharedInstance] apiKey] isEqualToString:@""]) {
-        [BlueShiftPushAnalytics sendPushAnalytics:@"delivered" withParams:userInfo];
+        [BlueShiftPushAnalytics sendPushAnalytics:kNotificationDeliveredEvent withParams:userInfo];
     }
 }
 
 - (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
-    NSArray *images = [request.content.userInfo objectForKey:@"carousel_elements"];
+    NSArray *images = [request.content.userInfo objectForKey:kNotificationCarouselElements];
     NSMutableArray *attachments = [[NSMutableArray alloc]init];
     self.attachments = attachments;
     [images enumerateObjectsUsingBlock:
      ^(NSDictionary *image, NSUInteger index, BOOL *stop)
      {
-         NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
+         NSURL *imageURL = [NSURL URLWithString:[image objectForKey:kNotificationMediaImageURL]];
          NSData *imageData = nil;
          if(imageURL != nil && imageURL.absoluteString.length != 0) {
              imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
@@ -102,10 +104,10 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (NSArray *)mediaAttachmentDownlaod:(UNNotificationRequest *)request {
-    NSURL *imageURL = [NSURL URLWithString:[request.content.userInfo objectForKey:@"image_url"]];
-    NSURL *videoURL = [NSURL URLWithString:[request.content.userInfo objectForKey:@"video_url"]];
-    NSURL *audioURL = [NSURL URLWithString:[request.content.userInfo objectForKey:@"audio_url"]];
-    NSURL *gifURL   = [NSURL URLWithString:[request.content.userInfo objectForKey:@"gif_url"]];
+    NSURL *imageURL = [NSURL URLWithString:[request.content.userInfo objectForKey:kNotificationMediaImageURL]];
+    NSURL *videoURL = [NSURL URLWithString:[request.content.userInfo objectForKey:kNotificationMediaVideoURL]];
+    NSURL *audioURL = [NSURL URLWithString:[request.content.userInfo objectForKey:kNotificationMediaAudioURL]];
+    NSURL *gifURL   = [NSURL URLWithString:[request.content.userInfo objectForKey:kNotificationMediaGIFURL]];
     
     NSData *imageData = nil;
     NSData *videoData = nil;
@@ -120,7 +122,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString  *documentsDirectory = [paths objectAtIndex:0];
             
-            NSString *attachmentName = [NSString stringWithFormat:@"image.jpg"];
+            NSString *attachmentName = [NSString stringWithFormat:kNotificationMediaImageName];
             NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
             NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
@@ -142,7 +144,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString  *documentsDirectory = [paths objectAtIndex:0];
             
-            NSString *attachmentName = [NSString stringWithFormat:@"video.mp4"];
+            NSString *attachmentName = [NSString stringWithFormat:kNotificationMediaVideoName];
             NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
             NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
@@ -164,7 +166,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString  *documentsDirectory = [paths objectAtIndex:0];
             
-            NSString *attachmentName = [NSString stringWithFormat:@"gifImage.gif"];
+            NSString *attachmentName = [NSString stringWithFormat:kNotificationMediaGIFName];
             NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
             NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
@@ -186,7 +188,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString  *documentsDirectory = [paths objectAtIndex:0];
             
-            NSString *attachmentName = [NSString stringWithFormat:@"audio.mp3"];
+            NSString *attachmentName = [NSString stringWithFormat:kNotificationMediaAudioName];
             NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
             NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
             NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
@@ -207,16 +209,17 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 
 - (void)addNotificationCategory:(UNNotificationRequest *)request{
     NSDictionary* userInfo = request.content.userInfo;
-    NSDictionary* aps = userInfo[@"aps"];
-    if([userInfo[@"notification_type"] isEqualToString:@"actionable_notification"] && aps[@"category"]) {
+    NSDictionary* aps = userInfo[kNotificationAPS];
+    if([userInfo[kNotificationType] isEqualToString:kNotificationTypeActionable] && aps[kNotificationCategory]) {
         @try {
             __block bool isCategoryRegistrationComplteted = NO;
-            NSString* pushCategory = aps[@"category"];
-            NSArray* actionsArray = (NSArray*) userInfo[@"actions"];
+            NSString* pushCategory = aps[kNotificationCategory];
+            NSArray* actionsArray = (NSArray*) userInfo[kNotificationActions];
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
             UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
             [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
                 NSMutableSet<UNNotificationCategory *> * newCategories = [categories mutableCopy];
+                // Remove old category with same name(if present) in order to override it
                 [self removeDuplicateCategory:category.identifier FromSet:newCategories];
                 [newCategories addObject:category];
                 [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
@@ -224,9 +227,9 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             }];
             int counter = 0;
             // Sleep thread till the category registration finishes or counter reaches to 20 (2 seconds)
-            while (isCategoryRegistrationComplteted == NO && counter < 20) {
+            while (isCategoryRegistrationComplteted == NO && counter < kThreadSleepIterations) {
                 counter++;
-                [NSThread sleepForTimeInterval:0.1];
+                [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
             }
         } @catch (NSException *exception) {
         }
@@ -238,27 +241,31 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 
     for(NSDictionary* actionItem in actionsDict) {
         UNNotificationActionOptions actionOption = UNNotificationActionOptionForeground;
-        NSString* actionType = actionItem[@"type"];
-        if([actionType isEqualToString:@"destructive"])
-            actionOption = UNNotificationActionOptionDestructive;
-        else if([actionType isEqualToString: @"autheticationRequired"])
-            actionOption = UNNotificationActionOptionAuthenticationRequired;
-        else if([actionType isEqualToString:@"none"])
-            actionOption = UNNotificationActionOptionNone;
-        UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionItem[@"identifier"] title:actionItem[@"title"] options:actionOption];
-        [notificationActions addObject:action];
+        NSString* actionType = actionItem[kNotificationActionType];
+        if (actionType && ![actionType isEqualToString:kNotificationActionTypeOpen]) {
+            if([actionType isEqualToString:kNotificationActionTypeDestructive])
+                actionOption = UNNotificationActionOptionDestructive;
+            else if([actionType isEqualToString: kNotificationActionTypeDestructive])
+                actionOption = UNNotificationActionOptionAuthenticationRequired;
+            else if([actionType isEqualToString:kNotificationActionTypeNone])
+                actionOption = UNNotificationActionOptionNone;
+        }
+        if (actionItem[kNotificationActionTitle] && actionItem[kNotificationActionIdentifier]) {
+            UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionItem[kNotificationActionIdentifier] title:actionItem[kNotificationActionTitle] options:actionOption];
+            [notificationActions addObject:action];
+        }
     }
     return notificationActions;
 }
 
-- (NSSet*)removeDuplicateCategory:(NSString*)category FromSet:(NSMutableSet*)categories {
+// Remove duplicate categories from the set using category identifier
+- (void)removeDuplicateCategory:(NSString*)category FromSet:(NSMutableSet*)categories {
     NSArray* categoriesArray = [categories allObjects];
     for(UNNotificationCategory* categoryItem in categoriesArray) {
         if ([categoryItem.identifier isEqualToString:category]) {
             [categories removeObject:categoryItem];
         }
     }
-    return categories;
 }
 
 @end
