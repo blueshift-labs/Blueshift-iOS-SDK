@@ -70,6 +70,6 @@
 #define kTimezoneUTC                                                    @"UTC"
 
 #define kThreadSleepTimeInterval                                        0.1
-#define kThreadSleepIterations                                          30
+#define kThreadSleepIterations                                          20
 
 #endif
