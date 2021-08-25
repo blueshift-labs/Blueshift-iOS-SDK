@@ -210,6 +210,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     NSDictionary* aps = userInfo[@"aps"];
     if([userInfo[@"notification_type"] isEqualToString:@"actionable_notification"] && aps[@"category"]) {
         @try {
+            __block bool isCategoryRegistrationComplteted = NO;
             NSString* pushCategory = aps[@"category"];
             NSArray* actionsArray = (NSArray*) userInfo[@"actions"];
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
@@ -219,8 +220,14 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                 [self removeDuplicateCategory:category.identifier FromSet:newCategories];
                 [newCategories addObject:category];
                 [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
+                isCategoryRegistrationComplteted = YES;
             }];
-            [NSThread sleepForTimeInterval:2];
+            int counter = 0;
+            // Sleep thread till the category registration finishes or counter reaches to 20 (2 seconds)
+            while (isCategoryRegistrationComplteted == NO && counter < 20) {
+                counter++;
+                [NSThread sleepForTimeInterval:0.1];
+            }
         } @catch (NSException *exception) {
         }
     }
