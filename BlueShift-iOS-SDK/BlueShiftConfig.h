@@ -21,9 +21,9 @@
 @property NSString * _Nonnull apiKey;
 @property NSDictionary * _Nonnull applicationLaunchOptions;
 
-@property NSURL * _Nullable productPageURL;
-@property NSURL * _Nullable cartPageURL;
-@property NSURL * _Nullable offerPageURL;
+@property NSURL * _Nullable productPageURL DEPRECATED_MSG_ATTRIBUTE("productPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
+@property NSURL * _Nullable cartPageURL DEPRECATED_MSG_ATTRIBUTE("cartPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
+@property NSURL * _Nullable offerPageURL DEPRECATED_MSG_ATTRIBUTE("offerPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
 
 /// Set this property to false in order to stop SDK from registering for silent(background) push notifications.
 /// @discussion SDK registers for silent push notifications in order to receive the in-app notifications when user has not asked for push permission

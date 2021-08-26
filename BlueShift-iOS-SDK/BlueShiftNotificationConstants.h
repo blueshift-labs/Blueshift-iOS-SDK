@@ -17,6 +17,9 @@
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
 #define kNotificationBodyKey                                            @"body"
 #define kNotificationTitleKey                                           @"title"
+#define kNotificationTypeActionable                                     @"actionable_notification"
+#define kNotificationActions                                            @"actions"
+#define kNotificationActionIdentifier                                   @"identifier"
 
 #define kNotificationSchedulerKey                                       @"notification_scheduler"
 #define kNotificationTimestampToDisplayKey                              @"timestamp_to_display"
