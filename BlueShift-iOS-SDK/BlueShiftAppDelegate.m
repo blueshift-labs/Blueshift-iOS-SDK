@@ -922,14 +922,16 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     NSArray *actions = (NSArray*)notification[kNotificationActions];
     NSMutableDictionary *mutableNotification = [notification mutableCopy];
     if (actions) {
-        NSString *deepLink = @"";
+        NSString *deepLink = nil;
         for (NSDictionary* action in actions) {
             if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
                 deepLink = action[kPushNotificationDeepLinkURLKey];
                 break;
             }
         }
-        [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
+        if (deepLink) {
+            [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
+        }
         NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:notification];
         [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     }
