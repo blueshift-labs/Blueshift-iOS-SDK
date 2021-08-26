@@ -220,7 +220,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
                 NSMutableSet<UNNotificationCategory *> * newCategories = [categories mutableCopy];
                 // Remove old category with same name(if present) in order to override it
-                [self removeDuplicateCategory:category.identifier FromSet:newCategories];
+                [self removeDuplicateCategory:category.identifier fromSet:newCategories];
                 [newCategories addObject:category];
                 [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
                 isCategoryRegistrationComplteted = YES;
@@ -259,7 +259,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 // Remove duplicate categories from the set using category identifier
-- (void)removeDuplicateCategory:(NSString*)category FromSet:(NSMutableSet*)categories {
+- (void)removeDuplicateCategory:(NSString*)category fromSet:(NSMutableSet*)categories {
     NSArray* categoriesArray = [categories allObjects];
     for(UNNotificationCategory* categoryItem in categoriesArray) {
         if ([categoryItem.identifier isEqualToString:category]) {
