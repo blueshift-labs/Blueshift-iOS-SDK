@@ -14,36 +14,32 @@
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     NSMutableDictionary *pushTrackParametersMutableDictionary = [NSMutableDictionary dictionary];
     if (pushDetailsDictionary) {
-        NSString *bsft_experiment_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalExperimentIDKey];
-        NSString *bsft_user_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalUserIDKey];
-        NSString *message_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalMessageUDIDKey];
-        NSString *transactional_uuid = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalTransactionIDKey];
+        NSString *bsft_experiment_uuid = [self getValueFrom:pushDetailsDictionary usingKey:kNotificationExperimentIDKey];
+        NSString *bsft_user_uuid = [self getValueFrom:pushDetailsDictionary usingKey:kNotificationUserIDKey];
+        NSString *message_uuid = [self getValueFrom:pushDetailsDictionary usingKey:kNotificationMessageUDIDKey];
+        NSString *transactional_uuid = [self getValueFrom:pushDetailsDictionary usingKey:kNotificationTransactionIDKey];
         NSString *sdkVersion = [[[NSBundle bundleForClass:self.class] infoDictionary] objectForKey:kCFBundleShortVersionString];
-        NSString *element = [self getValueBykey: pushDetailsDictionary andKey: kInAppNotificationModalElementKey];
         NSString *timestamp = [self getCurrentUTCTimestamp];
         NSString *deviceId = (NSString *)[pushDetailsDictionary objectForKey:kDeviceID];
         NSString *appName = (NSString *)[pushDetailsDictionary objectForKey:kAppName];
         
         if (bsft_user_uuid) {
-            [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
+            [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kNotificationUIDKey];
         }
         if(bsft_experiment_uuid) {
-            [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey: kInAppNotificationModalEIDKey];
+            [pushTrackParametersMutableDictionary setObject:bsft_experiment_uuid forKey: kNotificationEIDKey];
         }
         if (message_uuid) {
-            [pushTrackParametersMutableDictionary setObject:message_uuid forKey: kInAppNotificationModalMIDKey];
+            [pushTrackParametersMutableDictionary setObject:message_uuid forKey: kNotificationMIDKey];
         }
         if (transactional_uuid) {
-            [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey: kInAppNotificationModalTXNIDKey];
+            [pushTrackParametersMutableDictionary setObject:transactional_uuid forKey: kNotificationTXNIDKey];
         }
         if (sdkVersion) {
-            [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kInAppNotificationModalSDKVersionKey];
-        }
-        if (element) {
-            [pushTrackParametersMutableDictionary setObject:element forKey: kInAppNotificationModalElementKey];
+            [pushTrackParametersMutableDictionary setObject:sdkVersion forKey: kNotificationSDKVersionKey];
         }
         if (timestamp) {
-            [pushTrackParametersMutableDictionary setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
+            [pushTrackParametersMutableDictionary setObject:timestamp forKey: kNotificationTimestampKey];
         }
         if (deviceId) {
             [pushTrackParametersMutableDictionary setObject:deviceId forKey: kDeviceID];
@@ -55,21 +51,17 @@
     return [pushTrackParametersMutableDictionary copy];
 }
 
-+ (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
++ (NSString * _Nullable)getValueFrom:(NSDictionary *)notificationPayload usingKey:(NSString *)key {
     if (notificationPayload && key && ![key isEqualToString:@""]) {
-        if ([notificationPayload objectForKey: key]) {
-            return (NSString *)[notificationPayload objectForKey: key];
-        } else if ([notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey]){
-            notificationPayload = [notificationPayload objectForKey: kSilentNotificationPayloadIdentifierKey];
-            return (NSString *)[notificationPayload objectForKey: key];
+        if ([notificationPayload objectForKey:key]) {
+            return (NSString *)[notificationPayload objectForKey:key];
         }
     }
-    
-    return @"";
+    return nil;
 }
 
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo {
-    if (userInfo && userInfo[@"bsft_seed_list_send"] && [userInfo[@"bsft_seed_list_send"] boolValue] == YES) {
+    if (userInfo && userInfo[kNotificationSeedListSend] && [userInfo[kNotificationSeedListSend] boolValue] == YES) {
         return NO;
     } else {
         return YES;
@@ -78,8 +70,8 @@
 
 + (NSString *)getCurrentUTCTimestamp {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    [dateFormatter setDateFormat:kDefaultTimezoneFormat];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:kTimezoneUTC]];
     return [dateFormatter stringFromDate:[NSDate date]];
 }
 
