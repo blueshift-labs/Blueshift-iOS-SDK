@@ -29,6 +29,7 @@
         NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
         NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
         NSString *timestamp = [self getCurrentUTCTimestamp];
+        NSString* notificationType = [pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey];
         if (bsft_user_uuid) {
             [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
         }
@@ -50,7 +51,8 @@
         if ([self isNotNilAndNotEmpty:urlElement]) {
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
         }
-        if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
+        
+        if([notificationType isEqualToString:kNotificationKey] || [notificationType isEqualToString:kNotificationTypeActionable]) {
             // If pushDeepLinkURL is nil, then reassign url from pushDetailsDictionary
             if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
                 pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
