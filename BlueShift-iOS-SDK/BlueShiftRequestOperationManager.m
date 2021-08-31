@@ -36,7 +36,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSString *credentials = [NSString stringWithFormat:@"%@:%@",username,password];
     NSData *credentialsData = [credentials dataUsingEncoding:NSUTF8StringEncoding];
     NSString *credentialsBase64String = [credentialsData base64EncodedStringWithOptions:0];
-    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     defaultConfigObject.HTTPAdditionalHeaders = @{
                                                   kBSAuthorization:credentialsBase64String,
                                                   kBSContentType:kBSApplicationJSON
