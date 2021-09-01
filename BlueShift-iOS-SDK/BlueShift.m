@@ -243,6 +243,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
+/// Returns true if the current thread Queue is Blueshift serial Queue.
 - (BOOL)isBlueshiftQueue {
     BlueShift *currentQueue = (__bridge id) dispatch_get_specific(kBlueshiftQueue);
     return currentQueue == self;
