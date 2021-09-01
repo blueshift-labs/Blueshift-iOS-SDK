@@ -21,7 +21,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 @implementation BlueShift
 
-- (dispatch_queue_t) dispatch_get_bsft_queue {
+- (dispatch_queue_t _Nullable) dispatch_get_blueshift_queue {
     return blueshiftSerialQueue;
 }
 
@@ -696,11 +696,16 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
     NSDictionary* eventParams = [self addDefaultParamsToDictionary:requestParameters];
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[eventParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+    // Check if blueshiftSerialQueue is not nil
     if (blueshiftSerialQueue) {
-        dispatch_async(blueshiftSerialQueue, ^{
+        if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
             [BlueShiftRequestQueue addRequestOperation:requestOperation];
-        });
-    } else {
+        } else {
+            dispatch_async(blueshiftSerialQueue, ^{
+                [BlueShiftRequestQueue addRequestOperation:requestOperation];
+            });
+        }
+    } else { // If blueshiftSerialQueue is not availble then execute it on same thread
         [BlueShiftRequestQueue addRequestOperation:requestOperation];
     }
 }
@@ -739,11 +744,16 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
     NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
     BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+    // Check if blueshiftSerialQueue is not nil
     if (blueshiftSerialQueue) {
-        dispatch_async(blueshiftSerialQueue, ^{
+        if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
             [BlueShiftRequestQueue addRequestOperation:requestOperation];
-        });
-    } else {
+        } else {
+            dispatch_async(blueshiftSerialQueue, ^{
+                [BlueShiftRequestQueue addRequestOperation:requestOperation];
+            });
+        }
+    } else { // If blueshiftSerialQueue is not availble then execute it on same thread
         [BlueShiftRequestQueue addRequestOperation:requestOperation];
     }
 }

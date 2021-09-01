@@ -522,13 +522,10 @@
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
     } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
         width = self.notification.templateStyle.width;
+    } else if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+        width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
     } else {
-        // Default width
-        if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
-        } else {
-            width = self.notification.width;
-        }
+        width = self.notification.width;
     }
     
     float height = 0;

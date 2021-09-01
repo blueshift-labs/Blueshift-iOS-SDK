@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
 
-- (dispatch_queue_t) dispatch_get_bsft_queue;
+- (dispatch_queue_t _Nullable) dispatch_get_blueshift_queue;
 
 /// Register for in-app notifications in order to show the in-app notifications on the view controller or screen. To register, call this method in the `viewDidAppear` lifecycle method of VC.
 /// @param displayPage Name of screen or view controller
