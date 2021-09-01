@@ -73,7 +73,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
-        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue currentQueue]];
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     }
     
     NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, [self getRequestParamStringForDictionary:params]];
@@ -107,7 +107,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
-        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue currentQueue]];
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
     }
     
     NSURL * url = [NSURL URLWithString:urlString];
@@ -142,7 +142,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
     if(!_replayURLSesion) {
         NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-        _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: self delegateQueue: [NSOperationQueue currentQueue]];
+        _replayURLSesion = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate: self delegateQueue: [NSOperationQueue mainQueue]];
     }
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL: url];
