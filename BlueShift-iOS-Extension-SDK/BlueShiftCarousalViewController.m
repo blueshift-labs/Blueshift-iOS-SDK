@@ -418,8 +418,10 @@
                  if(imageURL != nil && imageURL.absoluteString.length != 0) {
                      imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
                      UIImage *image = [UIImage imageWithData:imageData];
-                     [images insertObject:image atIndex:index];
-                     [attachmentIDs insertObject:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index] atIndex:index];
+                     if (image) {
+                         [images insertObject:image atIndex:index];
+                         [attachmentIDs insertObject:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index] atIndex:index];
+                     }
                  }
              }
          }];

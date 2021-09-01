@@ -83,6 +83,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         _sharedBlueShiftInstance.appDelegate = [[BlueShiftAppDelegate alloc] init];
         _sharedBlueShiftInstance.appDelegate.mainAppDelegate = [UIApplication sharedApplication].delegate;
         
+        // Initialise Blueshift serial queue
         static dispatch_once_t s_done;
         dispatch_once(&s_done, ^{
             blueshiftSerialQueue = dispatch_queue_create(kBSSerialQueue, DISPATCH_QUEUE_SERIAL);
