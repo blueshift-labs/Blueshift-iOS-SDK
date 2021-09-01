@@ -37,12 +37,36 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 #pragma mark - Remote & silent push notification registration
 
+- (void)setNotificationCategories {
+    if (@available(iOS 10.0, *)) {
+        NSArray *configCategories = [[[[BlueShift sharedInstance] userNotification] notificationCategories] allObjects];
+        
+        // Fetch existing categories from UNUserNotificationCenter
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
+            @try {
+                NSMutableDictionary<NSString*, UNNotificationCategory *>* categoryDictionary = [NSMutableDictionary dictionary];
+                // Create set of existing category identifiers for comparison
+                [[categories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [categoryDictionary setValue:obj forKey:obj.identifier];
+                }];
+                // Add new categories from the configCategories to register.
+                [configCategories enumerateObjectsUsingBlock:^(UNNotificationCategory *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [categoryDictionary setValue:obj forKey:obj.identifier];
+                }];
+                NSSet* updatedCategories = [NSSet setWithArray:[categoryDictionary allValues]];
+                [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
+            } @catch (NSException *exception) {
+            }
+        }];
+    }
+}
+
 /// Call this method to register for remote notifications.
 - (void) registerForNotification {
     if (@available(iOS 10.0, *)) {
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         center.delegate = self.userNotificationDelegate;
-        [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+        [self setNotificationCategories];
         [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
             if(!error){
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
@@ -923,17 +947,22 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     NSMutableDictionary *mutableNotification = [notification mutableCopy];
     if (actions) {
         NSString *deepLink = nil;
+        NSString *actionTitle = nil;
         for (NSDictionary* action in actions) {
             if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
                 deepLink = action[kPushNotificationDeepLinkURLKey];
+                actionTitle = action[kNotificationTitleKey];
                 break;
             }
         }
         if (deepLink) {
             [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
         }
-        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:notification];
-        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+        if (actionTitle) {
+            [mutableNotification setValue:actionTitle forKey:kNotificationClickElementKey];
+        }
+        NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:mutableNotification];
+        [self trackPushClickedWithParameters:trackingParams];
     }
     return mutableNotification;
 }
