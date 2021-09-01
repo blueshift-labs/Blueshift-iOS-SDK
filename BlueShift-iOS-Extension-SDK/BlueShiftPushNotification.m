@@ -219,17 +219,19 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
             if (notificationActions.count > 0) {
                 UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-                [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
-                    NSMutableSet<UNNotificationCategory *> * newCategories = [categories mutableCopy];
-                    // Remove old category with same name(if present) in order to override it
-                    if([self isCatgoryExists:category.identifier inSet:newCategories] == NO) {
-                        [newCategories addObject:category];
-                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
+                [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
+                    NSMutableSet<UNNotificationCategory *> * updatedCategories = [existingCategories mutableCopy];
+                    // Add category if it is not present in the UNUserNotificationCenter
+                    if([self isCatgoryExists:category.identifier inSet:updatedCategories] == NO) {
+                        [updatedCategories addObject:category];
+                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
                     } else if(forceReplaceCategory && [forceReplaceCategory boolValue] == YES) {
-                        [self removeDuplicateCategory:category.identifier fromSet:newCategories];
-                        [newCategories addObject:category];
-                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
+                        // Remove old category with same id(if present) in order to replace it.
+                        [self removeDuplicateCategory:category.identifier fromSet:updatedCategories];
+                        [updatedCategories addObject:category];
+                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
                     }
+                    // set the flag to true to exit the thread sleep loop.
                     isCategoryRegistrationComplteted = YES;
                 }];
                 int counter = 0;

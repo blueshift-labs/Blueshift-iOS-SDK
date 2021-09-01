@@ -41,17 +41,17 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     if (@available(iOS 10.0, *)) {
         NSArray *configCategories = [[[[BlueShift sharedInstance] userNotification] notificationCategories] allObjects];
         
-        // Fetch existing categories from UNUserNotificationCenter
-        [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
+        // Get existing categories from UNUserNotificationCenter
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
             @try {
                 NSMutableDictionary<NSString*, UNNotificationCategory *>* categoryDictionary = [NSMutableDictionary dictionary];
-                // Create set of existing category identifiers for comparison
-                [[categories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    [categoryDictionary setValue:obj forKey:obj.identifier];
+                // Create a dictionary of existing category-identifiers and categories for comparison
+                [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];
                 }];
                 // Add new categories from the configCategories to register.
-                [configCategories enumerateObjectsUsingBlock:^(UNNotificationCategory *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    [categoryDictionary setValue:obj forKey:obj.identifier];
+                [configCategories enumerateObjectsUsingBlock:^(UNNotificationCategory *  _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];
                 }];
                 NSSet* updatedCategories = [NSSet setWithArray:[categoryDictionary allValues]];
                 [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
