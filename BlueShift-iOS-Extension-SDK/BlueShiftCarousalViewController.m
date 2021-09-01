@@ -8,6 +8,7 @@
 
 #import "BlueShiftCarousalViewController.h"
 #import "UIColor+BlueShiftHexString.h"
+#import "BlueshiftExtensionConstants.h"
 
 #define kPaddingLeft            0
 #define kpaddingRight           0
@@ -65,7 +66,7 @@
 }
 
 - (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification  API_AVAILABLE(ios(10.0)){
-    if ([notification.request.content.categoryIdentifier isEqualToString: @"carousel"] || [notification.request.content.categoryIdentifier isEqualToString: @"carousel_animation"]) {
+    if ([notification.request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [notification.request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return YES;
     } else {
         return NO;
@@ -73,7 +74,7 @@
 }
 
 - (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response  API_AVAILABLE(ios(10.0)){
-    if(response.actionIdentifier && ([response.actionIdentifier isEqualToString:@"next"] || [response.actionIdentifier isEqualToString:@"previous"] || [response.actionIdentifier isEqualToString:@"go_to_app"])) {
+    if(response.actionIdentifier && ([response.actionIdentifier isEqualToString:kNotificationCarouselNextIdentifier] || [response.actionIdentifier isEqualToString:kNotificationCarouselPreviousIdentifier] || [response.actionIdentifier isEqualToString:kNotificationCarouselGotoappIdentifier])) {
         return YES;
     } else {
         return NO;
@@ -412,7 +413,7 @@
         [self.carouselElements enumerateObjectsUsingBlock:
          ^(NSDictionary *image, NSUInteger index, BOOL *stop) {
              if(attachmentIDs.count < index + 1 || ![[attachmentIDs objectAtIndex:index] isEqualToString:[NSString stringWithFormat:@"image_%lu.jpg", (unsigned long)index]]) {
-                 NSURL *imageURL = [NSURL URLWithString:[image objectForKey:@"image_url"]];
+                 NSURL *imageURL = [NSURL URLWithString:[image objectForKey:kNotificationMediaImageURL]];
                  NSData *imageData = nil;
                  if(imageURL != nil && imageURL.absoluteString.length != 0) {
                      imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
