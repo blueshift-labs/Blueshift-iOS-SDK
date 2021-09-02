@@ -142,12 +142,12 @@ API_AVAILABLE(ios(8.0))
     if (isAutoWidth && width == 0) {
         //If ipad, set the width to max width
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
         } else {
             float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             //If iPhone orientation is landscape, set the width to max width
-            if (deviceWidth > kHTMLInAppNotificationMaximumWidthInPoints) {
-                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
+            if (deviceWidth > kInAppNotificationMaximumWidthInPoints) {
+                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
             } else {
                 //If iPhone orientation is portrait, set the width to default 95%
                 width = kInAppNotificationDefaultWidth;
@@ -256,8 +256,7 @@ API_AVAILABLE(ios(8.0))
     return frame;
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler API_AVAILABLE(ios(8.0)){
-    
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler API_AVAILABLE(ios(8.0)) {
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
         NSURL *url = navigationAction.request.URL;
         NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:url.absoluteString];

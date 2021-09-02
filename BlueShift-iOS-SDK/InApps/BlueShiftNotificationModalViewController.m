@@ -460,7 +460,12 @@
             }
             
             // Set max width in points which device can support
-            float maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+            float maxWidthInPoints = 0;
+            if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+                maxWidthInPoints = kInAppNotificationMaximumWidthInPoints;
+            } else {
+                maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+            }
             // Set max width in points to default height except when width is automatic and height is fixed
             float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
             
@@ -517,8 +522,9 @@
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
     } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
         width = self.notification.templateStyle.width;
+    } else if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+        width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
     } else {
-        // Default width
         width = self.notification.width;
     }
     
