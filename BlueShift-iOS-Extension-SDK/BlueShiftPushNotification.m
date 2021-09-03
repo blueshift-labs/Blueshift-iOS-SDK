@@ -266,7 +266,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                 }
                 if (actionItem[kNotificationActionTitle]) {
                     // create unique action identifier if identifier field is missing in payload
-                    NSString* actionIdentifier = actionItem[kNotificationActionIdentifier] ? actionItem[kNotificationActionIdentifier] : [NSString stringWithFormat:@"%@_%i",kNotificationDefautlActionIdentifier,counter];
+                    NSString* actionIdentifier = actionItem[kNotificationActionIdentifier] ? actionItem[kNotificationActionIdentifier] : [NSString stringWithFormat:@"%@_%i",kNotificationDefaultActionIdentifier,counter];
                     UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionIdentifier title:actionItem[kNotificationActionTitle] options:actionOption];
                     [notificationActions addObject:action];
                 }

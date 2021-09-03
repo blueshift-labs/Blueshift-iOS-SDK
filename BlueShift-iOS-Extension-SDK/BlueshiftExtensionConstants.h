@@ -36,7 +36,7 @@
 #define kNotificationActionTypeNone                                     @"none"
 #define kNotificationActionTitle                                        @"title"
 #define kNotificationActionIdentifier                                   @"identifier"
-#define kNotificationDefautlActionIdentifier                            @"BSPushIdentifier"
+#define kNotificationDefaultActionIdentifier                            @"BSPushIdentifier"
 #define kNotificationForceReplaceCategory                               @"forceReplaceExistingCategory"
 
 #define kNotificationMediaImageURL                                      @"image_url"

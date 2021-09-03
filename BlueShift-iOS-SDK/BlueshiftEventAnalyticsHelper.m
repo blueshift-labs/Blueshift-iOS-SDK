@@ -52,11 +52,13 @@
         }
         
         if([notificationType isEqualToString:kNotificationKey]) {
-            // If link inside the clk_url is nil, then reassign url from pushDetailsDictionary for key deep_link_url
             NSString *pushDeepLinkURL = @"";
+            // If link inside the clk_url is valid, then consider it as deep link.
             if(urlElement) {
                 pushDeepLinkURL = urlElement;
-            } else {
+            } else if (!pushDetailsDictionary[kNotificationActions]) {
+                // Check if the push is not actionable type,
+                // then reassign url from pushDetailsDictionary for key deep_link_url
                 pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
             }
             // If not nil, encode and add to track dictionary
