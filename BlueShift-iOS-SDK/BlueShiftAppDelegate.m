@@ -37,12 +37,36 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 #pragma mark - Remote & silent push notification registration
 
+- (void)setNotificationCategories {
+    if (@available(iOS 10.0, *)) {
+        NSArray *configCategories = [[[[BlueShift sharedInstance] userNotification] notificationCategories] allObjects];
+        
+        // Get existing categories from UNUserNotificationCenter
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
+            @try {
+                NSMutableDictionary<NSString*, UNNotificationCategory *>* categoryDictionary = [NSMutableDictionary dictionary];
+                // Create a dictionary of existing category-identifiers and categories for comparison
+                [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];
+                }];
+                // Add new categories from the configCategories to register.
+                [configCategories enumerateObjectsUsingBlock:^(UNNotificationCategory *  _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];
+                }];
+                NSSet* updatedCategories = [NSSet setWithArray:[categoryDictionary allValues]];
+                [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
+            } @catch (NSException *exception) {
+            }
+        }];
+    }
+}
+
 /// Call this method to register for remote notifications.
 - (void) registerForNotification {
     if (@available(iOS 10.0, *)) {
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         center.delegate = self.userNotificationDelegate;
-        [center setNotificationCategories: [[[BlueShift sharedInstance] userNotification] notificationCategories]];
+        [self setNotificationCategories];
         [center requestAuthorizationWithOptions:([[[BlueShift sharedInstance] userNotification] notificationTypes]) completionHandler:^(BOOL granted, NSError * _Nullable error){
             if(!error){
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
@@ -423,7 +447,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 - (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo actionIdentifier:(NSString* _Nullable)identifier {
     @try {
         // invoke the push clicked callback method
-        if ([userInfo[kNotificationTypeIdentifierKey] isEqualToString:kNotificationTypeActionable] && [[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:forActionIdentifier:)]) {
+        if (userInfo[kNotificationActions] && identifier && [[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:forActionIdentifier:)]) {
             [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo forActionIdentifier:identifier];
         } else if ([[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:)]) {
             [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo];
@@ -434,11 +458,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         [self trackAppOpenWithParameters:userInfo];
         
         if (userInfo != nil && ([userInfo objectForKey: kPushNotificationDeepLinkURLKey] || [userInfo objectForKey: kNotificationURLElementKey])) {
-            NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
-            if (!deepLinkURL) {
-                deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
+            NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
+            // If clk_url is nil and identifier is nil, then check the deep link using deep_link_url key
+            if (!deepLinkURL && !identifier) {
+                deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
             }
-            if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+            if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && deepLinkURL) {
                 if (@available(iOS 9.0, *)) {
                     NSMutableDictionary *pushOptions = [@{openURLOptionsSource:openURLOptionsBlueshift,
                                                           openURLOptionsChannel:openURLOptionsPush,
@@ -884,7 +909,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     NSDictionary *pushDetailsDictionary = nil;
     pushDetailsDictionary = notification;
     self.userInfo = notification;
-    if ([notification[kNotificationTypeIdentifierKey] isEqualToString:kNotificationTypeActionable]) {
+    if (notification[kNotificationActions]) {
         notification = [self handleCustomActionablePushNotification:notification forActionIdentifier:identifier];
     } else if ([identifier isEqualToString: kNotificationActionBuyIdentifier]) {
         [self handleActionForBuyUsingPushDetailsDictionary:pushDetailsDictionary];
@@ -919,22 +944,43 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 - (NSDictionary*)handleCustomActionablePushNotification:(NSDictionary *)notification forActionIdentifier:(NSString *)identifier {
-    NSArray *actions = (NSArray*)notification[kNotificationActions];
     NSMutableDictionary *mutableNotification = [notification mutableCopy];
-    if (actions) {
-        NSString *deepLink = nil;
-        for (NSDictionary* action in actions) {
-            if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
-                deepLink = action[kPushNotificationDeepLinkURLKey];
-                break;
+    @try {
+        NSArray *actions = (NSArray*)notification[kNotificationActions];
+        if (actions && actions.count > 0) {
+            NSString *deepLink = nil;
+            NSString *actionTitle = nil;
+            //Check if the identifier is not created by the SDK and it is coming in the payload
+            if ([identifier rangeOfString:kNotificationDefaultActionIdentifier].location == NSNotFound) {
+                for (NSDictionary* action in actions) {
+                    if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
+                        deepLink = action[kPushNotificationDeepLinkURLKey];
+                        actionTitle = action[kNotificationTitleKey];
+                        break;
+                    }
+                }
+            } else {
+                // If the identifier is created by SDK, then it will look like `BSPushIdentifier_2`
+                // Use the last character as index and get the deep link and button title
+                NSString *indexString = [identifier substringFromIndex:identifier.length - 1];
+                int index = [indexString intValue];
+                if (index < actions.count) {
+                    actionTitle = actions[index][kNotificationTitleKey];
+                    deepLink = actions[index][kPushNotificationDeepLinkURLKey];
+                }
+            }
+            if (deepLink) {
+                [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
+            }
+            if (actionTitle) {
+                [mutableNotification setValue:actionTitle forKey:kNotificationClickElementKey];
             }
         }
-        if (deepLink) {
-            [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
-        }
-        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:notification];
-        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+    NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:mutableNotification];
+    [self trackPushClickedWithParameters:trackingParams];
     return mutableNotification;
 }
 

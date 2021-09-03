@@ -208,64 +208,96 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (void)addNotificationCategory:(UNNotificationRequest *)request{
-    NSDictionary* userInfo = request.content.userInfo;
-    NSDictionary* aps = userInfo[kNotificationAPS];
-    if([userInfo[kNotificationType] isEqualToString:kNotificationTypeActionable] && aps[kNotificationCategory]) {
-        @try {
+    @try {
+        NSDictionary* userInfo = request.content.userInfo;
+        NSDictionary* aps = userInfo[kNotificationAPS];
+        NSString* pushCategory = aps[kNotificationCategory];
+        NSString* forceReplaceCategory = userInfo[kNotificationForceReplaceCategory];
+        NSArray* actionsArray = userInfo[kNotificationActions];
+        if(actionsArray && pushCategory) {
             __block bool isCategoryRegistrationComplteted = NO;
-            NSString* pushCategory = aps[kNotificationCategory];
-            NSArray* actionsArray = (NSArray*) userInfo[kNotificationActions];
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
-            UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-            [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
-                NSMutableSet<UNNotificationCategory *> * newCategories = [categories mutableCopy];
-                // Remove old category with same name(if present) in order to override it
-                [self removeDuplicateCategory:category.identifier fromSet:newCategories];
-                [newCategories addObject:category];
-                [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:newCategories];
-                isCategoryRegistrationComplteted = YES;
-            }];
-            int counter = 0;
-            // Sleep thread till the category registration finishes or counter reaches to 20 (2 seconds)
-            while (isCategoryRegistrationComplteted == NO && counter < kThreadSleepIterations) {
-                counter++;
-                [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+            if (notificationActions.count > 0) {
+                UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+                [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
+                    NSMutableSet<UNNotificationCategory *> * updatedCategories = [existingCategories mutableCopy];
+                    // Add category if it is not present in the UNUserNotificationCenter
+                    if([self isCatgoryExists:category.identifier inSet:updatedCategories] == NO) {
+                        [updatedCategories addObject:category];
+                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
+                    } else if(forceReplaceCategory && [forceReplaceCategory boolValue] == YES) {
+                        // Remove old category with same id(if present) in order to replace it.
+                        [self removeDuplicateCategory:category.identifier fromSet:updatedCategories];
+                        [updatedCategories addObject:category];
+                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
+                    }
+                    // set the flag to true to exit the thread sleep loop.
+                    isCategoryRegistrationComplteted = YES;
+                }];
+                int counter = 0;
+                // Sleep thread till the category registration finishes or counter reaches to 20 (2 seconds)
+                while (isCategoryRegistrationComplteted == NO && counter < kThreadSleepIterations) {
+                    counter++;
+                    [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+                }
             }
-        } @catch (NSException *exception) {
         }
+    } @catch (NSException *exception) {
     }
 }
 
-- (NSMutableArray*)getNotificationActions:(NSArray*) actionsDict {
+- (NSMutableArray*)getNotificationActions:(NSArray*)actions {
     NSMutableArray<UNNotificationAction *>* notificationActions = [NSMutableArray new];
-
-    for(NSDictionary* actionItem in actionsDict) {
-        UNNotificationActionOptions actionOption = UNNotificationActionOptionForeground;
-        NSString* actionType = actionItem[kNotificationActionType];
-        if (actionType && ![actionType isEqualToString:kNotificationActionTypeOpen]) {
-            if([actionType isEqualToString:kNotificationActionTypeDestructive])
-                actionOption = UNNotificationActionOptionDestructive;
-            else if([actionType isEqualToString: kNotificationActionTypeDestructive])
-                actionOption = UNNotificationActionOptionAuthenticationRequired;
-            else if([actionType isEqualToString:kNotificationActionTypeNone])
-                actionOption = UNNotificationActionOptionNone;
+    @try {
+        if (actions && actions.count > 0) {
+            // Support maximum 5 action items
+            NSInteger actionsCount = (actions.count > kNotificationMaxSupportedActions) ? kNotificationMaxSupportedActions : actions.count;
+            for(int counter = 0; counter < actionsCount; counter++) {
+                NSDictionary* actionItem = actions[counter];
+                UNNotificationActionOptions actionOption = UNNotificationActionOptionForeground;
+                NSString* actionType = actionItem[kNotificationActionType];
+                if (actionType && ![actionType isEqualToString:kNotificationActionTypeOpen]) {
+                    if([actionType isEqualToString:kNotificationActionTypeDestructive])
+                        actionOption = UNNotificationActionOptionDestructive;
+                    else if([actionType isEqualToString: kNotificationActionTypeDestructive])
+                        actionOption = UNNotificationActionOptionAuthenticationRequired;
+                    else if([actionType isEqualToString:kNotificationActionTypeNone])
+                        actionOption = UNNotificationActionOptionNone;
+                }
+                if (actionItem[kNotificationActionTitle]) {
+                    // create unique action identifier if identifier field is missing in payload
+                    NSString* actionIdentifier = actionItem[kNotificationActionIdentifier] ? actionItem[kNotificationActionIdentifier] : [NSString stringWithFormat:@"%@_%i",kNotificationDefaultActionIdentifier,counter];
+                    UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionIdentifier title:actionItem[kNotificationActionTitle] options:actionOption];
+                    [notificationActions addObject:action];
+                }
+            }
         }
-        if (actionItem[kNotificationActionTitle] && actionItem[kNotificationActionIdentifier]) {
-            UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionItem[kNotificationActionIdentifier] title:actionItem[kNotificationActionTitle] options:actionOption];
-            [notificationActions addObject:action];
-        }
+    } @catch (NSException *exception) {
     }
     return notificationActions;
 }
 
 // Remove duplicate categories from the set using category identifier
-- (void)removeDuplicateCategory:(NSString*)category fromSet:(NSMutableSet*)categories {
+- (void)removeDuplicateCategory:(NSString*)categoryIdentifier fromSet:(NSMutableSet*)categories {
+    @try {
+        NSArray* categoriesArray = [categories allObjects];
+        for(UNNotificationCategory* categoryItem in categoriesArray) {
+            if ([categoryItem.identifier isEqualToString:categoryIdentifier]) {
+                [categories removeObject:categoryItem];
+            }
+        }
+    } @catch (NSException *exception) {
+    }
+}
+
+- (BOOL)isCatgoryExists:(NSString*)categoryIdentifier inSet:(NSSet*)categories{
     NSArray* categoriesArray = [categories allObjects];
     for(UNNotificationCategory* categoryItem in categoriesArray) {
-        if ([categoryItem.identifier isEqualToString:category]) {
-            [categories removeObject:categoryItem];
+        if ([categoryItem.identifier isEqualToString:categoryIdentifier]) {
+            return YES;
         }
     }
+    return NO;
 }
 
 @end
