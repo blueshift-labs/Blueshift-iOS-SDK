@@ -208,14 +208,14 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (void)addNotificationCategory:(UNNotificationRequest *)request{
-    NSDictionary* userInfo = request.content.userInfo;
-    NSDictionary* aps = userInfo[kNotificationAPS];
-    NSString* pushCategory = aps[kNotificationCategory];
-    NSString* forceReplaceCategory = userInfo[kNotificationForceReplaceCategory];
-    if([userInfo[kNotificationType] isEqualToString:kNotificationTypeActionable] && pushCategory) {
-        @try {
+    @try {
+        NSDictionary* userInfo = request.content.userInfo;
+        NSDictionary* aps = userInfo[kNotificationAPS];
+        NSString* pushCategory = aps[kNotificationCategory];
+        NSString* forceReplaceCategory = userInfo[kNotificationForceReplaceCategory];
+        NSArray* actionsArray = userInfo[kNotificationActions];
+        if(actionsArray && pushCategory) {
             __block bool isCategoryRegistrationComplteted = NO;
-            NSArray* actionsArray = (NSArray*) userInfo[kNotificationActions];
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
             if (notificationActions.count > 0) {
                 UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
@@ -241,17 +241,18 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                     [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
                 }
             }
-        } @catch (NSException *exception) {
         }
+    } @catch (NSException *exception) {
     }
 }
 
 - (NSMutableArray*)getNotificationActions:(NSArray*)actions {
     NSMutableArray<UNNotificationAction *>* notificationActions = [NSMutableArray new];
-    if (actions) {
-        @try {
-            // Check to support maximum 5 action items
-            for(int counter = 0; (counter < actions.count && counter < kNotificationMaxSupportedActions); counter++) {
+    @try {
+        if (actions && actions.count > 0) {
+            // Support maximum 5 action items
+            NSInteger actionsCount = (actions.count > kNotificationMaxSupportedActions) ? kNotificationMaxSupportedActions : actions.count;
+            for(int counter = 0; counter < actionsCount; counter++) {
                 NSDictionary* actionItem = actions[counter];
                 UNNotificationActionOptions actionOption = UNNotificationActionOptionForeground;
                 NSString* actionType = actionItem[kNotificationActionType];
@@ -263,24 +264,29 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                     else if([actionType isEqualToString:kNotificationActionTypeNone])
                         actionOption = UNNotificationActionOptionNone;
                 }
-                if (actionItem[kNotificationActionTitle] && actionItem[kNotificationActionIdentifier]) {
-                    UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionItem[kNotificationActionIdentifier] title:actionItem[kNotificationActionTitle] options:actionOption];
+                if (actionItem[kNotificationActionTitle]) {
+                    // create unique action identifier if identifier field is missing in payload
+                    NSString* actionIdentifier = actionItem[kNotificationActionIdentifier] ? actionItem[kNotificationActionIdentifier] : [NSString stringWithFormat:@"%@_%i",kNotificationDefautlActionIdentifier,counter];
+                    UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:actionIdentifier title:actionItem[kNotificationActionTitle] options:actionOption];
                     [notificationActions addObject:action];
                 }
             }
-        } @catch (NSException *exception) {
         }
+    } @catch (NSException *exception) {
     }
     return notificationActions;
 }
 
 // Remove duplicate categories from the set using category identifier
 - (void)removeDuplicateCategory:(NSString*)categoryIdentifier fromSet:(NSMutableSet*)categories {
-    NSArray* categoriesArray = [categories allObjects];
-    for(UNNotificationCategory* categoryItem in categoriesArray) {
-        if ([categoryItem.identifier isEqualToString:categoryIdentifier]) {
-            [categories removeObject:categoryItem];
+    @try {
+        NSArray* categoriesArray = [categories allObjects];
+        for(UNNotificationCategory* categoryItem in categoriesArray) {
+            if ([categoryItem.identifier isEqualToString:categoryIdentifier]) {
+                [categories removeObject:categoryItem];
+            }
         }
+    } @catch (NSException *exception) {
     }
 }
 

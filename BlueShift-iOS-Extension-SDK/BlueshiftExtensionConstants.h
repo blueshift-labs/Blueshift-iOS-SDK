@@ -27,16 +27,16 @@
 #define kNotificationAPS                                                @"aps"
 
 #define kNotificationType                                               @"notification_type"
-#define kNotificationTypeActionable                                     @"actionable_notification"
 #define kNotificationActions                                            @"actions"
 #define kNotificationMaxSupportedActions                                5
 #define kNotificationActionType                                         @"type"
 #define kNotificationActionTypeOpen                                     @"open"
 #define kNotificationActionTypeDestructive                              @"destructive"
-#define kNotificationActionTypeAutheticationRequired                    @"autheticationRequired"
+#define kNotificationActionTypeAuthenticationRequired                   @"authenticationRequired"
 #define kNotificationActionTypeNone                                     @"none"
 #define kNotificationActionTitle                                        @"title"
 #define kNotificationActionIdentifier                                   @"identifier"
+#define kNotificationDefautlActionIdentifier                            @"BSPushIdentifier"
 #define kNotificationForceReplaceCategory                               @"forceReplaceExistingCategory"
 
 #define kNotificationMediaImageURL                                      @"image_url"

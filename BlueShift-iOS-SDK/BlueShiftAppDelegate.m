@@ -447,7 +447,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 - (void)setupPushNotificationDeeplink:(NSDictionary *)userInfo actionIdentifier:(NSString* _Nullable)identifier {
     @try {
         // invoke the push clicked callback method
-        if ([userInfo[kNotificationTypeIdentifierKey] isEqualToString:kNotificationTypeActionable] && [[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:forActionIdentifier:)]) {
+        if (userInfo[kNotificationActions] && identifier && [[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:forActionIdentifier:)]) {
             [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo forActionIdentifier:identifier];
         } else if ([[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:)]) {
             [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo];
@@ -458,11 +458,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         [self trackAppOpenWithParameters:userInfo];
         
         if (userInfo != nil && ([userInfo objectForKey: kPushNotificationDeepLinkURLKey] || [userInfo objectForKey: kNotificationURLElementKey])) {
-            NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
-            if (!deepLinkURL) {
-                deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
+            NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
+            // If clk_url is nil and identifier is nil, then check the deep link using deep_link_url key
+            if (!deepLinkURL && !identifier) {
+                deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
             }
-            if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+            if ([self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && deepLinkURL) {
                 if (@available(iOS 9.0, *)) {
                     NSMutableDictionary *pushOptions = [@{openURLOptionsSource:openURLOptionsBlueshift,
                                                           openURLOptionsChannel:openURLOptionsPush,
@@ -908,7 +909,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     NSDictionary *pushDetailsDictionary = nil;
     pushDetailsDictionary = notification;
     self.userInfo = notification;
-    if ([notification[kNotificationTypeIdentifierKey] isEqualToString:kNotificationTypeActionable]) {
+    if (notification[kNotificationActions]) {
         notification = [self handleCustomActionablePushNotification:notification forActionIdentifier:identifier];
     } else if ([identifier isEqualToString: kNotificationActionBuyIdentifier]) {
         [self handleActionForBuyUsingPushDetailsDictionary:pushDetailsDictionary];
@@ -943,26 +944,30 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 - (NSDictionary*)handleCustomActionablePushNotification:(NSDictionary *)notification forActionIdentifier:(NSString *)identifier {
-    NSArray *actions = (NSArray*)notification[kNotificationActions];
     NSMutableDictionary *mutableNotification = [notification mutableCopy];
-    if (actions) {
-        NSString *deepLink = nil;
-        NSString *actionTitle = nil;
-        for (NSDictionary* action in actions) {
-            if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
-                deepLink = action[kPushNotificationDeepLinkURLKey];
-                actionTitle = action[kNotificationTitleKey];
-                break;
+    @try {
+        NSArray *actions = (NSArray*)notification[kNotificationActions];
+        if (actions) {
+            NSString *deepLink = nil;
+            NSString *actionTitle = nil;
+            for (NSDictionary* action in actions) {
+                if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
+                    deepLink = action[kPushNotificationDeepLinkURLKey];
+                    actionTitle = action[kNotificationTitleKey];
+                    break;
+                }
             }
+            if (deepLink) {
+                [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
+            }
+            if (actionTitle) {
+                [mutableNotification setValue:actionTitle forKey:kNotificationClickElementKey];
+            }
+            NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:mutableNotification];
+            [self trackPushClickedWithParameters:trackingParams];
         }
-        if (deepLink) {
-            [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
-        }
-        if (actionTitle) {
-            [mutableNotification setValue:actionTitle forKey:kNotificationClickElementKey];
-        }
-        NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:mutableNotification];
-        [self trackPushClickedWithParameters:trackingParams];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return mutableNotification;
 }

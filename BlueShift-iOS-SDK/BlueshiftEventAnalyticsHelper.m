@@ -27,7 +27,6 @@
         NSString *urlElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
         NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
         NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
-        NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
         NSString *timestamp = [self getCurrentUTCTimestamp];
         NSString* notificationType = [pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey];
         if (bsft_user_uuid) {
@@ -52,10 +51,13 @@
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
         }
         
-        if([notificationType isEqualToString:kNotificationKey] || [notificationType isEqualToString:kNotificationTypeActionable]) {
-            // If pushDeepLinkURL is nil, then reassign url from pushDetailsDictionary
-            if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
-                pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
+        if([notificationType isEqualToString:kNotificationKey]) {
+            // If link inside the clk_url is nil, then reassign url from pushDetailsDictionary for key deep_link_url
+            NSString *pushDeepLinkURL = @"";
+            if(urlElement) {
+                pushDeepLinkURL = urlElement;
+            } else {
+                pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
             }
             // If not nil, encode and add to track dictionary
             if ([self isNotNilAndNotEmpty:pushDeepLinkURL]) {
