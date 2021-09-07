@@ -91,8 +91,7 @@
             return (NSString *)[notificationPayload objectForKey: key];
         }
     }
-    
-    return @"";
+    return nil;
 }
 
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo {

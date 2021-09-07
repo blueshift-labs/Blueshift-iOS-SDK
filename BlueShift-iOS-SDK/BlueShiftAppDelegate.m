@@ -740,7 +740,14 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 - (void)handleCustomCategory:(NSString *)categoryName UsingPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:self.userInfo];
+    
+    // If user taps on the actionable push notification view
+    // then remove actions array to avoid the ambiguity in selecting deep link
+    NSMutableDictionary *trackingParams = [pushDetailsDictionary mutableCopy];
+    if(trackingParams[kNotificationActions]) {
+        [trackingParams removeObjectForKey:kNotificationActions];
+    }
+    NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:trackingParams];
     [self trackPushClickedWithParameters:pushTrackParameterDictionary];
     
     if ([self.blueShiftPushDelegate respondsToSelector:@selector(handleCustomCategory:clickedWithDetails:)]) {

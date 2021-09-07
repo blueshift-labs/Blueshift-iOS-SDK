@@ -246,8 +246,12 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 /// Returns true if the current thread Queue is Blueshift serial Queue.
 - (BOOL)isBlueshiftQueue {
-    BlueShift *currentQueue = (__bridge id) dispatch_get_specific(kBlueshiftQueue);
-    return currentQueue == self;
+    @try {
+        BlueShift *currentQueue = (__bridge id) dispatch_get_specific(kBlueshiftQueue);
+        return currentQueue == self;
+    } @catch (NSException *exception) {
+        return NO;
+    }
 }
 
 #pragma mark Device token
@@ -687,28 +691,32 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 /// @param requestParameters event parameters
 /// @param isBatchEvent  BOOL to determine if the event needs to be batched or not.
 - (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
-    if([self validateSDKTrackingRequirements] == false) {
-        return;
-    }
-    NSString *url = nil;
-    if(isBatchEvent) {
-        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
-    } else {
-        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
-    }
-    NSDictionary* eventParams = [self addDefaultParamsToDictionary:requestParameters];
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[eventParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-    // Check if blueshiftSerialQueue is not nil
-    if (blueshiftSerialQueue) {
-        if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
-            [BlueShiftRequestQueue addRequestOperation:requestOperation];
-        } else {
-            dispatch_async(blueshiftSerialQueue, ^{
-                [BlueShiftRequestQueue addRequestOperation:requestOperation];
-            });
+    @try {
+        if([self validateSDKTrackingRequirements] == false) {
+            return;
         }
-    } else { // If blueshiftSerialQueue is not availble then execute it on same thread
-        [BlueShiftRequestQueue addRequestOperation:requestOperation];
+        NSString *url = nil;
+        if(isBatchEvent) {
+            url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
+        } else {
+            url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
+        }
+        NSDictionary* eventParams = [self addDefaultParamsToDictionary:requestParameters];
+        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[eventParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+        // Check if blueshiftSerialQueue is not nil
+        if (blueshiftSerialQueue) {
+            if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
+                [BlueShiftRequestQueue addRequestOperation:requestOperation];
+            } else {
+                dispatch_async(blueshiftSerialQueue, ^{
+                    [BlueShiftRequestQueue addRequestOperation:requestOperation];
+                });
+            }
+        } else { // If blueshiftSerialQueue is not availble then execute it on same thread
+            [BlueShiftRequestQueue addRequestOperation:requestOperation];
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -741,22 +749,31 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
-    if([self validateSDKTrackingRequirements] == false) {
-        return;
-    }
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
-    BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[parameters copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-    // Check if blueshiftSerialQueue is not nil
-    if (blueshiftSerialQueue) {
-        if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
-            [BlueShiftRequestQueue addRequestOperation:requestOperation];
-        } else {
-            dispatch_async(blueshiftSerialQueue, ^{
-                [BlueShiftRequestQueue addRequestOperation:requestOperation];
-            });
+    @try {
+        if([self validateSDKTrackingRequirements] == false) {
+            return;
         }
-    } else { // If blueshiftSerialQueue is not availble then execute it on same thread
-        [BlueShiftRequestQueue addRequestOperation:requestOperation];
+        if (parameters) {
+            NSMutableDictionary* mutableParams = [parameters mutableCopy];
+            [mutableParams setValue:[BlueShiftDeviceData currentDeviceData].operatingSystem forKey:kBrowserPlatform];
+            NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+            BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[mutableParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+            
+            // Check if blueshiftSerialQueue is not nil
+            if (blueshiftSerialQueue) {
+                if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
+                    [BlueShiftRequestQueue addRequestOperation:requestOperation];
+                } else {
+                    dispatch_async(blueshiftSerialQueue, ^{
+                        [BlueShiftRequestQueue addRequestOperation:requestOperation];
+                    });
+                }
+            } else { // If blueshiftSerialQueue is not availble then execute it on same thread
+                [BlueShiftRequestQueue addRequestOperation:requestOperation];
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
