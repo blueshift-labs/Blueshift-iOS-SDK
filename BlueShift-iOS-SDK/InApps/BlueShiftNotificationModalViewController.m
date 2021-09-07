@@ -462,7 +462,7 @@
             // Set max width in points which device can support
             float maxWidthInPoints = 0;
             if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-                maxWidthInPoints = kInAppNotificationMaximumWidthInPoints;
+                maxWidthInPoints = (templateWidthInPoints > 0 && templateWidthInPoints < kInAppNotificationMaximumWidthInPoints) ? templateWidthInPoints : kInAppNotificationMaximumWidthInPoints;
             } else {
                 maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             }
@@ -518,14 +518,23 @@
     }
     float width = 0;
     // If auto width, get the adjusted height using image width.
-    if (isBackgroundImageModal && imageSize.width > 0) {
+    if (isBackgroundImageModal && imageSize.width > 0) { // Image modal case
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
-    } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
-        width = self.notification.templateStyle.width;
-    } else if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-        width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
-    } else {
-        width = self.notification.width;
+    } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) { // width is +ve case
+        if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+            // If templateStyle width is less than ipad default width, choose templateStyle width,
+            // else choose default ipad width
+            double defaultWidthInPercentage = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: kInAppNotificationMaximumWidthInPoints forWindow:self.window];
+            width = self.notification.templateStyle.width < defaultWidthInPercentage ? self.notification.templateStyle.width : defaultWidthInPercentage;
+        } else {
+            width = self.notification.templateStyle.width;
+        }
+    } else { // Automatic width case
+        if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
+        } else {
+            width = self.notification.width;
+        }
     }
     
     float height = 0;
