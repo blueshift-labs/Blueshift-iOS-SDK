@@ -287,7 +287,6 @@ API_AVAILABLE(ios(8.0))
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
             }
         }
-        
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
