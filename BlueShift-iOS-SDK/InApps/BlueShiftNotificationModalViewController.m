@@ -521,14 +521,7 @@
     if (isBackgroundImageModal && imageSize.width > 0) { // Image modal case
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
     } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) { // width is +ve case
-        if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            // If templateStyle width is less than ipad default width, choose templateStyle width,
-            // else choose default ipad width
-            double defaultWidthInPercentage = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: kInAppNotificationMaximumWidthInPoints forWindow:self.window];
-            width = self.notification.templateStyle.width < defaultWidthInPercentage ? self.notification.templateStyle.width : defaultWidthInPercentage;
-        } else {
-            width = self.notification.templateStyle.width;
-        }
+        width = self.notification.templateStyle.width;
     } else { // Automatic width case
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
             width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
