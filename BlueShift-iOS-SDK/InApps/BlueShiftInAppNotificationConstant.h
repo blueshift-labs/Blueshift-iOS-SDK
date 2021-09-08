@@ -92,10 +92,8 @@
 
 /*  Define a Button type */
 #define kInAppNotificationButtonTypeKey                         @"type"
-#define kInAppNotificationButtonTypeDismissKey                  @"dismiss"
 #define kInAppNotificationButtonTypeCloseKey                    @"close"
 #define kInAppNotificationButtonTypeOpenKey                     @"open"
-#define kInAppNotificationButtonTypeShareKey                    @"share"
 
 /* Define size of view */
 #define kInAppNotificationModalIconWidth                        50.0
@@ -112,7 +110,7 @@
 #define kInAppNotificationDefaultWidth                          90.0
 #define kInAppNotificationDefaultHeight                         90.0
 
-#define kHTMLInAppNotificationMaximumWidthInPoints              470.0
+#define kInAppNotificationMaximumWidthInPoints                  470.0
 #define kHTMLInAppNotificationMinimumHeight                     25.0
 
 /* In App Message Layout Margin */
@@ -123,6 +121,9 @@
 #define kInAppNotificationModalLayoutMarginBottomKey            @"bottom"
 #define kInAppNotificationModalGravityStartKey                  @"start"
 #define kInAppNotificationModalGravityEndKey                    @"end"
+
+#define kInAppNotificationSwipeAction                           @"swipe"
+#define kInAppNotificationTapOutsideAction                      @"tap_outside"
 
 #define kNotificationClickElementKey                            @"clk_elmt"
 #define kNotificationURLElementKey                              @"clk_url"
@@ -137,5 +138,6 @@
 #define kInAppNotificationModalActionsPaddingKey                @"actions_padding"
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+#define kInAppNotificationDismissDeepLinkURL                    @"blueshift://dismiss"
 
 #endif /* BlueShiftInAppNotificationConstant_h */

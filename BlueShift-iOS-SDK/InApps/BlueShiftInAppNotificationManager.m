@@ -568,8 +568,8 @@
 
 - (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.currentNotificationController != nil) {
-            [BlueshiftLog logInfo:@"Active In-app notification detected, skipped displaying current in-app." withDetails:nil methodName:nil];
+        if (self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
+            [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];
             return;
         }
         
@@ -728,8 +728,12 @@
     }
 }
 
--(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: NO];
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload withAction:(BlueshiftInAppActions)action  fromViewController:(BlueShiftNotificationViewController *)controller {
+    if (action == BlueshiftInAppDismissAction) {
+        [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:NO];
+    } else {
+        [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:notificationPayload canBacthThisEvent:NO];
+    }
     // invoke the inApp clicked callback method
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidClick:)]) {
         [self.inAppNotificationDelegate inAppNotificationDidClick:notificationPayload];
