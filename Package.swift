@@ -11,6 +11,7 @@ let package = Package(
             targets: ["BlueShift_iOS_SDK"]),
         .library(
             name: "BlueShift_iOS_Extension_SDK",
+            type: .dynamic,
             targets: ["BlueShift_iOS_Extension_SDK"]),
     ],
     dependencies: [],
