@@ -697,9 +697,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         }
         NSString *url = nil;
         if(isBatchEvent) {
-            url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
+            url = [BlueshiftRoutes getBulkEventsURL];
         } else {
-            url = [NSString stringWithFormat:@"%@%@", kBaseURL, kRealTimeUploadURL];
+            url = [BlueshiftRoutes getRealtimeEventsURL];
         }
         NSDictionary* eventParams = [self addDefaultParamsToDictionary:requestParameters];
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[eventParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
@@ -756,7 +756,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         if (parameters) {
             NSMutableDictionary* mutableParams = [parameters mutableCopy];
             [mutableParams setValue:[BlueShiftDeviceData currentDeviceData].operatingSystem forKey:kBrowserPlatform];
-            NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kPushEventsUploadURL];
+            NSString *url = [BlueshiftRoutes getTrackURL];
             BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodGET andParameters:[mutableParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
             
             // Check if blueshiftSerialQueue is not nil

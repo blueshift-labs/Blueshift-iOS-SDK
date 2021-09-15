@@ -34,6 +34,9 @@
         // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
+        // Default Region US
+        self.region = BlueshiftRegionUS;
+        
         if (@available(iOS 13.0, *)) {
             self.isSceneDelegateConfiguration = NO;
         }

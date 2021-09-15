@@ -310,7 +310,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 + (void)performRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {
     
     // get the request operation details ...
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kBatchUploadURL];
+    NSString *url = [BlueshiftRoutes getBulkEventsURL];
     
     NSMutableArray *parametersArray = (NSMutableArray*)requestOperation.paramsArray;
     if ((!parametersArray) || (parametersArray.count == 0)){

@@ -57,7 +57,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         isBatchEvent = YES;
                     }
                     // Treat all the tracking events as non-batched events to stop them from getting batched
-                    NSString *trackURL = [NSString stringWithFormat:@"%@%@", kBaseURL,kPushEventsUploadURL];
+                    NSString *trackURL = [BlueshiftRoutes getTrackURL];
                     if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
                         isBatchEvent = NO;
                     }
