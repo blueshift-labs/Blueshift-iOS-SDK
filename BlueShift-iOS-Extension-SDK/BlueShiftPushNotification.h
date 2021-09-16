@@ -13,13 +13,15 @@ API_AVAILABLE(ios(10.0))
 @interface BlueShiftPushNotification : NSObject
 
 @property NSArray <UNNotificationAttachment *>* attachments;
-@property NSString *apiKey;
-@property NSString* appGroupId;
 
 + (instancetype) sharedInstance;
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID;
+
+/// Download the media for rendering the Rich push notificaiton.
+/// @param request UNNotificationRequest
+- (NSArray<UNNotificationAttachment*> *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request;
+
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
+
 - (BOOL)hasBlueShiftAttachments;
-- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request;
 
 @end

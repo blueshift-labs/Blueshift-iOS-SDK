@@ -7,8 +7,6 @@
 
 
 #import "BlueShiftPushNotification.h"
-#import "BlueShiftPushAnalytics.h"
-#import "BlueshiftExtensionAnalyticsHelper.h"
 #import "BlueshiftExtensionConstants.h"
 
 @import UserNotifications;
@@ -42,16 +40,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
-    self.appGroupId = appGroupID;
-    if (![[BlueShiftPushNotification sharedInstance] apiKey] || [[BlueShiftPushNotification sharedInstance].apiKey isEqualToString:@""]) {
-        NSLog(@"[Blueshift] Error - Please set the api key in the Notification Service Extension, otherwise push notification delivered events will not reflect on the dashboard");
-    }
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        [self trackPushViewedWithRequest:request];
-    });
-    
+- (NSArray<UNNotificationAttachment*>*)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     if ([request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return [self carouselAttachmentsDownload:request];
     } else {
@@ -60,16 +49,9 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
-    NSDictionary *userInfo = request.content.userInfo;
-    if(userInfo && [[BlueShiftPushNotification sharedInstance] apiKey] && ![[[BlueShiftPushNotification sharedInstance] apiKey] isEqualToString:@""]) {
-        [BlueShiftPushAnalytics sendPushAnalytics:kNotificationDeliveredEvent withParams:userInfo];
-    }
-}
-
-- (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
+- (NSArray<UNNotificationAttachment*> *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
     NSArray *images = [request.content.userInfo objectForKey:kNotificationCarouselElements];
-    NSMutableArray *attachments = [[NSMutableArray alloc]init];
+    NSMutableArray<UNNotificationAttachment*> *attachments = [[NSMutableArray alloc]init];
     self.attachments = attachments;
     [images enumerateObjectsUsingBlock:
      ^(NSDictionary *image, NSUInteger index, BOOL *stop)
@@ -93,7 +75,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                  if (error) {
                      NSLog(@"[Blueshift] Failed to create carousel image attachment %@", error);
                  }
-                 if(attachment != nil) {
+                 if(attachment) {
                      [attachments addObject:attachment];
                      self.attachments = attachments;
                  }
@@ -114,8 +96,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     NSData *audioData = nil;
     NSData *gifData   = nil;
     
-    NSMutableArray *attachments = [[NSMutableArray alloc]init];
-    
+    NSMutableArray<UNNotificationAttachment*> *attachments = [[NSMutableArray alloc]init];
+    self.attachments = attachments;
     if(imageURL != nil) {
         imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
         if(imageData) {
@@ -204,6 +186,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             }
         }
     }
+    self.attachments = attachments;
     return attachments;
 }
 
@@ -246,7 +229,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSMutableArray*)getNotificationActions:(NSArray*)actions {
+- (NSMutableArray<UNNotificationAction *>*)getNotificationActions:(NSArray*)actions {
     NSMutableArray<UNNotificationAction *>* notificationActions = [NSMutableArray new];
     @try {
         if (actions && actions.count > 0) {
