@@ -14,10 +14,10 @@
 #import "BlueshiftUniversalLinksDelegate.h"
 #import "BlueshiftDeviceIdSource.h"
 
-typedef enum : NSUInteger {
+typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
     BlueshiftRegionUS,
-    BlueshiftRegionEU,
-} BlueshiftRegion;
+    BlueshiftRegionEU
+} ;
 
 @class BlueShiftInAppNotificationDelegate;
 
