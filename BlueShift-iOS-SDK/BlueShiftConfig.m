@@ -8,6 +8,7 @@
 #import "BlueShiftConfig.h"
 #import "BlueshiftLog.h"
 #import <objc/runtime.h>
+#import "BlueshiftConstants.h"
 
 @implementation BlueShiftConfig
 
@@ -30,6 +31,7 @@
         self.enableInAppNotification = NO;
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
+        self.BlueshiftInAppNotificationTimeInterval = kDefaultInAppTimeInterval;
         
         // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
