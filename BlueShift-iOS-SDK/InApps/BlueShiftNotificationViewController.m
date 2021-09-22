@@ -399,7 +399,7 @@
             [self createFontFile: iconLabelView];
         }
     
-        CGFloat iconFontSize = (fontSize !=nil && fontSize > [NSNumber numberWithInt:0])? fontSize.floatValue : 22.0;
+        CGFloat iconFontSize = (fontSize && fontSize.floatValue > 0)? fontSize.floatValue : 22.0;
         iconLabelView.font = [UIFont fontWithName: kInAppNotificationModalFontAwesomeNameKey size: iconFontSize];
         iconLabelView.layer.masksToBounds = YES;
     }
