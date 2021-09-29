@@ -282,11 +282,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             NSArray *notifications = (NSArray*)[dataPayload valueForKey:kNotificationsArrayKey];
             for (NSDictionary *notification in notifications) {
                 NSNumber *expiryTimeStamp = (NSNumber *)[notification objectForKey: kNotificationTimestampToExpireDisplay];
-                if (expiryTimeStamp && expiryTimeStamp > [NSNumber numberWithInt:0]) {
+                if (expiryTimeStamp && expiryTimeStamp.doubleValue > 0) {
                     double currentTimeStamp = (double)[[NSDate date] timeIntervalSince1970];
                     if([expiryTimeStamp doubleValue] > currentTimeStamp) {
                         NSNumber *fireTimeStamp = (NSNumber *)[notification valueForKey:kNotificationTimestampToDisplayKey];
-                        if (fireTimeStamp && fireTimeStamp > [NSNumber numberWithInt:0]) {
+                        if (fireTimeStamp && fireTimeStamp.doubleValue > 0) {
                             NSDate *fireDate = [NSDate dateWithTimeIntervalSince1970: [fireTimeStamp doubleValue]];
                             if ([fireTimeStamp doubleValue] < [[NSDate date] timeIntervalSince1970]) {
                                 [BlueshiftLog logInfo:@"The notification cant be scheduled as it has been already expired" withDetails:notification methodName:nil];

@@ -404,7 +404,7 @@
     [self setButton: button andString: buttonDetails.text
           textColor: buttonDetails.textColor backgroundColor: buttonDetails.backgroundColor];
     
-    CGFloat buttonRadius = (buttonDetails.backgroundRadius !=nil && buttonDetails.backgroundRadius > [NSNumber numberWithInt:0]) ?
+    CGFloat buttonRadius = (buttonDetails.backgroundRadius && buttonDetails.backgroundRadius.doubleValue > 0) ?
     [buttonDetails.backgroundRadius floatValue] : 0.0;
     
     button.layer.cornerRadius = buttonRadius;

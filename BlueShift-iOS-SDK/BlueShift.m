@@ -151,7 +151,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         }
         
         if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && config.inAppManualTriggerEnabled == NO) {
-            _inAppNotificationMananger.inAppNotificationTimeInterval = [NSNumber numberWithDouble:config.BlueshiftInAppNotificationTimeInterval];
+            _inAppNotificationMananger.inAppNotificationTimeInterval = config.BlueshiftInAppNotificationTimeInterval;
             [_inAppNotificationMananger load];
             
             [self fetchInAppNotificationFromAPI:^(void) {
