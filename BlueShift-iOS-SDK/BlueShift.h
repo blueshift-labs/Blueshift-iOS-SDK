@@ -16,7 +16,7 @@
 #import "BlueShiftSubscriptionState.h"
 #import "BlueShiftRequestOperation.h"
 #import "BlueShiftRequestQueue.h"
-#import "BlueShiftRoutes.h"
+#import "BlueshiftRoutes.h"
 #import "BlueShiftUserInfo.h"
 #import "BlueShiftTrackEvents.h"
 #import "BlueShiftProduct.h"

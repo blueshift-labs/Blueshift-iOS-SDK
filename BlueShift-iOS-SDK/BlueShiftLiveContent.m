@@ -37,7 +37,7 @@
 }
 
 + (void) fetchLiveContentByEmail:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
+    NSString *url = [BlueshiftRoutes getLiveContentURL];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
     if(email && apiKey && campaignName) {
@@ -68,7 +68,7 @@
 }
 
 + (void) fetchLiveContentByCustomerID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
+    NSString *url = [BlueshiftRoutes getLiveContentURL];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
     if(customerID && apiKey && campaignName) {
@@ -99,7 +99,7 @@
 }
 
 + (void) fetchLiveContentByDeviceID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLiveContent];
+    NSString *url = [BlueshiftRoutes getLiveContentURL];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID;
     if(deviceID && apiKey && campaignName) {

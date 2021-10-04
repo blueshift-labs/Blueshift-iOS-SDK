@@ -14,11 +14,17 @@
 #import "BlueshiftUniversalLinksDelegate.h"
 #import "BlueshiftDeviceIdSource.h"
 
+typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
+    BlueshiftRegionUS,
+    BlueshiftRegionEU
+} ;
+
 @class BlueShiftInAppNotificationDelegate;
 
 @interface BlueShiftConfig : NSObject
 
 @property NSString * _Nonnull apiKey;
+@property BlueshiftRegion region;
 @property NSDictionary * _Nonnull applicationLaunchOptions;
 
 @property NSURL * _Nullable productPageURL DEPRECATED_MSG_ATTRIBUTE("productPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
