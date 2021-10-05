@@ -33,14 +33,14 @@
     if (@available(iOS 15,*)) {
         UNNotificationActionIcon * nextIcon = [UNNotificationActionIcon iconWithSystemImageName:@"forward.fill"];
         UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"Next" options:UNNotificationActionOptionNone icon:nextIcon];
-
+        
         UNNotificationActionIcon * prevIcon = [UNNotificationActionIcon iconWithSystemImageName:@"backward.fill"];
         UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"Previous" options:UNNotificationActionOptionNone icon:prevIcon];
         
         UNNotificationAction *gotoAppAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselGotoappIdentifier title:@"Go to app" options:UNNotificationActionOptionForeground];
-
-         UNNotificationCategory *carouselCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-         return carouselCategory;
+        
+        UNNotificationCategory *carouselCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+        return carouselCategory;
     } else {
         UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"▶▶" options:UNNotificationActionOptionNone];
         UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"◀◀" options:UNNotificationActionOptionNone];
@@ -49,21 +49,20 @@
         UNNotificationCategory *carouselCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
         return carouselCategory;
     }
-
 }
 
 - (UNNotificationCategory *)carouselAnimationCategory  API_AVAILABLE(ios(10.0)){
     if (@available(iOS 15,*)) {
         UNNotificationActionIcon * nextIcon = [UNNotificationActionIcon iconWithSystemImageName:@"forward.fill"];
         UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"Next" options:UNNotificationActionOptionNone icon:nextIcon];
-
+        
         UNNotificationActionIcon * prevIcon = [UNNotificationActionIcon iconWithSystemImageName:@"backward.fill"];
         UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"Previous" options:UNNotificationActionOptionNone icon:prevIcon];
         
         UNNotificationAction *gotoAppAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselGotoappIdentifier title:@"Go to app" options:UNNotificationActionOptionForeground];
-
-         UNNotificationCategory *carouselAnimationCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselAnimationIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-         return carouselAnimationCategory;
+        
+        UNNotificationCategory *carouselAnimationCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCarouselAnimationIdentifier actions:@[nextAction, previousAction, gotoAppAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+        return carouselAnimationCategory;
     } else {
         UNNotificationAction *nextAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselNextIdentifier title:@"▶▶" options:UNNotificationActionOptionNone];
         UNNotificationAction *previousAction = [UNNotificationAction actionWithIdentifier:kNotificationCarouselPreviousIdentifier title:@"◀◀" options:UNNotificationActionOptionNone];
