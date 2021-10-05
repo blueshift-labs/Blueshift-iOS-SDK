@@ -13,7 +13,7 @@
 + (void) fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [[BlueShift sharedInstance] getInAppNotificationAPIPayloadWithCompletionHandler:^(NSDictionary * apiPayload) {
         if(apiPayload) {
-            NSString *url = [NSString stringWithFormat:@"%@%@", kBaseURL, kInAppMessageURL];
+            NSString *url = [BlueshiftRoutes getInAppMessagesURL];
             [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: apiPayload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
                 if (status) {
                     [BlueshiftLog logAPICallInfo:@"Succesfully fetched in-app messages." withDetails:data statusCode:0];
