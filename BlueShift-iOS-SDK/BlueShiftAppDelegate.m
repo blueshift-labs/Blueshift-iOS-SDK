@@ -1195,6 +1195,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             }];
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
+            [queriesPayload removeObjectForKey:kUniversalLinkRedirectURLKey];
             [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
             [BlueshiftLog logInfo:@"Universal link is of /track type. Passing the redirectURL to host app." withDetails:redirectURL methodName:nil];
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
