@@ -40,13 +40,16 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSArray<UNNotificationAttachment*>*)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
     if ([request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return [self carouselAttachmentsDownload:request];
     } else {
         [self addNotificationCategory:request];
         return [self mediaAttachmentDownlaod:request];
     }
+}
+
+- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
 }
 
 - (NSArray<UNNotificationAttachment*> *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
