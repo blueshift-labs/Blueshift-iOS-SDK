@@ -1113,8 +1113,8 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     
     path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"BlueShift-iOS-SDK_BlueShift-iOS-SDK.bundle"];
     if(path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        NSBundle *frameworkBundle = [NSBundle bundleWithPath:spmBundleAt]
-        NSString* path = [frameworkBundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        NSBundle *frameworkBundle = [NSBundle bundleWithPath:path];
+        NSString* path = [frameworkBundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
         return path;
     }
 
