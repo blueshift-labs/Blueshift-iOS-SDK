@@ -1101,24 +1101,28 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 - (NSString*)getManagedObjectModelPath {
-    NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
-    if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        return path;
+    @try {
+        // Hardcoded SDK directory path
+        NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        if (path != nil) {
+            return path;
+        }
+        // path for the cocoa pod framework
+        path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+        if (path != nil) {
+            return path;
+        }
+        
+        // Path for swift package bundle
+        path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
+        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            NSBundle *bundle = [NSBundle bundleWithPath:path];
+            NSString* path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+            return path;
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:@"Failed to get data model path" methodName:nil];
     }
-    
-    path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-    if(path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        return path;
-    }
-    
-    path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"BlueShift-iOS-SDK_BlueShift-iOS-SDK.bundle"];
-    if(path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        NSBundle *frameworkBundle = [NSBundle bundleWithPath:path];
-        NSString* path = [frameworkBundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-        return path;
-    }
-
-
     return @"";
 }
 
@@ -1146,6 +1150,8 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
                 batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
                 [batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
+            } else {
+                [BlueshiftLog logInfo:@"Failed to initialise core data as MOMD URL is found nil." withDetails:nil methodName:nil];
             }
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:@"Failed to initialise core data." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
