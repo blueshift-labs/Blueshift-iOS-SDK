@@ -1102,14 +1102,23 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 - (NSString*)getManagedObjectModelPath {
     NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
-    if (path != nil) {
+    if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
         return path;
     }
     
     path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-    if(path != nil) {
+    if(path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
         return path;
     }
+    
+    path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"BlueShift-iOS-SDK_BlueShift-iOS-SDK.bundle"];
+    if(path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        NSBundle *frameworkBundle = [NSBundle bundleWithPath:spmBundleAt]
+        NSString* path = [frameworkBundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        return path;
+    }
+
+
     return @"";
 }
 
