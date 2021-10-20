@@ -5,18 +5,18 @@
 # Ignore bundler config
 Pods/Pods.xcodeproj/xcuserdata/
 
-# Ignore the default SQLite database.
-
 # Ignore all logfiles and tempfiles.
 */xcuserdata/*
-Rewards App.xcworkspace/xcshareddata/
 
-
-# Index files
 
 # Ignore IDE files
 *.xcworkspace
 
+#Carthage
+Carthage/Build/
+
+#Swift package
+.swiftpm/xcode/xcuserdata/*
 /coverage
 
 .DS_Store

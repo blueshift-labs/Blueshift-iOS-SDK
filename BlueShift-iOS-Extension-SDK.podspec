@@ -9,5 +9,6 @@ Pod::Spec.new do |s|
   s.source                = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => s.version.to_s }
   s.source_files          = "BlueShift-iOS-Extension-SDK", "BlueShift-iOS-Extension-SDK/**/*.{h,m}"
   s.public_header_files   = "BlueShift-iOS-Extension-SDK/**/*.h"
+  s.exclude_files         = "BlueShift-iOS-Extension-SDK/include/**/*.{h,m}"
   s.requires_arc          = true
 end

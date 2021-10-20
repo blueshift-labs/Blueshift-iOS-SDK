@@ -28,7 +28,6 @@
 #import "BlueShiftUserNotificationSettings.h"
 #import "BlueShiftUserNotificationCenterDelegate.h"
 #import "BlueshiftEventAnalyticsHelper.h"
-#import "BlueshiftInAppNotificationRequest.h"
 #import "BlueShiftLiveContent.h"
 
 NS_ASSUME_NONNULL_BEGIN
