@@ -7,120 +7,131 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		912321AB27285D030057DA7A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AA27285D030057DA7A /* Foundation.framework */; };
+		912321AD27285D090057DA7A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AC27285D090057DA7A /* CoreData.framework */; };
+		912321AF27285D0D0057DA7A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AE27285D0D0057DA7A /* CoreTelephony.framework */; };
+		912321B127285D630057DA7A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321B027285D630057DA7A /* UserNotifications.framework */; };
+		912321B327285D7B0057DA7A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321B227285D7B0057DA7A /* WebKit.framework */; };
 		9186B5F3271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5A9271ED9E900D425AF /* NSDate+BlueShiftDateHelpers.m */; };
-		9186B5F4271ED9EF00D425AF /* BlueShiftPushDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AA271ED9EA00D425AF /* BlueShiftPushDelegate.h */; };
+		9186B5F4271ED9EF00D425AF /* BlueShiftPushDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AA271ED9EA00D425AF /* BlueShiftPushDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B5F5271ED9EF00D425AF /* BlueShiftUserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5AB271ED9EA00D425AF /* BlueShiftUserInfo.m */; };
 		9186B5F6271ED9EF00D425AF /* BlueShiftPushNotificationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5AC271ED9EA00D425AF /* BlueShiftPushNotificationSettings.m */; };
-		9186B5F7271ED9EF00D425AF /* BlueShiftNetworkReachabilityManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AD271ED9EA00D425AF /* BlueShiftNetworkReachabilityManager.h */; };
+		9186B5F7271ED9EF00D425AF /* BlueShiftNetworkReachabilityManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AD271ED9EA00D425AF /* BlueShiftNetworkReachabilityManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B5F8271ED9EF00D425AF /* BlueShiftRequestOperationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5AE271ED9EA00D425AF /* BlueShiftRequestOperationManager.m */; };
-		9186B5F9271ED9EF00D425AF /* BlueshiftLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AF271ED9EA00D425AF /* BlueshiftLog.h */; };
-		9186B5FA271ED9EF00D425AF /* BlueShiftDeviceData.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B0271ED9EA00D425AF /* BlueShiftDeviceData.h */; };
+		9186B5F9271ED9EF00D425AF /* BlueshiftLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AF271ED9EA00D425AF /* BlueshiftLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B5FA271ED9EF00D425AF /* BlueShiftDeviceData.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B0271ED9EA00D425AF /* BlueShiftDeviceData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B5FB271ED9EF00D425AF /* BlueShiftLiveContent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5B1271ED9EA00D425AF /* BlueShiftLiveContent.m */; };
 		9186B5FC271ED9EF00D425AF /* BlueShiftRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5B2271ED9EA00D425AF /* BlueShiftRequestOperation.m */; };
-		9186B5FD271ED9EF00D425AF /* BlueShiftStatusCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B3271ED9EA00D425AF /* BlueShiftStatusCodes.h */; };
-		9186B5FE271ED9EF00D425AF /* BlueShiftUserNotificationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B4271ED9EA00D425AF /* BlueShiftUserNotificationSettings.h */; };
-		9186B5FF271ED9EF00D425AF /* HttpRequestOperationEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B5271ED9EA00D425AF /* HttpRequestOperationEntity.h */; };
-		9186B600271ED9EF00D425AF /* BlueShiftRequestOperationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B6271ED9EA00D425AF /* BlueShiftRequestOperationManager.h */; };
-		9186B601271ED9EF00D425AF /* NetworkReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B7271ED9EA00D425AF /* NetworkReachability.h */; };
+		9186B5FD271ED9EF00D425AF /* BlueShiftStatusCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B3271ED9EA00D425AF /* BlueShiftStatusCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B5FE271ED9EF00D425AF /* BlueShiftUserNotificationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B4271ED9EA00D425AF /* BlueShiftUserNotificationSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B5FF271ED9EF00D425AF /* HttpRequestOperationEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B5271ED9EA00D425AF /* HttpRequestOperationEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B600271ED9EF00D425AF /* BlueShiftRequestOperationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B6271ED9EA00D425AF /* BlueShiftRequestOperationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B601271ED9EF00D425AF /* NetworkReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B7271ED9EA00D425AF /* NetworkReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B602271ED9EF00D425AF /* BlueShiftAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5B8271ED9EA00D425AF /* BlueShiftAppDelegate.m */; };
-		9186B603271ED9EF00D425AF /* BlueShiftMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B9271ED9EA00D425AF /* BlueShiftMacros.h */; };
-		9186B604271ED9EF00D425AF /* BlueShiftPushParamDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BA271ED9EA00D425AF /* BlueShiftPushParamDelegate.h */; };
-		9186B605271ED9EF00D425AF /* BlueShiftAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BB271ED9EA00D425AF /* BlueShiftAppDelegate.h */; };
-		9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BC271ED9EA00D425AF /* NSDate+BlueShiftDateHelpers.h */; };
+		9186B603271ED9EF00D425AF /* BlueShiftMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5B9271ED9EA00D425AF /* BlueShiftMacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B604271ED9EF00D425AF /* BlueShiftPushParamDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BA271ED9EA00D425AF /* BlueShiftPushParamDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B605271ED9EF00D425AF /* BlueShiftAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BB271ED9EA00D425AF /* BlueShiftAppDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BC271ED9EA00D425AF /* NSDate+BlueShiftDateHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B607271ED9EF00D425AF /* BlueShiftNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5BD271ED9EA00D425AF /* BlueShiftNetworkReachabilityManager.m */; };
-		9186B608271ED9EF00D425AF /* BlueshiftRoutes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BE271ED9EA00D425AF /* BlueshiftRoutes.h */; };
+		9186B608271ED9EF00D425AF /* BlueshiftRoutes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5BE271ED9EA00D425AF /* BlueshiftRoutes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B609271ED9EF00D425AF /* BlueShiftDeviceData.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5BF271ED9EA00D425AF /* BlueShiftDeviceData.m */; };
-		9186B60A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C0271ED9EA00D425AF /* BlueshiftEventAnalyticsHelper.h */; };
-		9186B60B271ED9EF00D425AF /* BatchEventEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C1271ED9EA00D425AF /* BatchEventEntity.h */; };
-		9186B60C271ED9EF00D425AF /* BlueShiftPushNotificationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C2271ED9EA00D425AF /* BlueShiftPushNotificationSettings.h */; };
-		9186B60D271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C3271ED9EA00D425AF /* BlueShiftUserNotificationCenterDelegate.h */; };
+		9186B60A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C0271ED9EA00D425AF /* BlueshiftEventAnalyticsHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B60C271ED9EF00D425AF /* BlueShiftPushNotificationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C2271ED9EA00D425AF /* BlueShiftPushNotificationSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B60D271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C3271ED9EA00D425AF /* BlueShiftUserNotificationCenterDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B60E271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5C4271ED9EA00D425AF /* BlueShiftUserNotificationCenterDelegate.m */; };
 		9186B60F271ED9EF00D425AF /* BlueshiftLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5C5271ED9EA00D425AF /* BlueshiftLog.m */; };
-		9186B610271ED9EF00D425AF /* BlueShiftProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C6271ED9EA00D425AF /* BlueShiftProduct.h */; };
+		9186B610271ED9EF00D425AF /* BlueShiftProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C6271ED9EA00D425AF /* BlueShiftProduct.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B611271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5C7271ED9EA00D425AF /* BlueShiftHttpRequestBatchUpload.m */; };
-		9186B612271ED9EF00D425AF /* BlueShiftRequestQueueStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C8271ED9EA00D425AF /* BlueShiftRequestQueueStatus.h */; };
-		9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C9271ED9EA00D425AF /* BlueshiftUniversalLinksDelegate.h */; };
-		9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5CA271ED9EA00D425AF /* BlueShiftUserInfo.h */; };
-		9186B615271ED9EF00D425AF /* NSNumber+BlueShiftHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5CB271ED9EA00D425AF /* NSNumber+BlueShiftHelpers.h */; };
+		9186B612271ED9EF00D425AF /* BlueShiftRequestQueueStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C8271ED9EA00D425AF /* BlueShiftRequestQueueStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C9271ED9EA00D425AF /* BlueshiftUniversalLinksDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5CA271ED9EA00D425AF /* BlueShiftUserInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B615271ED9EF00D425AF /* NSNumber+BlueShiftHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5CB271ED9EA00D425AF /* NSNumber+BlueShiftHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B616271ED9EF00D425AF /* BlueShiftSDKDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5CC271ED9EA00D425AF /* BlueShiftSDKDataModel.xcdatamodeld */; };
-		9186B617271ED9EF00D425AF /* BlueShiftBatchUploadConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D0271ED9EB00D425AF /* BlueShiftBatchUploadConfig.h */; };
-		9186B618271ED9EF00D425AF /* BlueShiftAppData.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D1271ED9EB00D425AF /* BlueShiftAppData.h */; };
+		9186B617271ED9EF00D425AF /* BlueShiftBatchUploadConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D0271ED9EB00D425AF /* BlueShiftBatchUploadConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B618271ED9EF00D425AF /* BlueShiftAppData.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D1271ED9EB00D425AF /* BlueShiftAppData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B619271ED9EF00D425AF /* BlueShiftConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5D2271ED9EB00D425AF /* BlueShiftConfig.m */; };
 		9186B61A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5D3271ED9EB00D425AF /* BlueshiftEventAnalyticsHelper.m */; };
 		9186B61B271ED9EF00D425AF /* BlueShiftProduct.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5D4271ED9EB00D425AF /* BlueShiftProduct.m */; };
 		9186B61C271ED9EF00D425AF /* BatchEventEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5D5271ED9EB00D425AF /* BatchEventEntity.m */; };
-		9186B61D271ED9EF00D425AF /* BlueShiftDeepLink.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D6271ED9EB00D425AF /* BlueShiftDeepLink.h */; };
-		9186B61E271ED9EF00D425AF /* BlueshiftConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D7271ED9EB00D425AF /* BlueshiftConstants.h */; };
-		9186B61F271ED9EF00D425AF /* BlueShiftLiveContent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D8271ED9EB00D425AF /* BlueShiftLiveContent.h */; };
-		9186B620271ED9EF00D425AF /* BlueShiftRequestQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D9271ED9EB00D425AF /* BlueShiftRequestQueue.h */; };
+		9186B61D271ED9EF00D425AF /* BlueShiftDeepLink.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D6271ED9EB00D425AF /* BlueShiftDeepLink.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B61E271ED9EF00D425AF /* BlueshiftConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D7271ED9EB00D425AF /* BlueshiftConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B61F271ED9EF00D425AF /* BlueShiftLiveContent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D8271ED9EB00D425AF /* BlueShiftLiveContent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B620271ED9EF00D425AF /* BlueShiftRequestQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5D9271ED9EB00D425AF /* BlueShiftRequestQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B621271ED9EF00D425AF /* BlueShiftRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5DA271ED9EB00D425AF /* BlueShiftRequestQueue.m */; };
-		9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DB271ED9EB00D425AF /* BlueShiftSubscription.h */; };
-		9186B623271ED9EF00D425AF /* BlueShiftBatchRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DC271ED9EB00D425AF /* BlueShiftBatchRequestOperation.h */; };
-		9186B624271ED9EF00D425AF /* BlueShiftInAppNotificationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DD271ED9EB00D425AF /* BlueShiftInAppNotificationDelegate.h */; };
-		9186B625271ED9EF00D425AF /* BlueshiftDeviceIdSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DE271ED9EB00D425AF /* BlueshiftDeviceIdSource.h */; };
-		9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DF271ED9EB00D425AF /* BlueShiftTrackEvents.h */; };
+		9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DB271ED9EB00D425AF /* BlueShiftSubscription.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B623271ED9EF00D425AF /* BlueShiftBatchRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DC271ED9EB00D425AF /* BlueShiftBatchRequestOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B624271ED9EF00D425AF /* BlueShiftInAppNotificationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DD271ED9EB00D425AF /* BlueShiftInAppNotificationDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B625271ED9EF00D425AF /* BlueshiftDeviceIdSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DE271ED9EB00D425AF /* BlueshiftDeviceIdSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5DF271ED9EB00D425AF /* BlueShiftTrackEvents.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B627271ED9EF00D425AF /* NetworkReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5E0271ED9EB00D425AF /* NetworkReachability.m */; };
 		9186B628271ED9EF00D425AF /* BlueShiftBatchUploadConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5E1271ED9EB00D425AF /* BlueShiftBatchUploadConfig.m */; };
 		9186B629271ED9EF00D425AF /* BlueshiftRoutes.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5E2271ED9EB00D425AF /* BlueshiftRoutes.m */; };
-		9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5E3271ED9EB00D425AF /* BlueShiftSubscriptionState.h */; };
-		9186B62B271ED9EF00D425AF /* BlueShiftHTTPMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5E4271ED9EB00D425AF /* BlueShiftHTTPMethod.h */; };
+		9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5E3271ED9EB00D425AF /* BlueShiftSubscriptionState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B62B271ED9EF00D425AF /* BlueShiftHTTPMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5E4271ED9EB00D425AF /* BlueShiftHTTPMethod.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B62C271ED9EF00D425AF /* BlueShiftAppData.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5E5271ED9EB00D425AF /* BlueShiftAppData.m */; };
 		9186B62D271ED9EF00D425AF /* BlueShiftDeepLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5E6271ED9EB00D425AF /* BlueShiftDeepLink.m */; };
-		9186B62E271ED9EF00D425AF /* BlueShiftRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5E7271ED9EB00D425AF /* BlueShiftRequestOperation.h */; };
+		9186B62E271ED9EF00D425AF /* BlueShiftRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5E7271ED9EB00D425AF /* BlueShiftRequestOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B62F271ED9EF00D425AF /* BlueShiftSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5E9271ED9EE00D425AF /* BlueShiftSubscription.m */; };
 		9186B630271ED9EF00D425AF /* BlueShift.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5EA271ED9EE00D425AF /* BlueShift.m */; };
-		9186B631271ED9EF00D425AF /* BlueShiftConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5EB271ED9EE00D425AF /* BlueShiftConfig.h */; };
+		9186B631271ED9EF00D425AF /* BlueShiftConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5EB271ED9EE00D425AF /* BlueShiftConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B632271ED9EF00D425AF /* NSNumber+BlueShiftHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5EC271ED9EE00D425AF /* NSNumber+BlueShiftHelpers.m */; };
 		9186B633271ED9EF00D425AF /* BlueShiftUserNotificationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5ED271ED9EE00D425AF /* BlueShiftUserNotificationSettings.m */; };
 		9186B634271ED9EF00D425AF /* BlueShiftBatchRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5EE271ED9EE00D425AF /* BlueShiftBatchRequestOperation.m */; };
-		9186B635271ED9EF00D425AF /* BlueShift.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5EF271ED9EF00D425AF /* BlueShift.h */; };
-		9186B636271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5F0271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.h */; };
-		9186B637271ED9EF00D425AF /* BlueShiftNotificationConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5F1271ED9EF00D425AF /* BlueShiftNotificationConstants.h */; };
+		9186B635271ED9EF00D425AF /* BlueShift.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5EF271ED9EF00D425AF /* BlueShift.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B636271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5F0271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B637271ED9EF00D425AF /* BlueShiftNotificationConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5F1271ED9EF00D425AF /* BlueShiftNotificationConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B638271ED9EF00D425AF /* HttpRequestOperationEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5F2271ED9EF00D425AF /* HttpRequestOperationEntity.m */; };
-		9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B639271ED9FA00D425AF /* BlueShiftInAppNotificationConstant.h */; };
+		9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B639271ED9FA00D425AF /* BlueShiftInAppNotificationConstant.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B655271ED9FB00D425AF /* BlueShiftNotificationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B63A271ED9FA00D425AF /* BlueShiftNotificationWebViewController.m */; };
-		9186B656271ED9FB00D425AF /* BlueShiftNotificationWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B63B271ED9FA00D425AF /* BlueShiftNotificationWindow.h */; };
+		9186B656271ED9FB00D425AF /* BlueShiftNotificationWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B63B271ED9FA00D425AF /* BlueShiftNotificationWindow.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B657271ED9FB00D425AF /* BlueShiftNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B63C271ED9FA00D425AF /* BlueShiftNotificationView.m */; };
 		9186B658271ED9FB00D425AF /* BlueShiftNotificationCloseButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B63D271ED9FA00D425AF /* BlueShiftNotificationCloseButton.m */; };
-		9186B659271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B63E271ED9FA00D425AF /* BlueShiftInAppNotificationHelper.h */; };
-		9186B65A271ED9FB00D425AF /* BlueShiftNotificationWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B63F271ED9FA00D425AF /* BlueShiftNotificationWebViewController.h */; };
-		9186B65B271ED9FB00D425AF /* BlueShiftNotificationCloseButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B640271ED9FA00D425AF /* BlueShiftNotificationCloseButton.h */; };
-		9186B65C271ED9FB00D425AF /* BlueShiftNotificationViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B641271ED9FB00D425AF /* BlueShiftNotificationViewController.h */; };
+		9186B659271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B63E271ED9FA00D425AF /* BlueShiftInAppNotificationHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B65A271ED9FB00D425AF /* BlueShiftNotificationWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B63F271ED9FA00D425AF /* BlueShiftNotificationWebViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B65B271ED9FB00D425AF /* BlueShiftNotificationCloseButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B640271ED9FA00D425AF /* BlueShiftNotificationCloseButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B65C271ED9FB00D425AF /* BlueShiftNotificationViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B641271ED9FB00D425AF /* BlueShiftNotificationViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B65D271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B642271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.m */; };
-		9186B65E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B643271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h */; };
+		9186B65E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B643271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B65F271ED9FB00D425AF /* InAppNotificationEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B644271ED9FB00D425AF /* InAppNotificationEntity.m */; };
 		9186B660271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B645271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.m */; };
-		9186B661271ED9FB00D425AF /* BlueShiftNotificationView.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B646271ED9FB00D425AF /* BlueShiftNotificationView.h */; };
-		9186B662271ED9FB00D425AF /* BlueShiftInAppNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B647271ED9FB00D425AF /* BlueShiftInAppNotification.h */; };
+		9186B661271ED9FB00D425AF /* BlueShiftNotificationView.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B646271ED9FB00D425AF /* BlueShiftNotificationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B662271ED9FB00D425AF /* BlueShiftInAppNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B647271ED9FB00D425AF /* BlueShiftInAppNotification.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B663271ED9FB00D425AF /* BlueShiftNotificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B648271ED9FB00D425AF /* BlueShiftNotificationViewController.m */; };
-		9186B664271ED9FB00D425AF /* BlueShiftInAppType.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B649271ED9FB00D425AF /* BlueShiftInAppType.h */; };
-		9186B665271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B64A271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h */; };
+		9186B664271ED9FB00D425AF /* BlueShiftInAppType.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B649271ED9FB00D425AF /* BlueShiftInAppType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B665271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B64A271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B666271ED9FB00D425AF /* BlueShiftInAppNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64B271ED9FB00D425AF /* BlueShiftInAppNotification.m */; };
 		9186B667271ED9FB00D425AF /* BlueShiftNotificationModalViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64C271ED9FB00D425AF /* BlueShiftNotificationModalViewController.m */; };
 		9186B668271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64D271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.m */; };
 		9186B669271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m */; };
 		9186B66A271ED9FB00D425AF /* BlueShiftNotificationWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64F271ED9FB00D425AF /* BlueShiftNotificationWindow.m */; };
-		9186B66B271ED9FB00D425AF /* InAppNotificationEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B650271ED9FB00D425AF /* InAppNotificationEntity.h */; };
-		9186B66C271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B651271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h */; };
-		9186B66D271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B652271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h */; };
-		9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B653271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h */; };
-		9186B67D271EDA0C00D425AF /* BlueShiftAppExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B66F271EDA0C00D425AF /* BlueShiftAppExtension.h */; };
+		9186B66B271ED9FB00D425AF /* InAppNotificationEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B650271ED9FB00D425AF /* InAppNotificationEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B66C271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B651271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B66D271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B652271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B653271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B67E271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B670271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m */; };
-		9186B67F271EDA0C00D425AF /* BlueShiftPushAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B671271EDA0C00D425AF /* BlueShiftPushAnalytics.h */; };
+		9186B67F271EDA0C00D425AF /* BlueShiftPushAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B671271EDA0C00D425AF /* BlueShiftPushAnalytics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B680271EDA0C00D425AF /* BlueShiftPushAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B672271EDA0C00D425AF /* BlueShiftPushAnalytics.m */; };
 		9186B681271EDA0C00D425AF /* BlueShiftPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B673271EDA0C00D425AF /* BlueShiftPushNotification.m */; };
 		9186B682271EDA0C00D425AF /* BlueShiftiCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B674271EDA0C00D425AF /* BlueShiftiCarousel.m */; };
 		9186B683271EDA0C00D425AF /* UIColor+BlueShiftHexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B675271EDA0C00D425AF /* UIColor+BlueShiftHexString.m */; };
-		9186B684271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B676271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.h */; };
-		9186B685271EDA0C00D425AF /* BlueShiftCarousalViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B677271EDA0C00D425AF /* BlueShiftCarousalViewController.h */; };
+		9186B684271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B676271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B685271EDA0C00D425AF /* BlueShiftCarousalViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B677271EDA0C00D425AF /* BlueShiftCarousalViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B686271EDA0C00D425AF /* BlueShiftCarousalViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B678271EDA0C00D425AF /* BlueShiftCarousalViewController.m */; };
-		9186B687271EDA0C00D425AF /* BlueShiftiCarousel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */; };
-		9186B688271EDA0C00D425AF /* BlueShiftPushNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B67A271EDA0C00D425AF /* BlueShiftPushNotification.h */; };
-		9186B689271EDA0C00D425AF /* BlueshiftExtensionConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B67B271EDA0C00D425AF /* BlueshiftExtensionConstants.h */; };
-		9186B68A271EDA0C00D425AF /* UIColor+BlueShiftHexString.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B67C271EDA0C00D425AF /* UIColor+BlueShiftHexString.h */; };
+		9186B688271EDA0C00D425AF /* BlueShiftPushNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B67A271EDA0C00D425AF /* BlueShiftPushNotification.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B689271EDA0C00D425AF /* BlueshiftExtensionConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B67B271EDA0C00D425AF /* BlueshiftExtensionConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9186B68A271EDA0C00D425AF /* UIColor+BlueShiftHexString.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B67C271EDA0C00D425AF /* UIColor+BlueShiftHexString.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		91F4704A27282E7B00A0E84C /* BatchEventEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C1271ED9EA00D425AF /* BatchEventEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		91F470622728346F00A0E84C /* BlueShift_iOS_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		912321AA27285D030057DA7A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		912321AC27285D090057DA7A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		912321AE27285D0D0057DA7A /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		912321B027285D630057DA7A /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		912321B227285D7B0057DA7A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlueShift_iOS_SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9186B594271ED96D00D425AF /* BlueShift_iOS_Extension_SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlueShift_iOS_Extension_SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9186B5A9271ED9E900D425AF /* NSDate+BlueShiftDateHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+BlueShiftDateHelpers.m"; sourceTree = "<group>"; };
@@ -236,6 +247,10 @@
 		9186B67A271EDA0C00D425AF /* BlueShiftPushNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShiftPushNotification.h; sourceTree = "<group>"; };
 		9186B67B271EDA0C00D425AF /* BlueshiftExtensionConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueshiftExtensionConstants.h; sourceTree = "<group>"; };
 		9186B67C271EDA0C00D425AF /* UIColor+BlueShiftHexString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+BlueShiftHexString.h"; sourceTree = "<group>"; };
+		91F4705F2728342400A0E84C /* ios.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = ios.modulemap; sourceTree = "<group>"; };
+		91F470602728342B00A0E84C /* ios.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = ios.modulemap; sourceTree = "<group>"; };
+		91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShift_iOS_SDK.h; sourceTree = "<group>"; };
+		91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShift_iOS_Extension_SDK.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,6 +258,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				912321B327285D7B0057DA7A /* WebKit.framework in Frameworks */,
+				912321B127285D630057DA7A /* UserNotifications.framework in Frameworks */,
+				912321AB27285D030057DA7A /* Foundation.framework in Frameworks */,
+				912321AF27285D0D0057DA7A /* CoreTelephony.framework in Frameworks */,
+				912321AD27285D090057DA7A /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +298,8 @@
 		9186B579271ED94600D425AF /* BlueShift-iOS-SDK */ = {
 			isa = PBXGroup;
 			children = (
+				91F470602728342B00A0E84C /* ios.modulemap */,
+				91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */,
 				9186B5E8271ED9EE00D425AF /* InApps */,
 				9186B5C1271ED9EA00D425AF /* BatchEventEntity.h */,
 				9186B5D5271ED9EB00D425AF /* BatchEventEntity.m */,
@@ -356,7 +378,9 @@
 		9186B595271ED96D00D425AF /* BlueShift-iOS-Extension-SDK */ = {
 			isa = PBXGroup;
 			children = (
+				91F4705F2728342400A0E84C /* ios.modulemap */,
 				9186B66F271EDA0C00D425AF /* BlueShiftAppExtension.h */,
+				91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */,
 				9186B677271EDA0C00D425AF /* BlueShiftCarousalViewController.h */,
 				9186B678271EDA0C00D425AF /* BlueShiftCarousalViewController.m */,
 				9186B676271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.h */,
@@ -411,6 +435,11 @@
 		9186B6A3271EDD5A00D425AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				912321B227285D7B0057DA7A /* WebKit.framework */,
+				912321B027285D630057DA7A /* UserNotifications.framework */,
+				912321AE27285D0D0057DA7A /* CoreTelephony.framework */,
+				912321AC27285D090057DA7A /* CoreData.framework */,
+				912321AA27285D030057DA7A /* Foundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -422,62 +451,63 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9186B66D271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h in Headers */,
-				9186B5FF271ED9EF00D425AF /* HttpRequestOperationEntity.h in Headers */,
-				9186B659271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.h in Headers */,
-				9186B608271ED9EF00D425AF /* BlueshiftRoutes.h in Headers */,
-				9186B618271ED9EF00D425AF /* BlueShiftAppData.h in Headers */,
-				9186B601271ED9EF00D425AF /* NetworkReachability.h in Headers */,
-				9186B656271ED9FB00D425AF /* BlueShiftNotificationWindow.h in Headers */,
-				9186B637271ED9EF00D425AF /* BlueShiftNotificationConstants.h in Headers */,
-				9186B603271ED9EF00D425AF /* BlueShiftMacros.h in Headers */,
-				9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */,
-				9186B5FE271ED9EF00D425AF /* BlueShiftUserNotificationSettings.h in Headers */,
-				9186B617271ED9EF00D425AF /* BlueShiftBatchUploadConfig.h in Headers */,
-				9186B636271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.h in Headers */,
-				9186B665271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h in Headers */,
-				9186B662271ED9FB00D425AF /* BlueShiftInAppNotification.h in Headers */,
-				9186B5F4271ED9EF00D425AF /* BlueShiftPushDelegate.h in Headers */,
-				9186B66C271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h in Headers */,
-				9186B664271ED9FB00D425AF /* BlueShiftInAppType.h in Headers */,
-				9186B661271ED9FB00D425AF /* BlueShiftNotificationView.h in Headers */,
-				9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */,
-				9186B5F9271ED9EF00D425AF /* BlueshiftLog.h in Headers */,
-				9186B61E271ED9EF00D425AF /* BlueshiftConstants.h in Headers */,
-				9186B65B271ED9FB00D425AF /* BlueShiftNotificationCloseButton.h in Headers */,
-				9186B612271ED9EF00D425AF /* BlueShiftRequestQueueStatus.h in Headers */,
-				9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */,
-				9186B60D271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.h in Headers */,
-				9186B5FD271ED9EF00D425AF /* BlueShiftStatusCodes.h in Headers */,
-				9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */,
-				9186B625271ED9EF00D425AF /* BlueshiftDeviceIdSource.h in Headers */,
-				9186B65C271ED9FB00D425AF /* BlueShiftNotificationViewController.h in Headers */,
-				9186B66B271ED9FB00D425AF /* InAppNotificationEntity.h in Headers */,
-				9186B610271ED9EF00D425AF /* BlueShiftProduct.h in Headers */,
-				9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */,
-				9186B65A271ED9FB00D425AF /* BlueShiftNotificationWebViewController.h in Headers */,
-				9186B60B271ED9EF00D425AF /* BatchEventEntity.h in Headers */,
-				9186B60A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.h in Headers */,
-				9186B631271ED9EF00D425AF /* BlueShiftConfig.h in Headers */,
-				9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */,
 				9186B635271ED9EF00D425AF /* BlueShift.h in Headers */,
-				9186B5F7271ED9EF00D425AF /* BlueShiftNetworkReachabilityManager.h in Headers */,
-				9186B5FA271ED9EF00D425AF /* BlueShiftDeviceData.h in Headers */,
-				9186B65E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h in Headers */,
-				9186B620271ED9EF00D425AF /* BlueShiftRequestQueue.h in Headers */,
-				9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */,
-				9186B61F271ED9EF00D425AF /* BlueShiftLiveContent.h in Headers */,
-				9186B623271ED9EF00D425AF /* BlueShiftBatchRequestOperation.h in Headers */,
-				9186B60C271ED9EF00D425AF /* BlueShiftPushNotificationSettings.h in Headers */,
-				9186B624271ED9EF00D425AF /* BlueShiftInAppNotificationDelegate.h in Headers */,
-				9186B62E271ED9EF00D425AF /* BlueShiftRequestOperation.h in Headers */,
-				9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */,
-				9186B62B271ED9EF00D425AF /* BlueShiftHTTPMethod.h in Headers */,
-				9186B61D271ED9EF00D425AF /* BlueShiftDeepLink.h in Headers */,
-				9186B600271ED9EF00D425AF /* BlueShiftRequestOperationManager.h in Headers */,
-				9186B615271ED9EF00D425AF /* NSNumber+BlueShiftHelpers.h in Headers */,
 				9186B605271ED9EF00D425AF /* BlueShiftAppDelegate.h in Headers */,
+				9186B618271ED9EF00D425AF /* BlueShiftAppData.h in Headers */,
+				9186B617271ED9EF00D425AF /* BlueShiftBatchUploadConfig.h in Headers */,
+				9186B61D271ED9EF00D425AF /* BlueShiftDeepLink.h in Headers */,
+				9186B5FA271ED9EF00D425AF /* BlueShiftDeviceData.h in Headers */,
+				9186B631271ED9EF00D425AF /* BlueShiftConfig.h in Headers */,
+				9186B625271ED9EF00D425AF /* BlueshiftDeviceIdSource.h in Headers */,
+				9186B623271ED9EF00D425AF /* BlueShiftBatchRequestOperation.h in Headers */,
+				9186B636271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.h in Headers */,
+				9186B60A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.h in Headers */,
+				9186B637271ED9EF00D425AF /* BlueShiftNotificationConstants.h in Headers */,
+				9186B60C271ED9EF00D425AF /* BlueShiftPushNotificationSettings.h in Headers */,
+				9186B60D271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.h in Headers */,
+				9186B610271ED9EF00D425AF /* BlueShiftProduct.h in Headers */,
+				9186B5FE271ED9EF00D425AF /* BlueShiftUserNotificationSettings.h in Headers */,
+				9186B5FD271ED9EF00D425AF /* BlueShiftStatusCodes.h in Headers */,
+				9186B62E271ED9EF00D425AF /* BlueShiftRequestOperation.h in Headers */,
+				9186B5FF271ED9EF00D425AF /* HttpRequestOperationEntity.h in Headers */,
+				9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */,
+				9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */,
+				9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */,
+				9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */,
+				9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */,
 				9186B604271ED9EF00D425AF /* BlueShiftPushParamDelegate.h in Headers */,
+				9186B600271ED9EF00D425AF /* BlueShiftRequestOperationManager.h in Headers */,
+				9186B62B271ED9EF00D425AF /* BlueShiftHTTPMethod.h in Headers */,
+				9186B612271ED9EF00D425AF /* BlueShiftRequestQueueStatus.h in Headers */,
+				9186B620271ED9EF00D425AF /* BlueShiftRequestQueue.h in Headers */,
+				9186B5F4271ED9EF00D425AF /* BlueShiftPushDelegate.h in Headers */,
+				9186B608271ED9EF00D425AF /* BlueshiftRoutes.h in Headers */,
+				9186B624271ED9EF00D425AF /* BlueShiftInAppNotificationDelegate.h in Headers */,
+				9186B61F271ED9EF00D425AF /* BlueShiftLiveContent.h in Headers */,
+				9186B61E271ED9EF00D425AF /* BlueshiftConstants.h in Headers */,
+				9186B66D271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h in Headers */,
+				9186B656271ED9FB00D425AF /* BlueShiftNotificationWindow.h in Headers */,
+				91F4704A27282E7B00A0E84C /* BatchEventEntity.h in Headers */,
+				9186B659271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.h in Headers */,
+				9186B5F7271ED9EF00D425AF /* BlueShiftNetworkReachabilityManager.h in Headers */,
+				9186B66B271ED9FB00D425AF /* InAppNotificationEntity.h in Headers */,
+				9186B65B271ED9FB00D425AF /* BlueShiftNotificationCloseButton.h in Headers */,
+				9186B601271ED9EF00D425AF /* NetworkReachability.h in Headers */,
+				9186B661271ED9FB00D425AF /* BlueShiftNotificationView.h in Headers */,
+				9186B664271ED9FB00D425AF /* BlueShiftInAppType.h in Headers */,
+				9186B5F9271ED9EF00D425AF /* BlueshiftLog.h in Headers */,
+				9186B65E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h in Headers */,
+				9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */,
+				9186B66C271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h in Headers */,
+				9186B603271ED9EF00D425AF /* BlueShiftMacros.h in Headers */,
+				9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */,
+				9186B615271ED9EF00D425AF /* NSNumber+BlueShiftHelpers.h in Headers */,
+				9186B662271ED9FB00D425AF /* BlueShiftInAppNotification.h in Headers */,
+				9186B65A271ED9FB00D425AF /* BlueShiftNotificationWebViewController.h in Headers */,
+				91F470622728346F00A0E84C /* BlueShift_iOS_SDK.h in Headers */,
+				9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */,
+				9186B65C271ED9FB00D425AF /* BlueShiftNotificationViewController.h in Headers */,
+				9186B665271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -485,14 +515,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9186B67F271EDA0C00D425AF /* BlueShiftPushAnalytics.h in Headers */,
-				9186B67D271EDA0C00D425AF /* BlueShiftAppExtension.h in Headers */,
-				9186B688271EDA0C00D425AF /* BlueShiftPushNotification.h in Headers */,
-				9186B689271EDA0C00D425AF /* BlueshiftExtensionConstants.h in Headers */,
-				9186B68A271EDA0C00D425AF /* UIColor+BlueShiftHexString.h in Headers */,
 				9186B685271EDA0C00D425AF /* BlueShiftCarousalViewController.h in Headers */,
-				9186B687271EDA0C00D425AF /* BlueShiftiCarousel.h in Headers */,
+				9186B688271EDA0C00D425AF /* BlueShiftPushNotification.h in Headers */,
 				9186B684271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.h in Headers */,
+				91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */,
+				9186B68A271EDA0C00D425AF /* UIColor+BlueShiftHexString.h in Headers */,
+				91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */,
+				9186B689271EDA0C00D425AF /* BlueshiftExtensionConstants.h in Headers */,
+				9186B67F271EDA0C00D425AF /* BlueShiftPushAnalytics.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -791,7 +821,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.2.4;
+				MODULEMAP_FILE = "BlueShift-iOS-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -820,7 +851,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.2.4;
+				MODULEMAP_FILE = "BlueShift-iOS-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -844,13 +876,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.2.4;
+				MODULEMAP_FILE = "BlueShift-iOS-Extension-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-Extension-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -874,13 +907,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.2.4;
+				MODULEMAP_FILE = "BlueShift-iOS-Extension-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-Extension-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

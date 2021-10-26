@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "BlueShift-iOS-SDK",
+    platforms: [
+            .iOS(.v9)
+        ],
     products: [
         .library(
             name: "BlueShift-iOS-SDK",
@@ -26,6 +29,12 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("./"),
                 .headerSearchPath("InApps/")
+            ],
+            linkerSettings: [
+                .linkedFramework("CoreData"),
+                .linkedFramework("CoreTelephony", .when(platforms: [.iOS])),
+                .linkedFramework("UserNotifications"),
+                .linkedFramework("WebKit")
             ]
         ),
         .target(
