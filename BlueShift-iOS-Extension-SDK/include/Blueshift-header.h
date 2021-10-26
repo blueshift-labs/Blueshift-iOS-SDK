@@ -1,2 +1,0 @@
-
-#import "../BlueShiftAppExtension.h"
