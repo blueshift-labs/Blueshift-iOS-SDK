@@ -19,3 +19,5 @@ FOUNDATION_EXPORT const unsigned char BlueShift_iOS_Extension_SDKVersionString[]
 #import "BlueShiftCarousalViewController.h"
 #import "BlueshiftExtensionAnalyticsHelper.h"
 #import "BlueShiftPushAnalytics.h"
+#import "UIColor+BlueShiftHexString.h"
+#import "BlueShiftiCarousel.h"
