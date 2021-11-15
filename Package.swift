@@ -10,17 +10,17 @@ let package = Package(
         ],
     products: [
         .library(
-            name: "BlueShift-iOS-SDK",
-            targets: ["BlueShift-iOS-SDK"]),
+            name: "BlueShift_iOS_SDK",
+            targets: ["BlueShift_iOS_SDK"]),
         .library(
-            name: "BlueShift-iOS-Extension-SDK",
+            name: "BlueShift_iOS_Extension_SDK",
             type: .dynamic,
-            targets: ["BlueShift-iOS-Extension-SDK"]),
+            targets: ["BlueShift_iOS_Extension_SDK"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "BlueShift-iOS-SDK",
+            name: "BlueShift_iOS_SDK",
             dependencies: [],
             path: "BlueShift-iOS-SDK",
             resources: [
@@ -39,7 +39,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "BlueShift-iOS-Extension-SDK",
+            name: "BlueShift_iOS_Extension_SDK",
             dependencies: [],
             path: "BlueShift-iOS-Extension-SDK",
             publicHeadersPath: "include"
