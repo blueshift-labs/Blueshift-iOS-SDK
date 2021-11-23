@@ -1118,7 +1118,9 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
             NSBundle *bundle = [NSBundle bundleWithPath:path];
             NSString* path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-            return path;
+            if (path != nil) {
+                return path;
+            }
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to get data model path" methodName:nil];
