@@ -1117,7 +1117,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
         if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
             NSBundle *bundle = [NSBundle bundleWithPath:path];
-            NSString* path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
             if (path != nil) {
                 return path;
             }
