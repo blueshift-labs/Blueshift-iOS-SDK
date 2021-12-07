@@ -16,7 +16,7 @@ Pods/Pods.xcodeproj/xcuserdata/
 Carthage/Build/
 
 #Swift package
-.swiftpm/xcode/xcuserdata/*
+.swiftpm
 /coverage
 
 .DS_Store
