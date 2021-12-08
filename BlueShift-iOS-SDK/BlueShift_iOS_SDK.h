@@ -31,7 +31,7 @@ FOUNDATION_EXPORT const unsigned char BlueShift_iOS_SDKVersionString[];
 #import "BlueShiftHttpRequestBatchUpload.h"
 #import "BlueShiftLiveContent.h"
 #import "BlueshiftLog.h"
-#import "BlueShiftMacros.h"
+#import "BlueshiftVersion.h"
 #import "BlueShiftNetworkReachabilityManager.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueShiftProduct.h"
