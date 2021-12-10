@@ -11,8 +11,6 @@
 #import "BlueshiftExtensionAnalyticsHelper.h"
 #import "BlueshiftExtensionConstants.h"
 
-@import UserNotifications;
-
 API_AVAILABLE(ios(10.0))
 static BlueShiftPushNotification *_sharedInstance = nil;
 

@@ -1,0 +1,1 @@
+../BlueshiftVersion.h

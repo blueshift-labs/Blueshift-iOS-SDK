@@ -9,6 +9,7 @@
 #import "BlueShiftPushNotification.h"
 #import "BlueshiftExtensionConstants.h"
 #import "BlueshiftExtensionAnalyticsHelper.h"
+#import <UIKit/UIKit.h>
 
 #define kBaseURL                        @"https://api.getblueshift.com/"
 #define kPushEventsUploadURL            @"track"
