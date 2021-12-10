@@ -41,10 +41,7 @@ let package = Package(
             name: "BlueShift_iOS_Extension_SDK",
             dependencies: [],
             path: "BlueShift-iOS-Extension-SDK",
-            publicHeadersPath: "include",
-            linkerSettings: [
-                .unsafeFlags(["-Xlinker", "-no_application_extension"])
-            ]
+            publicHeadersPath: "include"
         )
     ]
 )
