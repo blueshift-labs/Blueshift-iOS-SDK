@@ -163,7 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Calling this method will fetch in-app notifications manually from api and add them into the SDK database.
 /// @param success block to perform action when api call is successful
 /// @param failure block to perform action when api call is unsuccessful
-- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
+- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError* _Nullable))failure;
 
 /// Check if the url is from Blueshift
 /// @param url  url to check
