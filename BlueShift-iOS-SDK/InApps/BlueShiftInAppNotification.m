@@ -36,10 +36,6 @@
                         [payloadDictionary objectForKey: kInAppNotificationModalPageKey] != [NSNull null]) {
                         self.iosLink = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalPageKey];
                     }
-                    if ([payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] &&
-                        [payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey] != [NSNull null]) {
-                        self.shareableText = (NSString *)[payloadDictionary objectForKey: kInAppNotificationModalSharableTextKey];
-                    }
                     if ([payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] &&
                         [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey] != [NSNull null]) {
                         self.buttonType = (NSString *) [payloadDictionary objectForKey: kInAppNotificationButtonTypeKey];
