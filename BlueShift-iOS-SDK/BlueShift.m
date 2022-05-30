@@ -677,12 +677,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+    if (parameters) {
+        [parameterMutableDictionary addEntriesFromDictionary:parameters];
+    }
+    // Event name should not get overriden by the additional params
     if (eventName) {
         [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
     }
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }    
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
@@ -749,6 +750,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     return requestMutableParameters;
 }
 
+/// Add a tracking event to event processing queue. The track events could be delivered, open, click or dismiss.
+/// @param parameters tracking parameters
+/// @param isBatchEvent  BOOL to determine if the event needs to be batched or not.
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     @try {
         if([self validateSDKTrackingRequirements] == false) {
