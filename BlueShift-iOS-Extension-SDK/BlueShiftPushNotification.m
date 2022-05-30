@@ -212,36 +212,42 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         NSString* pushCategory = aps[kNotificationCategory];
         NSString* forceReplaceCategory = userInfo[kNotificationForceReplaceCategory];
         NSArray* actionsArray = userInfo[kNotificationActions];
-        if(actionsArray && pushCategory) {
+        
+        if(pushCategory && actionsArray && actionsArray.count > 0) {
             __block bool isCategoryRegistrationComplteted = NO;
-            NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
-            if (notificationActions.count > 0) {
-                UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-                [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
-                    NSMutableSet<UNNotificationCategory *> * updatedCategories = [existingCategories mutableCopy];
-                    // Add category if it is not present in the UNUserNotificationCenter
-                    if([self isCatgoryExists:category.identifier inSet:updatedCategories] == NO) {
-                        [updatedCategories addObject:category];
-                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
-                    } else if(forceReplaceCategory && [forceReplaceCategory boolValue] == YES) {
-                        // Remove old category with same id(if present) in order to replace it.
-                        [self removeDuplicateCategory:category.identifier fromSet:updatedCategories];
-                        [updatedCategories addObject:category];
-                        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
-                    }
-                    // set the flag to true to exit the thread sleep loop.
-                    isCategoryRegistrationComplteted = YES;
-                }];
-                int counter = 0;
-                // Sleep thread till the category registration finishes or counter reaches to 20 (2 seconds)
-                while (isCategoryRegistrationComplteted == NO && counter < kThreadSleepIterations) {
-                    counter++;
-                    [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+            [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
+                NSMutableSet<UNNotificationCategory *> * updatedCategories = [existingCategories mutableCopy];
+                // Add category if it is not present in the UNUserNotificationCenter
+                if([self isCatgoryExists:pushCategory inSet:updatedCategories] == NO) {
+                    UNNotificationCategory * category = [self createCategoryForIdentifier:pushCategory actions:actionsArray];
+                    [updatedCategories addObject:category];
+                    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
+                } else if(forceReplaceCategory && [forceReplaceCategory boolValue] == YES) {
+                    // Remove old category with same id(if present) in order to replace it.
+                    [self removeDuplicateCategory:pushCategory fromSet:updatedCategories];
+                    UNNotificationCategory * category = [self createCategoryForIdentifier:pushCategory actions:actionsArray];
+                    [updatedCategories addObject:category];
+                    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
                 }
+                // set the flag to true to exit the thread sleep loop.
+                isCategoryRegistrationComplteted = YES;
+            }];
+            int counter = 0;
+            // Sleep thread till the category registration finishes or counter reaches to 20 (2 seconds)
+            while (isCategoryRegistrationComplteted == NO && counter < kThreadSleepIterations) {
+                counter++;
+                [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
             }
         }
     } @catch (NSException *exception) {
     }
+}
+
+- (UNNotificationCategory*)createCategoryForIdentifier:(NSString*)categoryIdentifier actions:(NSArray*)actions {
+    NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actions];
+    UNNotificationCategory* category = nil;
+    category = [UNNotificationCategory categoryWithIdentifier:categoryIdentifier actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+    return category;
 }
 
 - (NSMutableArray*)getNotificationActions:(NSArray*)actions {
@@ -257,7 +263,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                 if (actionType && ![actionType isEqualToString:kNotificationActionTypeOpen]) {
                     if([actionType isEqualToString:kNotificationActionTypeDestructive])
                         actionOption = UNNotificationActionOptionDestructive;
-                    else if([actionType isEqualToString: kNotificationActionTypeDestructive])
+                    else if([actionType isEqualToString: kNotificationActionTypeAuthenticationRequired])
                         actionOption = UNNotificationActionOptionAuthenticationRequired;
                     else if([actionType isEqualToString:kNotificationActionTypeNone])
                         actionOption = UNNotificationActionOptionNone;

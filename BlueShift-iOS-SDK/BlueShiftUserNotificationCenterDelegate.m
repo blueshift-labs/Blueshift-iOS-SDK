@@ -29,7 +29,7 @@
 }
 
 - (void)handleUserNotification:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
-    [BlueshiftLog logInfo:@"Push notification action response received" withDetails:response methodName:nil];
+    [BlueshiftLog logInfo:[NSString stringWithFormat:@"Push notification action response received - %@", response.actionIdentifier] withDetails:response methodName:nil];
     if([response.actionIdentifier isEqualToString:@"com.apple.UNNotificationDefaultActionIdentifier"]) {
         [[BlueShift sharedInstance].appDelegate handleRemoteNotification:response.notification.request.content.userInfo];
         completionHandler();

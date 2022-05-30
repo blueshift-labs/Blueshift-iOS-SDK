@@ -1033,4 +1033,11 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     return  NO;
 }
 
+- (BOOL)isBlueshiftCustomActionsPushNotification:(NSDictionary *)userInfo {
+    if (userInfo && [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey] && [userInfo valueForKey:kNotificationActions]) {
+        return  YES;
+    }
+    return  NO;
+}
+
 @end
