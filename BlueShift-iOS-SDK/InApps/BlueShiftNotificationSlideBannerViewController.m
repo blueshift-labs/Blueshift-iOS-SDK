@@ -76,8 +76,11 @@
 }
 
 - (void)presentAnimationView {
-    [slideBannerView.layer addAnimation:[self getAnimationTransition] forKey:nil];
-    [self.view insertSubview:slideBannerView aboveSubview:self.view];
+    [self.view addSubview:slideBannerView];
+    self.view.frame = CGRectMake(-1 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
+    [UIView animateWithDuration:1.0 animations:^{
+        self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    }];
 }
 
 - (CATransition*)getAnimationTransition {
@@ -112,7 +115,7 @@
         }
     };
     if (animated) {
-        self.window.alpha = 2.0;
+        self.window.alpha = 1.0;
         completionBlock();
     } else {
         self.window.alpha = 1.0;

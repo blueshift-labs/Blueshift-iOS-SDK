@@ -68,6 +68,9 @@ static NSDictionary *_inAppTypeDictionay;
 + (CGFloat)convertPointsWidthToPercentage:(float) width forWindow:(UIWindow*)window {
     CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
     CGFloat widthInPercentage = (CGFloat) (((width/presentationAreaWidth) * 100.0f));
+    if(widthInPercentage > kInAppNotificationDefaultWidth) {
+        return kInAppNotificationDefaultWidth;
+    }
     return  widthInPercentage;
 }
 
@@ -114,10 +117,18 @@ static NSDictionary *_inAppTypeDictionay;
 
 + (UIWindow *)getApplicationKeyWindow {
     if (@available(iOS 13.0, *)) {
-        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES && [NSThread isMainThread] == YES) {
-            for (UIWindow *window in [UIApplication sharedApplication].windows) {
-                if (window && window.isKeyWindow) {
-                    return window;
+        if ([NSThread isMainThread] == YES && UIApplication.sharedApplication.supportsMultipleScenes == YES) {
+            if (@available(iOS 15.0, *)) {
+                for(UIWindowScene *windowScene in [[UIApplication sharedApplication].connectedScenes allObjects]) {
+                    if(windowScene && windowScene.activationState == UISceneActivationStateForegroundActive && windowScene.keyWindow) {
+                        return windowScene.keyWindow;
+                    }
+                }
+            } else if (@available(iOS 13.0, *)) {
+                for (UIWindow *window in [UIApplication sharedApplication].windows) {
+                    if (window && window.isKeyWindow) {
+                        return window;
+                    }
                 }
             }
         }
