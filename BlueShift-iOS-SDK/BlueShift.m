@@ -13,6 +13,7 @@
 #import "BlueshiftConstants.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "BlueshiftInAppNotificationRequest.h"
 
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
