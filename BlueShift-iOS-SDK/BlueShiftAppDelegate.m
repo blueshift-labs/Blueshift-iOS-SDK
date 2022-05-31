@@ -455,7 +455,10 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         
         lastProcessedPushNotificationUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
         
-        [self trackAppOpenWithParameters:userInfo];
+        // fire app_open only for Blueshift push notifications
+        if ([BlueShift.sharedInstance isBlueshiftPushNotification:userInfo]) {
+            [self trackAppOpenWithParameters:userInfo];
+        }
         
         if (userInfo != nil && ([userInfo objectForKey: kPushNotificationDeepLinkURLKey] || [userInfo objectForKey: kNotificationURLElementKey])) {
             NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];

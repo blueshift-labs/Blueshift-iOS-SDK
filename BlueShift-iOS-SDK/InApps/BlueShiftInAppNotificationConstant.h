@@ -63,7 +63,6 @@
 #define kInAppNotificationModalTextKey                          @"text"
 #define kInAppNotiificationModalTextColorKey                    @"text_color"
 #define kInAppNotificationModalPageKey                          @"ios_link"
-#define kInAppNotificationModalSharableTextKey                  @"shareable_text"
 #define kInAppNotificationModalBackgroundRadiusKey              @"background_radius"
 #define kInAppNotificationModalTextSizeKey                      @"text_size"
 #define kInAppNotificationButtonIndex                           @"btn_"

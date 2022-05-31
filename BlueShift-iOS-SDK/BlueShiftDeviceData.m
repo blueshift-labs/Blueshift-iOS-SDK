@@ -69,6 +69,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return deviceUUID;
 }
 
+- (void)resetDeviceUUID {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBlueshiftDeviceIdSourceUUID];
+    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+}
+
 - (NSString *)deviceIDFV {
     NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     return idfvString;
