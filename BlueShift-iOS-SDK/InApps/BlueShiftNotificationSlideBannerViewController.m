@@ -77,19 +77,12 @@
 
 - (void)presentAnimationView {
     [self.view addSubview:slideBannerView];
+    
+    // Animate the slide in banner
     self.view.frame = CGRectMake(-1 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
     [UIView animateWithDuration:1.0 animations:^{
         self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     }];
-}
-
-- (CATransition*)getAnimationTransition {
-    CATransition *transition = [CATransition animation];
-    transition.duration = 1.0;
-    transition.type = kCATransitionPush;
-    transition.subtype = kCATransitionFromLeft;
-    [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-    return transition;
 }
 
 - (void)createNotificationView {
@@ -380,7 +373,6 @@
                 bottomSafeAreaView.frame = frame;
             } else {
                 bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
-                [bottomSafeAreaView.layer addAnimation:[self getAnimationTransition] forKey:nil];
                 [bottomSafeAreaView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSlideInTap)]];
             }
             UIColor *backgroundColor = [self colorWithHexString: self.notification.templateStyle.bottomSafeAreaColor];
