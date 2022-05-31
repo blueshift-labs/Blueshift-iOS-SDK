@@ -62,14 +62,17 @@ static NSDictionary *_inAppTypeDictionay;
 + (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window {
     CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
     CGFloat heightInPercentage = (CGFloat) (((height/presentationAreaHeight) * 100.0f));
+    if(heightInPercentage > 100) {
+        return 100;
+    }
     return heightInPercentage;
 }
 
 + (CGFloat)convertPointsWidthToPercentage:(float) width forWindow:(UIWindow*)window {
     CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
     CGFloat widthInPercentage = (CGFloat) (((width/presentationAreaWidth) * 100.0f));
-    if(widthInPercentage > kInAppNotificationDefaultWidth) {
-        return kInAppNotificationDefaultWidth;
+    if(widthInPercentage > 100) {
+        return 100;
     }
     return  widthInPercentage;
 }

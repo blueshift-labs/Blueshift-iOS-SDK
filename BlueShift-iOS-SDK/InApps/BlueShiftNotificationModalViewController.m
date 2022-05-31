@@ -229,7 +229,7 @@
     CGFloat imageViewWidth = notificationView.frame.size.width - (xPosition + rightPadding);
     CGFloat imageViewHeight = 0;
     if (self.window.frame.size.width > self.window.frame.size.height && [BlueShiftInAppNotificationHelper isIpadDevice] == NO) {
-        imageViewHeight = notificationView.frame.size.width / 4;
+        imageViewHeight = notificationView.frame.size.width / 5;
     } else {
         imageViewHeight = notificationView.frame.size.width / 2;
     }
