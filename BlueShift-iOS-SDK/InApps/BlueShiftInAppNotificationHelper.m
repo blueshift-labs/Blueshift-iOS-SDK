@@ -120,7 +120,7 @@ static NSDictionary *_inAppTypeDictionay;
 
 + (UIWindow *)getApplicationKeyWindow {
     if (@available(iOS 13.0, *)) {
-        if ([NSThread isMainThread] == YES && UIApplication.sharedApplication.supportsMultipleScenes == YES) {
+        if ([NSThread isMainThread] == YES) {
             if (@available(iOS 15.0, *)) {
                 for(UIWindowScene *windowScene in [[UIApplication sharedApplication].connectedScenes allObjects]) {
                     if(windowScene && windowScene.activationState == UISceneActivationStateForegroundActive && windowScene.keyWindow) {

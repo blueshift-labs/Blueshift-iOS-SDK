@@ -55,7 +55,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// @note By default this property is set to true.
 @property BOOL enablePushNotification;
 
-@property BOOL enableLocationAccess DEPRECATED_MSG_ATTRIBUTE("From SDK v2.1.7, SDK has stopped tracking the location automatically. The app needs to set the updated location to the Blueshift SDK.");
+@property BOOL enableLocationAccess DEPRECATED_MSG_ATTRIBUTE("From SDK v2.1.7, SDK has stopped tracking the location automatically. The app needs to set the updated location to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
 
 /// From SDK v2.1.13, the automatic app_open tracking will be disabled by default. In order to track the app_open set this flag to true.
 /// @discussion You can set the time interval for automatic app_open events using config.automaticAppOpenTimeInterval to throttle them. Default value for automaticAppOpenTimeInterval is once in 24 hours.
@@ -99,7 +99,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// Set this property to false to stop the SDK from collectiong IDFA.
 /// @discussion With enableIDFACollection set as true, SDK will not ask user the device IDFA permission, but if the host app has asked for IDFA permission, and user has accepted it, then SDK collects it and sends to server.
 /// @note Default value is set to true.
-@property BOOL enableIDFACollection DEPRECATED_MSG_ATTRIBUTE("From iOS SDK v2.1.17, SDK has stopped IDFA tracking automatically. The app needs to set the IDFA value to the Blueshift SDK.");
+@property BOOL enableIDFACollection DEPRECATED_MSG_ATTRIBUTE("From iOS SDK v2.1.17, SDK has stopped IDFA tracking automatically. The app needs to set the IDFA value to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
 
 /// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;
