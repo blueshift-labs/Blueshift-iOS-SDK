@@ -62,8 +62,8 @@
 - (void)handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
 - (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)(void)) completionHandler;
 
-- (void)appDidEnterBackground:(UIApplication *_Nonnull)application;
-- (void)appDidBecomeActive:(UIApplication *_Nonnull)application;
+- (void)appDidEnterBackground:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
+- (void)appDidBecomeActive:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
 
 - (void)handleBlueshiftUniversalLinksForActivity:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0));
@@ -76,8 +76,8 @@
 - (void)trackAppOpenOnAppLaunch:(NSDictionary *_Nullable)parameters;
 
 // SceneDelegate lifecycle methods
-- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
-- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0));
+- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
+- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
 
 /// Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
 - (void)checkUNAuthorizationStatus;

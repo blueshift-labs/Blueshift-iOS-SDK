@@ -1008,30 +1008,17 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 - (void)appDidBecomeActive:(UIApplication *)application {
-    // Uploading previous Batch events if anything exists
-    //To make the code block asynchronous
-    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    // Moved the code to the observer
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationDidBecomeActive:)]) {
         [self.mainAppDelegate applicationDidBecomeActive:application];
     }
-    [self appDidBecomeActive:application];
 }
 
 - (void)appDidEnterBackground:(UIApplication *)application {
-    if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)])
-    {
-        __block UIBackgroundTaskIdentifier background_task;
-        background_task = [application beginBackgroundTaskWithExpirationHandler:^ {
-            
-            //Clean up code. Tell the system that we are done.
-            [application endBackgroundTask: background_task];
-            background_task = UIBackgroundTaskInvalid;
-        }];
-        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
-    }
+    // Moved the code to the observer
 }
 
 
@@ -1039,7 +1026,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationDidEnterBackground:)]) {
         [self.mainAppDelegate applicationDidEnterBackground:application];
     }
-    [self appDidEnterBackground:application];
 }
 
 - (void) forwardInvocation:(NSInvocation *)anInvocation {
@@ -1237,36 +1223,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 #pragma mark - Handle sceneDelegate lifecycle methods
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
-    if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
-        [self appDidBecomeActive:UIApplication.sharedApplication];
-    }
+    // Moved the code to the observer, 
 }
 
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
-    if (BlueShift.sharedInstance.config.isSceneDelegateConfiguration == YES) {
-        if ([NSThread isMainThread] == YES) {
-            [self processSceneDidEnterBackground];
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self processSceneDidEnterBackground];
-            });
-        }
-    }
-}
-
-/// Call appDidEnterBackground if all the scenes of the app are in background
-/// @warning - This function needs to be executed on the main thread
-- (void)processSceneDidEnterBackground API_AVAILABLE(ios(13.0)) {
-    BOOL areAllScenesInBackground = YES;
-    for (UIWindow* window in UIApplication.sharedApplication.windows) {
-        if (window.windowScene.activationState == UISceneActivationStateForegroundActive || window.windowScene.activationState == UISceneActivationStateForegroundInactive) {
-            areAllScenesInBackground = NO;
-            break;
-        }
-    }
-    if (areAllScenesInBackground == YES) {
-        [self appDidEnterBackground:UIApplication.sharedApplication];
-    }
+    // Moved the code to the observer
 }
 
 @end
