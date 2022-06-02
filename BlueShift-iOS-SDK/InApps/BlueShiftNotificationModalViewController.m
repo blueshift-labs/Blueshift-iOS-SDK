@@ -228,9 +228,11 @@
     
     CGFloat imageViewWidth = notificationView.frame.size.width - (xPosition + rightPadding);
     CGFloat imageViewHeight = 0;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
+
     // If the device is in landscape mode and the device is not iPad.
     // Reduce the image width so that it should not take entire screen and make room for text and button.
-    if (self.window.frame.size.width > self.window.frame.size.height && [BlueShiftInAppNotificationHelper isIpadDevice] == NO) {
+    if (screenSize.width > screenSize.height && [BlueShiftInAppNotificationHelper isIpadDevice] == NO) {
         imageViewHeight = notificationView.frame.size.width / 5;
     } else { // Default for iPad and iphone with portrait mode.
         imageViewHeight = notificationView.frame.size.width / 2;

@@ -76,7 +76,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// When this feature is enabled, the SDK fetches the latest in-app messages in background, stores it locally to display when needed. If you don't want the SDK to fetch in-app automatically, set this property to false.
 @property BOOL inAppBackgroundFetchEnabled;
 
-/// iOS SDK v2.1.7 onwards, SDK prints the logs when this property is set to true. It is recommended to set this property to true only for debug purpose.
+/// From iOS SDK v2.1.7, it prints the logs when this property is set to true. It is recommended to set this property to true only for debug purpose.
 /// @discussion The SDK logs are divided into 4 categories:
 /// Errors, Exceptions, Info, API call info.
 /// Errors and Exceptions are printed by default, while to see Info and API logs, you will need to set this property to true.
@@ -89,7 +89,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 @property UNAuthorizationOptions customAuthorizationOptions API_AVAILABLE(ios(10.0));
 
 /// It is mandatory to set this property if you are using the Carousel push notifications.
-/// The click tracking for the carousel push notification will not work correctly if you do not set it.
+/// The click tracking and push deep links for the carousel push notification will not work correctly if you do not set it.
 @property NSString * _Nullable appGroupID;
 
 /// Set this propery to true if the app has SceneDelegate configuration enabled.
@@ -99,7 +99,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// Set this property to false to stop the SDK from collectiong IDFA.
 /// @discussion With enableIDFACollection set as true, SDK will not ask user the device IDFA permission, but if the host app has asked for IDFA permission, and user has accepted it, then SDK collects it and sends to server.
 /// @note Default value is set to true.
-@property BOOL enableIDFACollection DEPRECATED_MSG_ATTRIBUTE("From iOS SDK v2.1.17, SDK has stopped IDFA tracking automatically. The app needs to set the IDFA value to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
+@property BOOL enableIDFACollection DEPRECATED_MSG_ATTRIBUTE("From iOS SDK v2.1.17, SDK has stopped automatic IDFA tracking. The app needs to set the IDFA value to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
 
 /// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;
@@ -115,15 +115,15 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// All the userNotification push notification action/event will then go to SDK's delegate.
 @property NSObject<UNUserNotificationCenterDelegate> * _Nullable userNotificationDelegate API_AVAILABLE(ios(10.0));
 
-/// SDK provides callbacks for the push notification click event. Create a class which implements protocol BlueShiftPushDelegate to get the callback.
-/// Set the delegate object of the Class to this property during the SDK initialization.
+/// SDK provides callbacks for the push notification click event. Create a class which implements protocol `BlueShiftPushDelegate` to get the callback.
+/// Set the object of the Class to this property as delegate during the SDK initialization.
 @property id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
 
-/// SDK provides callbacks for the in-app notification click, open, deliver events. Create a class which implements protocol BlueShiftInAppNotificationDelegate to get the callback.
-/// Set the delegate object of the Class to this property during the SDK initialization.
+/// SDK provides callbacks for the in-app notification click, open, deliver events. Create a class which implements protocol `BlueShiftInAppNotificationDelegate` to get the callback.
+/// Set the object of the Class as delegate to this property during the SDK initialization.
 @property id<BlueShiftInAppNotificationDelegate> _Nullable inAppNotificationDelegate;
 
-/// Use ths property if you want to use the Universal links from the Blueshift.
+/// Set this property if you want to use the Universal links from the Blueshift.
 /// implement the BlueshiftUniversalLinksDelegate protocol and then assign the delegate to this property.
 @property id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 

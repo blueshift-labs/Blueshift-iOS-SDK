@@ -80,28 +80,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Send identify event to update user data and custom attributes on Blueshift.
 /// @param details additional details to send as part of identify event.
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true. Identify event is recommended to send in realtime.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true. Identify event is recommended to send in realtime.
 /// @discussion Identify event is responsible to update the data for the user profile on the Blueshift.
-/// Whenever any user data gets changed, It is recommend to send an identify event to reflect those changes on the Blueshift.
+/// Whenever any user data gets changed, It is recommended to send an identify event to reflect those changes on the Blueshift.
 - (void)identifyUserWithDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
 /// Send identify event to update data and custom attributes on Blueshift.
 /// @param email email id of the user.
 /// @param details additional details to send as part of identify event.
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true. Identify event is recommended to send in realtime.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true. Identify event is recommended to send in realtime.
 /// @discussion Identify event is responsible to update the data for the user profile on the Blueshift.
-/// Whenever any user data gets changed, It is recommend to send an identify event to reflect those changes on the Blueshift.
+/// Whenever any user data gets changed, It is recommended to send an identify event to reflect those changes on the Blueshift.
 - (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
 
 /// Send `pageload` event to track the screen visits.
-/// @param viewController viewController which is visted by the user.
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true.
+/// @param viewController viewController which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent;
 
 /// Send `pageload` event to track the screen visits.
-/// @param viewController viewController which is visted by the user.
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true.
+/// @param viewController viewController which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 /// @param parameters additional details to send as part of identify event.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
@@ -161,19 +161,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Send custom events based on the custom usecases.
 /// @param eventName name of the event
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackEventForEventName:(NSString *)eventName canBatchThisEvent:(BOOL)isBatchEvent;
 
 /// Send custom events based on the custom usecases.
 /// @param eventName name of the event
 /// @param parameters additional details related to the event
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
 
-/// Calling this method with will fire a click event for the given Blueshift push notification payload.
-/// @param userInfo Push notification payload
-/// @param isBatchEvent Send this event in realtime when value is false or in batch when value is true.
+/// Calling this method with will fire a click event for the received Blueshift push notification payload.
+/// @param userInfo push notification payload
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent DEPRECATED_MSG_ATTRIBUTE("The push delivered is now calculated using the APNS feedback, and App should not send the push delivered event to Blueshift using this method.");
