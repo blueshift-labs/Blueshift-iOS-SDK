@@ -682,7 +682,7 @@
                 [notificationController show:YES];
             } else {
                 self.currentNotificationController = nil;
-                [BlueshiftLog logInfo:@"Skipped preseting in-app notification as screen is not registered to receive in-app notification or current screen is different than in-app notification display on screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                [BlueshiftLog logInfo:@"Skipped preseting in-app notification for screen - " withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
             }
 
         } @catch (NSException *exception) {
@@ -707,9 +707,11 @@
 /// @param displayOnScreen Name of screen where notification should be displayed
 - (BOOL)shouldDisplayInAppNotification:(NSString*)displayOnScreen {
     if ([self inAppNotificationDisplayOnPage] == nil) {
+        [BlueshiftLog logInfo:@"Current screen is not registered to receive in-app notification." withDetails:nil methodName:nil];
         return false;
     } else if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:displayOnScreen]) {
         if(![[self inAppNotificationDisplayOnPage] isEqualToString:displayOnScreen]) {
+            [BlueshiftLog logInfo:@"Current screen name is different than in-app notification target screen name." withDetails:@{@"currentScreenName":self.inAppNotificationDisplayOnPage, @"inAppTargetScreenName":displayOnScreen} methodName:nil];
             return false;
         } else {
             return true;

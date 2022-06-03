@@ -132,12 +132,12 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject: networkCarrier forKey:kNetworkCarrier];
     }
     
-    if (self.currentLocation && [BlueShift sharedInstance].config.enableLocationAccess) {
+    if (self.currentLocation) {
         [deviceMutableDictionary setObject: [NSNumber numberWithFloat:self.currentLocation.coordinate.latitude] forKey:kLatitude];
         [deviceMutableDictionary setObject:[NSNumber numberWithFloat:self.currentLocation.coordinate.longitude] forKey:kLongitude];
     }
     
-    if ([BlueShift sharedInstance].config.enableIDFACollection == YES && self.deviceIDFA) {
+    if (self.deviceIDFA) {
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
