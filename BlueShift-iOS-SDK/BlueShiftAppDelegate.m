@@ -959,6 +959,8 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
  
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier {
+    lastProcessedPushNotificationUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
+
     if (userInfo && identifier) {
         NSMutableDictionary *mutableNotification = [userInfo mutableCopy];
         if (userInfo[kNotificationActions]) {

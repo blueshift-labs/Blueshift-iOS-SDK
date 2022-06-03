@@ -86,7 +86,7 @@
 /// Returns "YES" if authorization status is enabled, returns "NO" if it is disabled.
 - (NSString*_Nullable)getLastModifiedUNAuthorizationStatus;
 
-/// Check if the push notification is of custom action buttons type.
+/// Get the clicked push notfiication button name and associated deep link url.
 /// @param userInfo push notification payload
 /// @param identifier action identifier
 /// @return returns a dictionary with the values for deep link URL and the clicked button name. Use key `clk_url` to get the deep link URL and use `clk_elmt` to get button name from the dictionary.

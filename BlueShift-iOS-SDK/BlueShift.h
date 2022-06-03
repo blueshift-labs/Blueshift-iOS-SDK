@@ -175,10 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @returns true or false based on if push notification is from Blueshift or not
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
 
-/// Check if the push notification is of custom action type.
-/// @param userInfo userInfo dictionary from the push notification payload.
-/// @returns true or false based on if push notification is of Custom action type or not.
-- (BOOL)isBlueshiftCustomActionsPushNotification:(NSDictionary *)userInfo;
+/// Check if the received push notification response is of Blueshift custom action type.
+/// @param response userInfo dictionary from the push notification p ayload.
+/// @returns true or false based on if push notification is of Blueshift custom action type or not.
+- (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response API_AVAILABLE(ios(10.0));
 
 /// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
 /// It will also erase all the non synced events data from the SDK database while disabling the SDK and they will not be sent to Blueshift server.
