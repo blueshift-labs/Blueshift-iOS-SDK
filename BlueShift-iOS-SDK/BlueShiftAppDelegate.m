@@ -681,7 +681,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 #pragma mark - Handle custom push notification actions
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushDetails = [self.userInfo mutableCopy];
+    NSMutableDictionary *pushDetails = [self.userInfo mutableCopy];
     NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
     if(appGroupID && ![appGroupID isEqualToString:@""]) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
@@ -959,8 +959,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
  
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier {
-    lastProcessedPushNotificationUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
-
     if (userInfo && identifier) {
         NSMutableDictionary *mutableNotification = [userInfo mutableCopy];
         if (userInfo[kNotificationActions]) {
