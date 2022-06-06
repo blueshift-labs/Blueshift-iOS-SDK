@@ -63,7 +63,7 @@
 - (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)(void)) completionHandler;
 
 - (void)appDidEnterBackground:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
-- (void)appDidBecomeActive:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
+- (void)appDidBecomeActive:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app becomes active, this method will be removed in upcoming releases.");
 
 - (void)handleBlueshiftUniversalLinksForActivity:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0));
