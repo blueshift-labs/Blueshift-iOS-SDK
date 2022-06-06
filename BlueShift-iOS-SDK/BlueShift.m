@@ -1050,4 +1050,12 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     return  NO;
 }
 
+- (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response {
+    NSDictionary *userInfo = response.notification.request.content.userInfo;
+    if (userInfo && [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey] && [userInfo valueForKey:kNotificationActions] && ![response.actionIdentifier isEqualToString:kUNNotificationDefaultActionIdentifier]) {
+        return  YES;
+    }
+    return  NO;
+}
+
 @end

@@ -20,6 +20,7 @@
 #define kNotificationActions                                            @"actions"
 #define kNotificationActionIdentifier                                   @"identifier"
 #define kNotificationDefaultActionIdentifier                            @"BSPushIdentifier"
+#define kUNNotificationDefaultActionIdentifier                          @"com.apple.UNNotificationDefaultActionIdentifier"
 
 #define kNotificationSchedulerKey                                       @"notification_scheduler"
 #define kNotificationTimestampToDisplayKey                              @"timestamp_to_display"
