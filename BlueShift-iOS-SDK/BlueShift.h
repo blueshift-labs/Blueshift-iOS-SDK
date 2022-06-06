@@ -64,6 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Returns Blueshift serial queue instance for executing tasks on the Blueshift queue.
 - (dispatch_queue_t _Nullable) dispatch_get_blueshift_queue;
 
+#pragma mark In App registration methods
 /// Register for in-app notifications in order to show the in-app notifications on the view controller or screen. To register, call this method in the `viewDidAppear` lifecycle method of VC.
 /// @param displayPage Name of screen or view controller
 /// @warning If you don't register a VC or screen to receive in-app notification, SDK will not show the in-app notifications on that VC or screen.
@@ -75,13 +76,33 @@ NS_ASSUME_NONNULL_BEGIN
 /// Get current registered screen name for the in app notifications.
 - (NSString* _Nullable)getRegisteredForInAppScreenName;
 
-// track events functions
+#pragma mark track events
+
+/// Send identify event to update user data and custom attributes on Blueshift.
+/// @param details additional details to send as part of identify event.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true. Identify event is recommended to send in realtime.
+/// @discussion Identify event is responsible to update the data for the user profile on the Blueshift.
+/// Whenever any user data gets changed, It is recommended to send an identify event to reflect those changes on the Blueshift.
 - (void)identifyUserWithDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
+/// Send identify event to update data and custom attributes on Blueshift.
+/// @param email email id of the user.
+/// @param details additional details to send as part of identify event.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true. Identify event is recommended to send in realtime.
+/// @discussion Identify event is responsible to update the data for the user profile on the Blueshift.
+/// Whenever any user data gets changed, It is recommended to send an identify event to reflect those changes on the Blueshift.
 - (void)identifyUserWithEmail:(NSString *)email andDetails:(NSDictionary * _Nullable)details canBatchThisEvent:(BOOL)isBatchEvent;
 
+
+/// Send `pageload` event to track the screen visits.
+/// @param viewController viewController which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController canBatchThisEvent:(BOOL)isBatchEvent;
 
+/// Send `pageload` event to track the screen visits.
+/// @param viewController viewController which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
+/// @param parameters additional details to send as part of identify event.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID canBatchThisEvent:(BOOL)isBatchEvent;
@@ -138,13 +159,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackSubscriptionCancelWithParamters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
+/// Send custom events based on the custom usecases.
+/// @param eventName name of the event
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackEventForEventName:(NSString *)eventName canBatchThisEvent:(BOOL)isBatchEvent;
 
+/// Send custom events based on the custom usecases.
+/// @param eventName name of the event
+/// @param parameters additional details related to the event
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
+
+/// Calling this method with will fire a click event for the received Blueshift push notification payload.
+/// @param userInfo push notification payload
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent;
 
-- (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent;
+- (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent DEPRECATED_MSG_ATTRIBUTE("The push delivered is now calculated using the APNS feedback, and App should not send the push delivered event to Blueshift using this method.");
 
 - (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent;
 
@@ -152,19 +184,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent;
 
-- (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload
-                                 canBacthThisEvent:(BOOL)isBatchEvent;
+- (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload canBacthThisEvent:(BOOL)isBatchEvent;
 
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
+#pragma mark In app manual trigger and fetch methods
 /// Calling this method will display single in-app notification if the current screen/VC is registered for displaying in-app notifications.
 - (void)displayInAppNotification;
 
 /// Calling this method will fetch in-app notifications manually from api and add them into the SDK database.
 /// @param success block to perform action when api call is successful
 /// @param failure block to perform action when api call is unsuccessful
-- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError*))failure;
+- (void)fetchInAppNotificationFromAPI:(void (^)(void))success failure:(void (^)(NSError* _Nullable))failure;
 
+#pragma mark Helper methods
 /// Check if the url is from Blueshift
 /// @param url  url to check
 /// @returns true or false based on if url is from Blueshift or not
@@ -175,6 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @returns true or false based on if push notification is from Blueshift or not
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
 
+#pragma mark SDK tracking methods
 /// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
 /// It will also erase all the non synced events data from the SDK database while disabling the SDK and they will not be sent to Blueshift server.
 /// To restart the tracking, call enableTracking(true).
@@ -193,6 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Know current status of SDK tracking if it is enabled or not.
 - (BOOL)isTrackingEnabled;
 
+#pragma mark In-app notifications helper methods
 /// This method will help to add an in-app notification in the SDK database based on the provided dictionary data.
 /// @param completionHandler The block will be called after adding the in-app into the SDK database with status true or false
 - (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler;
@@ -201,6 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
 
+#pragma mark Push and In App notifications Opt In methods
 /// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.
 /// @params isOptedIn BOOL flag to indicate the optIn status of the in-app notifications.
 /// @discussion Calling this function will update the optIn status using the `enableInApp` flag of the `BlueshiftAppData` class. After changing the status,

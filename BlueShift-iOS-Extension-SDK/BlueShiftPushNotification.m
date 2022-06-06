@@ -198,7 +198,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         NSString* pushCategory = aps[kNotificationCategory];
         NSString* forceReplaceCategory = userInfo[kNotificationForceReplaceCategory];
         NSArray* actionsArray = userInfo[kNotificationActions];
-        if(actionsArray && pushCategory) {
+        
+        if(actionsArray && actionsArray.count > 0 && pushCategory) {
             __block bool isCategoryRegistrationComplteted = NO;
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
             if (notificationActions.count > 0) {
@@ -243,7 +244,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                 if (actionType && ![actionType isEqualToString:kNotificationActionTypeOpen]) {
                     if([actionType isEqualToString:kNotificationActionTypeDestructive])
                         actionOption = UNNotificationActionOptionDestructive;
-                    else if([actionType isEqualToString: kNotificationActionTypeDestructive])
+                    else if([actionType isEqualToString: kNotificationActionTypeAuthenticationRequired])
                         actionOption = UNNotificationActionOptionAuthenticationRequired;
                     else if([actionType isEqualToString:kNotificationActionTypeNone])
                         actionOption = UNNotificationActionOptionNone;

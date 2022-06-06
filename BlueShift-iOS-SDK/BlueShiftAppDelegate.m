@@ -455,7 +455,10 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         
         lastProcessedPushNotificationUUID = [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey];
         
-        [self trackAppOpenWithParameters:userInfo];
+        // fire app_open only for Blueshift push notifications
+        if ([BlueShift.sharedInstance isBlueshiftPushNotification:userInfo]) {
+            [self trackAppOpenWithParameters:userInfo];
+        }
         
         if (userInfo != nil && ([userInfo objectForKey: kPushNotificationDeepLinkURLKey] || [userInfo objectForKey: kNotificationURLElementKey])) {
             NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
@@ -681,7 +684,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 #pragma mark - Handle custom push notification actions
 - (void)handleCarouselPushForCategory:(NSString *)categoryName usingPushDetailsDictionary:(NSDictionary *) pushDetailsDictionary {
     // method to handle the scenario when go to app action is selected for push message of buy category ...
-    NSDictionary *pushDetails = [self.userInfo mutableCopy];
+    NSMutableDictionary *pushDetails = [self.userInfo mutableCopy];
     NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
     if(appGroupID && ![appGroupID isEqualToString:@""]) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc]
@@ -951,44 +954,56 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 - (NSDictionary*)handleCustomActionablePushNotification:(NSDictionary *)notification forActionIdentifier:(NSString *)identifier {
-    NSMutableDictionary *mutableNotification = [notification mutableCopy];
-    @try {
-        NSArray *actions = (NSArray*)notification[kNotificationActions];
-        if (actions && actions.count > 0) {
-            NSString *deepLink = nil;
-            NSString *actionTitle = nil;
-            //Check if the identifier is not created by the SDK and it is coming in the payload
-            if ([identifier rangeOfString:kNotificationDefaultActionIdentifier].location == NSNotFound) {
-                for (NSDictionary* action in actions) {
-                    if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
-                        deepLink = action[kPushNotificationDeepLinkURLKey];
-                        actionTitle = action[kNotificationTitleKey];
-                        break;
+    NSDictionary *customActionNotification = [self parseCustomActionPushNotification:notification forActionIdentifier:identifier];
+
+    NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:customActionNotification];
+    [self trackPushClickedWithParameters:trackingParams];
+    return customActionNotification;
+}
+ 
+- (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier {
+    if (userInfo && identifier) {
+        NSMutableDictionary *mutableNotification = [userInfo mutableCopy];
+        if (userInfo[kNotificationActions]) {
+            @try {
+                NSArray *actions = (NSArray*)userInfo[kNotificationActions];
+                if (actions && actions.count > 0) {
+                    NSString *deepLink = nil;
+                    NSString *actionTitle = nil;
+                    //Check if the identifier is not created by the SDK and it is coming in the payload
+                    if ([identifier rangeOfString:kNotificationDefaultActionIdentifier].location == NSNotFound) {
+                        for (NSDictionary* action in actions) {
+                            if ([action[kNotificationActionIdentifier] isEqualToString: identifier]) {
+                                deepLink = action[kPushNotificationDeepLinkURLKey];
+                                actionTitle = action[kNotificationTitleKey];
+                                break;
+                            }
+                        }
+                    } else {
+                        // If the identifier is created by SDK, then it will look like `BSPushIdentifier_2`
+                        // Use the last character as index and get the deep link and button title
+                        NSString *indexString = [identifier substringFromIndex:identifier.length - 1];
+                        int index = [indexString intValue];
+                        if (index < actions.count) {
+                            actionTitle = actions[index][kNotificationTitleKey];
+                            deepLink = actions[index][kPushNotificationDeepLinkURLKey];
+                        }
+                    }
+                    if (deepLink) {
+                        [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
+                    }
+                    if (actionTitle) {
+                        [mutableNotification setValue:actionTitle forKey:kNotificationClickElementKey];
                     }
                 }
-            } else {
-                // If the identifier is created by SDK, then it will look like `BSPushIdentifier_2`
-                // Use the last character as index and get the deep link and button title
-                NSString *indexString = [identifier substringFromIndex:identifier.length - 1];
-                int index = [indexString intValue];
-                if (index < actions.count) {
-                    actionTitle = actions[index][kNotificationTitleKey];
-                    deepLink = actions[index][kPushNotificationDeepLinkURLKey];
-                }
+            } @catch (NSException *exception) {
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
-            if (deepLink) {
-                [mutableNotification setValue:deepLink forKey:kNotificationURLElementKey];
-            }
-            if (actionTitle) {
-                [mutableNotification setValue:actionTitle forKey:kNotificationClickElementKey];
-            }
+            
         }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        return mutableNotification;
     }
-    NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:mutableNotification];
-    [self trackPushClickedWithParameters:trackingParams];
-    return mutableNotification;
+    return @{};
 }
 
 #pragma mark - Application lifecyle events

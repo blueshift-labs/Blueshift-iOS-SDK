@@ -62,12 +62,18 @@ static NSDictionary *_inAppTypeDictionay;
 + (CGFloat)convertPointsHeightToPercentage:(float) height forWindow:(UIWindow*)window {
     CGFloat presentationAreaHeight = [self getPresentationAreaHeightForWindow:window];
     CGFloat heightInPercentage = (CGFloat) (((height/presentationAreaHeight) * 100.0f));
+    if(heightInPercentage > 100) {
+        return 100;
+    }
     return heightInPercentage;
 }
 
 + (CGFloat)convertPointsWidthToPercentage:(float) width forWindow:(UIWindow*)window {
     CGFloat presentationAreaWidth = [self getPresentationAreaWidthForWindow:window];
     CGFloat widthInPercentage = (CGFloat) (((width/presentationAreaWidth) * 100.0f));
+    if(widthInPercentage > 100) {
+        return 100;
+    }
     return  widthInPercentage;
 }
 
@@ -114,10 +120,18 @@ static NSDictionary *_inAppTypeDictionay;
 
 + (UIWindow *)getApplicationKeyWindow {
     if (@available(iOS 13.0, *)) {
-        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES && [NSThread isMainThread] == YES) {
-            for (UIWindow *window in [UIApplication sharedApplication].windows) {
-                if (window && window.isKeyWindow) {
-                    return window;
+        if ([NSThread isMainThread] == YES) {
+            if (@available(iOS 15.0, *)) {
+                for(UIWindowScene *windowScene in [[UIApplication sharedApplication].connectedScenes allObjects]) {
+                    if(windowScene && windowScene.activationState == UISceneActivationStateForegroundActive && windowScene.keyWindow) {
+                        return windowScene.keyWindow;
+                    }
+                }
+            } else if (@available(iOS 13.0, *)) {
+                for (UIWindow *window in [UIApplication sharedApplication].windows) {
+                    if (window && window.isKeyWindow) {
+                        return window;
+                    }
                 }
             }
         }
