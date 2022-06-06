@@ -133,7 +133,7 @@
     [self hideFromWindow:animated];
 }
 
-- (void)initializeNotificationView{
+- (void)initializeNotificationView {
     if (self.notification && self.notification.notificationContent) {
         CGFloat yPadding = 0.0;
         
@@ -219,6 +219,7 @@
     }
 }
 
+/// Create image view for modal banner image
 - (UIImageView *)createImageView {
     BlueShiftInAppLayoutMargin *bannerImagePadding = [self fetchNotificationBannerImagePadding];
     CGFloat rightPadding = (bannerImagePadding && bannerImagePadding.right > 0) ? bannerImagePadding.right : 0.0;
@@ -226,7 +227,16 @@
     CGFloat yPosition = (bannerImagePadding && bannerImagePadding.top > 0) ? bannerImagePadding.top : 0.0;
     
     CGFloat imageViewWidth = notificationView.frame.size.width - (xPosition + rightPadding);
-    CGFloat imageViewHeight = notificationView.frame.size.width / 2;
+    CGFloat imageViewHeight = 0;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
+
+    // If the device is in landscape mode and the device is not iPad.
+    // Reduce the image width so that it should not take entire screen and make room for text and button.
+    if (screenSize.width > screenSize.height && [BlueShiftInAppNotificationHelper isIpadDevice] == NO) {
+        imageViewHeight = notificationView.frame.size.width / 5;
+    } else { // Default for iPad and iphone with portrait mode.
+        imageViewHeight = notificationView.frame.size.width / 2;
+    }
     CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
@@ -234,9 +244,9 @@
         [self loadImageFromURL:self.notification.notificationContent.banner forImageView:imageView];
     }
     
-    imageView.contentMode = UIViewContentModeScaleToFill;
+    imageView.contentMode = UIViewContentModeScaleAspectFit;
     imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    
+    imageView.clipsToBounds = true;
     
     return imageView;
 }
@@ -613,7 +623,6 @@
 
 - (CGFloat)calculateTotalButtonHeight {
     if (self.notification.notificationContent.actions != nil && self.notification.notificationContent.actions.count > 0) {
-    
         CGFloat bottomPadding = 0;
         CGFloat topPadding = 0.0;
         CGFloat buttonCount = [self.notification.notificationContent.actions count];
