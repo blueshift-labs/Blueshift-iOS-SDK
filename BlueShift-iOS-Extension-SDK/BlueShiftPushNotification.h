@@ -44,7 +44,7 @@ API_AVAILABLE(ios(10.0))
 /// The Blueshift iOS Extension SDK will no longer send the `delivered` event for push notifications.
 /// Blueshift will now provide the push delivery stats based on the APNS's response.
 /// This method is deprecated and will  be removed in the future release.
-- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in the future SDK release.");
+- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request DEPRECATED_MSG_ATTRIBUTE("This method is deprecated as Blueshift iOS Extension SDK will no longer send the `delivered` event for push notifications and will be removed in the future SDK release.");
 
 @end
 

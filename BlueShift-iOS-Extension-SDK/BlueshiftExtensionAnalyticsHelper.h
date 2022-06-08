@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method adds the device specific attributes (device_id, app_name) to the push payload.
 /// @param request  Push notification request
 /// @returns dictionary which includes device attributes and push payload
-+ (NSDictionary * _Nullable)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request API_AVAILABLE(ios(10.0)) DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in the future SDK release.");;
++ (NSDictionary * _Nullable)getPushNotificationDeliveredPayload:(UNNotificationRequest *)request API_AVAILABLE(ios(10.0)) DEPRECATED_MSG_ATTRIBUTE("This method is deprecated as Blueshift iOS Extension SDK will no longer send the `delivered` event for push notifications and will be removed in the future SDK release.");;
 
 @end
 
