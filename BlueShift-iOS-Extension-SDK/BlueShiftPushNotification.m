@@ -38,7 +38,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString * _Nullable)appGroupID {
     if ([request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return [self carouselAttachmentsDownload:request];
     } else {
@@ -50,9 +50,9 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 - (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
 }
 
-- (NSArray<UNNotificationAttachment*> *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
+- (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
     NSArray *images = [request.content.userInfo objectForKey:kNotificationCarouselElements];
-    NSMutableArray<UNNotificationAttachment*> *attachments = [[NSMutableArray alloc]init];
+    NSMutableArray *attachments = [[NSMutableArray alloc]init];
     self.attachments = attachments;
     [images enumerateObjectsUsingBlock:
      ^(NSDictionary *image, NSUInteger index, BOOL *stop)
@@ -76,7 +76,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
                  if (error) {
                      NSLog(@"[Blueshift] Failed to create carousel image attachment %@", error);
                  }
-                 if(attachment) {
+                 if(attachment != nil) {
                      [attachments addObject:attachment];
                      self.attachments = attachments;
                  }
@@ -97,8 +97,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     NSData *audioData = nil;
     NSData *gifData   = nil;
     
-    NSMutableArray<UNNotificationAttachment*> *attachments = [[NSMutableArray alloc]init];
-    self.attachments = attachments;
+    NSMutableArray *attachments = [[NSMutableArray alloc]init];
+    
     if(imageURL != nil) {
         imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
         if(imageData) {
@@ -231,7 +231,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSMutableArray<UNNotificationAction *>*)getNotificationActions:(NSArray*)actions {
+- (NSMutableArray*)getNotificationActions:(NSArray*)actions {
     NSMutableArray<UNNotificationAction *>* notificationActions = [NSMutableArray new];
     @try {
         if (actions && actions.count > 0) {
