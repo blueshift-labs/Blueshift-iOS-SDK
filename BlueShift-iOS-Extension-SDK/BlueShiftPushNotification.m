@@ -7,8 +7,6 @@
 
 
 #import "BlueShiftPushNotification.h"
-#import "BlueShiftPushAnalytics.h"
-#import "BlueshiftExtensionAnalyticsHelper.h"
 #import "BlueshiftExtensionConstants.h"
 
 API_AVAILABLE(ios(10.0))
@@ -40,16 +38,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString *)appGroupID {
-    self.appGroupId = appGroupID;
-    if (![[BlueShiftPushNotification sharedInstance] apiKey] || [[BlueShiftPushNotification sharedInstance].apiKey isEqualToString:@""]) {
-        NSLog(@"[Blueshift] Error - Please set the api key in the Notification Service Extension, otherwise push notification delivered events will not reflect on the dashboard");
-    }
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        [self trackPushViewedWithRequest:request];
-    });
-    
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString * _Nullable)appGroupID {
     if ([request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return [self carouselAttachmentsDownload:request];
     } else {
@@ -59,10 +48,6 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
-    NSDictionary *userInfo = request.content.userInfo;
-    if(userInfo && [[BlueShiftPushNotification sharedInstance] apiKey] && ![[[BlueShiftPushNotification sharedInstance] apiKey] isEqualToString:@""]) {
-        [BlueShiftPushAnalytics sendPushAnalytics:kNotificationDeliveredEvent withParams:userInfo];
-    }
 }
 
 - (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
@@ -202,6 +187,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             }
         }
     }
+    self.attachments = attachments;
     return attachments;
 }
 

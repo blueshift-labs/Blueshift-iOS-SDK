@@ -164,8 +164,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         
         [self logSDKInitializationDetails];
         
-        [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
-        
         // Fire app open if device token is already present, else delay it till app receives device token.
         if ([self getDeviceToken]) {
             [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];

@@ -108,8 +108,6 @@
 		9186B66D271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B652271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B653271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B67E271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B670271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m */; };
-		9186B67F271EDA0C00D425AF /* BlueShiftPushAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B671271EDA0C00D425AF /* BlueShiftPushAnalytics.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9186B680271EDA0C00D425AF /* BlueShiftPushAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B672271EDA0C00D425AF /* BlueShiftPushAnalytics.m */; };
 		9186B681271EDA0C00D425AF /* BlueShiftPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B673271EDA0C00D425AF /* BlueShiftPushNotification.m */; };
 		9186B682271EDA0C00D425AF /* BlueShiftiCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B674271EDA0C00D425AF /* BlueShiftiCarousel.m */; };
 		9186B683271EDA0C00D425AF /* UIColor+BlueShiftHexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B675271EDA0C00D425AF /* UIColor+BlueShiftHexString.m */; };
@@ -234,8 +232,6 @@
 		9186B653271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlueShiftNotificationModalViewController.h; path = InApps/BlueShiftNotificationModalViewController.h; sourceTree = "<group>"; };
 		9186B66F271EDA0C00D425AF /* BlueShiftAppExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShiftAppExtension.h; sourceTree = "<group>"; };
 		9186B670271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueshiftExtensionAnalyticsHelper.m; sourceTree = "<group>"; };
-		9186B671271EDA0C00D425AF /* BlueShiftPushAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShiftPushAnalytics.h; sourceTree = "<group>"; };
-		9186B672271EDA0C00D425AF /* BlueShiftPushAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueShiftPushAnalytics.m; sourceTree = "<group>"; };
 		9186B673271EDA0C00D425AF /* BlueShiftPushNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueShiftPushNotification.m; sourceTree = "<group>"; };
 		9186B674271EDA0C00D425AF /* BlueShiftiCarousel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueShiftiCarousel.m; sourceTree = "<group>"; };
 		9186B675271EDA0C00D425AF /* UIColor+BlueShiftHexString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+BlueShiftHexString.m"; sourceTree = "<group>"; };
@@ -388,8 +384,6 @@
 				9186B67B271EDA0C00D425AF /* BlueshiftExtensionConstants.h */,
 				9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */,
 				9186B674271EDA0C00D425AF /* BlueShiftiCarousel.m */,
-				9186B671271EDA0C00D425AF /* BlueShiftPushAnalytics.h */,
-				9186B672271EDA0C00D425AF /* BlueShiftPushAnalytics.m */,
 				9186B67A271EDA0C00D425AF /* BlueShiftPushNotification.h */,
 				9186B673271EDA0C00D425AF /* BlueShiftPushNotification.m */,
 				9186B67C271EDA0C00D425AF /* UIColor+BlueShiftHexString.h */,
@@ -522,7 +516,6 @@
 				9186B68A271EDA0C00D425AF /* UIColor+BlueShiftHexString.h in Headers */,
 				91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */,
 				9186B689271EDA0C00D425AF /* BlueshiftExtensionConstants.h in Headers */,
-				9186B67F271EDA0C00D425AF /* BlueShiftPushAnalytics.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -676,7 +669,6 @@
 				9186B67E271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m in Sources */,
 				9186B683271EDA0C00D425AF /* UIColor+BlueShiftHexString.m in Sources */,
 				9186B686271EDA0C00D425AF /* BlueShiftCarousalViewController.m in Sources */,
-				9186B680271EDA0C00D425AF /* BlueShiftPushAnalytics.m in Sources */,
 				9186B681271EDA0C00D425AF /* BlueShiftPushNotification.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
