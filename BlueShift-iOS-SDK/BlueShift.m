@@ -197,22 +197,35 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)setupObservers {
-    BOOL isSceneDelegateConfiguration = NO;
-    // If sceneDelegate enabled app, then set scene lifecycle notification observers
-    if (@available(iOS 13.0, *)) {
-        if ([BlueShift sharedInstance].config.isSceneDelegateConfiguration == YES) {
-            isSceneDelegateConfiguration = YES;
-            [[NSNotificationCenter defaultCenter] addObserverForName:UISceneWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
-                [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
-            }];
-        }
-    }
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        [self processWillEnterForground];
+    }];
     
-    // If non sceneDelegate enabled app, then set app lifecycle notification observers
-    if (isSceneDelegateConfiguration == NO) {
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
-            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
-        }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        [self processDidEnterBackground];
+    }];
+}
+
+/// Check if the push permission status is changed when app enters foreground
+/// Also upload one batch of the batched events to Blueshift.
+- (void)processWillEnterForground {
+    [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
+    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+}
+
+/// Upload one batch of the batched events to Blueshift when app enters background.
+- (void)processDidEnterBackground {
+    if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)]) {
+        // Initiate background single batch upload
+        @try {
+            __block UIBackgroundTaskIdentifier background_task;
+            background_task = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^ {
+                [UIApplication.sharedApplication endBackgroundTask: background_task];
+                background_task = UIBackgroundTaskInvalid;
+            }];
+            [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+        } @catch (NSException *exception) {
+        }
     }
 }
 
