@@ -54,9 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param config BlueShiftConfig object
 + (void) initWithConfiguration:(BlueShiftConfig *)config;
 
-+ (void) autoIntegration;
++ (void) autoIntegration DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be replaced by the auto-integration using method swizzling. This method will be removed in future SDK versions.");
+
 - (void) setPushDelegate: (id) obj;
-- (void) setPushParamDelegate: (id) obj;
+- (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in future SDK versions");
 - (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
@@ -207,6 +208,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param userInfo  userInfo dictionary from the push notification payload
 /// @returns true or false based on if push notification is from Blueshift or not
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo;
+
+/// Check if the received push notification response is of Blueshift custom action type.
+/// @param response userInfo dictionary from the push notification p ayload.
+/// @returns true or false based on if push notification is of Blueshift custom action type or not.
+- (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response API_AVAILABLE(ios(10.0));
 
 #pragma mark SDK tracking methods
 /// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
