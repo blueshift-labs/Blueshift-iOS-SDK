@@ -3,7 +3,7 @@
 [![Cocoapods compatible](https://img.shields.io/badge/Cocoapods-compatible-red)](https://cocoapods.org/pods/BlueShift-iOS-SDK)
 [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-blue)](https://swift.org/package-manager/)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![iOS](https://img.shields.io/badge/iOS-9%2B-yellow)]()
+![iOS](https://img.shields.io/badge/iOS-9%2B-yellow)
 
 Get started [here!](https://developer.blueshift.com/docs/introduction)
 
