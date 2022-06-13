@@ -54,10 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param config BlueShiftConfig object
 + (void) initWithConfiguration:(BlueShiftConfig *)config;
 
-+ (void) autoIntegration DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be replaced by the auto-integration using method swizzling. This method will be removed in future SDK versions.");
++ (void) autoIntegration DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be replaced by the auto-integration using method swizzling. This method will be removed in a future SDK version.");
 
 - (void) setPushDelegate: (id) obj;
-- (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in future SDK versions");
+- (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
 - (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
