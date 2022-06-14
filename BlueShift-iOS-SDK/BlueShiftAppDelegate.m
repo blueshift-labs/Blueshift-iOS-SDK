@@ -449,7 +449,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         // invoke the push clicked callback method
         if (userInfo[kNotificationActions] && identifier && [[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:forActionIdentifier:)]) {
             [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo forActionIdentifier:identifier];
-        } else if ([[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:)]) {
+        } else if (![BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload:userInfo] && [[[BlueShift sharedInstance].config blueShiftPushDelegate] respondsToSelector:@selector(pushNotificationDidClick:)]) {
             [[[BlueShift sharedInstance].config blueShiftPushDelegate] pushNotificationDidClick:userInfo];
         }
         
