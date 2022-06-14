@@ -72,11 +72,9 @@
     self.window = nil;
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
     if (@available(iOS 13.0, *)) {
-        if ([[BlueShift sharedInstance]config].isSceneDelegateConfiguration == YES) {
-            UIWindowScene *windowScene = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene;
-            if (windowScene) {
-                self.window = [[windowClass alloc] initWithWindowScene: windowScene];
-            }
+        UIWindowScene *windowScene = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene;
+        if (windowScene) {
+            self.window = [[windowClass alloc] initWithWindowScene: windowScene];
         }
     }
     if (self.window == nil) {
@@ -299,9 +297,11 @@
         } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink] && ![buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
             if (@available(iOS 9.0, *)) {
                 NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
-                NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
-                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
+                if (deepLinkURL) {
+                    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
+                    [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
+                    [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
+                }
             }
         }
     } @catch (NSException *exception) {

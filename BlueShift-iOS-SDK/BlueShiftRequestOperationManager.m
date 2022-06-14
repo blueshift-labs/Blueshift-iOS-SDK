@@ -93,7 +93,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                 handler(true, dictionary, error);
             } else {
                 [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Fail %@",url] withDetails:nil statusCode:statusCode];
-                handler(false, nil, error);
+                handler(false, nil, [NSError errorWithDomain:@"Failed with error." code:statusCode userInfo:nil]);
             }
         } else {
             [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"GET - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];
@@ -129,7 +129,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
                 handler(true, dictionary, error);
             } else {
                 [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:nil statusCode:statusCode];
-                handler(false, nil, error);
+                handler(false, nil, [NSError errorWithDomain:@"Failed with error." code:statusCode userInfo:nil]);
             }
         } else {
             [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"POST - Fail %@",url] withDetails:@{@"error":error} statusCode:statusCode];

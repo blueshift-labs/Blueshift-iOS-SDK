@@ -35,6 +35,10 @@
 + (instancetype) currentDeviceData;
 
 - (NSDictionary *)toDictionary;
-- (void)saveDeviceDataForNotificationExtensionUse;
+
+/// This method will only work if the device id type is set as UUID. It will not work for device id types IDFV or IDFV:BundleId.
+/// Calling this method will reset the existing UUID device id and SDK will generate a new device id.
+/// This function will also fire an identify event to update the device to Blueshift.
+- (void)resetDeviceUUID;
 
 @end

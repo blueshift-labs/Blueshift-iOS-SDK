@@ -164,8 +164,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         
         [self logSDKInitializationDetails];
         
-        [[BlueShiftDeviceData currentDeviceData] saveDeviceDataForNotificationExtensionUse];
-        
         // Fire app open if device token is already present, else delay it till app receives device token.
         if ([self getDeviceToken]) {
             [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];
@@ -197,22 +195,35 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)setupObservers {
-    BOOL isSceneDelegateConfiguration = NO;
-    // If sceneDelegate enabled app, then set scene lifecycle notification observers
-    if (@available(iOS 13.0, *)) {
-        if ([BlueShift sharedInstance].config.isSceneDelegateConfiguration == YES) {
-            isSceneDelegateConfiguration = YES;
-            [[NSNotificationCenter defaultCenter] addObserverForName:UISceneWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
-                [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
-            }];
-        }
-    }
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        [self processWillEnterForground];
+    }];
     
-    // If non sceneDelegate enabled app, then set app lifecycle notification observers
-    if (isSceneDelegateConfiguration == NO) {
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
-            [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
-        }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        [self processDidEnterBackground];
+    }];
+}
+
+/// Check if the push permission status is changed when app enters foreground
+/// Also upload one batch of the batched events to Blueshift.
+- (void)processWillEnterForground {
+    [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
+    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+}
+
+/// Upload one batch of the batched events to Blueshift when app enters background.
+- (void)processDidEnterBackground {
+    if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)]) {
+        // Initiate background single batch upload
+        @try {
+            __block UIBackgroundTaskIdentifier background_task;
+            background_task = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^ {
+                [UIApplication.sharedApplication endBackgroundTask: background_task];
+                background_task = UIBackgroundTaskInvalid;
+            }];
+            [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+        } @catch (NSException *exception) {
+        }
     }
 }
 
@@ -677,12 +688,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)trackEventForEventName:(NSString *)eventName andParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+    if (parameters) {
+        [parameterMutableDictionary addEntriesFromDictionary:parameters];
+    }
+    // Event name should not get overriden by the additional params
     if (eventName) {
         [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
     }
-    if (parameters) {
-        [parameterMutableDictionary addEntriesFromDictionary:parameters];
-    }    
     [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
 
@@ -749,6 +761,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     return requestMutableParameters;
 }
 
+/// Add a tracking event to event processing queue. The track events could be delivered, open, click or dismiss.
+/// @param parameters tracking parameters
+/// @param isBatchEvent  BOOL to determine if the event needs to be batched or not.
 - (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     @try {
         if([self validateSDKTrackingRequirements] == false) {
@@ -895,7 +910,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 
-- (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)(NSError*))failure {
+- (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure {
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
         [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
             [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
@@ -1028,6 +1043,14 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (BOOL)isBlueshiftPushNotification:(NSDictionary *)userInfo {
     if (userInfo && [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey]) {
+        return  YES;
+    }
+    return  NO;
+}
+
+- (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response {
+    NSDictionary *userInfo = response.notification.request.content.userInfo;
+    if (userInfo && [userInfo valueForKey:kInAppNotificationModalMessageUDIDKey] && [userInfo valueForKey:kNotificationActions] && ![response.actionIdentifier isEqualToString:kUNNotificationDefaultActionIdentifier] && ![BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload:userInfo]) {
         return  YES;
     }
     return  NO;
