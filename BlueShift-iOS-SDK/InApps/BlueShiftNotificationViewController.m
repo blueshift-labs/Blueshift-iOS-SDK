@@ -294,7 +294,13 @@
         
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
-        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink] && ![buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+        } else if([buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
+                  [buttonDetails.iosLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+            // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
+            // This case is already handled in the [self processInAppActionForDeepLink:]
+        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate &&
+                  [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] &&
+                  [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink]) {
             if (@available(iOS 9.0, *)) {
                 NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
                 if (deepLinkURL) {
@@ -313,6 +319,9 @@
 - (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details {
     if (deepLink == nil || [deepLink isEqualToString:@""] || [deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
+    } else if ([deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+        [self handleRequestPushPermissionDeepLink];
+        [self sendActionEventAnalytics:details forActionType:BlueshiftAskPNPermission];
     } else {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppClickAction];
     }
@@ -375,6 +384,56 @@
         [self.delegate inAppActionDidTapped:notificationPayload withAction:action fromViewController:self];
     }
     [BlueshiftLog logInfo:[NSString stringWithFormat:@"Sending tracking analytics for the %@ action of the in-app notification",action == 1 ? @"dismiss" : @"click"] withDetails:nil methodName:nil];
+}
+
+- (void)handleRequestPushPermissionDeepLink {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if ([settings authorizationStatus] == UNAuthorizationStatusDenied) {
+                [self showEnablePushFromSettings];
+            } else if ([settings authorizationStatus] == UNAuthorizationStatusNotDetermined) {
+                [[BlueShift sharedInstance].appDelegate registerForNotification];
+            }
+        }];
+    }
+}
+
+- (void)showEnablePushFromSettings {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        UIWindow* __block window = nil;
+        if (@available(iOS 13.0, *)) {
+            window = [[UIWindow alloc] initWithWindowScene:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene];
+        } else {
+            window = [[UIWindow alloc] initWithFrame:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].bounds];
+        }
+        
+        window.rootViewController = [UIViewController new];
+        window.windowLevel = UIWindowLevelAlert;
+        NSString *title = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_TITLE", nil, [NSBundle mainBundle], @"Enable push notifications", @"");
+        NSString *text = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_TEXT", nil, [NSBundle mainBundle], @"You have disabled Push notifications for your app, please go to settings to enable it.","");
+        NSString *okayLabel = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_OKAY_BUTTON", nil, [NSBundle mainBundle], @"Settings", @"");
+        NSString *cancelLabel = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_CANCEL_BUTTON", nil, [NSBundle mainBundle], @"Not Now", @"");
+
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:title message:text preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:okayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSURL* url = [[NSURL alloc] initWithString: UIApplicationOpenSettingsURLString];
+                if (url && [UIApplication.sharedApplication canOpenURL:url]) {
+                    [UIApplication.sharedApplication openURL:url];
+                }
+            });
+            window.hidden = YES;
+            window = nil;
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:cancelLabel style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            window.hidden = YES;
+            window = nil;
+        }]];
+        
+        [window makeKeyAndVisible];
+        [window.rootViewController presentViewController:alert animated:YES completion:nil];
+    });
 }
 
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {

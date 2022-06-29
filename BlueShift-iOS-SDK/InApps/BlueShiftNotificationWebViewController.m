@@ -272,16 +272,25 @@ API_AVAILABLE(ios(8.0))
         if (url) {
             NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:url.absoluteString];
             details = @{kNotificationURLElementKey:encodedURLString};
+            [self processInAppActionForDeepLink:url.absoluteString details:details];
+        } else {
+            [self processInAppActionForDeepLink:nil details:details];
         }
-        [self processInAppActionForDeepLink:url.absoluteString details:details];
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
-            NSString *deepLink = url.absoluteString ? url.absoluteString : @"";
+            NSString *deepLink = (url && url.absoluteString) ? url.absoluteString : @"";
             NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:inAppOptions];
             [actionPayload setObject: deepLink forKey: kInAppNotificationModalPageKey];
             [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
             [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString] && ![url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+        } else if([url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
+                  [url.absoluteString isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+            // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
+            // This case is already handled in the [self processInAppActionForDeepLink:]
+        }
+        else if(url && [BlueShift sharedInstance].appDelegate.mainAppDelegate &&
+                  [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] &&
+                  [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString]) {
             if (@available(iOS 9.0, *)) {
                 [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
