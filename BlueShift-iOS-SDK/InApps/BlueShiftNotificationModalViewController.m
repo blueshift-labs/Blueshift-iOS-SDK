@@ -69,7 +69,7 @@
 - (void)onOkayButtonTapped:(UIButton *)customButton{
     NSInteger position = customButton.tag;
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions && self.notification.notificationContent.actions[position]) {
-        [self handleActionButtonNavigation: self.notification.notificationContent.actions[position]];
+        [self handleInAppButtonAction: self.notification.notificationContent.actions[position]];
     }
 }
 
@@ -133,7 +133,7 @@
     [self hideFromWindow:animated];
 }
 
-- (void)initializeNotificationView{
+- (void)initializeNotificationView {
     if (self.notification && self.notification.notificationContent) {
         CGFloat yPadding = 0.0;
         
@@ -219,6 +219,7 @@
     }
 }
 
+/// Create image view for modal banner image
 - (UIImageView *)createImageView {
     BlueShiftInAppLayoutMargin *bannerImagePadding = [self fetchNotificationBannerImagePadding];
     CGFloat rightPadding = (bannerImagePadding && bannerImagePadding.right > 0) ? bannerImagePadding.right : 0.0;
@@ -226,7 +227,16 @@
     CGFloat yPosition = (bannerImagePadding && bannerImagePadding.top > 0) ? bannerImagePadding.top : 0.0;
     
     CGFloat imageViewWidth = notificationView.frame.size.width - (xPosition + rightPadding);
-    CGFloat imageViewHeight = notificationView.frame.size.width / 2;
+    CGFloat imageViewHeight = 0;
+    CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
+
+    // If the device is in landscape mode and the device is not iPad.
+    // Reduce the image width so that it should not take entire screen and make room for text and button.
+    if (screenSize.width > screenSize.height && [BlueShiftInAppNotificationHelper isIpadDevice] == NO) {
+        imageViewHeight = notificationView.frame.size.width / 5;
+    } else { // Default for iPad and iphone with portrait mode.
+        imageViewHeight = notificationView.frame.size.width / 2;
+    }
     CGRect cgRect = CGRectMake(xPosition, yPosition, imageViewWidth, imageViewHeight);
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame: cgRect];
@@ -234,9 +244,9 @@
         [self loadImageFromURL:self.notification.notificationContent.banner forImageView:imageView];
     }
     
-    imageView.contentMode = UIViewContentModeScaleToFill;
+    imageView.contentMode = UIViewContentModeScaleAspectFit;
     imageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-    
+    imageView.clipsToBounds = true;
     
     return imageView;
 }
@@ -404,7 +414,7 @@
     [self setButton: button andString: buttonDetails.text
           textColor: buttonDetails.textColor backgroundColor: buttonDetails.backgroundColor];
     
-    CGFloat buttonRadius = (buttonDetails.backgroundRadius !=nil && buttonDetails.backgroundRadius > [NSNumber numberWithInt:0]) ?
+    CGFloat buttonRadius = (buttonDetails.backgroundRadius && buttonDetails.backgroundRadius.doubleValue > 0) ?
     [buttonDetails.backgroundRadius floatValue] : 0.0;
     
     button.layer.cornerRadius = buttonRadius;
@@ -460,7 +470,12 @@
             }
             
             // Set max width in points which device can support
-            float maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+            float maxWidthInPoints = 0;
+            if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+                maxWidthInPoints = (templateWidthInPoints > 0 && templateWidthInPoints < kInAppNotificationMaximumWidthInPoints) ? templateWidthInPoints : kInAppNotificationMaximumWidthInPoints;
+            } else {
+                maxWidthInPoints = templateWidthInPoints > 0 ? templateWidthInPoints : [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
+            }
             // Set max width in points to default height except when width is automatic and height is fixed
             float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
             
@@ -513,13 +528,16 @@
     }
     float width = 0;
     // If auto width, get the adjusted height using image width.
-    if (isBackgroundImageModal && imageSize.width > 0) {
+    if (isBackgroundImageModal && imageSize.width > 0) { // Image modal case
         width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage: imageSize.width forWindow:self.window];
-    } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) {
+    } else if (self.notification.templateStyle && self.notification.templateStyle.width > 0) { // width is +ve case
         width = self.notification.templateStyle.width;
-    } else {
-        // Default width
-        width = self.notification.width;
+    } else { // Automatic width case
+        if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
+        } else {
+            width = self.notification.width;
+        }
     }
     
     float height = 0;
@@ -605,7 +623,6 @@
 
 - (CGFloat)calculateTotalButtonHeight {
     if (self.notification.notificationContent.actions != nil && self.notification.notificationContent.actions.count > 0) {
-    
         CGFloat bottomPadding = 0;
         CGFloat topPadding = 0.0;
         CGFloat buttonCount = [self.notification.notificationContent.actions count];

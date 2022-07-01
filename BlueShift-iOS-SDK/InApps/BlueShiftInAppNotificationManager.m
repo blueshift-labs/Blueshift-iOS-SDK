@@ -67,7 +67,7 @@
 
 - (void)startInAppMessageFetchTimer {
     if (self.inAppMessageFetchTimer == nil) {
-        double timeInterval = (self.inAppNotificationTimeInterval > [NSNumber numberWithDouble: kMinimumInAppTimeInterval]) ? self.inAppNotificationTimeInterval.doubleValue : kDefaultInAppTimeInterval;
+        double timeInterval = (self.inAppNotificationTimeInterval > kMinimumInAppTimeInterval) ? self.inAppNotificationTimeInterval : kDefaultInAppTimeInterval;
         self.inAppMessageFetchTimer = [NSTimer scheduledTimerWithTimeInterval: timeInterval target:self selector:@selector(fetchNowAndUpcomingInAppMessageFromDB) userInfo:nil repeats: YES];
         [BlueshiftLog logInfo:@"Started InAppMessageFetchTimer with time interval in seconds -" withDetails:[NSNumber numberWithDouble: timeInterval] methodName:nil];
     }
@@ -593,8 +593,8 @@
 
 - (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.currentNotificationController != nil) {
-            [BlueshiftLog logInfo:@"Active In-app notification detected, skipped displaying current in-app." withDetails:nil methodName:nil];
+        if (self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
+            [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];
             return;
         }
         
@@ -707,7 +707,7 @@
                 [notificationController show:YES];
             } else {
                 self.currentNotificationController = nil;
-                [BlueshiftLog logInfo:@"Skipped preseting in-app notification as screen is not registered to receive in-app notification or current screen is different than in-app notification display on screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                [BlueshiftLog logInfo:@"Skipped preseting in-app notification for screen - " withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
             }
 
         } @catch (NSException *exception) {
@@ -732,9 +732,11 @@
 /// @param displayOnScreen Name of screen where notification should be displayed
 - (BOOL)shouldDisplayInAppNotification:(NSString*)displayOnScreen {
     if ([self inAppNotificationDisplayOnPage] == nil) {
+        [BlueshiftLog logInfo:@"Current screen is not registered to receive in-app notification." withDetails:nil methodName:nil];
         return false;
     } else if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:displayOnScreen]) {
         if(![[self inAppNotificationDisplayOnPage] isEqualToString:displayOnScreen]) {
+            [BlueshiftLog logInfo:@"Current screen name is different than in-app notification target screen name." withDetails:@{@"currentScreenName":self.inAppNotificationDisplayOnPage, @"inAppTargetScreenName":displayOnScreen} methodName:nil];
             return false;
         } else {
             return true;
@@ -753,8 +755,12 @@
     }
 }
 
--(void)inAppActionDidTapped:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter: notificationPayload canBacthThisEvent: NO];
+-(void)inAppActionDidTapped:(NSDictionary *)notificationPayload withAction:(BlueshiftInAppActions)action  fromViewController:(BlueShiftNotificationViewController *)controller {
+    if (action == BlueshiftInAppDismissAction) {
+        [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:notificationPayload canBacthThisEvent:NO];
+    } else {
+        [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:notificationPayload canBacthThisEvent:NO];
+    }
     // invoke the inApp clicked callback method
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidClick:)]) {
         [self.inAppNotificationDelegate inAppNotificationDidClick:notificationPayload];

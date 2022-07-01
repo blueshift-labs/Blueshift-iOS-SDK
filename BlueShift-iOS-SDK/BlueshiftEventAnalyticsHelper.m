@@ -27,8 +27,8 @@
         NSString *urlElement = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
         NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
         NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
-        NSString *pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
         NSString *timestamp = [self getCurrentUTCTimestamp];
+        NSString* notificationType = [pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey];
         if (bsft_user_uuid) {
             [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
         }
@@ -50,10 +50,16 @@
         if ([self isNotNilAndNotEmpty:urlElement]) {
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
         }
-        if([[pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey] isEqualToString:kNotificationKey]) {
-            // If pushDeepLinkURL is nil, then reassign url from pushDetailsDictionary
-            if (![self isNotNilAndNotEmpty:pushDeepLinkURL]) {
-                pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kNotificationURLElementKey];
+        
+        if([notificationType isEqualToString:kNotificationKey]) {
+            NSString *pushDeepLinkURL = @"";
+            // If link inside the clk_url is valid, then consider it as deep link.
+            if(urlElement) {
+                pushDeepLinkURL = urlElement;
+            } else if (!pushDetailsDictionary[kNotificationActions]) {
+                // Check if the push is not actionable type,
+                // then reassign url from pushDetailsDictionary for key deep_link_url
+                pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
             }
             // If not nil, encode and add to track dictionary
             if ([self isNotNilAndNotEmpty:pushDeepLinkURL]) {
@@ -85,8 +91,7 @@
             return (NSString *)[notificationPayload objectForKey: key];
         }
     }
-    
-    return @"";
+    return nil;
 }
 
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo {

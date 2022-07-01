@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                  = "BlueShift-iOS-Extension-SDK"
-  s.version               = "2.2.0"
+  s.version               = "2.2.5"
   s.summary               = "iOS SDK for Push Notification Service Extension and Content Extension to support image and carousel image push notifications"
   s.homepage              = "https://github.com/blueshift-labs/Blueshift-iOS-SDK"
   s.license               = { :type => "MIT", :file => "LICENSE.md" }
@@ -9,5 +9,6 @@ Pod::Spec.new do |s|
   s.source                = { :git => "https://github.com/blueshift-labs/BlueShift-iOS-SDK.git", :tag => s.version.to_s }
   s.source_files          = "BlueShift-iOS-Extension-SDK", "BlueShift-iOS-Extension-SDK/**/*.{h,m}"
   s.public_header_files   = "BlueShift-iOS-Extension-SDK/**/*.h"
+  s.exclude_files         = "BlueShift-iOS-Extension-SDK/include/**/*.{h,m}"
   s.requires_arc          = true
 end

@@ -14,6 +14,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationConstant.h"
+#import "../BlueshiftConstants.h"
 
 @interface BlueShiftNotificationSlideBannerViewController ()<UIGestureRecognizerDelegate> {
     UIView *slideBannerView;
@@ -60,7 +61,7 @@
 }
 
 -(void)setTapGestureForView {
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideAnimated)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissInApp)];
     [[self view] addGestureRecognizer:tapGesture];
 }
 
@@ -75,17 +76,13 @@
 }
 
 - (void)presentAnimationView {
-    [slideBannerView.layer addAnimation:[self getAnimationTransition] forKey:nil];
-    [self.view insertSubview:slideBannerView aboveSubview:self.view];
-}
-
-- (CATransition*)getAnimationTransition {
-    CATransition *transition = [CATransition animation];
-    transition.duration = 1.0;
-    transition.type = kCATransitionPush;
-    transition.subtype = kCATransitionFromLeft;
-    [transition setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-    return transition;
+    [self.view addSubview:slideBannerView];
+    
+    // Animate the slide in banner
+    self.view.frame = CGRectMake(-1 * self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
+    [UIView animateWithDuration:1.0 animations:^{
+        self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    }];
 }
 
 - (void)createNotificationView {
@@ -111,7 +108,7 @@
         }
     };
     if (animated) {
-        self.window.alpha = 2.0;
+        self.window.alpha = 1.0;
         completionBlock();
     } else {
         self.window.alpha = 1.0;
@@ -376,7 +373,6 @@
                 bottomSafeAreaView.frame = frame;
             } else {
                 bottomSafeAreaView = [[UIView alloc] initWithFrame: frame];
-                [bottomSafeAreaView.layer addAnimation:[self getAnimationTransition] forKey:nil];
                 [bottomSafeAreaView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSlideInTap)]];
             }
             UIColor *backgroundColor = [self colorWithHexString: self.notification.templateStyle.bottomSafeAreaColor];
@@ -409,13 +405,15 @@
     if (self.notification && self.notification.notificationContent && self.notification.notificationContent.actions &&
         self.notification.notificationContent.actions.count > 0 &&
         self.notification.notificationContent.actions[0]) {
-        [self handleActionButtonNavigation: self.notification.notificationContent.actions[0]];
+        [self handleInAppButtonAction: self.notification.notificationContent.actions[0]];
     } else {
         [self hideAnimated];
     }
 }
 
+/// Dismiss in-app notification when user swipes the slide-in banner
 -(void)dismissInAppWithSwipeDirection:(UISwipeGestureRecognizer *)recognizer {
+    [self sendActionEventAnalytics:@{kNotificationClickElementKey:kInAppNotificationSwipeAction} forActionType:BlueshiftInAppDismissAction];
     switch (recognizer.direction) {
         case UISwipeGestureRecognizerDirectionLeft:
             [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionLeft];
@@ -425,6 +423,12 @@
             [self hideFromWindow:YES withDirection:UISwipeGestureRecognizerDirectionRight];
             break;
     }
+}
+
+/// Dismiss in-app notification when tapped outside the slide in notification
+-(void)dismissInApp {
+    [self sendActionEventAnalytics:@{kNotificationClickElementKey:kInAppNotificationTapOutsideAction} forActionType:BlueshiftInAppDismissAction];
+    [self hideAnimated];
 }
 
 - (CGRect)positionNotificationView {

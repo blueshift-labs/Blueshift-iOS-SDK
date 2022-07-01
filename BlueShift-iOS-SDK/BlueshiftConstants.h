@@ -72,6 +72,7 @@
 #define openURLOptionsButtonIndex               @"clickedButtonIndex"
 #define openURLOptionsButtonText                @"clickedButtonText"
 #define openURLOptionsPushUserInfo              @"userInfo"
+#define openURLOptionsPushActionIdentifier      @"actionIdentifier"
 
 //Core data entities
 #define kHttpRequestOperationEntity             @"HttpRequestOperationEntity"
@@ -106,9 +107,11 @@
 
 //Core Data
 #define kBSCoreDataDataModel                    @"BlueShiftSDKDataModel"
+#define kBSSPMResourceBundlePath                @"/BlueShift-iOS-SDK_BlueShift_iOS_SDK.bundle"
 #define kBSCoreDataMOMD                         @"momd"
 #define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
 #define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
+#define kBSCreatedAt                            @"createdAt"
 
 //NSNotificationCenter constant
 #define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"

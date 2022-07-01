@@ -1,0 +1,1 @@
+../BlueShiftiCarousel.h

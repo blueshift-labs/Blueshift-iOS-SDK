@@ -8,51 +8,43 @@
 #ifndef BlueshiftExtensionConstants_h
 #define BlueshiftExtensionConstants_h
 
-#define kNotificationCategoryBuyIdentifier                              @"buy"
-#define kNotificationActionBuyIdentifier                                @"buy"
-#define kNotificationActionViewIdentifier                               @"view"
-
-#define kNotificationCategoryViewCartIdentifier                         @"view_cart"
-#define kNotificationActionOpenCartIdentifier                           @"open_cart"
-
-#define kNotificationCategoryOfferIdentifier                            @"promotion"
-
-#define kNotificationOneButtonAlertIdentifier                           @"alert_box_1_button"
-#define kNotificationTwoButtonAlertIdentifier                           @"alert_box"
-
 #define kNotificationCarouselIdentifier                                 @"carousel"
 #define kNotificationCarouselAnimationIdentifier                        @"carousel_animation"
 #define kNotificationCarouselNextIdentifier                             @"next"
 #define kNotificationCarouselPreviousIdentifier                         @"previous"
 #define kNotificationCarouselGotoappIdentifier                          @"go_to_app"
+#define kNotificationCarouselElements                                   @"carousel_elements"
+#define kNotificationCategory                                           @"category"
+#define kNotificationAPS                                                @"aps"
 
-#define kInAppNotificationKey                                           @"inapp"
-#define kInAppNotificationEntityNameKey                                 @"InAppNotificationEntity"
-#define kInAppNotificationModalMessageUDIDKey                           @"bsft_message_uuid"
-#define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
-#define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
-#define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
-#define kInAppNotificationModalElementKey                               @"element"
-#define kInAppNotificationModalUIDKey                                   @"uid"
-#define kInAppNotificationModalEIDKey                                   @"eid"
-#define kInAppNotificationModalMIDKey                                   @"mid"
-#define kInAppNotificationModalTXNIDKey                                 @"txnid"
-#define kInAppNotificationModalSDKVersionKey                            @"bsft_sdk_version"
-#define kInAppNotificationModalTimestampKey                             @"timestamp"
-#define kSilentNotificationPayloadIdentifierKey                         @"data"
-#define kSilentNotificationPayloadTypeKey                               @"type"
-#define kInAppNotificationContentPayloadKey                             @"content"
-#define kInAppNotificationPayloadDisplayOnKey                           @"display_on_ios"
-#define kSilentNotificationTriggerKey                                   @"trigger"
-#define kSilentNotificationTriggerEndTimeKey                            @"expires_at"
-#define kInAppNotificationCreatedTimestampKey                           @"created_at"
+#define kNotificationType                                               @"notification_type"
+#define kNotificationActions                                            @"actions"
+#define kNotificationMaxSupportedActions                                5
+#define kNotificationActionType                                         @"type"
+#define kNotificationActionTypeOpen                                     @"open"
+#define kNotificationActionTypeDestructive                              @"destructive"
+#define kNotificationActionTypeAuthenticationRequired                   @"authenticationRequired"
+#define kNotificationActionTypeNone                                     @"none"
+#define kNotificationActionTitle                                        @"title"
+#define kNotificationActionIdentifier                                   @"identifier"
+#define kNotificationDefaultActionIdentifier                            @"BSPushIdentifier"
+#define kNotificationForceReplaceCategory                               @"forceReplaceExistingCategory"
 
+#define kNotificationMediaImageURL                                      @"image_url"
+#define kNotificationMediaImageName                                     @"image.jpg"
+#define kNotificationMediaVideoURL                                      @"video_url"
+#define kNotificationMediaVideoName                                     @"video.mp4"
+#define kNotificationMediaAudioURL                                      @"audio_url"
+#define kNotificationMediaAudioName                                     @"audio.mp3"
+#define kNotificationMediaGIFURL                                        @"gif_url"
+#define kNotificationMediaGIFName                                       @"gifImage.gif"
+
+#define kNotificationMessageUDIDKey                                     @"bsft_message_uuid"
 #define kBsftEncodedSpace                                               @"%20"
 
-#define kAppName                                                        @"app_name"
-#define kDeviceID                                                       @"device_id"
-#define kBrowserPlatform                                                @"browser_platform"
-#define kiOS                                                            @"iOS"
-#define kCFBundleShortVersionString                                     @"CFBundleShortVersionString"
+#define kThreadSleepTimeInterval                                        0.1
+#define kThreadSleepIterations                                          20
+
+#define kBlueshiftExtensionSDKVersion                                   @"2.2.5"
 
 #endif
