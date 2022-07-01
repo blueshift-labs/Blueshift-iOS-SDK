@@ -69,6 +69,12 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return deviceUUID;
 }
 
+- (void)resetDeviceUUID {
+    [BlueshiftLog logInfo:@"Initiating the Device id reset." withDetails:nil methodName:nil];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBlueshiftDeviceIdSourceUUID];
+    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+}
+
 - (NSString *)deviceIDFV {
     NSString *idfvString = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     return idfvString;
@@ -129,47 +135,17 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
     }
     
-    if (self.currentLocation && [BlueShift sharedInstance].config.enableLocationAccess) {
+    if (self.currentLocation) {
         [deviceMutableDictionary setObject: [NSNumber numberWithFloat:self.currentLocation.coordinate.latitude] forKey:kLatitude];
         [deviceMutableDictionary setObject:[NSNumber numberWithFloat:self.currentLocation.coordinate.longitude] forKey:kLongitude];
     }
     
-    if ([BlueShift sharedInstance].config.enableIDFACollection == YES && self.deviceIDFA) {
+    if (self.deviceIDFA) {
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
 
     return [deviceMutableDictionary copy];
-}
-
--(void)saveDeviceDataForNotificationExtensionUse {
-    //Save device data for notifcation extension to use it and send to server with delivered tracking api call
-    if (@available(iOS 10.0, *)) {
-        @try {
-            NSString *deviceId = self.deviceUUID;
-            NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
-            NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
-            
-            if(appGroupID && ![appGroupID isEqualToString:@""] && deviceId && appName) {
-                NSUserDefaults *appGroupUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
-                NSString* bundleId = [[BlueShiftAppData currentAppData] bundleIdentifier];
-                NSString *key = [NSString stringWithFormat:@"Blueshift:%@",bundleId];
-                //Store data on standard userdefaults for avoiding writing multiple times
-                //and avoid warning for writing appgroupid userdefault
-                NSDictionary *storedData = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-                if (!storedData || (storedData && ![[storedData valueForKey:kDeviceID] isEqual:deviceId])) {
-                    NSMutableDictionary *deviceData = [[NSMutableDictionary alloc]init];
-                    [deviceData setObject:deviceId forKey:kDeviceID];
-                    [deviceData setObject:appName forKey:kAppName];
-                    
-                    [appGroupUserDefaults setObject:deviceData forKey:key];
-                    [[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:key];
-                }
-            }
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:@"Failed to initialise SDK." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
 }
 
 @end

@@ -57,7 +57,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         isBatchEvent = YES;
                     }
                     // Treat all the tracking events as non-batched events to stop them from getting batched
-                    NSString *trackURL = [NSString stringWithFormat:@"%@%@", kBaseURL,kPushEventsUploadURL];
+                    NSString *trackURL = [BlueshiftRoutes getTrackURL];
                     if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
                         isBatchEvent = NO;
                     }
@@ -67,21 +67,23 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     } else {
                         context = appDelegate.realEventManagedObjectContext;
                     }
-                    HttpRequestOperationEntity *httpRequestOperationEntity;
-                    @try {
-                        if (context) {
-                            httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
-                            
-                            if(httpRequestOperationEntity != nil) {
-                                [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
+                    if (context) {
+                        [context performBlock:^{
+                            HttpRequestOperationEntity *httpRequestOperationEntity;
+                            @try {
+                                httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
                                 
-                                if(!isBatchEvent) {
-                                    [BlueShiftRequestQueue processRequestsInQueue];
+                                if(httpRequestOperationEntity != nil) {
+                                    [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
+                                    
+                                    if(!isBatchEvent) {
+                                        [BlueShiftRequestQueue processRequestsInQueue];
+                                    }
                                 }
+                            } @catch (NSException *exception) {
+                                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                             }
-                        }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        }];
                     }
                 }
             }

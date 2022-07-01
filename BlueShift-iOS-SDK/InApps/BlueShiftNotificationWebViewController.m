@@ -142,12 +142,12 @@ API_AVAILABLE(ios(8.0))
     if (isAutoWidth && width == 0) {
         //If ipad, set the width to max width
         if ([BlueShiftInAppNotificationHelper isIpadDevice]) {
-            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
+            width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
         } else {
             float deviceWidth = [BlueShiftInAppNotificationHelper convertPercentageWidthToPoints:kInAppNotificationDefaultWidth forWindow:self.window];
             //If iPhone orientation is landscape, set the width to max width
-            if (deviceWidth > kHTMLInAppNotificationMaximumWidthInPoints) {
-                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kHTMLInAppNotificationMaximumWidthInPoints forWindow:self.window];
+            if (deviceWidth > kInAppNotificationMaximumWidthInPoints) {
+                width = [BlueShiftInAppNotificationHelper convertPointsWidthToPercentage:kInAppNotificationMaximumWidthInPoints forWindow:self.window];
             } else {
                 //If iPhone orientation is portrait, set the width to default 95%
                 width = kInAppNotificationDefaultWidth;
@@ -256,34 +256,41 @@ API_AVAILABLE(ios(8.0))
     return frame;
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler API_AVAILABLE(ios(8.0)){
-    
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler API_AVAILABLE(ios(8.0)) {
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
         NSURL *url = navigationAction.request.URL;
-        NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:url.absoluteString];
-        NSDictionary *details = @{kNotificationURLElementKey:encodedURLString};
-        [self sendActionEventAnalytics: details];
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
-            NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] init];
-            [actionPayload setObject: url.absoluteString forKey: kInAppNotificationModalPageKey];
-            [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
-            [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-            [self hideFromWindow:YES];
-        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
-            if (@available(iOS 9.0, *)) {
-                NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
-                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
-                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
-            }
-            [self hideFromWindow:YES];
-        } else {
-            [self hideFromWindow:YES];
-        }
+        [self handleInAppWebViewActionForURL:url];
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
-    
     decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+-(void)handleInAppWebViewActionForURL:(NSURL*)url {
+    @try {
+        NSDictionary *details = [NSDictionary dictionary];
+        if (url) {
+            NSString *encodedURLString = [BlueShiftInAppNotificationHelper getEncodedURLString:url.absoluteString];
+            details = @{kNotificationURLElementKey:encodedURLString};
+        }
+        [self processInAppActionForDeepLink:url.absoluteString details:details];
+        NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
+        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+            NSString *deepLink = url.absoluteString ? url.absoluteString : @"";
+            NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:inAppOptions];
+            [actionPayload setObject: deepLink forKey: kInAppNotificationModalPageKey];
+            [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
+            [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
+        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString] && ![url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+            if (@available(iOS 9.0, *)) {
+                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
+                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+    [self hideFromWindow:YES];
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {

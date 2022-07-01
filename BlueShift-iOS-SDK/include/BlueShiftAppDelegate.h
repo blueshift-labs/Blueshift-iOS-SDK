@@ -1,0 +1,1 @@
+../BlueShiftAppDelegate.h

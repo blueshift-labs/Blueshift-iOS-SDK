@@ -11,6 +11,7 @@
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 #import "InAppNotificationEntity.h"
+#import "BlueshiftVersion.h"
 
 static BlueShiftAppData *_currentAppData = nil;
 
@@ -33,7 +34,7 @@ static BlueShiftAppData *_currentAppData = nil;
 }
 
 - (NSString *)sdkVersion {
-    return [[[NSBundle bundleForClass:self.class] infoDictionary] objectForKey:kCFBundleShortVersionString];
+    return kBlueshiftSDKVersion;
 }
 
 - (NSString *)appBuildNumber {

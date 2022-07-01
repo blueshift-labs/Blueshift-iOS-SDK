@@ -30,6 +30,8 @@
 
 @property (nonatomic, retain) NSNumber *nextRetryTimeStamp;
 
+@property double createdAt;
+
 // Method to insert Entry for a particular request operation in core data
 - (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount andIsBatchEvent:(BOOL) isBatchEvent;
 

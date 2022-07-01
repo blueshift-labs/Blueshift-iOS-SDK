@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "BlueShift-iOS-SDK",
+    platforms: [
+            .iOS(.v9)
+        ],
     products: [
         .library(
             name: "BlueShift_iOS_SDK",
@@ -15,7 +18,30 @@ let package = Package(
     ],
     dependencies: [],
     targets: [
-        .binaryTarget(name: "BlueShift_iOS_SDK", url: "https://github.com/blueshift-labs/Blueshift-iOS-SDK/releases/download/2.2.0/BlueShift_iOS_SDK.xcframework.zip", checksum: "a23c33a3929ea9db5bf564c91156228a15ca89eb986bedf102c70a639a45ce90"),
-        .binaryTarget(name: "BlueShift_iOS_Extension_SDK", url: "https://github.com/blueshift-labs/Blueshift-iOS-SDK/releases/download/2.2.0/BlueShift_iOS_Extension_SDK.xcframework.zip", checksum: "0a0e40176b1e7569cc331657e8b26298dab3958e16485d98c60e8a4e22b24f3d"),
+        .target(
+            name: "BlueShift_iOS_SDK",
+            dependencies: [],
+            path: "BlueShift-iOS-SDK",
+            resources: [
+                .process("BlueShiftSDKDataModel.xcdatamodeld")
+            ],  
+            publicHeadersPath: "include",
+            cSettings: [
+                .headerSearchPath("./"),
+                .headerSearchPath("InApps/")
+            ],
+            linkerSettings: [
+                .linkedFramework("CoreData"),
+                .linkedFramework("CoreTelephony", .when(platforms: [.iOS])),
+                .linkedFramework("UserNotifications"),
+                .linkedFramework("WebKit")
+            ]
+        ),
+        .target(
+            name: "BlueShift_iOS_Extension_SDK",
+            dependencies: [],
+            path: "BlueShift-iOS-Extension-SDK",
+            publicHeadersPath: "include"
+        )
     ]
 )

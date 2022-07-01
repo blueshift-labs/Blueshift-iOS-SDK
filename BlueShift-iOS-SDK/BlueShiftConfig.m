@@ -8,6 +8,7 @@
 #import "BlueShiftConfig.h"
 #import "BlueshiftLog.h"
 #import <objc/runtime.h>
+#import "BlueshiftConstants.h"
 
 @implementation BlueShiftConfig
 
@@ -17,9 +18,7 @@
         // Remote notifications
         self.enableSilentPushNotification = YES;
         self.enablePushNotification = YES;
-        
-        self.enableLocationAccess = YES;
-        
+                
         // App open
         self.enableAppOpenTrackEvent = false;
         self.automaticAppOpenTimeInterval = 60*60*24; // 24 Hours
@@ -30,15 +29,13 @@
         self.enableInAppNotification = NO;
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
+        self.BlueshiftInAppNotificationTimeInterval = kDefaultInAppTimeInterval;
         
         // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
-        if (@available(iOS 13.0, *)) {
-            self.isSceneDelegateConfiguration = NO;
-        }
-        
-        self.enableIDFACollection = YES;
+        // Default Region US
+        self.region = BlueshiftRegionUS;        
     }
     return self;
 }
