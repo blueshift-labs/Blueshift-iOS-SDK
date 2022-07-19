@@ -86,13 +86,13 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 
 - (NSString *)getNetworkCarrierName {
     // Skip fetching network carrier for simulator
-#if TARGET_OS_SIMULATOR
-    return nil;
-#else
-    CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
-    CTCarrier *carrier = [netinfo subscriberCellularProvider];
-    return [carrier carrierName];
-#endif
+    #if TARGET_OS_SIMULATOR
+        return nil;
+    #else
+        CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
+        CTCarrier *carrier = [netinfo subscriberCellularProvider];
+        return [carrier carrierName];
+    #endif
 }
 
 - (NSString *)operatingSystem {
@@ -128,10 +128,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
-    if(self.networkCarrierName) {
-        [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
-    } else {
+    if(!self.networkCarrierName) {
         self.networkCarrierName = [self getNetworkCarrierName];
+    }
+    // Added check for simulator which returns nil value.
+    if (self.networkCarrierName) {
         [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
     }
     
