@@ -103,6 +103,14 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return kApple;
 }
 
+- (NSString *)deviceCountry {
+    return (NSString*)[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+}
+
+- (NSString *)deviceLanguage {
+    return (NSString*)[[NSLocale currentLocale] objectForKey: NSLocaleLanguageCode];
+}
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *deviceMutableDictionary = [NSMutableDictionary dictionary];
     if (self.deviceUUID) {
@@ -142,7 +150,15 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
+    
+    if (self.deviceCountry) {
+        [deviceMutableDictionary setObject:self.deviceCountry forKey:kDeviceCountry];
+    }
 
+    if (self.deviceLanguage) {
+        [deviceMutableDictionary setObject:self.deviceLanguage forKey:kDeviceLanguage];
+    }
+    
     return [deviceMutableDictionary copy];
 }
 
