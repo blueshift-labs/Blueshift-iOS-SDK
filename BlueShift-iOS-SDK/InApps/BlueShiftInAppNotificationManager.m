@@ -102,15 +102,25 @@
 
 #pragma mark - Insert, delete, update in-app notifications
 - (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
-    if (notificationArray !=nil && notificationArray.count > 0) {
-        for (int i = 0; i < notificationArray.count ; i++) {
-            [self addInAppNotificationToDataStore: [notificationArray objectAtIndex: i]];
+    @try {
+        if (notificationArray !=nil && notificationArray.count > 0) {
+            for (int counter = 0; counter < notificationArray.count ; counter++) {
+                NSDictionary* inapp = [notificationArray objectAtIndex: counter];
+                double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
+                // Do not add expired in-app notifications to in-app DB.
+                if ([self checkInAppNotificationExpired:expiresAt] == NO) {
+                    [self addInAppNotificationToDataStore: inapp];
+                } else {
+                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                }
+            }
         }
+    } @catch (NSException *exception) {
     }
     handler(YES);
 }
 
-- (void) addInAppNotificationToDataStore: (NSDictionary *) payload {
+- (void)addInAppNotificationToDataStore: (NSDictionary *) payload {
     [self checkInAppNotificationExist: payload handler:^(BOOL status){
         if (status == NO) {
             if (nil == self.privateObjectContext) {
@@ -238,10 +248,9 @@
                 if (status && results != nil && [results count] > 0) {
                     for(int i = 0; i < results.count; i++) {
                         InAppNotificationEntity *notification = [results objectAtIndex:i];
-                        double timeDifferenceInDay = [self checkInAppNotificationExpired: [notification.createdAt doubleValue]];
-                        if (timeDifferenceInDay > 30 || count > 40) {
+                        if ([self checkInAppNotificationExpired: [notification.endTime doubleValue]] || count > 40) {
                             [self deleteNotification: notification context: masterContext];
-                            [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:notification.id methodName:nil];
+                            [BlueshiftLog logInfo:@"Deleted Displayed notification, messageId : " withDetails:notification.id methodName:nil];
                         }
                     }
                 }
@@ -286,17 +295,9 @@
     }
 }
 
-- (double)checkInAppNotificationExpired:(double)createdTime {
+- (BOOL)checkInAppNotificationExpired:(double)expiryTime {
     double currentTime =  [[NSDate date] timeIntervalSince1970];
-    NSDate *createdDate = [self convertMillisecondToDate: createdTime];
-    NSDate *currentDate = [self convertMillisecondToDate:currentTime];
-    
-    NSTimeInterval timeDifference = [currentDate timeIntervalSinceDate: createdDate];
-    return (timeDifference / (3600 * 24));
-}
-
-- (NSDate *)convertMillisecondToDate:(double)seconds {
-    return [NSDate dateWithTimeIntervalSince1970:seconds];
+    return currentTime > expiryTime;
 }
 
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler {
@@ -534,7 +535,7 @@
             if (currentTime > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
-                [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
+                [BlueshiftLog logInfo:@"Deleted Expired pending notification, messageId : " withDetails:entity.id methodName:nil];
             } else {
                 /* For 'Now' category msg show it if time is not expired */
                 [nowFilteredResults addObject:entity];
@@ -546,7 +547,7 @@
             if (currentTime > endTime) {
                 /* discard notification if its expired. */
                 [self removeInAppNotificationFromDB: entity.objectID];
-                [BlueshiftLog logInfo:@"Deleted Expired notification, messageId : " withDetails:entity.id methodName:nil];
+                [BlueshiftLog logInfo:@"Deleted Expired pending notification, messageId : " withDetails:entity.id methodName:nil];
             } else if (startTime > currentTime) {
                 /* Wait for (startTime-currentTime) before IAM is shown */
                 continue;
