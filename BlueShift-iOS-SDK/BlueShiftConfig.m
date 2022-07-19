@@ -35,7 +35,9 @@
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
         // Default Region US
-        self.region = BlueshiftRegionUS;        
+        self.region = BlueshiftRegionUS;
+        
+        self.useDocumentsDirectoryAsSDKFilesLocation = YES;
     }
     return self;
 }

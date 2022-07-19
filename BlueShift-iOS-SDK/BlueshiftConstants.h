@@ -110,6 +110,7 @@
 #define kBSSPMResourceBundlePath                @"/BlueShift-iOS-SDK_BlueShift_iOS_SDK.bundle"
 #define kBSCoreDataMOMD                         @"momd"
 #define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSCoreDataSQLiteLibraryPath            @"Application Support/Blueshift"
 #define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
 #define kBSCreatedAt                            @"createdAt"
 

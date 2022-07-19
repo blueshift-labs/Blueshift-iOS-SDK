@@ -131,6 +131,8 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// Set this property in seconds to modify the time interval.
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
 
+@property BOOL useDocumentsDirectoryAsSDKFilesLocation;
+
 /// By default, SDK sets IDFV as the deviceIdSource.
 /// SDK provides IDFV, idfvBundleID, UUID and customDeviceId options as different device id sources.
 /// @note If you have multiple apps under one Blueshift account, then we recommend setting it to the idfvBundleID or UUID option.

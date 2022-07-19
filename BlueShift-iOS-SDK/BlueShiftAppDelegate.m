@@ -1101,6 +1101,10 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
+- (NSURL *)applicationLibraryDirectory {
+    return [[[NSFileManager defaultManager] URLsForDirectory:NSLibraryDirectory inDomains:NSUserDomainMask] lastObject];
+}
+
 - (NSString*)getManagedObjectModelPath {
     @try {
         // Hardcoded SDK directory path
@@ -1129,6 +1133,27 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     return @"";
 }
 
+-(void)removeFiles {
+    NSArray* files = @[
+        @"BlueShift-iOS-SDK.sqlite",
+        @"BlueShift-iOS-SDK.sqlite-shm",
+        @"BlueShift-iOS-SDK.sqlite-wal"
+    ];
+    if ([BlueShift sharedInstance].config.useDocumentsDirectoryAsSDKFilesLocation == NO) {
+        @try {
+            NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+            
+            for(NSString *file in files) {
+                NSError *error = nil;
+                if ([[NSFileManager defaultManager] fileExistsAtPath:[documentsPath stringByAppendingPathComponent:file]]) {
+                    [[NSFileManager defaultManager] removeItemAtPath:[documentsPath stringByAppendingPathComponent:file] error:&error];
+                }
+            }
+        } @catch (NSException *exception) {
+        }
+    }
+}
+
 - (void)initializeCoreData {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -1137,13 +1162,42 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             if (url) {
                 NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];
                 NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mom];
-                NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                NSURL *storeURL = nil;
+                
+                // Select the core data files location
+                if ([BlueShift sharedInstance].config.useDocumentsDirectoryAsSDKFilesLocation == YES) {
+                    storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                } else {
+                    storeURL = [[[self applicationLibraryDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                    NSError *error = nil;
+                    // create directory 'Application Support/Blueshift' in the Library if not present.
+                    [[NSFileManager defaultManager] createDirectoryAtURL:[[self applicationLibraryDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] withIntermediateDirectories:YES attributes:nil error:&error];
+                }
                 NSError *error = nil;
                 NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES};
                 NSPersistentStore* store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
                 if (!store) {
                     [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     return;
+                }
+                
+                // Migrate the core data location and remove the old files from document directory if the store location gets changed.
+                NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+                if ([BlueShift sharedInstance].config.useDocumentsDirectoryAsSDKFilesLocation == NO &&
+                    documentsPath &&
+                    [[NSFileManager defaultManager] fileExistsAtPath:[documentsPath stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]]) {
+                    error = nil;
+                    NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+                    if (libraryPath) {
+                        if([[NSFileManager defaultManager] fileExistsAtPath:[[libraryPath stringByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]] == NO) {
+                            NSPersistentStore* newStore = [coordinator migratePersistentStore:store toURL:[self applicationLibraryDirectory] options:nil withType:NSSQLiteStoreType error:&error];
+                            if (newStore) {
+                                [self removeFiles];
+                            }
+                        } else {
+                            [self removeFiles];
+                        }
+                    }
                 }
                 managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
                 [managedObjectContext setPersistentStoreCoordinator:coordinator];
