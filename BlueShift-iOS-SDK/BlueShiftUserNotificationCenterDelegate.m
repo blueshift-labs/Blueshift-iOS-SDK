@@ -20,7 +20,7 @@
     NSDictionary *userInfo = notification.request.content.userInfo;
     [BlueshiftLog logInfo:@"Push Notification received" withDetails:userInfo methodName:nil];
     if (@available(iOS 14.0, *)) {
-        completionHandler(UNNotificationPresentationOptionBanner | UNNotificationPresentationOptionList | UNAuthorizationOptionSound | UNNotificationPresentationOptionBadge);
+        completionHandler(UNNotificationPresentationOptionBanner | UNNotificationPresentationOptionList | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionBadge);
     } else {
         completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionBadge);
     }
