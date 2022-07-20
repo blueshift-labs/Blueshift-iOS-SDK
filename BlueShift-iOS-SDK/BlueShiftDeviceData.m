@@ -84,7 +84,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return [[UIDevice currentDevice] model];
 }
 
-- (NSString *)networkCarrierName {
+- (NSString *)getNetworkCarrierName {
     // Skip fetching network carrier for simulator
     #if TARGET_OS_SIMULATOR
         return nil;
@@ -128,9 +128,12 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
-    NSString *networkCarrier = self.networkCarrierName;
-    if (networkCarrier) {
-        [deviceMutableDictionary setObject: networkCarrier forKey:kNetworkCarrier];
+    if(!self.networkCarrierName) {
+        self.networkCarrierName = [self getNetworkCarrierName];
+    }
+    // Added check for simulator which returns nil value.
+    if (self.networkCarrierName) {
+        [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
     }
     
     if (self.currentLocation) {
