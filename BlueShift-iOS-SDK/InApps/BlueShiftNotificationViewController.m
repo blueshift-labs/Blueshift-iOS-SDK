@@ -296,6 +296,7 @@
             [self sendActionButtonTappedDelegate: buttonDetails];
         } else if([buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
                   [buttonDetails.iosLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+            // Placeholder
             // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
             // This case is already handled in the [self processInAppActionForDeepLink:]
         } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate &&

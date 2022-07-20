@@ -285,6 +285,7 @@ API_AVAILABLE(ios(8.0))
             [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
         } else if([url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
                   [url.absoluteString isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+            // Placeholder
             // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
             // This case is already handled in the [self processInAppActionForDeepLink:]
         }
