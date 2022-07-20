@@ -390,7 +390,7 @@
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             if ([settings authorizationStatus] == UNAuthorizationStatusDenied) {
-                [self showEnablePushFromSettings];
+                [self showEnablePushFromSettingsAlert];
             } else if ([settings authorizationStatus] == UNAuthorizationStatusNotDetermined) {
                 [[BlueShift sharedInstance].appDelegate registerForNotification];
             }
@@ -398,9 +398,13 @@
     }
 }
 
-- (void)showEnablePushFromSettings {
+- (void)showEnablePushFromSettingsAlert {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        UIWindow* __block window = nil;
+        UIWindow * __block window = nil;
+        // Cache the registered in-app screen name, and unregister screen to not show any in-apps
+        // till enable push alert is displayed.
+        NSString * inAppScreenName = [BlueShift.sharedInstance getRegisteredForInAppScreenName];
+        [BlueShift.sharedInstance unregisterForInAppMessage];
         if (@available(iOS 13.0, *)) {
             window = [[UIWindow alloc] initWithWindowScene:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene];
         } else {
@@ -409,11 +413,18 @@
         
         window.rootViewController = [UIViewController new];
         window.windowLevel = UIWindowLevelAlert;
-        NSString *title = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_TITLE", nil, [NSBundle mainBundle], @"Enable push notifications", @"");
-        NSString *text = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_TEXT", nil, [NSBundle mainBundle], @"You have disabled Push notifications for your app, please go to settings to enable it.","");
-        NSString *okayLabel = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_OKAY_BUTTON", nil, [NSBundle mainBundle], @"Settings", @"");
-        NSString *cancelLabel = NSLocalizedStringWithDefaultValue(@"BLUESHIFT_GOTOSETTING_CANCEL_BUTTON", nil, [NSBundle mainBundle], @"Not Now", @"");
+        // Get localized strings if availble
+        NSString *title = NSLocalizedString(kBSGoToSettingTitleLocalizedKey, @"");
+        NSString *text = NSLocalizedString(kBSGoToSettingTextLocalizedKey, @"");
+        NSString *okayLabel = NSLocalizedString(kBSGoToSettingOkayButtonLocalizedKey, @"");
+        NSString *cancelLabel = NSLocalizedString(kBSGoToSettingCancelButtonLocalizedKey, @"");
 
+        // If Localized strings are not set, use SDK default text
+        title = [title isEqualToString: kBSGoToSettingTitleLocalizedKey] ? kBSGoToSettingDefaultTitle : title;
+        text = [text isEqualToString: kBSGoToSettingTextLocalizedKey] ? kBSGoToSettingDefaultText : text;
+        okayLabel = [okayLabel isEqualToString: kBSGoToSettingOkayButtonLocalizedKey] ? kBSGoToSettingDefaultOkayButton : okayLabel;
+        cancelLabel = [cancelLabel isEqualToString:kBSGoToSettingCancelButtonLocalizedKey] ? kBSGoToSettingDefaultCancelButton : cancelLabel;
+        
         UIAlertController* alert = [UIAlertController alertControllerWithTitle:title message:text preferredStyle:UIAlertControllerStyleAlert];
         
         [alert addAction:[UIAlertAction actionWithTitle:okayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
@@ -422,6 +433,8 @@
                 if (url && [UIApplication.sharedApplication canOpenURL:url]) {
                     [UIApplication.sharedApplication openURL:url];
                 }
+                // Register for in-apps using cached screen name
+                [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];
             });
             window.hidden = YES;
             window = nil;
@@ -429,6 +442,8 @@
         [alert addAction:[UIAlertAction actionWithTitle:cancelLabel style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
             window.hidden = YES;
             window = nil;
+            // Register for in-apps using cached screen name
+            [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];
         }]];
         
         [window makeKeyAndVisible];
