@@ -294,7 +294,14 @@
         
         if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
             [self sendActionButtonTappedDelegate: buttonDetails];
-        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate && [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] && [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink] && ![buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
+        } else if([buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
+                  [buttonDetails.iosLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+            // Placeholder
+            // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
+            // This case is already handled in the [self processInAppActionForDeepLink:]
+        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate &&
+                  [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] &&
+                  [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink]) {
             if (@available(iOS 9.0, *)) {
                 NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
                 if (deepLinkURL) {
@@ -313,6 +320,9 @@
 - (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details {
     if (deepLink == nil || [deepLink isEqualToString:@""] || [deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
+    } else if ([deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+        [self handleRequestPushPermissionDeepLink];
+        [self sendActionEventAnalytics:details forActionType:BlueshiftAskPNPermission];
     } else {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppClickAction];
     }
@@ -375,6 +385,71 @@
         [self.delegate inAppActionDidTapped:notificationPayload withAction:action fromViewController:self];
     }
     [BlueshiftLog logInfo:[NSString stringWithFormat:@"Sending tracking analytics for the %@ action of the in-app notification",action == 1 ? @"dismiss" : @"click"] withDetails:nil methodName:nil];
+}
+
+- (void)handleRequestPushPermissionDeepLink {
+    if (@available(iOS 10.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            if ([settings authorizationStatus] == UNAuthorizationStatusDenied) {
+                [self showEnablePushFromSettingsAlert];
+            } else if ([settings authorizationStatus] == UNAuthorizationStatusNotDetermined) {
+                [[BlueShift sharedInstance].appDelegate registerForNotification];
+            }
+        }];
+    }
+}
+
+- (void)showEnablePushFromSettingsAlert {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        UIWindow * __block window = nil;
+        // Cache the registered in-app screen name, and unregister screen to not show any in-apps
+        // till enable push alert is displayed.
+        NSString * inAppScreenName = [BlueShift.sharedInstance getRegisteredForInAppScreenName];
+        [BlueShift.sharedInstance unregisterForInAppMessage];
+        if (@available(iOS 13.0, *)) {
+            window = [[UIWindow alloc] initWithWindowScene:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene];
+        } else {
+            window = [[UIWindow alloc] initWithFrame:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].bounds];
+        }
+        
+        window.rootViewController = [UIViewController new];
+        window.windowLevel = UIWindowLevelAlert;
+        // Get localized strings if availble
+        NSString *title = NSLocalizedString(kBSGoToSettingTitleLocalizedKey, @"");
+        NSString *text = NSLocalizedString(kBSGoToSettingTextLocalizedKey, @"");
+        NSString *okayLabel = NSLocalizedString(kBSGoToSettingOkayButtonLocalizedKey, @"");
+        NSString *cancelLabel = NSLocalizedString(kBSGoToSettingCancelButtonLocalizedKey, @"");
+
+        // If Localized strings are not set, use SDK default text
+        title = [title isEqualToString: kBSGoToSettingTitleLocalizedKey] ? kBSGoToSettingDefaultTitle : title;
+        text = [text isEqualToString: kBSGoToSettingTextLocalizedKey] ? kBSGoToSettingDefaultText : text;
+        okayLabel = [okayLabel isEqualToString: kBSGoToSettingOkayButtonLocalizedKey] ? kBSGoToSettingDefaultOkayButton : okayLabel;
+        cancelLabel = [cancelLabel isEqualToString:kBSGoToSettingCancelButtonLocalizedKey] ? kBSGoToSettingDefaultCancelButton : cancelLabel;
+        
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:title message:text preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:okayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSURL* url = [[NSURL alloc] initWithString: UIApplicationOpenSettingsURLString];
+                if (url && [UIApplication.sharedApplication canOpenURL:url]) {
+                    [UIApplication.sharedApplication openURL:url];
+                }
+                // Register for in-apps using cached screen name
+                [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];
+            });
+            window.hidden = YES;
+            window = nil;
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:cancelLabel style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            window.hidden = YES;
+            window = nil;
+            // Register for in-apps using cached screen name
+            [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];
+        }]];
+        
+        [window makeKeyAndVisible];
+        [window.rootViewController presentViewController:alert animated:YES completion:nil];
+    });
 }
 
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width {

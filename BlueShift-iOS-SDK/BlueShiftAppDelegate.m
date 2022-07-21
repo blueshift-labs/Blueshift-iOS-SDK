@@ -225,10 +225,19 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 - (void)checkUNAuthorizationStatus {
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-            if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@YES];
+            if (@available(iOS 12.0, *)) {
+                // Set enable_push to true for provisional and athorized status
+                if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized || [settings authorizationStatus] == UNAuthorizationStatusProvisional) {
+                    [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@YES];
+                } else {
+                    [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@NO];
+                }
             } else {
-                [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@NO];
+                if ([settings authorizationStatus] == UNAuthorizationStatusAuthorized) {
+                    [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@YES];
+                } else {
+                    [[BlueShiftAppData currentAppData] setCurrentUNAuthorizationStatus:@NO];
+                }
             }
             //Fire auto identify call in case any device attribute changes
             [self autoIdentifyCheck];
