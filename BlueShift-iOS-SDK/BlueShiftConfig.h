@@ -17,7 +17,12 @@
 typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
     BlueshiftRegionUS,
     BlueshiftRegionEU
-} ;
+};
+
+typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
+    BlueshiftFilesLocationDocumentDirectory,
+    BlueshiftFilesLocationLibraryDirectory
+};
 
 @class BlueShiftInAppNotificationDelegate;
 
@@ -131,7 +136,12 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// Set this property in seconds to modify the time interval.
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
 
-@property BOOL useDocumentsDirectoryAsSDKFilesLocation;
+/// SDK creates core data files by default in the app's Document directory. If your app supports sharing the Documents directory or Documents browser, then you can change this location to Library directory, so that the SDK files won't show up in the app's Document directory.
+/// Set this attribute to `.LibraryDirectory` if you dont want to use the Documents directory as SDK core data files location.
+/// @note If you want to stop using the Documents directory, SDK takes care of moving existing core data files(if present) from Documents directory to Library directory.
+/// @warning Shifting from Library directory to Document directory is not a recommended.
+/// If you want to stop using the Library directory and start using the Documents directory, SDK does not take care of moving the files from Library directory to Documents directory.
+@property BlueshiftFilesLocation sdkCoreDataFilesLocation;
 
 /// By default, SDK sets IDFV as the deviceIdSource.
 /// SDK provides IDFV, idfvBundleID, UUID and customDeviceId options as different device id sources.

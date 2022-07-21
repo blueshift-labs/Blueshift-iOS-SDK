@@ -1139,7 +1139,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         @"BlueShift-iOS-SDK.sqlite-shm",
         @"BlueShift-iOS-SDK.sqlite-wal"
     ];
-    if ([BlueShift sharedInstance].config.useDocumentsDirectoryAsSDKFilesLocation == NO) {
+    if ([BlueShift sharedInstance].config.sdkCoreDataFilesLocation == BlueshiftFilesLocationLibraryDirectory) {
         @try {
             NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
             
@@ -1165,7 +1165,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 NSURL *storeURL = nil;
                 
                 // Select the core data files location
-                if ([BlueShift sharedInstance].config.useDocumentsDirectoryAsSDKFilesLocation == YES) {
+                if ([BlueShift sharedInstance].config.sdkCoreDataFilesLocation == BlueshiftFilesLocationDocumentDirectory) {
                     storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
                 } else {
                     storeURL = [[[self applicationLibraryDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
@@ -1183,7 +1183,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 
                 // Migrate the core data location and remove the old files from document directory if the store location gets changed.
                 NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-                if ([BlueShift sharedInstance].config.useDocumentsDirectoryAsSDKFilesLocation == NO &&
+                if ([BlueShift sharedInstance].config.sdkCoreDataFilesLocation == BlueshiftFilesLocationLibraryDirectory &&
                     documentsPath &&
                     [[NSFileManager defaultManager] fileExistsAtPath:[documentsPath stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]]) {
                     error = nil;

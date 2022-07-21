@@ -37,7 +37,7 @@
         // Default Region US
         self.region = BlueshiftRegionUS;
         
-        self.useDocumentsDirectoryAsSDKFilesLocation = YES;
+        self.sdkCoreDataFilesLocation = BlueshiftFilesLocationDocumentDirectory;
     }
     return self;
 }
