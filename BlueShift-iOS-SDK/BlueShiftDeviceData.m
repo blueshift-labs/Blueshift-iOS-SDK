@@ -152,11 +152,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     }
     
     if (self.deviceCountry) {
-        [deviceMutableDictionary setObject:self.deviceCountry forKey:kDeviceCountry];
+        [deviceMutableDictionary setObject:self.deviceCountry forKey:kCountryCode];
     }
 
     if (self.deviceLanguage) {
-        [deviceMutableDictionary setObject:self.deviceLanguage forKey:kDeviceLanguage];
+        [deviceMutableDictionary setObject:self.deviceLanguage forKey:kLanguageCode];
     }
     
     return [deviceMutableDictionary copy];

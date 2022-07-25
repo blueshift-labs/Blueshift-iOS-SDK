@@ -24,8 +24,8 @@
 #define kApple                                  @"apple"
 #define kiOS                                    @"iOS"
 #define kBrowserPlatform                        @"browser_platform"
-#define kDeviceCountry                          @"device_country"
-#define kDeviceLanguage                         @"device_language"
+#define kCountryCode                            @"country_code"
+#define kLanguageCode                           @"language_code"
 
 //App Data
 #define kEnablePush                             @"enable_push"
