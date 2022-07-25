@@ -1172,12 +1172,26 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];
                 NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mom];
                 NSURL *storeURL = nil;
+                NSURL *documentsStoreURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                NSURL *libraryStoreURL = [[[self applicationLibraryDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
                 
+                NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+                NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+
                 // Select the core data files location
                 if ([BlueShift sharedInstance].config.sdkCoreDataFilesLocation == BlueshiftFilesLocationDocumentDirectory) {
-                    storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                    storeURL = documentsStoreURL;
                 } else {
-                    storeURL = [[[self applicationLibraryDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] URLByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                    // Check if migration is required,
+                    // Check if Documents has coredata files and Library does not have the core data files.
+                    // If Migration is required, then use the Documents store for migration.
+                    // Else use the Library store.
+                    BOOL isMigrationRequired = (documentsPath && libraryPath && [[NSFileManager defaultManager] fileExistsAtPath:[documentsPath stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]] == YES && [[NSFileManager defaultManager] fileExistsAtPath:[[libraryPath stringByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]] == NO);
+                    if (isMigrationRequired == YES) {
+                        storeURL = documentsStoreURL;
+                    } else {
+                        storeURL = libraryStoreURL;
+                    }
                     NSError *error = nil;
                     // create directory 'Application Support/Blueshift' in the Library if not present.
                     [[NSFileManager defaultManager] createDirectoryAtURL:[[self applicationLibraryDirectory] URLByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] withIntermediateDirectories:YES attributes:nil error:&error];
@@ -1191,15 +1205,15 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 }
                 
                 // Migrate the core data location and remove the old files from document directory if the store location gets changed.
-                NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
                 if ([BlueShift sharedInstance].config.sdkCoreDataFilesLocation == BlueshiftFilesLocationLibraryDirectory &&
                     documentsPath &&
                     [[NSFileManager defaultManager] fileExistsAtPath:[documentsPath stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]]) {
                     error = nil;
-                    NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
                     if (libraryPath) {
-                        if([[NSFileManager defaultManager] fileExistsAtPath:[[libraryPath stringByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] stringByAppendingPathComponent:kBSCoreDataSQLiteFileName]] == NO) {
-                            NSPersistentStore* newStore = [coordinator migratePersistentStore:store toURL:[self applicationLibraryDirectory] options:nil withType:NSSQLiteStoreType error:&error];
+                        NSString *libraryStorePath = [[libraryPath stringByAppendingPathComponent:kBSCoreDataSQLiteLibraryPath] stringByAppendingPathComponent:kBSCoreDataSQLiteFileName];
+                        // If core data files are not present at Library location, then migrate the store.
+                        if([[NSFileManager defaultManager] fileExistsAtPath:libraryStorePath] == NO) {
+                            NSPersistentStore* newStore = [coordinator migratePersistentStore:store toURL:libraryStoreURL options:nil withType:NSSQLiteStoreType error:&error];
                             if (newStore) {
                                 [self removeFiles];
                             }
