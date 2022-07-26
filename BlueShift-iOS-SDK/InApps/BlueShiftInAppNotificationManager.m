@@ -111,7 +111,7 @@
                 if ([self checkInAppNotificationExpired:expiresAt] == NO) {
                     [self addInAppNotificationToDataStore: inapp];
                 } else {
-                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
                 }
             }
         }
