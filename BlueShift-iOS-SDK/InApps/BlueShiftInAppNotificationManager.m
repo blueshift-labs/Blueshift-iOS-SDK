@@ -61,7 +61,6 @@
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         [self fetchNowAndUpcomingInAppMessageFromDB];
         [self startInAppMessageFetchTimer];
-        [self deleteExpireInAppNotificationFromDataStore];
     }
 }
 
@@ -248,7 +247,7 @@
                 if (status && results != nil && [results count] > 0) {
                     for(int i = 0; i < results.count; i++) {
                         InAppNotificationEntity *notification = [results objectAtIndex:i];
-                        if ([self checkInAppNotificationExpired: [notification.endTime doubleValue]] || count > 40) {
+                        if ([self getTimeDifference: notification.createdAt.doubleValue] > 30 || count > 40) {
                             [self deleteNotification: notification context: masterContext];
                             [BlueshiftLog logInfo:@"Deleted Displayed notification, messageId : " withDetails:notification.id methodName:nil];
                         }
@@ -298,6 +297,12 @@
 - (BOOL)checkInAppNotificationExpired:(double)expiryTime {
     double currentTime =  [[NSDate date] timeIntervalSince1970];
     return currentTime > expiryTime;
+}
+
+- (double)getTimeDifference:(double)createdTime {
+    double currentTime =  [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval timeDifference = currentTime - createdTime;
+    return (timeDifference / (3600 * 24));
 }
 
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler {
