@@ -13,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef enum {
     BlueshiftInAppClickAction,
-    BlueshiftInAppDismissAction
+    BlueshiftInAppDismissAction,
+    BlueshiftAskPNPermission
 } BlueshiftInAppActions;
 
 @class BlueShiftNotificationViewController;
@@ -54,7 +55,7 @@ typedef enum {
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
 - (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action;
-- (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details;
+- (void)processInAppActionForDeepLink:(NSString* _Nullable)deepLink details:(NSDictionary*)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
 - (void)setBackgroundImageFromURL:(UIView *)notificationView;

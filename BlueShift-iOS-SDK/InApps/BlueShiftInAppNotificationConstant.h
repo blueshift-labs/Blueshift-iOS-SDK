@@ -138,5 +138,6 @@
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 #define kInAppNotificationDismissDeepLinkURL                    @"blueshift://dismiss"
+#define kInAppNotificationReqPNPermissionDeepLinkURL            @"blueshift://req-push-permission"
 
 #endif /* BlueShiftInAppNotificationConstant_h */

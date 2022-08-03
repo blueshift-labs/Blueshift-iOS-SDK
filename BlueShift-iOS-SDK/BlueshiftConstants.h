@@ -110,6 +110,7 @@
 #define kBSSPMResourceBundlePath                @"/BlueShift-iOS-SDK_BlueShift_iOS_SDK.bundle"
 #define kBSCoreDataMOMD                         @"momd"
 #define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSCoreDataSQLiteLibraryPath            @"Application Support/Blueshift"
 #define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
 #define kBSCreatedAt                            @"createdAt"
 
@@ -120,5 +121,17 @@
 //Default time interval for in-app notificaiton
 #define kDefaultInAppTimeInterval               60
 #define kMinimumInAppTimeInterval               5
+
+// Push permission promt Localization keys
+#define kBSGoToSettingTitleLocalizedKey         @"BLUESHIFT_GOTOSETTING_ALERT_TITLE"
+#define kBSGoToSettingTextLocalizedKey          @"BLUESHIFT_GOTOSETTING_ALERT_TEXT"
+#define kBSGoToSettingOkayButtonLocalizedKey    @"BLUESHIFT_GOTOSETTING_ALERT_OKAY_BUTTON"
+#define kBSGoToSettingCancelButtonLocalizedKey  @"BLUESHIFT_GOTOSETTING_ALERT_CANCEL_BUTTON"
+
+// Push permission promt default text
+#define kBSGoToSettingDefaultTitle              @"Enable push notifications"
+#define kBSGoToSettingDefaultText               @"You have disabled Push notifications for your app, please go to settings to enable it."
+#define kBSGoToSettingDefaultOkayButton         @"Settings"
+#define kBSGoToSettingDefaultCancelButton       @"Not Now"
 
 #endif /* BlueshiftConstants_h */
