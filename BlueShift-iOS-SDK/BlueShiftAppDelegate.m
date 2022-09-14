@@ -1167,6 +1167,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         @try {
+            [BlueshiftLog logInfo:@"Initializing Core Data for SDK." withDetails:nil methodName:nil];
             NSURL* url = [NSURL fileURLWithPath:[self getManagedObjectModelPath]];
             if (url) {
                 NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:url];

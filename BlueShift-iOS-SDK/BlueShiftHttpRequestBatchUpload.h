@@ -24,6 +24,8 @@
 // Method to start batch uploading
 + (void)startBatchUpload;
 
++ (void)stopBatchUpload;
+
 + (void)batchEventsUploadInBackground;
 
 @end

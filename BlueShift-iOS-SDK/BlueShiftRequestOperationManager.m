@@ -24,6 +24,12 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     return _sharedRequestOperationManager;
 }
 
+- (void)resetURLSessionConfig {
+    [BlueshiftLog logInfo:@"Resetting URL session config." withDetails:nil methodName:nil];
+    self.sessionConfiguraion = nil;
+    self.mainURLSession = nil;
+}
+
 // Method to add Basic authentication request Header ...
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
     if(self.sessionConfiguraion) {
@@ -71,6 +77,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 - (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
+        handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
+    }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
         _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
@@ -105,6 +115,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 - (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
+        handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
+    }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
         _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];

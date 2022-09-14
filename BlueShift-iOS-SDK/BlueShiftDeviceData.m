@@ -70,9 +70,11 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (void)resetDeviceUUID {
-    [BlueshiftLog logInfo:@"Initiating the Device id reset." withDetails:nil methodName:nil];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBlueshiftDeviceIdSourceUUID];
-    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+    if (_blueshiftDeviceIdSource == BlueshiftDeviceIdSourceUUID) {
+        [BlueshiftLog logInfo:@"Resetting the Device id." withDetails:nil methodName:nil];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBlueshiftDeviceIdSourceUUID];
+        [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+    }
 }
 
 - (NSString *)deviceIDFV {
