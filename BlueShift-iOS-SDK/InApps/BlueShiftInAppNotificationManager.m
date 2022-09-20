@@ -77,7 +77,6 @@
     if (self.inAppMessageFetchTimer != nil) {
         [self.inAppMessageFetchTimer invalidate];
         self.inAppMessageFetchTimer = nil;
-        [BlueshiftLog logInfo:@"Stopped InAppMessageFetchTimer" withDetails:nil methodName:nil];
     }
 }
 

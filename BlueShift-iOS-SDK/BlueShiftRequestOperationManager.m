@@ -25,7 +25,6 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 - (void)resetURLSessionConfig {
-    [BlueshiftLog logInfo:@"Resetting URL session config." withDetails:nil methodName:nil];
     self.sessionConfiguraion = nil;
     self.mainURLSession = nil;
 }
