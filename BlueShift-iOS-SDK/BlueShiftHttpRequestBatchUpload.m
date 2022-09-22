@@ -163,13 +163,15 @@ static NSTimer *_uploadeTimer = nil;
 
 // Method to upload all batches
 + (void)uploadBatches {
-    [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
-        if (status) {
-            if(batches && batches.count > 0) {
-                [self uploadBatchAtIndex:0 fromBatches:batches];
+    if (BlueShift.sharedInstance.config.apiKey) {
+        [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
+            if (status) {
+                if(batches && batches.count > 0) {
+                    [self uploadBatchAtIndex:0 fromBatches:batches];
+                }
             }
-        }
-    }];
+        }];
+    }
 }
 
 // Method to upload batch
