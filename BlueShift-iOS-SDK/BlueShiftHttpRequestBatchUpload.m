@@ -38,9 +38,8 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     }
 }
 
-// Perform uploading task in background (inclues core data operations)
+// Perform uploading task in background
 + (void)batchEventsUploadInBackground {
-    // Upload the events only if tracking is enabled
     [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
 }
 
