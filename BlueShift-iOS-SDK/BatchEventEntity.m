@@ -21,26 +21,18 @@
 @dynamic retryAttemptsCount;
 @dynamic createdAt;
 
-// Method to insert Entry for a particular request operation in core data ...
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     if (appDelegate) {
-        @try {
-            masterContext = appDelegate.batchEventManagedObjectContext;
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
+        masterContext = appDelegate.batchEventManagedObjectContext;
     }
     if (masterContext) {
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         context.parentContext = masterContext;
-        // return if context is unavailable ...
-        if (context == nil || masterContext == nil) {
+        if (context == nil) {
             return ;
         }
-        // will only archive parameters list if they are present to prevent crash ...
         if (parametersArray) {
             self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
         }
@@ -78,7 +70,6 @@
 }
 
 
-// Method to return the failed batch records from Core Data ....
 + (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     @synchronized(self) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;

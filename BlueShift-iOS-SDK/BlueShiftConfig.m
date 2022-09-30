@@ -38,6 +38,8 @@
         self.region = BlueshiftRegionUS;
         
         self.sdkCoreDataFilesLocation = BlueshiftFilesLocationDocumentDirectory;
+        
+        self.carouselPushNotifcationGoToAppBehaviour = CarouselGoToAppBehaviourOpenAppWithoutDeepLink;
     }
     return self;
 }

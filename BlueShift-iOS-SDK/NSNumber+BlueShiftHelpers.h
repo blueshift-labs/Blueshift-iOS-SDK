@@ -10,10 +10,10 @@
 
 @interface NSNumber (BlueShiftHelpers)
 
-// Method to return NSNumber instance from BlueShiftHTTPMethod ...
+/// Return NSNumber instance from BlueShiftHTTPMethod
 + (NSNumber *)numberWithBlueShiftHTTPMethod:(BlueShiftHTTPMethod)blueShiftHTTPMethod;
 
-// Method to return blueShiftHTTPMethodValue for the NSNumber ....
+/// Return blueShiftHTTPMethodValue for the NSNumber
 - (BlueShiftHTTPMethod)blueShiftHTTPMethodValue;
 
 @end

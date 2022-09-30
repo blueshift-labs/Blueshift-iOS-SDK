@@ -27,9 +27,7 @@
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
-    [self handleUserNotification:center didReceiveNotificationResponse:response withCompletionHandler:^{
-    }];
-    completionHandler();
+    [self handleUserNotification:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
 }
 
 - (void)handleUserNotification:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){

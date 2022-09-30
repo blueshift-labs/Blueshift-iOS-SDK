@@ -21,11 +21,13 @@
 
 @interface BlueShiftHttpRequestBatchUpload : NSObject
 
-// Method to start batch uploading
+/// Start the interval based batch upload
 + (void)startBatchUpload;
 
+/// Stop the batch upload timer
 + (void)stopBatchUpload;
 
+/// Upload batches in backgorund just for once.
 + (void)batchEventsUploadInBackground;
 
 @end

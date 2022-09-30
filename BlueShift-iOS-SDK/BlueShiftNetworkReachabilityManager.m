@@ -12,7 +12,6 @@
 
 @implementation BlueShiftNetworkReachabilityManager
 
-// Method to check whether internet is connected ...
 + (BOOL)networkConnected {
     BlueShiftReachability *reach = [BlueShiftReachability reachabilityWithHostName:@"www.google.com"];
     if (reach.currentReachabilityStatus == ReachableViaWiFi || reach.currentReachabilityStatus == ReachableViaWWAN) {

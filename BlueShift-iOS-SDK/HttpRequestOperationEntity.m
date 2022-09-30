@@ -19,28 +19,18 @@
 @dynamic isBatchEvent;
 @dynamic createdAt;
 
-// Method to insert Entry for a particular request operation in core data ...
-
 - (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount andIsBatchEvent:(BOOL) isBatchEvent {
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
+        masterContext = appDelegate.managedObjectContext;
     }
     if (masterContext) {
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         context.parentContext = masterContext;
-        // return if context is unavailable ...
-        if (context == nil || masterContext == nil) {
+        if (context == nil) {
             return ;
         }
-        // gets the httpMethodNumber type for the enum ...
-        
         self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
         
         if (parameters) {
@@ -82,16 +72,9 @@
     }
 }
 
-
-
-// Method to return the httpMethod type as BlueShiftHTTPMethod enum ...
-
 - (BlueShiftHTTPMethod)httpMethod {
     return [self.httpMethodNumber blueShiftHTTPMethodValue];
 }
-
-    
-// Method to return the first record from Core Data ...
 
 + (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler {
     NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
@@ -153,9 +136,7 @@
         }
     }
 }
-    
 
-// Method to return the batch records from Core Data ....
 + (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
     @synchronized(key) {

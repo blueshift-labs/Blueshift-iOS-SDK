@@ -12,16 +12,11 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BlueShiftPushDelegate <NSObject>
 
 @optional
-- (void)buyPushActionWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Buy category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)viewPushActionWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("View category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)openCartPushActionWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Open cart category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)handlePushActionForIdentifier:(NSString *)identifier withDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in future. Use `pushNotificationDidClick:(NSDictionary *)payload forActionIdentifier:(NSString *)identifier` method instead.");
-
-- (void)buyCategoryPushClickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Buy category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)cartViewCategoryPushClickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Cart view category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)promotionCategoryPushClickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Promotion category is deprecated and will be removed in future. Use `pushNotificationDidClick:(NSDictionary *)payload` method instead.");
-- (void)handleCustomCategory:(NSString *)categroyName clickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in future. Use `pushNotificationDidClick:(NSDictionary *)payload` method instead.");
-
+/// This is a SDK hook/callback for the click event of carousel push notification
+/// @param categoryName carousel push notification category name, carousel or carousel_animation.
+/// @param index selected image index
+/// @param details push notification payload
+/// @note The index can be used to get the deep link and image from the carousel_elements object of push payload.
 - (void)handleCarouselPushForCategory:(NSString *)categoryName clickedWithIndex:(NSInteger)index withDetails:(NSDictionary *)details;
 
 
