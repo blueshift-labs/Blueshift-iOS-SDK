@@ -23,11 +23,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
     BlueshiftFilesLocationLibraryDirectory
 };
 
-typedef NS_ENUM (NSUInteger,CarouselGoToAppBehaviour) {
-    CarouselGoToAppBehaviourOpenAppWithoutDeepLink,
-    CarouselGoToAppBehaviourOpenAppWithLastDisplayedImageDeepLink
-};
-
 @class BlueShiftInAppNotificationDelegate;
 
 @interface BlueShiftConfig : NSObject
@@ -147,11 +142,6 @@ typedef NS_ENUM (NSUInteger,CarouselGoToAppBehaviour) {
 /// SDK provides IDFV, idfvBundleID, UUID and customDeviceId options as different device id sources.
 /// @note If you have multiple apps under one Blueshift account, then we recommend setting it to the idfvBundleID or UUID option.
 @property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
-
-/// This property defines the behaviour of the `Go to App` button of the Carousel push notification.
-/// With value `CarouselGoToAppBehaviourOpenAppWithoutDeepLink`, it will just open the app without any deep link. This is default option if not set.
-/// With value `CarouselGoToAppBehaviourOpenAppWithLastDisplayedImageDeepLink`, it will open app and share the deep link of the last displayed image on the Carousel push notification.
-@property (nonatomic, assign) CarouselGoToAppBehaviour carouselPushNotifcationGoToAppBehaviour;
 
 - (BOOL)validateConfigDetails;
 

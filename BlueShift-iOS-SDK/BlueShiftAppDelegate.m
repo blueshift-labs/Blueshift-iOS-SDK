@@ -44,6 +44,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 NSSet* updatedCategories = [NSSet setWithArray:[categoryDictionary allValues]];
                 [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:updatedCategories];
             } @catch (NSException *exception) {
+                [BlueshiftLog logException:exception withDescription:nil methodName:nil];
             }
         }];
     }
@@ -154,7 +155,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
-#pragma mark - enable push and auto identify
+#pragma mark - Enable push and auto identify
 - (NSString*)getLastModifiedUNAuthorizationStatus {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString* authorizationStatus = (NSString *)[defaults objectForKey:kBlueshiftUNAuthorizationStatus];
@@ -250,7 +251,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
 }
 
-#pragma mark - Push notification handle external methods
+#pragma mark - Handle Push notification external methods
 - (void)application:(UIApplication *)application handleRemoteNotification:(NSDictionary *)userInfo {
     [self processSilentPushAndClicksForNotification:userInfo applicationState:application.applicationState];
 }
@@ -262,6 +263,26 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 - (void)application:(UIApplication *)application handleLocalNotification:(nonnull UNNotificationRequest *)notification {
     [self processPushClickForNotification:notification.content.userInfo actionIdentifer:nil];
+}
+
+- (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
+    if (launchOptions) {
+        NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        if (userInfo) {
+            [self processPushClickForNotification:userInfo actionIdentifer: nil];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)handleRemoteNotification:(NSDictionary *)userInfo {
+    [self processPushClickForNotification:userInfo actionIdentifer: nil];
+}
+
+- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
+    [self processPushClickForNotification:[notification copy] actionIdentifer:identifier];
+    completionHandler();
 }
 
 #pragma mark Schedule notifications
@@ -297,55 +318,60 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 -(void)scheduleUNLocalNotification:(NSDictionary *)notification at:(NSDate *)fireDate {
     if (@available(iOS 10.0, *)) {
         dispatch_async(BlueShift.sharedInstance.dispatch_get_blueshift_queue, ^{
-            //add title, body and userinfo
-            UNMutableNotificationContent* notificationContent = [[UNMutableNotificationContent alloc] init];
-            notificationContent.title = [notification objectForKey:kNotificationTitleKey];
-            notificationContent.body =  [notification objectForKey:kNotificationBodyKey];;
-            notificationContent.sound = [notification objectForKey:kNotificationSoundIdentifierKey] ? [notification objectForKey:kNotificationSoundIdentifierKey] : [UNNotificationSound defaultSound];
-            notificationContent.categoryIdentifier = [notification objectForKey: kNotificationCategoryIdentifierKey];
-            notificationContent.userInfo = [notification mutableCopy];
-            //Create schedule date component on basis of fire date
-            NSDateComponents *fireDatecomponents = [NSCalendar.currentCalendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitTimeZone fromDate:fireDate];
-            
-            //Download image attachment if present and create attachment
-            NSURL* imageURL = [NSURL URLWithString: [notification valueForKey:kNotificationImageURLKey]];
-            if(imageURL != nil) {
-                NSData *imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
-                if(imageData) {
-                    NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
-                    NSString  *documentsDirectory = [paths objectAtIndex:0];
-                    NSString *attachmentName = [NSString stringWithFormat:kDownloadImageNameKey];
-                    NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
-                    NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
-                    NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
-                    [imageData writeToFile:filePathToWrite atomically:YES];
-                    NSError *error;
-                    UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
-                    if (error) {
-                        [BlueshiftLog logError:error withDescription:@"Failed to create image attachment for scheduling local notification" methodName:nil];
+            @try {
+                //add title, body and userinfo
+                UNMutableNotificationContent* notificationContent = [[UNMutableNotificationContent alloc] init];
+                notificationContent.title = [notification objectForKey:kNotificationTitleKey];
+                notificationContent.body =  [notification objectForKey:kNotificationBodyKey];;
+                notificationContent.sound = [notification objectForKey:kNotificationSoundIdentifierKey] ? [notification objectForKey:kNotificationSoundIdentifierKey] : [UNNotificationSound defaultSound];
+                notificationContent.categoryIdentifier = [notification objectForKey: kNotificationCategoryIdentifierKey];
+                notificationContent.userInfo = [notification mutableCopy];
+                //Create schedule date component on basis of fire date
+                NSDateComponents *fireDatecomponents = [NSCalendar.currentCalendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitTimeZone fromDate:fireDate];
+                
+                //Download image attachment if present and create attachment
+                NSURL* imageURL = [NSURL URLWithString: [notification valueForKey:kNotificationImageURLKey]];
+                if(imageURL != nil) {
+                    NSData *imageData = [[NSData alloc] initWithContentsOfURL: imageURL];
+                    if(imageData) {
+                        NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+                        NSString  *documentsDirectory = [paths objectAtIndex:0];
+                        NSString *attachmentName = [NSString stringWithFormat:kDownloadImageNameKey];
+                        NSURL *baseURL = [NSURL fileURLWithPath:documentsDirectory];
+                        NSURL *URL = [NSURL URLWithString:attachmentName relativeToURL:baseURL];
+                        NSString  *filePathToWrite = [NSString stringWithFormat:@"%@/%@", documentsDirectory, attachmentName];
+                        [imageData writeToFile:filePathToWrite atomically:YES];
+                        NSError *error;
+                        UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:attachmentName URL:URL options:nil error:&error];
+                        if (error) {
+                            [BlueshiftLog logError:error withDescription:@"Failed to create image attachment for scheduling local notification" methodName:nil];
+                        }
+                        if(attachment != nil) {
+                            NSMutableArray *attachments = [[NSMutableArray alloc]init];
+                            [attachments addObject:attachment];
+                            notificationContent.attachments = attachments;
+                        }
+                    } else {
+                        [BlueshiftLog logInfo:@"Failed to download image." withDetails:nil methodName:nil];
                     }
-                    if(attachment != nil) {
-                        NSMutableArray *attachments = [[NSMutableArray alloc]init];
-                        [attachments addObject:attachment];
-                        notificationContent.attachments = attachments;
-                    }
-                } else {
-                    [BlueshiftLog logInfo:@"Failed to download image." withDetails:nil methodName:nil];
                 }
+                //create and add trigger as fire date component
+                UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:fireDatecomponents repeats:NO];
+                UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:[[NSUUID UUID] UUIDString] content:notificationContent trigger:trigger];
+                
+                // Schedule the local notification.
+                UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+                [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+                    if (!error) {
+                        [BlueshiftLog logInfo:@"Scheduled local notification successfully - " withDetails:notification methodName:nil];
+                    } else {
+                        [BlueshiftLog logError:nil withDescription:@"Failed to schedule location notification" methodName:nil];
+                    }
+                }];
+                
+            } @catch (NSException *exception) {
+                [BlueshiftLog logException:exception withDescription:nil methodName:nil];
             }
-            //create and add trigger as fire date component
-            UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:fireDatecomponents repeats:NO];
-            UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:[[NSUUID UUID] UUIDString] content:notificationContent trigger:trigger];
-            
-            // Schedule the local notification.
-            UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-            [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-                if (!error) {
-                    [BlueshiftLog logInfo:@"Scheduled local notification successfully - " withDetails:notification methodName:nil];
-                } else {
-                    [BlueshiftLog logError:nil withDescription:@"Failed to schedule location notification" methodName:nil];
-                }
-            }];
         });
     } else {
         [self scheduleLocalNotification:notification at:fireDate];
@@ -367,22 +393,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 #pragma mark Process Push notification
-// Handles the push notification payload when the app is in killed state and lauched using push notification
-- (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
-    if (launchOptions) {
-        NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-        if (userInfo) {
-            [self processPushClickForNotification:userInfo actionIdentifer: nil];
-            return YES;
-        }
-    }
-    return NO;
-}
-
-- (void)handleRemoteNotification:(NSDictionary *)userInfo {
-    [self processPushClickForNotification:userInfo actionIdentifer: nil];
-}
-
+/// Single entry to handle silent push processing and push notifications clicks
 - (void)processSilentPushAndClicksForNotification:(NSDictionary*)userInfo applicationState:(UIApplicationState)applicationState {
     @try {
         NSDictionary *notification = [userInfo copy];
@@ -397,6 +408,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [self processPushClickForNotification:notification actionIdentifer:nil];
         }
     } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
     }
 }
 
@@ -411,19 +423,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         } else if (notification[kNotificationActions] && actionIdentifier != nil) {
             // Handle custom action buttons push notification
             notification = [self parseCustomActionPushNotification:notification forActionIdentifier:actionIdentifier];
-        } else if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: notification]) {
+        } else if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: notification] &&
+                  [actionIdentifier isEqualToString:kNotificationCarouselGotoappIdentifier] == NO) {
             // Handle Carousel push notification
-            if ([actionIdentifier isEqualToString:kNotificationCarouselGotoappIdentifier]) {
-                if (BlueShift.sharedInstance.config.carouselPushNotifcationGoToAppBehaviour == CarouselGoToAppBehaviourOpenAppWithLastDisplayedImageDeepLink) {
-                    notification = [self handleCarouselPushNotification:notification];
-                } else {
-                    [self invokeCallbackPushNotificationDidClick:notification];
-                }
-            } else {
-                notification = [self handleCarouselPushNotification:notification];
-            }
+            notification = [self handleCarouselPushNotification:notification];
         } else {
-            // Handle Title + Content & Image push notification
+            // Handle rest push notifications
             [self invokeCallbackPushNotificationDidClick:notification];
         }
         
@@ -433,6 +438,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         
         [self handleDeeplinkForPushNotification: notification];
     } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
     }
 }
 
@@ -469,7 +475,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
-#pragma mark - Handle custom push notification actions
+#pragma mark - Handle Carousel PushNotifications
 - (NSDictionary*)handleCarouselPushNotification:(NSDictionary *) userInfo {
     NSMutableDictionary *notification = [userInfo mutableCopy];
     @try {
@@ -508,12 +514,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 #pragma mark - Handle custom action button push notifications
-// entry point
-- (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
-    [self processPushClickForNotification:[notification copy] actionIdentifer:identifier];
-    completionHandler();
-}
- 
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier {
     if (userInfo && identifier) {
         NSMutableDictionary *mutableNotification = [userInfo mutableCopy];
@@ -624,11 +624,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
-- (void) forwardInvocation:(NSInvocation *)anInvocation {
+- (void)forwardInvocation:(NSInvocation *)anInvocation {
     [anInvocation invokeWithTarget:[self mainAppDelegate]];
 }
 
-#pragma mark - Tracking methods
+#pragma mark - Track App Opens
 - (void)trackAppOpenOnAppLaunch:(NSDictionary *)parameters {
     if ([BlueShift sharedInstance].config.enableAppOpenTrackEvent) {
         if ([BlueShift sharedInstance].config.automaticAppOpenTimeInterval == 0) {
@@ -668,7 +668,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
 }
 
-#pragma mark - Track Push click
+#pragma mark - Track Push clicks
 - (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
@@ -680,7 +680,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
-#pragma mark - Core Data stack
+#pragma mark - Core Data
 - (NSURL *)applicationDocumentsDirectory {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
@@ -734,6 +734,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 }
             }
         } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:nil];
         }
     }
 }
