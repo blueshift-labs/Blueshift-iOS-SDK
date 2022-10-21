@@ -1033,8 +1033,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url {
     if (url != nil) {
         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL: url];
-        if (queriesPayload && ([queriesPayload objectForKey: kInAppNotificationModalUIDKey] &&
-                        [queriesPayload objectForKey: kInAppNotificationModalMIDKey])) {
+        if ((queriesPayload && ([queriesPayload objectForKey: kInAppNotificationModalUIDKey] &&
+                        [queriesPayload objectForKey: kInAppNotificationModalMIDKey])) ||
+                        [url.absoluteString rangeOfString:kUniversalLinkShortURLKey].location != NSNotFound) {
             return true;
         }
     }
