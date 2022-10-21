@@ -21,7 +21,7 @@
 @property NSString *appGroupID;
 
 /// Check if the push notification is from Blueshift.
-/// @param notification   push notification.
+/// @param notification push notification.
 /// @returns true or false based on if push notification is from Blueshift or not.
 - (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification API_AVAILABLE(ios(10.0));
 
@@ -31,7 +31,7 @@
 - (BOOL)isBlueShiftCarouselActions:(UNNotificationResponse *)response API_AVAILABLE(ios(10.0));
 
 /// Present carousel push notification
-/// @param notification  push notification
+/// @param notification push notification
 - (void)showCarouselForNotfication:(UNNotification *)notification API_AVAILABLE(ios(10.0));
 
 /// Share the action response to SDK to process the next & prev button actions
