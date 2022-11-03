@@ -418,17 +418,17 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         NSString *pushCategory = [[notification objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
         NSString *pushUUID = [notification valueForKey:kInAppNotificationModalMessageUDIDKey];
         if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier] || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
-            [BlueshiftLog logInfo:@"Skipped processing notification due to one of the following reasons." withDetails:@"1. The push notification is silent push notification 2. The push notification click is already processed." methodName:nil];
+            [BlueshiftLog logInfo:@"Skipped processing notification due to one of the following reasons. 1. The push notification is silent push notification 2. The push notification click is already processed." withDetails:notification methodName:nil];
             return;
         } else if (notification[kNotificationActions] && actionIdentifier != nil) {
             // Handle custom action buttons push notification
             notification = [self parseCustomActionPushNotification:notification forActionIdentifier:actionIdentifier];
         } else if([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: notification] &&
                   [actionIdentifier isEqualToString:kNotificationCarouselGotoappIdentifier] == NO) {
-            // Handle Carousel push notification
+            // Handle Carousel push notification click
             notification = [self handleCarouselPushNotification:notification];
         } else {
-            // Handle rest push notifications
+            // Handle rest push notifications clicks + go to app button click
             [self invokeCallbackPushNotificationDidClick:notification];
         }
         
@@ -498,13 +498,16 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                     [notification setObject:urlString forKey:kNotificationURLElementKey];
                 }
                 [self invokeCallbackHandleCarouselPushForCategoryWithIndex:index userInfo:userInfo];
+                return notification;
             }
         } else {
-            [BlueshiftLog logInfo:@"Unable to process the deeplink as AppGroupId is not set in the Blueshift SDK initialization." withDetails:nil methodName:nil];
+            [BlueshiftLog logInfo:@"Unable to process the deeplink as AppGroupId is not set in config during Blueshift SDK initialization." withDetails:nil methodName:nil];
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to process carousel notification." methodName:nil];
     }
+    // Invoke the `pushNotificationDidClick` when image index is not availble for carousel push notification.
+    [self invokeCallbackPushNotificationDidClick:userInfo];
     return notification;
 }
 
