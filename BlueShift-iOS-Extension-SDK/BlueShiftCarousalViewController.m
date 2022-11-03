@@ -25,6 +25,8 @@
 #define kImageCornerRadius      0.0
 #define kSlideDuration          3.0f
 
+#define kNotificationSelectedIndexKey  @"selected_index"
+
 @interface BlueShiftCarousalViewController ()
 
 @property (strong, nonatomic) NSMutableArray *items;
@@ -50,14 +52,23 @@
     [self setBackgroundColor];
 }
 
-- (void)setBackgroundColor {
-    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
-}
-
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
     [self createAndConfigCarousel];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [self stopCarouselTimer];
+    self.carousel = nil;
+    // Remove saved index as user did not click on push, else it might give incorrect deep link to the push notification tile click.
+    NSUserDefaults *appGroupDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.appGroupID];
+    [appGroupDefaults removeObjectForKey:kNotificationSelectedIndexKey];
+}
+
+- (void)setBackgroundColor {
+    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -312,12 +323,6 @@
     carousel.dataSource = nil;
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    [self stopCarouselTimer];
-    self.carousel = nil;
-}
-
 - (BOOL)shouldAutorotate {
     return YES;
 }
@@ -525,7 +530,7 @@
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                   initWithSuiteName:self.appGroupID];
     NSNumber *index = [NSNumber numberWithInteger:icarousel.currentItemIndex];
-    [myDefaults setObject:index forKey:@"selected_index"];
+    [myDefaults setObject:index forKey:kNotificationSelectedIndexKey];
     [myDefaults synchronize];
 }
 
