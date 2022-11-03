@@ -55,12 +55,35 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
 }
 
+- (void)resetSDKConfig {
+    // Reset the SDK data on SDK re-initialisation
+    if (_sharedBlueShiftInstance.config) {
+        [BlueshiftLog logInfo:@"Resetting SDK config for SDK re-initialization." withDetails:nil methodName:nil];
+        
+        // Stop batchupload
+        [BlueShiftHttpRequestBatchUpload stopBatchUpload];
+
+        _sharedBlueShiftInstance.config = nil;
+        
+        // Reset URL config on SDK re-initialisation to create new config with new API key.
+        [BlueShiftRequestOperationManager.sharedRequestOperationManager resetURLSessionConfig];
+        
+        // Invalidate the in-app timer in case of SDK re-initialisation. New timer will be created on initialisation.
+        if (_inAppNotificationMananger) {
+            [_inAppNotificationMananger stopInAppMessageFetchTimer];
+            _inAppNotificationMananger = nil;
+        }
+    }
+}
+
 - (void) setupWithConfiguration:(BlueShiftConfig *)config {
     @try {
         // Validate the API key
         if ([config validateConfigDetails] == NO) {
             return ;
         }
+        
+        [self resetSDKConfig];
         
         // Set config
         _sharedBlueShiftInstance.config = config;
@@ -120,6 +143,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         // Push notification callback delegate
         if(config.blueShiftPushDelegate) {
             _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
+        } else {
+            _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = nil;
         }
                 
         // Register for Push/Silent push notifications
@@ -140,6 +165,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         // Set up Universal links delegate
         if (config.blueshiftUniversalLinksDelegate) {
             _sharedBlueShiftInstance.appDelegate.blueshiftUniversalLinksDelegate = config.blueshiftUniversalLinksDelegate;
+        } else {
+            _sharedBlueShiftInstance.appDelegate.blueshiftUniversalLinksDelegate = nil;
         }
         
         // Initialise timer for batch upload
@@ -149,6 +176,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         _inAppNotificationMananger = [[BlueShiftInAppNotificationManager alloc] init];
         if (config.inAppNotificationDelegate) {
             _inAppNotificationMananger.inAppNotificationDelegate = config.inAppNotificationDelegate;
+        } else {
+            _inAppNotificationMananger.inAppNotificationDelegate = nil;
         }
         
         if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && config.inAppManualTriggerEnabled == NO) {
@@ -195,24 +224,30 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)setupObservers {
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        [self processWillEnterForground];
-    }];
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        [self processDidEnterBackground];
-    }];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [BlueshiftLog logInfo:@"Adding obsevers for app enters foreground and background." withDetails:nil methodName:nil];
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification * _Nonnull note) {
+            [self processWillEnterForground];
+        }];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+            [self processDidEnterBackground];
+        }];
+    });
 }
 
 /// Check if the push permission status is changed when app enters foreground
 /// Also upload one batch of the batched events to Blueshift.
 - (void)processWillEnterForground {
+    [BlueshiftLog logInfo:@"Processing will enter background" withDetails:nil methodName:nil];
     [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
     [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
 }
 
 /// Upload one batch of the batched events to Blueshift when app enters background.
 - (void)processDidEnterBackground {
+    [BlueshiftLog logInfo:@"Processing did enter background" withDetails:nil methodName:nil];
     if([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)]) {
         // Initiate background single batch upload
         @try {

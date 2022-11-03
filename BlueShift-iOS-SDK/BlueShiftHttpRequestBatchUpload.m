@@ -23,20 +23,27 @@
 // this static variable is meant to show the status of the request queue ...
 
 static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+static NSTimer *_batchUploadTimer = nil;
 
 @implementation BlueShiftHttpRequestBatchUpload
 
 // Method to start batch uploading
 + (void)startBatchUpload {
     // Create timer only if tracking is enabled
-    if ([BlueShift sharedInstance].isTrackingEnabled) {
-        [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer]
-                                         target:self
-                                       selector:@selector(batchEventsUploadInBackground)
-                                       userInfo:nil
-                                        repeats:YES];
+    if ([BlueShift sharedInstance].isTrackingEnabled && _batchUploadTimer == nil) {
+        [BlueshiftLog logInfo:@"Starting the batch upload timer." withDetails:nil methodName:nil];
+        _batchUploadTimer = [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer] target:self selector:@selector(batchEventsUploadInBackground) userInfo:nil repeats:YES];
     }
 }
+
++ (void)stopBatchUpload {
+    if (_batchUploadTimer) {
+        [BlueshiftLog logInfo:@"Stopping the batch upload." withDetails:nil methodName:nil];
+        [_batchUploadTimer invalidate];
+        _batchUploadTimer = nil;
+    }
+}
+
 
 // Perform uploading task in background (inclues core data operations)
 + (void)batchEventsUploadInBackground {
@@ -156,13 +163,15 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 // Method to upload all batches
 + (void)uploadBatches {
-    [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
-        if (status) {
-            if(batches && batches.count > 0) {
-                [self uploadBatchAtIndex:0 fromBatches:batches];
+    if (BlueShift.sharedInstance.config.apiKey) {
+        [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
+            if (status) {
+                if(batches && batches.count > 0) {
+                    [self uploadBatchAtIndex:0 fromBatches:batches];
+                }
             }
-        }
-    }];
+        }];
+    }
 }
 
 // Method to upload batch
