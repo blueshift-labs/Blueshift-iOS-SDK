@@ -45,15 +45,10 @@ static NSTimer *_batchUploadTimer = nil;
 }
 
 
-// Perform uploading task in background (inclues core data operations)
+// Perform uploading task in background
 + (void)batchEventsUploadInBackground {
-    // Upload the events only if tracking is enabled
-    if ([BlueShift sharedInstance].isTrackingEnabled) {
-        [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
-    }
+    [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
 }
-
-
 
 // Method to create and upload batches
 + (void)createAndUploadBatches {
@@ -87,7 +82,7 @@ static NSTimer *_batchUploadTimer = nil;
                 NSManagedObjectContext *masterContext;
                 if (appDelegate) {
                     @try {
-                        masterContext = appDelegate.batchEventManagedObjectContext;
+                        masterContext = appDelegate.realEventManagedObjectContext;
                     }
                     @catch (NSException *exception) {
                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -333,6 +328,5 @@ static NSTimer *_batchUploadTimer = nil;
         handler(status);
     }];
 }
-
 
 @end

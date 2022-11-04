@@ -197,6 +197,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         if ([self getDeviceToken]) {
             [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];
         }
+        
+        // Send any existing cached non batch/track events to Blueshift irrespecitive of SDK Tracking enabled status
+        [BlueShiftRequestQueue processRequestsInQueue];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to initialise SDK." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
@@ -241,8 +244,12 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 /// Also upload one batch of the batched events to Blueshift.
 - (void)processWillEnterForground {
     [BlueshiftLog logInfo:@"Processing will enter background" withDetails:nil methodName:nil];
-    [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
-    [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    if ([BlueShift sharedInstance].isTrackingEnabled) {
+        [[BlueShift sharedInstance].appDelegate checkUNAuthorizationStatus];
+        // Send any pending non batch/track events to Blueshift
+        [BlueShiftRequestQueue processRequestsInQueue];
+        [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
+    }
 }
 
 /// Upload one batch of the batched events to Blueshift when app enters background.
@@ -256,6 +263,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
                 [UIApplication.sharedApplication endBackgroundTask: background_task];
                 background_task = UIBackgroundTaskInvalid;
             }];
+            //Send existing cached events to Blueshift irrespecitive of SDK Tracking enabled status
             [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
         } @catch (NSException *exception) {
         }
