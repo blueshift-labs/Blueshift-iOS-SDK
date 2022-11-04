@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler;
 - (void)deleteExpireInAppNotificationFromDataStore;
 - (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray;
-
+- (void)stopInAppMessageFetchTimer;
 @end
 
 NS_ASSUME_NONNULL_END

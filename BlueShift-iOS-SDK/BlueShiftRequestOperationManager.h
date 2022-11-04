@@ -30,4 +30,7 @@
 
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler;
 
+/// Reset URL config to re-initialize the SDK
+- (void)resetURLSessionConfig;
+
 @end
