@@ -47,8 +47,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
                 if (context) {
                     @try {
-                        NSEntityDescription *entity;
-                        entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context];
+                        NSEntityDescription *entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context];
                         if(entity != nil) {
                             [context performBlock:^{
                                 @try {

@@ -29,10 +29,11 @@
     }
     if (masterContext) {
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        context.parentContext = masterContext;
         if (context == nil) {
             return;
         }
+        context.parentContext = masterContext;
+        
         self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
         if (parameters) {
             self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
