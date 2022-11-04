@@ -207,6 +207,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 ///Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
 - (void)checkUNAuthorizationStatus {
+    //Skipping push authorization change check when tracking is disabled
+    //to not miss the automatic identify event
+    if ([BlueShift sharedInstance].isTrackingEnabled == NO) {
+        return;
+    }
     if (@available(iOS 10.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             if (@available(iOS 12.0, *)) {

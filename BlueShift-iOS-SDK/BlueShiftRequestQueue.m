@@ -26,48 +26,34 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 #pragma mark Real time events processing
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation {
     @synchronized(self) {
-        @try {
-            if(requestOperation != nil) {
-                BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-                NSManagedObjectContext *masterContext;
-                if (appDelegate) {
-                    masterContext = appDelegate.managedObjectContext;
+        if(requestOperation != nil) {
+            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+            if(appDelegate) {
+                NSString *url = requestOperation.url;
+                BlueShiftHTTPMethod httpMethod = requestOperation.httpMethod;
+                NSDictionary *parameters = requestOperation.parameters;
+                NSInteger nextRetryTimeStamp = requestOperation.nextRetryTimeStamp;
+                NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
+                BOOL isBatchEvent = requestOperation.isBatchEvent;
+                
+                if ([BlueShiftNetworkReachabilityManager networkConnected] == NO)  {
+                    isBatchEvent = YES;
                 }
-                if(masterContext) {
-                    NSEntityDescription *entity;
-                    entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:masterContext];
-                    
-                    if(entity != nil) {
-                        NSString *url = requestOperation.url;
-                        BlueShiftHTTPMethod httpMethod = requestOperation.httpMethod;
-                        NSDictionary *parameters = requestOperation.parameters;
-                        NSInteger nextRetryTimeStamp = requestOperation.nextRetryTimeStamp;
-                        NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
-                        BOOL isBatchEvent = requestOperation.isBatchEvent;
-                        
-                        if ([BlueShiftNetworkReachabilityManager networkConnected] == NO)  {
-                            isBatchEvent = YES;
-                        }
-                        // Treat all the tracking events as non-batched events to stop them from getting batched
-                        NSString *trackURL = [BlueshiftRoutes getTrackURL];
-                        if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
-                            isBatchEvent = NO;
-                        }
-                        NSManagedObjectContext *context;
-                        if (isBatchEvent) {
-                            context = appDelegate.batchEventManagedObjectContext;
-                        } else {
-                            context = appDelegate.realEventManagedObjectContext;
-                        }
-                        if (context) {
+                // Treat all the tracking events as non-batched events to stop them from getting batched
+                NSString *trackURL = [BlueshiftRoutes getTrackURL];
+                if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
+                    isBatchEvent = NO;
+                }
+                NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
+                if (context) {
+                    @try {
+                        NSEntityDescription *entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context];
+                        if(entity != nil) {
                             [context performBlock:^{
-                                HttpRequestOperationEntity *httpRequestOperationEntity;
                                 @try {
-                                    httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
-                                    
+                                    HttpRequestOperationEntity * httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
                                     if(httpRequestOperationEntity != nil) {
                                         [httpRequestOperationEntity insertEntryWithMethod:httpMethod andParameters:parameters andURL:url andNextRetryTimeStamp:nextRetryTimeStamp andRetryAttemptsCount:retryAttemptsCount andIsBatchEvent:isBatchEvent];
-                                        
                                         if(!isBatchEvent) {
                                             [BlueShiftRequestQueue processRequestsInQueue];
                                         }
@@ -77,13 +63,11 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                 }
                             }];
                         }
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
-                    
                 }
             }
-            
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
 }

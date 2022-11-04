@@ -23,20 +23,19 @@
     BlueShiftAppDelegate * appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
     if (appDelegate) {
-        masterContext = appDelegate.managedObjectContext;
+        masterContext = appDelegate.realEventManagedObjectContext;
     }
     if (masterContext) {
         NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        context.parentContext = masterContext;
         if (context == nil) {
-            return ;
+            return;
         }
-        self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
+        context.parentContext = masterContext;
         
+        self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
         if (parameters) {
             self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
         }
-        
         self.url = url;
         self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
         self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
@@ -141,8 +140,8 @@
     NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
     @synchronized(key) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-        if(appDelegate != nil && appDelegate.batchEventManagedObjectContext != nil) {
-            NSManagedObjectContext *context = appDelegate.batchEventManagedObjectContext;
+        if(appDelegate != nil) {
+            NSManagedObjectContext *context = appDelegate.realEventManagedObjectContext;
             if(context != nil) {
                 NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
                 @try {
