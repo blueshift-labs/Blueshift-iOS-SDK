@@ -27,7 +27,7 @@
 /// Stop the batch upload timer
 + (void)stopBatchUpload;
 
-/// Upload batches in backgorund just for once.
+/// Upload batches in background just for once.
 + (void)batchEventsUploadInBackground;
 
 @end

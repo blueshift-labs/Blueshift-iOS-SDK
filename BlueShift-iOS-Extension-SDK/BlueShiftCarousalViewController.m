@@ -62,7 +62,7 @@
     [super viewDidDisappear:animated];
     [self stopCarouselTimer];
     self.carousel = nil;
-    // Remove saved index as user did not click on push, else it might give incorrect deep link to the push notification tile click.
+    // Remove saved index as user did not click on image, else it might give incorrect deep link when the user clicks on push notification tile.
     NSUserDefaults *appGroupDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.appGroupID];
     [appGroupDefaults removeObjectForKey:kNotificationSelectedIndexKey];
 }

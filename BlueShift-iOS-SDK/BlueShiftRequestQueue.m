@@ -80,7 +80,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         // Gets the current NSManagedObjectContext via appDelegate
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
         if(appDelegate) {
-            // Fetche the first record from the Core Data
+            // Fetch the first record from the Core Data
             [HttpRequestOperationEntity fetchFirstRecordFromCoreDataWithCompletetionHandler:^(BOOL status, HttpRequestOperationEntity *operationEntityToBeExecuted) {
                 if(status) {
                     [self processRequestsWithContext:appDelegate.realEventManagedObjectContext forEntity:operationEntityToBeExecuted];

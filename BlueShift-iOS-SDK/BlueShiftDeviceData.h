@@ -24,7 +24,7 @@
 /// Get the push notification device token
 @property (nonatomic, strong) NSString *deviceToken;
 
-/// Get the device Identifier for the vendor
+/// Get the device identifier for the vendor
 @property (nonatomic, strong) NSString *deviceIDFV;
 
 /// Set the location information to SDK
@@ -39,7 +39,7 @@
 /// Get the device OS and version
 @property (nonatomic, strong) NSString *operatingSystem;
 
-/// Get the nertwork carrier name
+/// Get the network carrier name
 @property (nonatomic, strong) NSString *networkCarrierName;
 
 /// Get the selected device id source type
