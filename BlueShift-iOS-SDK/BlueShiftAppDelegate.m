@@ -114,12 +114,13 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"Successfully registered for remote notifications. Device token: "] withDetails:deviceTokenString methodName:nil];
         NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
+        // Send identify event after receiveing the device token for the first time & when device token changes
         if (previousDeviceToken && deviceTokenString) {
             if(![previousDeviceToken isEqualToString:deviceTokenString]) {
-                [self fireIdentifyCall];
+                [self autoIdentifyOnDeviceTokenChange];
             }
         } else if (deviceTokenString) {
-            [self fireIdentifyCall];
+            [self autoIdentifyOnDeviceTokenChange];
         }
     }
 }
@@ -138,8 +139,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     return [hexString copy];
 }
 
-// Send identify event after receiveing the device token for the first time
-- (void)fireIdentifyCall {
+- (void)autoIdentifyOnDeviceTokenChange {
     //set fireAppOpen to true on receiving device_token for very first time
     BOOL fireAppOpen = NO;
     if(![[BlueShift sharedInstance] getDeviceToken]) {
@@ -286,7 +286,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 }
 
 - (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
-    [self processPushClickForNotification:[notification copy] actionIdentifer:identifier];
+    [self processPushClickForNotification:notification actionIdentifer:[identifier copy]];
     completionHandler();
 }
 
@@ -456,9 +456,9 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             }
             if (userInfo != nil && ([userInfo objectForKey: kPushNotificationDeepLinkURLKey] ||
                                     [userInfo objectForKey: kNotificationURLElementKey])) {
-                NSURL *deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]];
-                // If clk_url is nil and identifier is nil, then check the deep link using deep_link_url key
-                if (deepLinkURL == nil) {
+                NSURL *deepLinkURL = [userInfo objectForKey: kNotificationURLElementKey] ? [NSURL URLWithString: [userInfo objectForKey: kNotificationURLElementKey]] : nil;
+                // If clk_url is nil, then check the deep link for deep_link_url key
+                if (deepLinkURL == nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey]) {
                     deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
                 }
                 [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];

@@ -25,8 +25,6 @@
 #define kImageCornerRadius      0.0
 #define kSlideDuration          3.0f
 
-#define kNotificationSelectedIndexKey  @"selected_index"
-
 @interface BlueShiftCarousalViewController ()
 
 @property (strong, nonatomic) NSMutableArray *items;
@@ -62,18 +60,22 @@
     [super viewDidDisappear:animated];
     [self stopCarouselTimer];
     self.carousel = nil;
-    // Remove saved index as user did not click on image, else it might give incorrect deep link when the user clicks on push notification tile.
-    NSUserDefaults *appGroupDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.appGroupID];
-    [appGroupDefaults removeObjectForKey:kNotificationSelectedIndexKey];
-}
-
-- (void)setBackgroundColor {
-    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)dealloc {
+    //it's a good idea to set these to nil here to avoid
+    //sending messages to a deallocated viewcontroller
+    carousel.delegate = nil;
+    carousel.dataSource = nil;
+}
+
+- (void)setBackgroundColor {
+    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
 }
 
 - (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification  API_AVAILABLE(ios(10.0)){
@@ -316,13 +318,6 @@
     return size.height;
 }
 
-- (void)dealloc {
-    //it's a good idea to set these to nil here to avoid
-    //sending messages to a deallocated viewcontroller
-    carousel.delegate = nil;
-    carousel.dataSource = nil;
-}
-
 - (BOOL)shouldAutorotate {
     return YES;
 }
@@ -530,7 +525,7 @@
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc]
                                   initWithSuiteName:self.appGroupID];
     NSNumber *index = [NSNumber numberWithInteger:icarousel.currentItemIndex];
-    [myDefaults setObject:index forKey:kNotificationSelectedIndexKey];
+    [myDefaults setObject:index forKey:@"selected_index"];
     [myDefaults synchronize];
 }
 
