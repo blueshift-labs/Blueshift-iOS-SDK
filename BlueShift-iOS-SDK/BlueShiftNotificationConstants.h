@@ -12,6 +12,7 @@
 #define kNotificationAlertIdentifierKey                                 @"alert"
 #define kNotificationCategoryIdentifierKey                              @"category"
 #define kNotificationSoundIdentifierKey                                 @"sound"
+#define kNotificationContentAvailableKey                                @"content-available"
 #define kNotificationTypeIdentifierKey                                  @"notification_type"
 #define kNotificationKey                                                @"notification"
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"

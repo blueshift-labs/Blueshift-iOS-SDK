@@ -292,7 +292,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
 #pragma mark Schedule notifications
 - (void)validateAndScheduleLocalNotification:(NSDictionary *)userInfo {
-    [BlueshiftLog logInfo:@"Schedule notification receieved." withDetails:userInfo methodName:nil];
     @try {
         NSDictionary *dataPayload = [userInfo valueForKey:kSilentNotificationPayloadIdentifierKey];
         if ([dataPayload valueForKey:kNotificationsArrayKey]) {
@@ -402,6 +401,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 - (void)processSilentPushAndClicksForNotification:(NSDictionary*)userInfo applicationState:(UIApplicationState)applicationState {
     @try {
         NSDictionary *notification = [userInfo copy];
+        [BlueshiftLog logInfo:@"Silent push notification received." withDetails:notification methodName:nil];
         if ([BlueshiftEventAnalyticsHelper isInAppSilenPushNotificationPayload: notification]) {
             // process in-app notifications silent push
             [[BlueShift sharedInstance] handleSilentPushNotification: notification forApplicationState: applicationState];
@@ -420,9 +420,10 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 - (void)processPushClickForNotification:(NSDictionary*)userInfo actionIdentifer:(NSString* _Nullable)actionIdentifier {
     @try {
         NSDictionary *notification = [userInfo copy];
-        NSString *pushCategory = [[notification objectForKey: kNotificationAPSIdentifierKey] objectForKey: kNotificationCategoryIdentifierKey];
+        NSDictionary *aps = [notification objectForKey: kNotificationAPSIdentifierKey];
+        NSNumber *isContentAvailable = aps ? (NSNumber*)[aps objectForKey: kNotificationContentAvailableKey] : nil;
         NSString *pushUUID = [notification valueForKey:kInAppNotificationModalMessageUDIDKey];
-        if ([pushCategory isEqualToString:kNotificationCategorySilentPushIdentifier] || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
+        if ([isContentAvailable boolValue] == YES || [pushUUID isEqualToString:lastProcessedPushNotificationUUID]) {
             [BlueshiftLog logInfo:@"Skipped processing notification due to one of the following reasons. 1. The push notification is silent push notification 2. The push notification click is already processed." withDetails:notification methodName:nil];
             return;
         } else if (notification[kNotificationActions] && actionIdentifier != nil) {

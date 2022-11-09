@@ -905,7 +905,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
