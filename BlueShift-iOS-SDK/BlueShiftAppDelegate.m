@@ -434,6 +434,11 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             // Handle Carousel push notification click
             notification = [self handleCarouselPushNotification:notification];
         } else {
+            // Remove the selected index of the carousel push notification
+            if ([BlueshiftEventAnalyticsHelper isCarouselPushNotificationPayload: notification]
+                && [actionIdentifier isEqualToString:kNotificationCarouselGotoappIdentifier] == YES) {
+                [self resetCarouselSelectedImageIndex];
+            }
             // Handle rest push notifications clicks + go to app button click
             [self invokeCallbackPushNotificationDidClick:notification];
         }
@@ -493,7 +498,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [BlueshiftLog logInfo:[NSString stringWithFormat: @"Clicked image index for carousel push notification : %@",clickedImageIndex] withDetails:nil methodName:nil];
             
             if (clickedImageIndex != nil) {
-                [self resetUserDefaults: userDefaults];
+                [self resetCarouselSelectedImageIndex];
                 
                 NSInteger index = [clickedImageIndex integerValue];
                 index = (index > 0) ? index : 0;
@@ -517,9 +522,14 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     return notification;
 }
 
-- (void)resetUserDefaults:(NSUserDefaults *)userDefaults {
-    [userDefaults removeObjectForKey:kNotificationSelectedIndexKey];
-    [userDefaults synchronize];
+- (void)resetCarouselSelectedImageIndex {
+    NSString *appGroupID = [BlueShift sharedInstance].config.appGroupID;
+    if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:appGroupID]) {
+        NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
+        // Remove clicked image index from the shared UserDefaults
+        [userDefaults removeObjectForKey:kNotificationSelectedIndexKey];
+        [userDefaults synchronize];
+    }
 }
 
 #pragma mark - Handle custom action button push notifications
