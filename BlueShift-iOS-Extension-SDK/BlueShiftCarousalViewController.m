@@ -50,19 +50,32 @@
     [self setBackgroundColor];
 }
 
-- (void)setBackgroundColor {
-    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
-}
-
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
     [self createAndConfigCarousel];
 }
 
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [self stopCarouselTimer];
+    self.carousel = nil;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)dealloc {
+    //it's a good idea to set these to nil here to avoid
+    //sending messages to a deallocated viewcontroller
+    carousel.delegate = nil;
+    carousel.dataSource = nil;
+}
+
+- (void)setBackgroundColor {
+    self.view.backgroundColor = [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.0];;
 }
 
 - (BOOL)isBlueShiftCarouselPushNotification:(UNNotification *)notification  API_AVAILABLE(ios(10.0)){
@@ -303,19 +316,6 @@
     
     size = CGSizeMake(ceil(boundingBox.width), ceil(boundingBox.height));
     return size.height;
-}
-
-- (void)dealloc {
-    //it's a good idea to set these to nil here to avoid
-    //sending messages to a deallocated viewcontroller
-    carousel.delegate = nil;
-    carousel.dataSource = nil;
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    [self stopCarouselTimer];
-    self.carousel = nil;
 }
 
 - (BOOL)shouldAutorotate {

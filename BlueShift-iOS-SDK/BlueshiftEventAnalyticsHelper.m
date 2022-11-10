@@ -128,7 +128,7 @@
     }
 }
 
-+ (BOOL) isSilenPushNotificationPayload: (NSDictionary*)userInfo {
++ (BOOL) isInAppSilenPushNotificationPayload: (NSDictionary*)userInfo {
     BOOL isSilenPushNotificationPayload = false;
     if (userInfo) {
         NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];

@@ -25,12 +25,10 @@ static BlueShiftBatchUploadConfig *_sharedInstance = nil;
     return _sharedInstance;
 }
 
-// Method to set intervell timer (in seconds)
 - (void)setBatchUploadTimer:(double)batchUploadTimer {
     _batchUploadTimer = batchUploadTimer;
 }
 
-// Method to get intervell timer
 - (double)fetchBatchUploadTimer {
     if(_batchUploadTimer > 0) {
         return _batchUploadTimer;

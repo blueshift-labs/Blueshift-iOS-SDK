@@ -13,7 +13,6 @@
 #import <UIKit/UIKit.h>
 #import "BlueShift.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftDeepLink.h"
 #import "BlueShiftPushParamDelegate.h"
 #import <CoreData/CoreData.h>
 #import "BlueShiftTrackEvents.h"
@@ -22,50 +21,65 @@
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate>
 
-@property NSDictionary * _Nullable userInfo;
-@property NSDictionary * _Nullable pushAlertDictionary;
+@property NSDictionary * _Nullable userInfo DEPRECATED_MSG_ATTRIBUTE("This property will be removed in upcoming releases");
+@property NSDictionary * _Nullable pushAlertDictionary DEPRECATED_MSG_ATTRIBUTE("This property will be removed in upcoming releases");
 @property NSObject<UIApplicationDelegate> * _Nonnull mainAppDelegate;
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
-@property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate;
+@property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate DEPRECATED_MSG_ATTRIBUTE("Use BlueShiftPushDelegate to get the push notification callbacks.");
 @property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
-@property BlueShiftDeepLink * _Nullable deepLinkToProductPage;
-@property BlueShiftDeepLink * _Nullable deepLinkToCartPage;
-@property BlueShiftDeepLink * _Nullable deepLinkToOfferPage;
-@property BlueShiftDeepLink * _Nullable deepLinkToCustomPage;
 - (NSURL *_Nullable)applicationDocumentsDirectory;
 
 /// initialise core data objects
 - (void)initializeCoreData;
+
 - (NSManagedObjectContext * _Nullable)managedObjectContext;
 - (NSManagedObjectContext * _Nullable)realEventManagedObjectContext;
 - (NSManagedObjectContext * _Nullable)batchEventManagedObjectContext;
 
 /// Calling this method will register for push notifications. It will show a push permission dialog to the user.
+/// It is highly recommended to register for push notifications using the SDK method.
+/// SDK takes care of registering the categories for carousel and custom action button push notifications.
 - (void)registerForNotification;
+
+/// SDK registers for silent push notfications automatically if the push permission is delayed or denied.
 - (void)registerForSilentPushNotification;
 
-- (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *_Nullable)launchOptions;
 - (NSString *_Nullable)hexadecimalStringFromData:(NSData *_Nullable)data;
 
 /// Share the device token with the SDK by calling this method inside `didRegisterForRemoteNotificationsWithDeviceToken` method.
 - (void)registerForRemoteNotification:(NSData *_Nullable)deviceToken;
+
 - (void)failedToRegisterForRemoteNotificationWithError:(NSError *_Nonnull)error;
 
-/// Call this method inside `application:didReceiveRemoteNotification` method of appDelegate. SDK will process the received push notification
+/// Call this method inside `application: didReceiveRemoteNotification:` method of appDelegate. SDK will process the received push notification
+/// to perform required tasks.
+- (void)application:(UIApplication *_Nonnull)application handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
+
+- (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UNNotificationRequest *)notification API_AVAILABLE(ios(10.0)) DEPRECATED_MSG_ATTRIBUTE("Handle the notifications using the UNUserNotificationCenter.");
+
+/// Call this method inside `application:didReceiveRemoteNotification:fetchCompletionHandler` method of appDelegate. SDK will process the received push notification
 /// to perform required tasks.
 - (void)handleRemoteNotification:(NSDictionary *_Nonnull)userInfo forApplication:(UIApplication *_Nonnull)application fetchCompletionHandler:(void (^_Nonnull)(UIBackgroundFetchResult result))handler;
 
-- (void)application:(UIApplication *_Nonnull)application handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
-- (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UNNotificationRequest *)notification API_AVAILABLE(ios(10.0));
+/// Handles the push notification payload when the app is in killed state and lauched using push notification
+- (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *_Nullable)launchOptions;
+
 - (void)handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
+
 - (void)handleActionWithIdentifier: (NSString *_Nonnull)identifier forRemoteNotification:(NSDictionary *_Nonnull)notification completionHandler: (void (^_Nonnull)(void)) completionHandler;
 
-- (void)appDidEnterBackground:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
-- (void)appDidBecomeActive:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app becomes active, this method will be removed in upcoming releases.");
-
+/// This method is to process the universal link received by the app. The SDK will process the deep link to perform a click
+/// and share the original link to the app using the `BlueshiftUniversalLinksDelegate` delegate methods.
+/// Call this method inside `application: continue userActivity: restorationHandler:` method of appDelegate class.
+/// @param activity userActivity object
 - (void)handleBlueshiftUniversalLinksForActivity:(NSUserActivity *_Nonnull)activity API_AVAILABLE(ios(8.0));
+
+/// This method is to process the universal link received by the app. The SDK will process the deep link to perform a click
+/// and share the original link to the app using the `BlueshiftUniversalLinksDelegate` delegate methods.
+/// Call this method inside `application: continue userActivity: restorationHandler:` method of appDelegate class.
+/// @param url received universal link url
 - (void)handleBlueshiftUniversalLinksForURL:(NSURL *_Nonnull)url  API_AVAILABLE(ios(8.0));
 
 /// Track `app_open` by manually calling this method from the host application
@@ -75,11 +89,7 @@
 /// @discussion The automatic app_open events can be throttled by setting time interval in secods to config.automaticAppOpenTimeInterval.
 - (void)trackAppOpenOnAppLaunch:(NSDictionary *_Nullable)parameters;
 
-// SceneDelegate lifecycle methods
-- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
-- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
-
-/// Update current UNAuthorizationStatus in BlueshiftAppData on app launch and on app didBecomeActive
+/// SDK tracks the push authorization status automatically by calling this method at the time of SDK initialisation and updates Blueshift server.
 - (void)checkUNAuthorizationStatus;
 
 /// Get last modified status of the push notification authorization.
@@ -91,6 +101,12 @@
 /// @param identifier action identifier
 /// @return returns a dictionary with the values for deep link URL and the clicked button name. Use key `clk_url` to get the deep link URL and use `clk_elmt` to get button name from the dictionary.
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier;
+
+// SceneDelegate lifecycle methods
+- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
+- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
+- (void)appDidEnterBackground:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
+- (void)appDidBecomeActive:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app becomes active, this method will be removed in upcoming releases.");
 
 @end
 #endif

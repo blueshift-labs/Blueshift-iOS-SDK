@@ -10,7 +10,6 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftDeepLink.h"
 #import "BlueShiftPushParamDelegate.h"
 #import "BlueShiftNetworkReachabilityManager.h"
 #import "BlueShiftSubscriptionState.h"

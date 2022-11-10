@@ -15,7 +15,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 @implementation BlueShiftRequestOperationManager
 
-// Method to get the shared instance for BlueShiftOperationManager ...
+// Method to get the shared instance for BlueShiftOperationManager
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -29,7 +29,6 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     self.mainURLSession = nil;
 }
 
-// Method to add Basic authentication request Header ...
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
     if(self.sessionConfiguraion) {
         return;

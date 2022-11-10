@@ -14,16 +14,12 @@
 
 @interface HttpRequestOperationEntity : NSManagedObject
 
-// property to hold the type of httpMethod as NSNumber in Core Data.
 @property (nonatomic, retain) NSNumber * httpMethodNumber;
 
-// property to hold the parameter as encrypted NSData.
 @property (nonatomic, retain) NSData * parameters;
 
-// Batch event or real time event
 @property BOOL isBatchEvent;
 
-// property to hold the request url
 @property (nonatomic, retain) NSString * url;
 
 @property (nonatomic, retain) NSNumber *retryAttemptsCount;
@@ -32,16 +28,15 @@
 
 @property double createdAt;
 
-// Method to insert Entry for a particular request operation in core data
+/// Insert a record in HttpRequestOperationEntity
 - (void)insertEntryWithMethod:(BlueShiftHTTPMethod)httpMethod andParameters:(NSDictionary *)parameters andURL:(NSString *)url andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount andIsBatchEvent:(BOOL) isBatchEvent;
 
-// Method to return the httpMethod type as BlueShiftHTTPMethod enum
 - (BlueShiftHTTPMethod)httpMethod;
 
-// Method to return the first record from Core Data
+/// Fetch first record from HttpRequestOperationEntity
 + (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler;
 
-// Method to return the batch records from Core Data
+/// Fetch all the batch records from HttpRequestOperationEntity
 + (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
 
 /// Erase all the non synced batched and non-batched events from the HttpRequestOperation Entity of SDK database

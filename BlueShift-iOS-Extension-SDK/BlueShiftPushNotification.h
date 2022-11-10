@@ -21,7 +21,7 @@ API_AVAILABLE(ios(10.0))
 /// This variable is deprecated and will  be removed in the future release.
 @property NSString *apiKey DEPRECATED_MSG_ATTRIBUTE("Extension SDK no longer requires the API key and this variable will be removed in the future SDK release.");
 
-/// The SDK will no longer use the app group id for firing the push `delivered` event, so there is no need of setting appGroupId value.
+/// The SDK will no longer use the app group id for firing the push `delivered` event, so there is no need of setting appGroupId value here.
 /// Blueshift will now provide the push delivery stats based on the APNS's response.
 /// This variable is deprecated and will  be removed in the future release.
 @property NSString* appGroupId DEPRECATED_MSG_ATTRIBUTE("This variable is deprecated and will be removed in the future SDK release.");

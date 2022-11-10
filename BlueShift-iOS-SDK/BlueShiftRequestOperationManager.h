@@ -18,16 +18,19 @@
 @property NSURLSessionConfiguration *sessionConfiguraion;
 @property NSURLSession *replayURLSesion;
 
-// Method to get the shared instance for BlueShiftOperationManager ...
+/// Get the shared instance for BlueShiftOperationManager
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager;
 
+/// To execute the POST requests like event, bulkevents API calls
 - (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler;
 
+/// To execute the GET request like tracking API calls
 - (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary*, NSError*))handler;
 
-// Method to add Basic authentication request Header ...
+/// Add Basic authentication to Header
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password;
 
+/// Replay the universal link to perform a click and get the original URL.
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler;
 
 /// Reset URL config to re-initialize the SDK

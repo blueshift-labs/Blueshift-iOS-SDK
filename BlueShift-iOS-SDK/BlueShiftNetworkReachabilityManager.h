@@ -10,7 +10,7 @@
 
 @interface BlueShiftNetworkReachabilityManager : NSObject
 
-// Method to check whether internet is connected ...
+/// Check whether internet is connected
 + (BOOL)networkConnected;
 
 @end

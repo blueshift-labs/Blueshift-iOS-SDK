@@ -137,16 +137,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             }
         }
         
-        // Initialize custom deeplinks
-        [self initDeepLinks];
-        
         // Push notification callback delegate
         if(config.blueShiftPushDelegate) {
             _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = config.blueShiftPushDelegate;
         } else {
             _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = nil;
         }
-                
+        
         // Register for Push/Silent push notifications
         if (config.enablePushNotification == YES) {
             [_sharedBlueShiftInstance.appDelegate registerForNotification];
@@ -268,23 +265,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         } @catch (NSException *exception) {
         }
     }
-}
-
-- (void)initDeepLinks {
-    
-    BlueShiftDeepLink *deepLink;
-    
-    // map newly allocated deeplink instance to product page route ...
-    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkRouteProductPage andNSURL:self.config.productPageURL];
-    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteProductPage];
-    
-    // map newly allocated deeplink instance to cart page route ...
-    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkRouteCartPage andNSURL:self.config.cartPageURL];
-    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteCartPage];
-    
-    // map newly allocated deeplink instance to cart page route ...
-    deepLink = [[BlueShiftDeepLink alloc] initWithLinkRoute:BlueShiftDeepLinkRouteOfferPage andNSURL:self.config.offerPageURL];
-    [BlueShiftDeepLink mapDeepLink:deepLink toRoute:BlueShiftDeepLinkRouteOfferPage];
 }
 
 - (void) setPushDelegate:(id)delegate {
@@ -925,7 +905,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
-    [BlueshiftLog logInfo:@"Silent push notification received - " withDetails:dictionary methodName:nil];
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             [self fetchInAppNotificationFromAPI:^() {
