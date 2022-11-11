@@ -409,8 +409,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             // process scheuled type push notifications
             [self validateAndScheduleLocalNotification:notification];
         } else {
-            // process push notification click
-            [self processPushClickForNotification:notification actionIdentifer:nil];
+            if(@available(iOS 10, *)) {
+                // Placeholder to not handle silent push clicks from iOS 10 onwards.
+            } else {
+                // process push notification click for iOS 9
+                [self processPushClickForNotification:notification actionIdentifer:nil];
+            }
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:nil];
