@@ -10,50 +10,6 @@
 
 @implementation BlueShiftPushNotificationSettings
 
-- (UIMutableUserNotificationCategory *)buyCategory  API_AVAILABLE(ios(8.0)){
-    UIMutableUserNotificationAction *buyAction;
-    buyAction = [[UIMutableUserNotificationAction alloc] init];
-    [buyAction setActivationMode:UIUserNotificationActivationModeForeground];
-    [buyAction setTitle:@"Buy"];
-    [buyAction setIdentifier:kNotificationActionBuyIdentifier];
-    [buyAction setDestructive:NO];
-    [buyAction setAuthenticationRequired:NO];
-    
-    UIMutableUserNotificationAction *viewAction;
-    viewAction = [[UIMutableUserNotificationAction alloc] init];
-    [viewAction setActivationMode:UIUserNotificationActivationModeForeground];
-    [viewAction setTitle:@"View"];
-    [viewAction setIdentifier:kNotificationActionViewIdentifier];
-    [viewAction setDestructive:NO];
-    [viewAction setAuthenticationRequired:NO];
-    
-    UIMutableUserNotificationCategory *buyCategory;
-    buyCategory = [[UIMutableUserNotificationCategory alloc] init];
-    [buyCategory setIdentifier:kNotificationCategoryBuyIdentifier];
-    [buyCategory setActions:@[buyAction, viewAction]
-                 forContext:UIUserNotificationActionContextDefault];
-    
-    return buyCategory;
-}
-
-- (UIMutableUserNotificationCategory *)viewCartCategory  API_AVAILABLE(ios(8.0)){
-    UIMutableUserNotificationAction *openCartAction;
-    openCartAction = [[UIMutableUserNotificationAction alloc] init];
-    [openCartAction setActivationMode:UIUserNotificationActivationModeForeground];
-    [openCartAction setTitle:@"Open Cart"];
-    [openCartAction setIdentifier:kNotificationActionOpenCartIdentifier];
-    [openCartAction setDestructive:NO];
-    [openCartAction setAuthenticationRequired:NO];
-    
-    UIMutableUserNotificationCategory *viewCartCategory;
-    viewCartCategory = [[UIMutableUserNotificationCategory alloc] init];
-    [viewCartCategory setIdentifier:kNotificationCategoryViewCartIdentifier];
-    [viewCartCategory setActions:@[openCartAction]
-                      forContext:UIUserNotificationActionContextDefault];
-    
-    return viewCartCategory;
-}
-
 - (UIMutableUserNotificationCategory *)carouselCategory  API_AVAILABLE(ios(8.0)){
     NSString *nextHtmlString = @"&#9654;&#9654;";
     NSData *nextStringData = [nextHtmlString dataUsingEncoding:NSUTF8StringEncoding];
@@ -159,7 +115,7 @@
 }
 
 - (NSSet *)notificationCategories {
-    return [NSSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
+    return [NSSet setWithObjects: self.carouselCategory, self.carouselAnimationCategory, nil];
 }
 
 - (UIUserNotificationType)notificationTypes  API_AVAILABLE(ios(8.0)){

@@ -12,16 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BlueShiftPushDelegate <NSObject>
 
 @optional
-- (void)buyPushActionWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Buy category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)viewPushActionWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("View category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)openCartPushActionWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Open cart category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)handlePushActionForIdentifier:(NSString *)identifier withDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in future. Use `pushNotificationDidClick:(NSDictionary *)payload forActionIdentifier:(NSString *)identifier` method instead.");
-
-- (void)buyCategoryPushClickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Buy category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)cartViewCategoryPushClickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Cart view category is deprecated and will be removed in future. Use custom actionable push notifications instead.");
-- (void)promotionCategoryPushClickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("Promotion category is deprecated and will be removed in future. Use `pushNotificationDidClick:(NSDictionary *)payload` method instead.");
-- (void)handleCustomCategory:(NSString *)categroyName clickedWithDetails:(NSDictionary *)details DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in future. Use `pushNotificationDidClick:(NSDictionary *)payload` method instead.");
-
+/// This is a SDK hook/callback for the click event of carousel push notification. This method will be called when user clicks on any of the carousel push notification images.
+/// This delegate method will not be called for carousel push notification when user clicks on push notification tile before expanding it or clicks on the `go to app` button.
+/// @param categoryName carousel push notification category name, carousel or carousel_animation.
+/// @param index clicked image index
+/// @param details push notification payload
+/// @note The index can be used to get the deep link and image from the carousel_elements object of push payload.
 - (void)handleCarouselPushForCategory:(NSString *)categoryName clickedWithIndex:(NSInteger)index withDetails:(NSDictionary *)details;
 
 
@@ -32,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)pushNotificationDidClick:(NSDictionary * _Nullable)payload forActionIdentifier:(NSString * _Nullable)identifier;
 
 /// This is a SDK hook/callback for the push notification click event.
+/// This delegate method will be called for title + content, image, GIF, Video push notification click. This method will be called also for carousel push notification  or custom action type push notification click on the tile before expanding it and for the carousel `go to app` button click.
 /// @param payload push notification payload
 /// @discussion When SDK processes a push notification click/action, it invokes this callback method and shares the push notification payload.
 - (void)pushNotificationDidClick:(NSDictionary * _Nullable)payload;

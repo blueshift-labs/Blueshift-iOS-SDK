@@ -56,9 +56,8 @@
             // If link inside the clk_url is valid, then consider it as deep link.
             if(urlElement) {
                 pushDeepLinkURL = urlElement;
-            } else if (!pushDetailsDictionary[kNotificationActions]) {
-                // Check if the push is not actionable type,
-                // then reassign url from pushDetailsDictionary for key deep_link_url
+            } else {
+                // if clk_url is not present, then get the deep link from pushDetailsDictionary for key deep_link_url
                 pushDeepLinkURL = [self getValueBykey: pushDetailsDictionary andKey: kPushNotificationDeepLinkURLKey];
             }
             // If not nil, encode and add to track dictionary
@@ -128,7 +127,7 @@
     }
 }
 
-+ (BOOL) isSilenPushNotificationPayload: (NSDictionary*)userInfo {
++ (BOOL) isInAppSilenPushNotificationPayload: (NSDictionary*)userInfo {
     BOOL isSilenPushNotificationPayload = false;
     if (userInfo) {
         NSDictionary *dataPayload =  [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey];

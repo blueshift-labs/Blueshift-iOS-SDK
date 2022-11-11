@@ -12,23 +12,6 @@
 
 @implementation BlueShiftUserNotificationSettings
 
-- (UNNotificationCategory *)buyCategory  API_AVAILABLE(ios(10.0)){
-    UNNotificationAction *buyAction = [UNNotificationAction actionWithIdentifier:kNotificationActionBuyIdentifier title:@"Buy" options:UNNotificationActionOptionForeground];
-    UNNotificationAction *viewAction = [UNNotificationAction actionWithIdentifier:kNotificationActionViewIdentifier title:@"View" options:UNNotificationActionOptionForeground];
-    
-    UNNotificationCategory *buyCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCategoryBuyIdentifier actions:@[buyAction, viewAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-    
-    return buyCategory;
-}
-
-- (UNNotificationCategory *)viewCartCategory  API_AVAILABLE(ios(10.0)){
-    UNNotificationAction *openCartAction = [UNNotificationAction actionWithIdentifier:kNotificationActionOpenCartIdentifier title:@"Open Cart" options:UNNotificationActionOptionForeground];
-    
-    UNNotificationCategory *viewCartCategory = [UNNotificationCategory categoryWithIdentifier:kNotificationCategoryViewCartIdentifier actions:@[openCartAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
-    
-    return viewCartCategory;
-}
-
 - (UNNotificationCategory *)carouselCategory  API_AVAILABLE(ios(10.0)){
     if (@available(iOS 15,*)) {
         UNNotificationActionIcon * nextIcon = [UNNotificationActionIcon iconWithSystemImageName:@"forward.fill"];
@@ -75,7 +58,7 @@
 }
 
 - (NSSet *)notificationCategories {
-    NSMutableSet *categories = [NSMutableSet setWithObjects:self.buyCategory, self.viewCartCategory, self.carouselCategory, self.carouselAnimationCategory, nil];
+    NSMutableSet *categories = [NSMutableSet setWithObjects: self.carouselCategory, self.carouselAnimationCategory, nil];
     if ([BlueShift sharedInstance].config.customCategories) {
         return [categories setByAddingObjectsFromSet:[BlueShift sharedInstance].config.customCategories];
     }

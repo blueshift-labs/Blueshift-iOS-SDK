@@ -15,11 +15,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary;
 + (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
-+ (BOOL) isSilenPushNotificationPayload:(NSDictionary*)userInfo;
+
+/// Check if the payload is InApp silent push notification
++ (BOOL)isInAppSilenPushNotificationPayload:(NSDictionary*)userInfo;
+
+/// Check if the push notification is of Carousel type
 + (BOOL)isCarouselPushNotificationPayload:(NSDictionary *)userInfo;
+
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)url;
+
 + (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
 + (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
+
 + (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;
 
 /// Returns current UTC timestamp with format 2020-12-14T13:35:34.034000Z
@@ -27,7 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Check for nil and add the key value to the given dictionary
 + (void)addToDictionary:(NSMutableDictionary*)dictionary key:(NSString*)key value:(id)value;
-
 
 /// Checks if the string is not nil and not empty
 /// @param string  string value to check

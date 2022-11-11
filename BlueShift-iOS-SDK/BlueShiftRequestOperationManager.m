@@ -15,7 +15,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 @implementation BlueShiftRequestOperationManager
 
-// Method to get the shared instance for BlueShiftOperationManager ...
+// Method to get the shared instance for BlueShiftOperationManager
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -24,7 +24,11 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     return _sharedRequestOperationManager;
 }
 
-// Method to add Basic authentication request Header ...
+- (void)resetURLSessionConfig {
+    self.sessionConfiguraion = nil;
+    self.mainURLSession = nil;
+}
+
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
     if(self.sessionConfiguraion) {
         return;
@@ -71,6 +75,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 - (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
+        handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
+    }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
         _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
@@ -105,6 +113,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 - (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+    if (![BlueShift sharedInstance].config.apiKey) {
+        [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
+        handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
+    }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
         _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];

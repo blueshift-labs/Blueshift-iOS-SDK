@@ -115,7 +115,6 @@
     if (nil != masterContext && nil != privateContext) {
         NSManagedObjectContext *context = privateContext;
         context.parentContext = masterContext;
-        // return if context is unavailable ...
         if (context == nil || masterContext == nil) {
             handler(NO);
             return;

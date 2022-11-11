@@ -20,41 +20,40 @@
 
 @end
 
-// this static variable is meant to show the status of the request queue ...
-
+// Shows the status of the batch upload request queue
 static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
+static NSTimer *_batchUploadTimer = nil;
 
 @implementation BlueShiftHttpRequestBatchUpload
 
-// Method to start batch uploading
 + (void)startBatchUpload {
     // Create timer only if tracking is enabled
-    if ([BlueShift sharedInstance].isTrackingEnabled) {
-        [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer]
-                                         target:self
-                                       selector:@selector(batchEventsUploadInBackground)
-                                       userInfo:nil
-                                        repeats:YES];
+    if ([BlueShift sharedInstance].isTrackingEnabled && _batchUploadTimer == nil) {
+        [BlueshiftLog logInfo:@"Starting the batch upload timer." withDetails:nil methodName:nil];
+        _batchUploadTimer = [NSTimer scheduledTimerWithTimeInterval:[[BlueShiftBatchUploadConfig sharedInstance] fetchBatchUploadTimer] target:self selector:@selector(batchEventsUploadInBackground) userInfo:nil repeats:YES];
     }
 }
 
-// Perform uploading task in background (inclues core data operations)
++ (void)stopBatchUpload {
+    if (_batchUploadTimer) {
+        [BlueshiftLog logInfo:@"Stopping the batch upload." withDetails:nil methodName:nil];
+        [_batchUploadTimer invalidate];
+        _batchUploadTimer = nil;
+    }
+}
+
+
+// Perform batch upload task in background
 + (void)batchEventsUploadInBackground {
-    // Upload the events only if tracking is enabled
-    if ([BlueShift sharedInstance].isTrackingEnabled) {
-        [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
-    }
+    [self performSelectorInBackground:@selector(createAndUploadBatches) withObject:nil];
 }
 
-
-
-// Method to create and upload batches
+// Create and upload batches
 + (void)createAndUploadBatches {
     [self createBatches];
     [self uploadBatches];
 }
 
-// Method to create batches
 + (void)createBatches {
     @synchronized(self) {
         [HttpRequestOperationEntity fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *results) {
@@ -80,7 +79,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 NSManagedObjectContext *masterContext;
                 if (appDelegate) {
                     @try {
-                        masterContext = appDelegate.batchEventManagedObjectContext;
+                        masterContext = appDelegate.realEventManagedObjectContext;
                     }
                     @catch (NSException *exception) {
                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -147,25 +146,24 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     }
 }
 
-
-// Method to create a batch
 + (void)createBatch:(NSArray *)paramsArray {
     BlueShiftBatchRequestOperation *requestOperation = [[BlueShiftBatchRequestOperation alloc] initParametersList:paramsArray andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0];
     [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
 }
 
-// Method to upload all batches
+// Upload all batches one by one
 + (void)uploadBatches {
-    [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
-        if (status) {
-            if(batches && batches.count > 0) {
-                [self uploadBatchAtIndex:0 fromBatches:batches];
+    if (BlueShift.sharedInstance.config.apiKey) {
+        [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
+            if (status) {
+                if(batches && batches.count > 0) {
+                    [self uploadBatchAtIndex:0 fromBatches:batches];
+                }
             }
-        }
-    }];
+        }];
+    }
 }
 
-// Method to upload batch
 + (void)uploadBatchAtIndex:(int)index fromBatches:(NSArray *)batches {
     if(index == batches.count) {
         return;
@@ -180,9 +178,8 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 + (void) processRequestsInQueue:(BatchEventEntity *)batchEvent completetionHandler:(void (^)(BOOL))handler {
     @synchronized(self) {
-        // Will execute the code when the requestQueue is free / available and internet is connected ...
+        // Process requet when requestQueue and internet is available
         if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
-            // Gets the current NSManagedObjectContext via appDelegate ...
             BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
             if(appDelegate) {
                 NSManagedObjectContext *context;
@@ -193,22 +190,19 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                     [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                 }
                 if(context != nil) {
-                    // Only handles when the fetched record is not nil ...
-                    
                     BlueShiftBatchRequestOperation *requestOperation = [[BlueShiftBatchRequestOperation alloc]initWithBatchRequestOperationEntity:batchEvent];
                     
                     if (requestOperation != nil) {
-                        // requestQueue status is made busy ...
-                        
+                        // Set request queue to busy to process it
                         _requestQueueStatus = BlueShiftRequestQueueStatusBusy;
                         
-                        // Performs the request operation ...
+                        // Performs the request operation
                         [BlueShiftHttpRequestBatchUpload performRequestOperation:requestOperation  completetionHandler:^(BOOL status) {
                             if (status == YES) {
-                                // delete batch records for the request operation if it is successfully executed ...
+                                // delete batch records for the request operation if it is successfully executed
                                 [BlueShiftHttpRequestBatchUpload deleteBatchRecords:batchEvent context:context completetionHandler:handler];
                             } else {
-                                // Request is not executed due to some reasons ...
+                                // Retry the request when fails
                                 [BlueShiftHttpRequestBatchUpload handleRetryBatchUpload:batchEvent context:context requestOperation:requestOperation completetionHandler:handler];
                             }
                         }];
@@ -251,11 +245,11 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 + (void) handleRetryBatchUpload:(BatchEventEntity *)batchEvent context:(NSManagedObjectContext*)context requestOperation: (BlueShiftBatchRequestOperation*)requestOperation completetionHandler:(void (^)(BOOL))handler {
-    // Request is not executed due to some reasons ...
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
                 @try {
+                    // Delete the existing record
                     [context deleteObject:batchEvent];
                     NSError *saveError = nil;
                     if(context) {
@@ -263,8 +257,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                         NSInteger retryAttemptsCount = requestOperation.retryAttemptsCount;
                         requestOperation.retryAttemptsCount = retryAttemptsCount - 1;
                         requestOperation.nextRetryTimeStamp = [[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970];
-                        
-                        // request record is removed successfully from core data ...
+                        // Add a new entry if eligible, with modified retry attempt and timestamp
                         if (requestOperation.retryAttemptsCount > 0) {
                             [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
                             [self retryBatchUpload];
@@ -291,7 +284,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 
-// Method to retry batch uploading
+// Schedule the retry batch upload
 + (void)retryBatchUpload {
     [NSTimer scheduledTimerWithTimeInterval:kRequestRetryMinutesInterval * 60
                                      target:self
@@ -300,7 +293,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                                     repeats:NO];
 }
 
-// Perform uploading task in background (inclues core data operations)
+// Perform retry batch upload task in background
 + (void)retryBatchEventsUploadInBackground {
     if ([BlueShift sharedInstance].isTrackingEnabled) {
         [self performSelectorInBackground:@selector(uploadBatches) withObject:nil];
@@ -308,8 +301,6 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 + (void)performRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {
-    
-    // get the request operation details ...
     NSString *url = [BlueshiftRoutes getBulkEventsURL];
     
     NSMutableArray *parametersArray = (NSMutableArray*)requestOperation.paramsArray;
@@ -318,12 +309,9 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
         return;
     }
     NSDictionary *paramsDictionary = @{@"events": parametersArray};
-    // perform executions based on the request operation http method ...
-    
     [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:paramsDictionary completetionHandler:^(BOOL status, NSDictionary* response, NSError *error) {
         handler(status);
     }];
 }
-
 
 @end

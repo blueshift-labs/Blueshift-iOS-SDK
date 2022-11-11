@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
-#import "BlueShiftDeepLink.h"
 #import "BlueShiftUserInfo.h"
 #import "BlueShiftPushDelegate.h"
 #import "BlueShiftInAppNotificationDelegate.h"
@@ -40,10 +39,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// SDK uses the launchOptions to track if the app is launched from push notification, if yes, then SDK sends the push click event and delivers the associated deep link url to the app.
 /// It is highly recommended to set the launchOptions to the SDK.
 @property NSDictionary * _Nonnull applicationLaunchOptions;
-
-@property NSURL * _Nullable productPageURL DEPRECATED_MSG_ATTRIBUTE("productPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
-@property NSURL * _Nullable cartPageURL DEPRECATED_MSG_ATTRIBUTE("cartPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
-@property NSURL * _Nullable offerPageURL DEPRECATED_MSG_ATTRIBUTE("offerPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
 
 /// Set this property to false in order to stop SDK from registering for silent(background) push notifications.
 /// @discussion SDK registers for silent push notifications in order to receive the in-app notifications when user has not asked for push permission
