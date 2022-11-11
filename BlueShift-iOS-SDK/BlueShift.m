@@ -71,6 +71,10 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         // Invalidate the in-app timer in case of SDK re-initialisation. New timer will be created on initialisation.
         if (_inAppNotificationMananger) {
             [_inAppNotificationMananger stopInAppMessageFetchTimer];
+            // Close any active in-app
+            if (_inAppNotificationMananger.currentNotificationController) {
+                [_inAppNotificationMananger.currentNotificationController hide:YES];
+            }
             _inAppNotificationMananger = nil;
         }
     }
