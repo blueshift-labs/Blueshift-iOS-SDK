@@ -145,7 +145,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     if(![[BlueShift sharedInstance] getDeviceToken]) {
         fireAppOpen = YES;
     }
-
+    [BlueshiftLog logInfo:[NSString stringWithFormat:@"Initiating Auto identify on device token change."] withDetails:nil methodName:nil];
     [[BlueShift sharedInstance] setDeviceToken];
     [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
     

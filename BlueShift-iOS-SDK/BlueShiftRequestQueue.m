@@ -89,7 +89,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 }
             }];
         } else {
-            [self setRequestQueueAvailableAndProcessRequestQueue];
+            _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
         }
     }
 }
