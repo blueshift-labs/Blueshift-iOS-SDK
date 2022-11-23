@@ -71,7 +71,9 @@
     
     displayOn =  (displayOn ? displayOn: @"");
     NSPredicate *predicate = [self getPredicates: triggerStr andDisplayOn: displayOn];
-    [fetchRequest setPredicate:predicate];
+    if (predicate) {
+        [fetchRequest setPredicate:predicate];
+    }
     @try {
         if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
             [context performBlock:^{
@@ -99,13 +101,13 @@
     }
 }
 
-+ (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
++ (NSPredicate * _Nullable)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
     if ([triggerStr isEqualToString:kInAppTriggerModeNowAndUpcoming]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil];
     } else if (triggerStr && ![triggerStr isEqualToString: @""]) {
         return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
     } else {
-        return [NSPredicate predicateWithFormat:@"status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"pending", displayOn, @"", nil];
+        return nil;
     }
 }
 

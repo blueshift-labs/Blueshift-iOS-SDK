@@ -194,7 +194,7 @@
 + (NSString *)getCurrentUTCTimestamp {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
+    [dateFormatter setDateFormat:kDefaultDateFormat];
     [dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
     [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
     return [dateFormatter stringFromDate:[NSDate date]];

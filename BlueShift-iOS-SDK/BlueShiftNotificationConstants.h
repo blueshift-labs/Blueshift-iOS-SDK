@@ -92,4 +92,6 @@
 #define kInAppStatus                                                    @"status"
 #define kInAppStatusPending                                             @"pending"
 
+#define kDefaultDateFormat                                              @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+
 #endif

@@ -28,6 +28,7 @@
 #import "BlueShiftUserNotificationCenterDelegate.h"
 #import "BlueshiftEventAnalyticsHelper.h"
 #import "BlueShiftLiveContent.h"
+#import "BlueshiftInboxMessage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -254,6 +255,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// SDK will automatically fire the identify call in order to update the status on the server. There is no need of firing the identify call manually.
 - (void)optInForPushNotifications:(BOOL)isOptedIn;
 
+#pragma mark - Mobile Inbox
+- (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message;
+
+- (void)deleteMessageFromInbox:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler;
 @end
 
 NS_ASSUME_NONNULL_END

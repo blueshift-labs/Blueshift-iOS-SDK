@@ -369,32 +369,21 @@
     return [[NSArray alloc] init];
 }
 
-- (void)removeInAppNotificationFromDB:(NSManagedObjectID *) entityItem {
+- (void)removeInAppNotificationFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
+    NSManagedObjectContext * masterContext = appDelegate.managedObjectContext;
     
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
-    
-    if (entityItem != nil) {
-        /* creating a private context */
+    if (objectId && masterContext) {
         if (nil == self.privateObjectContext) {
             self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         }
         
         NSManagedObjectContext *context = self.privateObjectContext;
         context.parentContext = masterContext;
-        
         @try {
             if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlock:^{
-                    NSManagedObject* pManagedObject =  [context objectWithID: entityItem];
+                    NSManagedObject* pManagedObject =  [context objectWithID: objectId];
                     @try {
                         [context deleteObject: pManagedObject];
                         NSError *saveError = nil;
@@ -405,22 +394,34 @@
                                     @try {
                                         NSError *error = nil;
                                         [masterContext save:&error];
+                                        handler(YES);
                                     } @catch (NSException *exception) {
                                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                                        handler(NO);
                                     }
                                 }];
+                            } else {
+                                handler(NO);
                             }
+                        } else {
+                            handler(NO);
                         }
                     }
                     @catch (NSException *exception) {
                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                        handler(NO);
                     }
                 }];
+            } else {
+                handler(NO);
             }
         }
         @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            handler(NO);
         }
+    } else {
+        handler(NO);
     }
 }
 
@@ -539,8 +540,11 @@
             double endTime = [entity.endTime doubleValue];
             if (currentTime > endTime) {
                 /* discard notification if its expired. */
-                [self removeInAppNotificationFromDB: entity.objectID];
-                [BlueshiftLog logInfo:@"Deleted Expired pending notification, messageId : " withDetails:entity.id methodName:nil];
+                [self removeInAppNotificationFromDB: entity.objectID completionHandler:^(BOOL status) {
+                    if (status) {
+                        [BlueshiftLog logInfo:@"Deleted Expired pending notification, messageId : " withDetails:entity.id methodName:nil];
+                    }
+                }];
             } else {
                 /* For 'Now' category msg show it if time is not expired */
                 [nowFilteredResults addObject:entity];
@@ -551,8 +555,11 @@
             
             if (currentTime > endTime) {
                 /* discard notification if its expired. */
-                [self removeInAppNotificationFromDB: entity.objectID];
-                [BlueshiftLog logInfo:@"Deleted Expired pending notification, messageId : " withDetails:entity.id methodName:nil];
+                [self removeInAppNotificationFromDB: entity.objectID completionHandler:^(BOOL status) {
+                    if (status) {
+                        [BlueshiftLog logInfo:@"Deleted Expired pending notification, messageId : " withDetails:entity.id methodName:nil];
+                    }
+                }];
             } else if (startTime > currentTime) {
                 /* Wait for (startTime-currentTime) before IAM is shown */
                 continue;
@@ -595,7 +602,7 @@
             case BlueShiftNotificationRating:
             {
                 [self displayReviewController];
-                [self removeInAppNotificationFromDB: notification.objectID];
+                [self removeInAppNotificationFromDB: notification.objectID completionHandler:^(BOOL status) {}];
                 return;;
             }
                 
@@ -730,7 +737,6 @@
 // Notification Click Callbacks
 -(void)inAppDidDismiss:(NSDictionary *)notificationPayload fromViewController:(BlueShiftNotificationViewController *)controller  {
     self.currentNotificationController = nil;
-    [[BlueShift sharedInstance].inAppImageDataCache removeAllObjects];
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self startInAppMessageFetchTimer];
     }

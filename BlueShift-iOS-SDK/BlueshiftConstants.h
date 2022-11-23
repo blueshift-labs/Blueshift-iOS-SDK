@@ -134,4 +134,9 @@
 #define kBSGoToSettingDefaultOkayButton         @"Settings"
 #define kBSGoToSettingDefaultCancelButton       @"Not Now"
 
+
+//Mobile inbox constants
+#define kBSInboxDefaultCellIdentifier           @"BlueshiftInboxDefaultCell"
+
+
 #endif /* BlueshiftConstants_h */

@@ -14,6 +14,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueshiftInAppNotificationRequest.h"
+#import "BlueshiftInboxMessage.h"
 
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
@@ -53,6 +54,10 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)setAppDelegate {
     [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
+}
+
+- (NSObject*)getBlueShiftInAppNotificationManager {
+    return _inAppNotificationMananger;
 }
 
 - (void)resetSDKConfig {
@@ -1081,6 +1086,21 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         return  YES;
     }
     return  NO;
+}
+
+#pragma mark - Mobile Inbox
+
+- (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message {
+    if (message) {
+        BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.message forType:message.inAppNotificationType];
+        [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
+    }
+}
+
+- (void)deleteMessageFromInbox:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler  {
+    [_inAppNotificationMananger removeInAppNotificationFromDB:message.objectId completionHandler:^(BOOL status) {
+        handler(status);
+    }];
 }
 
 @end

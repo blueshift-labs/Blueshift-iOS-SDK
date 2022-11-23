@@ -45,7 +45,7 @@ usingPrivateContext: (NSManagedObjectContext*)privateContext
 
 + (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
 
-+ (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn;
+//+ (NSPredicate * _Nullable)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn;
 
 /// Erase all the In app notifications records from the SDK database.
 + (void)eraseEntityData;

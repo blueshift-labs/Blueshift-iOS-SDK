@@ -70,3 +70,6 @@ FOUNDATION_EXPORT const unsigned char BlueShift_iOS_SDKVersionString[];
 #import "NetworkReachability.h"
 #import "NSDate+BlueShiftDateHelpers.h"
 #import "NSNumber+BlueShiftHelpers.h"
+#import "BlueshiftInboxNavigationViewController.h"
+#import "BlueshiftInboxViewController.h"
+#import "BlueshiftInboxTableViewCell.h"

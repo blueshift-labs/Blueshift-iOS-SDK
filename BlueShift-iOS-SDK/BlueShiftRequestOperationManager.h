@@ -18,6 +18,9 @@
 @property NSURLSessionConfiguration *sessionConfiguraion;
 @property NSURLSession *replayURLSesion;
 
+/// Image cache for storing downloaded images from the inbox and in-app notifications.
+@property (nonatomic, strong) NSCache<NSString*, NSData *> *inboxImageDataCache;
+
 /// Get the shared instance for BlueShiftOperationManager
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager;
 
@@ -35,5 +38,8 @@
 
 /// Reset URL config to re-initialize the SDK
 - (void)resetURLSessionConfig;
+
+- (void)downloadImageForURL:(NSURL*)url handler:(void (^)(BOOL, NSData *, NSError *))handler;
+
 
 @end

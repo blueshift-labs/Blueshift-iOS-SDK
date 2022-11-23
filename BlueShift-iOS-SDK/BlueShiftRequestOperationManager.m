@@ -20,6 +20,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _sharedRequestOperationManager = [[BlueShiftRequestOperationManager alloc]init];
+        _sharedRequestOperationManager.inboxImageDataCache = [[NSCache alloc] init];
     });
     return _sharedRequestOperationManager;
 }
@@ -74,6 +75,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     return  paramsString;
 }
 
+#pragma mark - Handle GET url
 - (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     if (![BlueShift sharedInstance].config.apiKey) {
         [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
@@ -112,6 +114,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
+#pragma mark - Handle POST url
 - (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     if (![BlueShift sharedInstance].config.apiKey) {
         [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
@@ -151,6 +154,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
+#pragma mark - Handle Universal links replay
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
     if(!_replayURLSesion) {
         NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -188,6 +192,30 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
     completionHandler(nil);
+}
+
+#pragma mark - Handle downloading of images
+-(void)downloadImageForURL:(NSURL*)url handler:(void (^)(BOOL, NSData *, NSError *))handler {
+    if (url) {
+        if ([_inboxImageDataCache objectForKey:url.absoluteString]) {
+            handler(YES,[_inboxImageDataCache objectForKey:url.absoluteString], nil);
+        } else {
+            NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+                if (statusCode == kStatusCodeSuccessfullResponse) {
+                    [self->_inboxImageDataCache setObject:data forKey:url.absoluteString];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        handler(YES,data,nil);
+                    });
+                } else {
+                    handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:statusCode userInfo:nil]);
+                }
+            }];
+            [dataTask resume];
+        }
+    } else {
+        handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:NSNotFound userInfo:nil]);
+    }
 }
 
 @end
