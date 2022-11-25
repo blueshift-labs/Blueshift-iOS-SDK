@@ -24,11 +24,10 @@
 
 @synthesize nibName;
 
-
 - (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
     if (self) {
-        self.viewModel = [[BlueshiftInboxViewModel alloc] init];
+        _viewModel = [[BlueshiftInboxViewModel alloc] init];
     }
     return self;
 }
@@ -36,7 +35,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self.viewModel = [[BlueshiftInboxViewModel alloc] init];
+        _viewModel = [[BlueshiftInboxViewModel alloc] init];
     }
     return self;
 }
@@ -44,6 +43,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupTableView];
+    [self registerTableViewCells];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -57,20 +57,30 @@
 }
 
 - (void)setupTableView {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self registerTableViewCells];
-        self.tableView.rowHeight = UITableViewAutomaticDimension;
-        self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
-        self.tableView.tableFooterView = [[UIView alloc]init];
-        self.tableView.dataSource = self;
-        self.tableView.delegate = self;
-//        self.tableView.allowsSelection = NO;
-        [self reloadTableView];
-    });
+    [self initInboxDelageFor:_inboxDelegateName];
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
+    self.tableView.tableFooterView = [[UIView alloc]init];
+    self.tableView.dataSource = self;
+    self.tableView.delegate = self;
+    //        self.tableView.allowsSelection = NO;
+    [self reloadTableView];
+}
+
+- (void)initInboxDelageFor:(NSString*)className {
+    if (!_inboxDelegate && className && [className componentsSeparatedByString:@"."].count > 1) {
+        id<BlueshiftInboxViewControllerDelegate> delegate = (id<BlueshiftInboxViewControllerDelegate>)[[NSClassFromString(className) alloc] init];
+        if (delegate) {
+            self.inboxDelegate = delegate;
+        }
+    } else {
+//        assertionFailure(@"Failed to init the inbox delegate as module name is missing. The class name should be of format module_name.class_name");
+    }
+
 }
 
 - (void)reloadTableView {
-    [_viewModel reloadInboxMessages:^(BOOL isRefresh) {
+    [_viewModel reloadInboxMessagesInOrder:_inboxDelegate.sortOrder handler:^(BOOL isRefresh) {
         if(isRefresh) {
             if ([NSThread isMainThread]) {
                 [self.tableView reloadData];
@@ -84,8 +94,8 @@
 }
 
 - (void)registerTableViewCells {
-    if (_tableViewCellNibName) {
-        UINib * nib = [self geNibForName:_tableViewCellNibName];
+    if (_customCellNibName) {
+        UINib * nib = [self geNibForName:_customCellNibName];
         if(nib) {
             [self.tableView registerNib:nib forCellReuseIdentifier:kBSInboxDefaultCellIdentifier];
             return;
@@ -106,23 +116,6 @@
     return nil;
 }
 
-- (void)setBlueshiftInboxDateFormat:(NSString *)dateFormatter {
-    _viewModel.blueshiftInboxDateFormat = dateFormatter;
-}
-
-- (NSString* _Nullable)getBlueshiftInboxDateFormat {
-    return _viewModel.blueshiftInboxDateFormat;
-}
-
-
-- (void)setBlueshiftInboxDateFormatType:(BlueshiftInboxDateFormatType)type {
-    _viewModel.blueshiftInboxDateFormatType = type;
-}
-
-- (BlueshiftInboxDateFormatType)getBlueshiftInboxDateFormatType {
-    return _viewModel.blueshiftInboxDateFormatType;
-}
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -135,11 +128,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     BlueshiftInboxTableViewCell *cell = (BlueshiftInboxTableViewCell*)[tableView dequeueReusableCellWithIdentifier:kBSInboxDefaultCellIdentifier forIndexPath:indexPath];
-    
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
-    cell.titleLabel.text = message.title ? message.title : @"Buy Now";
-    cell.detailLabel.text = message.detail ? message.detail : @"Starbucks 99% off";
-    cell.dateLabel.text = [_viewModel getFormattedDateForDate: message.date];
+
+    [self setText:message.title toLabel:cell.titleLabel];
+    [self setText:message.detail toLabel:cell.detailLabel];
+    [self setText:[self getFormattedDate: message] toLabel:cell.dateLabel];
     
     [_viewModel downloadImageForURLString:message.iconImageURL completionHandler:^(NSData * _Nullable imageData) {
         if (imageData) {
@@ -180,6 +173,23 @@
             }
         }];
     }
+}
+
+- (void)setText:(NSString*)text toLabel:(UILabel *)label {
+    if (text && ![text isEqualToString:@""]) {
+        [label setHidden: NO];
+        label.text = text;
+    } else {
+        [label setHidden: YES];
+        label.text = nil;
+    }
+}
+
+-(NSString*)getFormattedDate:(BlueshiftInboxMessage*)message {
+    if (self.inboxDelegate && [self.inboxDelegate respondsToSelector:@selector(formatDate:)]) {
+        return [self.inboxDelegate formatDate:message];
+    }
+    return [_viewModel getDefaultFormatDate: message.date];
 }
 
 @end

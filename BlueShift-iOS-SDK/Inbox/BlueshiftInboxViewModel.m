@@ -95,7 +95,7 @@
     return self;
 }
 
-- (void)reloadInboxMessages:(void (^_Nonnull)(BOOL))success {
+- (void)reloadInboxMessagesInOrder:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL))success {
     if (!_inboxMessages) {
         _inboxMessages = [[NSMutableArray alloc] init];
     }
@@ -104,13 +104,19 @@
         [InAppNotificationEntity fetchAll:BlueShiftInAppNoTriggerEvent forDisplayPage: @"" context:context withHandler:^(BOOL status, NSArray *results) {
             if (status) {
                 [self->_inboxMessages removeAllObjects];
+                NSArray* orderedResults;
                 if ([results count] > 0) {
-                    NSArray* orderedResults = [[results reverseObjectEnumerator] allObjects];
+                    if (sortOrder == NSOrderedDescending) {
+                        orderedResults = results;
+                    } else {
+                        orderedResults = [[results reverseObjectEnumerator] allObjects];
+                    }
+                    
                     for (InAppNotificationEntity *inApp in orderedResults) {
                         NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:inApp.payload];
                         //                        NSDictionary* inboxDict = payloadDictionary[@"data"][@"inapp"][@"inbox"];
                         int randomNumber = arc4random() % 22;
-                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:NO title:self->_titleArray[randomNumber][0] detail:self->_titleArray[randomNumber][1] date:inApp.timestamp iconURL:self->_titleArray[randomNumber][2] message:payloadDictionary];
+                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:NO title:self->_titleArray[randomNumber][0] detail:self->_titleArray[randomNumber][1] date:[self getLocalDateFromUTCDate:inApp.timestamp] iconURL:self->_titleArray[randomNumber][2] message:payloadDictionary];
                         [self->_inboxMessages addObject:msg];
                     }
                 } else {
@@ -152,26 +158,19 @@
     }
 }
 
-- (NSString*)getFormattedDateForDate:(NSString*)createdAtDateString {
-    if (_blueshiftInboxDateFormatType == BlueshiftInboxDateFormatTypeFormatString) {
-        NSDateFormatter *dateFormatter = [self getUTCDateFormatter];
+- (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate {
+    return [self sometimeAgoStringFromStringDate:createdAtDate];
+}
 
-        NSDate *date = [dateFormatter dateFromString:createdAtDateString];
-        if(_blueshiftInboxDateFormat) {
-            [dateFormatter setDateFormat:_blueshiftInboxDateFormat];
-        }
-        [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-        return [dateFormatter stringFromDate:date];
-    } else {
-        return [self sometimeAgoStringFromStringDate:createdAtDateString];
-    }
+- (NSDate*)getLocalDateFromUTCDate:(NSString*)createdAtDateString {
+    NSDateFormatter *dateFormatter = [self getUTCDateFormatter];
+    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    NSDate *date = [dateFormatter dateFromString:createdAtDateString];
+    return date;
 }
 
 // TODO: check for the different regional calendar types
-- (NSString*)sometimeAgoStringFromStringDate:(NSString*)createdAtDateString {
-    NSDateFormatter *dateFormatter = [self getUTCDateFormatter];
-    
-    NSDate *createdAtDate = [dateFormatter dateFromString:createdAtDateString];
+- (NSString*)sometimeAgoStringFromStringDate:(NSDate*)createdAtDate {
     NSCalendar *calendar = [[NSCalendar currentCalendar] initWithCalendarIdentifier:NSCalendarIdentifierISO8601];
     [calendar setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
 //    [calendar setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
@@ -208,6 +207,5 @@
     [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
     return dateFormatter;
 }
-
 
 @end

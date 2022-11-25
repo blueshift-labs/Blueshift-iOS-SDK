@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString* _Nullable dateFormat;
 
 
-- (void)reloadInboxMessages:(void (^_Nonnull)(BOOL))success;
+- (void)reloadInboxMessagesInOrder:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL))success;
 
 - (BlueshiftInboxMessage * _Nullable)itemAtIndexPath:(NSIndexPath *)indexPath;
 
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^_Nonnull)(NSData* _Nullable))success;
 
-- (NSString*)getFormattedDateForDate:(NSString*)createdAtDate;
+- (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate;
 
 @end
 

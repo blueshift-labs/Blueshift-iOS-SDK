@@ -37,14 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSString* _Nullable detail;
 
-@property NSString* _Nullable date;
+@property NSDate* _Nullable date;
 
 @property NSString* _Nullable iconImageURL;
 
 @property NSDictionary* _Nullable message;
 
-
-- (instancetype)initMessageId:(NSString* _Nullable)mId objectId:(NSManagedObjectID* _Nullable)oId inAppType:(NSString* _Nullable)inAppType readStatus:(BOOL)status title:(NSString* _Nullable)title detail:(NSString* _Nullable)detail date:(NSString* _Nullable)date iconURL:(NSString* _Nullable)iconURL message:(NSDictionary* _Nullable)message;
+- (instancetype)initMessageId:(NSString* _Nullable)mId objectId:(NSManagedObjectID* _Nullable)oId inAppType:(NSString* _Nullable)inAppType readStatus:(BOOL)status title:(NSString* _Nullable)title detail:(NSString* _Nullable)detail date:(NSDate* _Nullable)date iconURL:(NSString* _Nullable)iconURL message:(NSDictionary* _Nullable)message;
 
 @end
 

@@ -86,21 +86,6 @@
     _inboxViewController.inboxDelegateName = inboxDelegateName;
 }
 
-- (void)setBlueshiftInboxDateFormatType:(BlueshiftInboxDateFormatType) blueshiftInboxDateFormatType {
-    _inboxViewController.blueshiftInboxDateFormatType = blueshiftInboxDateFormatType;
-}
-
-- (BlueshiftInboxDateFormatType)blueshiftInboxDateFormatType {
-    return _inboxViewController.blueshiftInboxDateFormatType;
-}
-
-- (void)setBlueshiftInboxDateFormat:(NSString *)blueshiftInboxDateFormat {
-    _inboxViewController.blueshiftInboxDateFormat = blueshiftInboxDateFormat;
-}
-- (NSString *)blueshiftInboxDateFormat {
-    return _inboxViewController.blueshiftInboxDateFormat;
-}
-
 #pragma mark -
 - (void)setUpInboxViewController {
     if (self.viewControllers.count > 0 && [self.viewControllers[0] isKindOfClass:[BlueshiftInboxViewController class]]) {
@@ -109,7 +94,7 @@
         _inboxViewController = [[BlueshiftInboxViewController alloc] init];
         [self setViewControllers:@[_inboxViewController] animated:NO];
     }
-    _inboxViewController.tableViewCellNibName = @"CustomInboxTableViewCell";
+    _inboxViewController.customCellNibName = @"CustomInboxTableViewCell";
 }
 
 - (void)doneButtonTapped {
