@@ -13,6 +13,7 @@
 #import "BlueShiftRequestOperationManager.h"
 
 @interface BlueshiftInboxViewModel()
+@property NSDateFormatter* utcDateFormatter;
 
 @end
 
@@ -21,19 +22,18 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _blueshiftInboxDateFormatType = BlueshiftInboxDateFormatTypeSomeTimeAgo;
         _titleArray = @[@[@"Iron Man",
                           @"Jon Favreau[27] Mark Fergus & Hawk Ostby and Art Marcum & Matt Holloway[27][28] Avi Arad and Kevin Feige",
-                          @"https://picsum.photos/id/1/200/200"],
+                          @""],
                         @[@"The Incredible Hulk",
                           @"Louis Leterrier[29] Zak Penn[30]  Avi Arad, Gale Anne Hurd and Kevin Feige",
-                          @"https://picsum.photos/id/2/200/200"],
+                          @""],
                         @[@"Iron Man 2",
                           @"Jon Favreau[31] Justin Theroux[32]  Kevin Feige",
-                          @"https://picsum.photos/id/3/200/200"],
+                          @""],
                         @[@"Thor",
                           @"Kenneth Branagh[33] Ashley Edward Miller & Zack Stentz and Don Payne[34]",
-                          @"https://picsum.photos/id/4/200/200"],
+                          @""],
                         @[@"Captain America: The First Avenger",
                           @"Joe Johnston[35]  Christopher Markus & Stephen McFeely[36]",
                           @"https://picsum.photos/id/5/200/200"],
@@ -45,7 +45,7 @@
                           @"https://picsum.photos/id/7/200/200"],
                         @[@"Thor: The Dark World",
                           @"Alan Taylor[40] Christopher L. Yost and Christopher Markus & Stephen McFeely[41]",
-                          @"https://picsum.photos/id/8/200/200"],
+                          @"https://picsum.photos/id/1/200/200"],
                         @[@"Captain America: The Winter Soldier",
                           @"Anthony and Joe Russo[42] Christopher Markus & Stephen McFeely[43]",
                           @"https://picsum.photos/id/9/200/200"],
@@ -116,7 +116,7 @@
                         NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:inApp.payload];
                         //                        NSDictionary* inboxDict = payloadDictionary[@"data"][@"inapp"][@"inbox"];
                         int randomNumber = arc4random() % 22;
-                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:NO title:self->_titleArray[randomNumber][0] detail:self->_titleArray[randomNumber][1] date:[self getLocalDateFromUTCDate:inApp.timestamp] iconURL:self->_titleArray[randomNumber][2] message:payloadDictionary];
+                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:randomNumber%2==0?NO:YES title:self->_titleArray[randomNumber][0] detail:self->_titleArray[randomNumber][1] date:[self getLocalDateFromUTCDate:inApp.timestamp] iconURL:self->_titleArray[randomNumber][2] message:payloadDictionary];
                         [self->_inboxMessages addObject:msg];
                     }
                 } else {
@@ -164,48 +164,54 @@
 
 - (NSDate*)getLocalDateFromUTCDate:(NSString*)createdAtDateString {
     NSDateFormatter *dateFormatter = [self getUTCDateFormatter];
-    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-    NSDate *date = [dateFormatter dateFromString:createdAtDateString];
-    return date;
+    NSDate* utcDate = [dateFormatter dateFromString:createdAtDateString];
+    return utcDate;
 }
 
 // TODO: check for the different regional calendar types
 - (NSString*)sometimeAgoStringFromStringDate:(NSDate*)createdAtDate {
-    NSCalendar *calendar = [[NSCalendar currentCalendar] initWithCalendarIdentifier:NSCalendarIdentifierISO8601];
-    [calendar setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-//    [calendar setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
-    
-    NSDateComponents *components = [calendar components:(NSCalendarUnitDay |NSCalendarUnitWeekOfMonth | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:createdAtDate toDate:[NSDate date] options:0];
-    NSDateComponentsFormatter* timeFormatter = [[NSDateComponentsFormatter alloc] init];
-    timeFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleFull;
-    
-    if(components.year > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitYear;
-    } else if(components.month > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitMonth;
-    } else if(components.weekOfMonth > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitWeekOfMonth;
-    } else if(components.day > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitDay;
-    } else if(components.hour > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitHour;
-    } else if(components.minute > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitMinute;
-    } else if(components.second > 0) {
-        timeFormatter.allowedUnits = NSCalendarUnitSecond;
+    if (createdAtDate) {
+        NSCalendar *calendar = [[NSCalendar currentCalendar] initWithCalendarIdentifier:NSCalendarIdentifierISO8601];
+        [calendar setTimeZone:[NSTimeZone systemTimeZone]];
+        [calendar setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
+        
+        NSDateComponents *components = [calendar components:(NSCalendarUnitDay |NSCalendarUnitWeekOfMonth | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:createdAtDate toDate:[NSDate date] options:0];
+        NSDateComponentsFormatter* timeFormatter = [[NSDateComponentsFormatter alloc] init];
+        timeFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleFull;
+        
+        if(components.year > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitYear;
+        } else if(components.month > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitMonth;
+        } else if(components.weekOfMonth > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitWeekOfMonth;
+        } else if(components.day > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitDay;
+        } else if(components.hour > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitHour;
+        } else if(components.minute > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitMinute;
+        } else if(components.second > 0) {
+            timeFormatter.allowedUnits = NSCalendarUnitSecond;
+        }
+        
+        NSString* timeString = [timeFormatter stringFromDateComponents:components];
+        return [NSString stringWithFormat:@"%@ ago",timeString];
     }
-    
-    NSString* timeString = [timeFormatter stringFromDateComponents:components];
-    return [NSString stringWithFormat:@"%@ ago",timeString];
+    return nil;
 }
 
 -(NSDateFormatter*)getUTCDateFormatter {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:kDefaultDateFormat];
-    [dateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
-    [dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-    return dateFormatter;
+    if (_utcDateFormatter) {
+        return _utcDateFormatter;
+    } else {
+        _utcDateFormatter = [[NSDateFormatter alloc] init];
+        [_utcDateFormatter setDateFormat:kDefaultDateFormat];
+        [_utcDateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
+        [_utcDateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
+        [_utcDateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+        return _utcDateFormatter;
+    }
 }
 
 @end

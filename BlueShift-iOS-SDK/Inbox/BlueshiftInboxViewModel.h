@@ -16,9 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 
 @property NSMutableArray* inboxMessages;
-@property BlueshiftInboxDateFormatType blueshiftInboxDateFormatType;
-@property NSString* _Nullable dateFormat;
-
 
 - (void)reloadInboxMessagesInOrder:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL))success;
 
@@ -36,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSArray* titleArray;
 
 @property NSMutableArray* inboxMessages;
-@property BlueshiftInboxDateFormatType blueshiftInboxDateFormatType;
 @property NSString* _Nullable blueshiftInboxDateFormat;
 
 - (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^_Nonnull)(NSData* _Nullable))success;

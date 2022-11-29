@@ -631,14 +631,23 @@
     BOOL isSlideInIconImagePresent = [notificationVC isSlideInIconImagePresent:notification];
     BOOL isBackgroundImagePresent = [notificationVC isBackgroundImagePresentForNotification:notification];
     if (isSlideInIconImagePresent || isBackgroundImagePresent) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            if(isSlideInIconImagePresent) {
-                [notificationVC loadAndCacheImageForURLString:notification.notificationContent.iconImage];
-            }
-            if (isBackgroundImagePresent) {
-                [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
-            }
-            [self presentInAppViewController:notificationVC forNotification:notification];
+        NSURL* iconImageURL = isSlideInIconImagePresent ? [NSURL URLWithString:notification.notificationContent.iconImage] : nil;
+        NSURL* backgroundImageURL = isBackgroundImagePresent ? [NSURL URLWithString:notification.templateStyle.backgroundImage] : nil;
+        dispatch_group_t serviceGroup = dispatch_group_create();
+        dispatch_group_async(serviceGroup,BlueShift.sharedInstance.dispatch_get_blueshift_queue,^{
+            dispatch_group_enter(serviceGroup);
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:iconImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+                dispatch_group_leave(serviceGroup);
+            }];
+            
+            dispatch_group_enter(serviceGroup);
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:backgroundImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+                dispatch_group_leave(serviceGroup);
+            }];
+            
+            dispatch_group_notify(serviceGroup,dispatch_get_main_queue(),^{
+                [self presentInAppViewController:notificationVC forNotification:notification];
+            });
         });
     } else {
         [self presentInAppViewController:notificationVC forNotification:notification];
@@ -654,14 +663,23 @@
     BOOL isBannerImagePresent = [notificationVC isBannerImagePresentForNotification:notification];
 
     if (isBackgroundImagePresent || isBannerImagePresent) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            if (isBackgroundImagePresent) {
-                [notificationVC loadAndCacheImageForURLString:notification.templateStyle.backgroundImage];
-            }
-            if (isBannerImagePresent) {
-                [notificationVC loadAndCacheImageForURLString:notification.notificationContent.banner];
-            }
-            [self presentInAppViewController:notificationVC forNotification:notification];
+        NSURL* backgroundImageURL = isBackgroundImagePresent ? [NSURL URLWithString:notification.templateStyle.backgroundImage] : nil;
+        NSURL* bannerImageURL = isBannerImagePresent ? [NSURL URLWithString:notification.notificationContent.banner] : nil;
+        dispatch_group_t serviceGroup = dispatch_group_create();
+        dispatch_group_async(serviceGroup,BlueShift.sharedInstance.dispatch_get_blueshift_queue,^{
+            dispatch_group_enter(serviceGroup);
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:backgroundImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+                dispatch_group_leave(serviceGroup);
+            }];
+
+            dispatch_group_enter(serviceGroup);
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:bannerImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+                dispatch_group_leave(serviceGroup);
+            }];
+            
+            dispatch_group_notify(serviceGroup,dispatch_get_main_queue(),^{
+                [self presentInAppViewController:notificationVC forNotification:notification];
+            });
         });
     } else {
         [self presentInAppViewController:notificationVC forNotification:notification];

@@ -12,6 +12,8 @@
 #import "NSNumber+BlueShiftHelpers.h"
 #import "BlueShiftStatusCodes.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface BlueShiftRequestOperationManager : NSObject<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property NSURLSession *mainURLSession;
@@ -41,5 +43,8 @@
 
 - (void)downloadImageForURL:(NSURL*)url handler:(void (^)(BOOL, NSData *, NSError *))handler;
 
+- (NSData* _Nullable)getCachedImageDataForURL:(NSString*)url;
 
 @end
+
+NS_ASSUME_NONNULL_END

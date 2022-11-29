@@ -14,11 +14,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftInboxNotificationType) {
     BlueshiftInboxNotificationTypeInApp
 };
 
-typedef NS_ENUM (NSUInteger,BlueshiftInboxDateFormatType) {
-    BlueshiftInboxDateFormatTypeSomeTimeAgo,
-    BlueshiftInboxDateFormatTypeFormatString
-};
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftInboxMessage : NSObject

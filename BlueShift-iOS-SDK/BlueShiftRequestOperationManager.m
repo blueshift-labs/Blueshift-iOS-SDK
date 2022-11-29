@@ -197,16 +197,15 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 #pragma mark - Handle downloading of images
 -(void)downloadImageForURL:(NSURL*)url handler:(void (^)(BOOL, NSData *, NSError *))handler {
     if (url) {
-        if ([_inboxImageDataCache objectForKey:url.absoluteString]) {
-            handler(YES,[_inboxImageDataCache objectForKey:url.absoluteString], nil);
+        NSData* imageData = [self getCachedImageDataForURL:url.absoluteString];
+        if (imageData) {
+            handler(YES,imageData, nil);
         } else {
             NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                 if (statusCode == kStatusCodeSuccessfullResponse) {
                     [self->_inboxImageDataCache setObject:data forKey:url.absoluteString];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        handler(YES,data,nil);
-                    });
+                    handler(YES,data,nil);
                 } else {
                     handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:statusCode userInfo:nil]);
                 }
@@ -216,6 +215,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     } else {
         handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:NSNotFound userInfo:nil]);
     }
+}
+
+- (NSData* _Nullable)getCachedImageDataForURL:(NSString*)url {
+    return [_inboxImageDataCache objectForKey:url];
 }
 
 @end

@@ -18,10 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 
-@property IBInspectable (nonatomic) BlueshiftInboxDateFormatType blueshiftInboxDateFormatType;
-
-@property IBInspectable (nonatomic) NSString* _Nullable blueshiftInboxDateFormat;
-
 @end
 
 NS_ASSUME_NONNULL_END

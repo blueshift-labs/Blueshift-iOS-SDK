@@ -12,12 +12,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @protocol BlueshiftInboxViewControllerDelegate <NSObject>
-@property NSComparisonResult sortOrder;
 
 @optional
+
+@property NSComparisonResult sortOrder;
+
 - (NSString* _Nullable)formatDate:(BlueshiftInboxMessage*)message;
 
 - (void)configureCustomFieldsForCell:(BlueshiftInboxTableViewCell*)cell inboxMessage:(BlueshiftInboxMessage*)message;
+
+- (void)inboxMessageDeleted:(BlueshiftInboxMessage*)message;
+
+- (void)inboxMessageSelected:(BlueshiftInboxMessage*)message;
 
 @end
 
@@ -27,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property IBInspectable NSString* _Nullable inboxDelegateName;
 
-@property id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
+@property (nonatomic, weak) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 
 @end
 
