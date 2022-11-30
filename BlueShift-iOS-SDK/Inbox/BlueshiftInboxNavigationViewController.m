@@ -12,6 +12,7 @@
 
 @end
 
+IB_DESIGNABLE
 @implementation BlueshiftInboxNavigationViewController
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
@@ -65,25 +66,34 @@
     });
 }
 
-#pragma mark getters and setters
-//- (void)setTableViewCellNibName:(NSString *)tableViewCellNibName {
-//    _inboxViewController.tableViewCellNibName = tableViewCellNibName;
-//}
-//
-//- (NSString* _Nullable)tableViewCellNibName {
-//    return _inboxViewController.tableViewCellNibName;
-//}
-
-- (void)setInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
-    _inboxViewController.inboxDelegate = inboxDelegate;
-}
-
-- (id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
-    return _inboxViewController.inboxDelegate;
+- (void)setCustomCellNibName:(NSString *)customCellNibName {
+    if (_inboxViewController) {
+        _inboxViewController.customCellNibName = customCellNibName;
+    }
 }
 
 - (void)setInboxDelegateName:(NSString *)inboxDelegateName {
-    _inboxViewController.inboxDelegateName = inboxDelegateName;
+    if (_inboxViewController) {
+        _inboxViewController.inboxDelegateName = inboxDelegateName;
+    }
+}
+
+- (void)setUnreadBadgeColor:(UIColor *)unreadBadgeColor {
+    if (_inboxViewController) {
+        _inboxViewController.unreadBadgeColor = unreadBadgeColor;
+    }
+}
+
+- (void)setEnableLargeTitle:(BOOL)enableLargeTitle {
+    if (@available(iOS 11.0, *)) {
+        self.navigationBar.prefersLargeTitles = YES;
+    }
+}
+
+- (void)setInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
+    if (_inboxViewController) {
+        _inboxViewController.inboxDelegate = inboxDelegate;
+    }
 }
 
 #pragma mark -
@@ -94,7 +104,6 @@
         _inboxViewController = [[BlueshiftInboxViewController alloc] init];
         [self setViewControllers:@[_inboxViewController] animated:NO];
     }
-    _inboxViewController.customCellNibName = @"CustomInboxTableViewCell";
 }
 
 - (void)doneButtonTapped {

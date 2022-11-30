@@ -17,6 +17,7 @@
 @interface BlueshiftInboxViewController ()
 
 @property (nonatomic, strong) BlueshiftInboxViewModel * viewModel;
+@property UIActivityIndicatorView *activityIndicator;
 
 @end
 
@@ -44,16 +45,22 @@
     [super viewDidLoad];
     [self setupTableView];
     [self registerTableViewCells];
+    [self setupObservers];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    [BlueShift.sharedInstance registerForInAppMessage:@"Inbox"];
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self reloadTableView];
+//    [self setupActivityIndicator];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [BlueShift.sharedInstance unregisterForInAppMessage];
+    [_viewModel.inboxMessages removeAllObjects];
+}
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
 }
 
 - (void)setupTableView {
@@ -64,7 +71,30 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     //        self.tableView.allowsSelection = NO;
-    [self reloadTableView];
+//    [self reloadTableView];
+}
+
+- (void)setupObservers {
+    [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        if (self.activityIndicator) {
+            [self.activityIndicator stopAnimating];
+            [self.activityIndicator removeFromSuperview];
+        }
+    }];
+}
+
+- (void)startActivityIndicator {
+    if (!self.activityIndicator) {
+        if (@available(iOS 13.0, *)) {
+            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+        } else {
+            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        }
+        self.activityIndicator.color = UIColor.redColor;
+        self.activityIndicator.center = self.view.center;
+    }
+    [self.view addSubview:self.activityIndicator];
+    [self.activityIndicator startAnimating];
 }
 
 - (void)initInboxDelageFor:(NSString*)className {
@@ -128,14 +158,44 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     BlueshiftInboxTableViewCell *cell = (BlueshiftInboxTableViewCell*)[tableView dequeueReusableCellWithIdentifier:kBSInboxDefaultCellIdentifier forIndexPath:indexPath];
-    BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
 
     //Set labels
+    return [self handleCell:cell ForRowAtIndexPath:indexPath];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return UITableViewAutomaticDimension;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self handleDidSelectRowAtIndexPath:indexPath];
+}
+
+// Override to support conditional editing of the table view.
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
+}
+
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        [self handleDeleteRowAtIndexPath:indexPath];
+    }
+}
+
+- (BlueshiftInboxTableViewCell*)handleCell:(BlueshiftInboxTableViewCell*)cell ForRowAtIndexPath:(NSIndexPath*)indexPath {
+    BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
+    
     [self setText:message.title toLabel:cell.titleLabel];
     [self setText:message.detail toLabel:cell.detailLabel];
     [self setText:[self getFormattedDate: message] toLabel:cell.dateLabel];
+    
     //Set unread status
     [cell.unreadBadgeView setHidden:message.readStatus];
+    if (_unreadBadgeColor) {
+        [cell.unreadBadgeView setBackgroundColor:_unreadBadgeColor];
+    }
+    
     //Download image
     [_viewModel downloadImageForURLString:message.iconImageURL completionHandler:^(NSData * _Nullable imageData) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -147,44 +207,40 @@
             }
         });
     }];
-    //Callbacks
+    
+    //Configure custom fields
     if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(configureCustomFieldsForCell:inboxMessage:)]) {
         [_inboxDelegate configureCustomFieldsForCell:cell inboxMessage:message];
     }
     return cell;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return UITableViewAutomaticDimension;
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)handleDeleteRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
-    [BlueShift.sharedInstance showInboxNotificationForMessage:message];
-    if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
-        [_inboxDelegate inboxMessageSelected:message];
+    // Delete the row from the data source
+    [BlueShift.sharedInstance deleteMessageFromInbox:message completionHandler:^(BOOL status) {
+//        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        if (status) {
+            [self reloadTableView];
+        }
+    }];
+    
+    //Callback
+    if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
+        [_inboxDelegate inboxMessageDeleted:message];
     }
 }
 
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
-        // Delete the row from the data source
-        [BlueShift.sharedInstance deleteMessageFromInbox:message completionHandler:^(BOOL status) {
-//            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            if (status) {
-                [self reloadTableView];
-            }
-        }];
-        if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
-            [_inboxDelegate inboxMessageDeleted:message];
-        }
+- (void)handleDidSelectRowAtIndexPath:(NSIndexPath*)indexPath {
+    BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
+    [BlueShift.sharedInstance showInboxNotificationForMessage:message];
+    [self startActivityIndicator];
+    [_viewModel markMessageAsRead:message];
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    
+    //Callback
+    if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
+        [_inboxDelegate inboxMessageSelected:message];
     }
 }
 

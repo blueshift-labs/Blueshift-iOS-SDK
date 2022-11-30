@@ -13,9 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, BlueShiftInAppTriggerMode){
     BlueShiftInAppTriggerNow,
     BlueShiftInAppTriggerUpComing,
-    BlueShiftInAppTriggerEvent,
-    BlueShiftInAppNoTriggerEvent,
     BlueShiftInAppTriggerNowAndUpComing,
+    BlueShiftInAppTriggerModeInbox
 };
 
 NS_ASSUME_NONNULL_END

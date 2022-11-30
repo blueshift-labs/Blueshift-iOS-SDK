@@ -117,6 +117,7 @@
 //NSNotificationCenter constant
 #define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
 #define kBSStatus                               @"status"
+#define kBSInAppNotificationWillAppear          @"BlueshiftInAppNotificationWillAppear"
 
 //Default time interval for in-app notificaiton
 #define kDefaultInAppTimeInterval               60

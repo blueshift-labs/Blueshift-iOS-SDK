@@ -119,6 +119,44 @@
     handler(YES);
 }
 
+- (void)initializeInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
+    @try {
+        if (notificationArray && notificationArray.count > 0) {
+            for (int counter = 0; counter < notificationArray.count ; counter++) {
+                NSDictionary* inapp = [notificationArray objectAtIndex: counter];
+                double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
+                // Do not add expired in-app notifications to in-app DB.
+                if ([self checkInAppNotificationExpired:expiresAt] == NO) {
+                   // TODO: remove this code later
+                    NSMutableDictionary *data = [inapp[kInAppNotificationDataKey] mutableCopy];
+                    NSMutableDictionary *mutableInapp = [data[kInAppNotificationKey] mutableCopy];
+                    if([mutableInapp[@"type"] isEqual:@"slide_in_banner"]) {
+                        [mutableInapp setValue:kBSAvailabiltyInAppOnly forKey:kBSAvailabilty];
+                    } else if ([mutableInapp[@"type"] isEqual:@"modal"]){
+                        [mutableInapp setValue:kBSAvailabiltyInboxAndInApp forKey:kBSAvailabilty];
+                    } else {
+                        [mutableInapp setValue:kBSAvailabiltyInboxOnly forKey:kBSAvailabilty];
+                    }
+                    data[kInAppNotificationKey] = mutableInapp;
+                    [data setValue:[@{
+                        @"title": @"Title text",
+                        @"details": @"Detailed text goes here",
+                        @"icon": @"https://picsum.photos/200/200"
+                    } mutableCopy] forKey:@"inbox"];
+                    
+                    // till here
+                    [self addInAppNotificationToDataStore: @{@"data": data}];
+                } else {
+                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+    }
+    handler(YES);
+}
+
+
 - (void)addInAppNotificationToDataStore: (NSDictionary *) payload {
     [self checkInAppNotificationExist: payload handler:^(BOOL status){
         if (status == NO) {
@@ -458,6 +496,9 @@
     }
 }
 
+#pragma mark - Inbox
+
+
 #pragma mark - Fetch in-app from the Datastore, filter and process it to display notification
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode  {
     if([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus]) {
@@ -701,7 +742,7 @@
 - (void)presentInAppViewController:(BlueShiftNotificationViewController*)notificationController forNotification:(BlueShiftInAppNotification*)notification {
     void(^ presentInAppBlock)(void) = ^{
         @try {
-            if (notificationController && [self shouldDisplayInAppNotification:notificationController.displayOnScreen] == YES) {
+            if (notificationController && (notificationController.notification.isFromInbox == YES || [self shouldDisplayInAppNotification:notificationController.displayOnScreen] == YES)) {
                 [BlueshiftLog logInfo:@"Presenting in-app notification on the screen name" withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                 if(notificationController.delegate == nil) {
                     notificationController.delegate = self;
@@ -774,7 +815,15 @@
 
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
-    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: notification canBacthThisEvent: NO];
+    // Set opened by attribute for inbox
+    NSMutableDictionary* mutableNotification = [notification mutableCopy];
+    if (controller.notification.isFromInbox) {
+        [mutableNotification setValue:kBSTrackingOpenedByUser forKey:kBSTrackingOpenedBy];
+    } else {
+        [mutableNotification setValue:kBSTrackingOpenedByPrefetch forKey:kBSTrackingOpenedBy];
+    }
+    [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: mutableNotification canBacthThisEvent: NO];
+    
     // invoke the inApp open callback method
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidOpen:)]) {
         [self.inAppNotificationDelegate inAppNotificationDidOpen:notification];

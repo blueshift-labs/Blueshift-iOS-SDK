@@ -19,81 +19,6 @@
 
 
 @implementation BlueshiftInboxViewModel
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _titleArray = @[@[@"Iron Man",
-                          @"Jon Favreau[27] Mark Fergus & Hawk Ostby and Art Marcum & Matt Holloway[27][28] Avi Arad and Kevin Feige",
-                          @""],
-                        @[@"The Incredible Hulk",
-                          @"Louis Leterrier[29] Zak Penn[30]  Avi Arad, Gale Anne Hurd and Kevin Feige",
-                          @""],
-                        @[@"Iron Man 2",
-                          @"Jon Favreau[31] Justin Theroux[32]  Kevin Feige",
-                          @""],
-                        @[@"Thor",
-                          @"Kenneth Branagh[33] Ashley Edward Miller & Zack Stentz and Don Payne[34]",
-                          @""],
-                        @[@"Captain America: The First Avenger",
-                          @"Joe Johnston[35]  Christopher Markus & Stephen McFeely[36]",
-                          @"https://picsum.photos/id/5/200/200"],
-                        @[@"Marvel's The Avengers",
-                          @"Joss Whedon[37]",
-                          @"https://picsum.photos/id/6/200/200"],
-                        @[@"Iron Man 3",
-                          @"Shane Black[38] Drew Pearce and Shane Black[38][39] Kevin Feige",
-                          @"https://picsum.photos/id/7/200/200"],
-                        @[@"Thor: The Dark World",
-                          @"Alan Taylor[40] Christopher L. Yost and Christopher Markus & Stephen McFeely[41]",
-                          @"https://picsum.photos/id/1/200/200"],
-                        @[@"Captain America: The Winter Soldier",
-                          @"Anthony and Joe Russo[42] Christopher Markus & Stephen McFeely[43]",
-                          @"https://picsum.photos/id/9/200/200"],
-                        @[@"Guardians of the Galaxy",
-                          @"James Gunn[44]  James Gunn and Nicole Perlman[45]",
-                          @"https://picsum.photos/id/10/200/200"],
-                        @[@"Avengers: Age of Ultron",
-                          @"Joss Whedon[46]",
-                          @"https://picsum.photos/id/11/200/200"],
-                        @[@"Ant-Man",
-                          @"Peyton Reed[47] Edgar Wright & Joe Cornish and Adam McKay & Paul Rudd[48]",
-                          @"https://picsum.photos/id/12/200/200"],
-                        @[@"Captain America: Civil War",
-                          @"Anthony and Joe Russo[49] Christopher Markus & Stephen McFeely[49]  Kevin Feige",
-                          @"https://picsum.photos/id/13/200/200"],
-                        @[@"Doctor Strange",
-                          @"Scott Derrickson[50]  Jon Spaihts and Scott Derrickson & C. Robert Cargill[51]",
-                          @"https://picsum.photos/id/14/200/200"],
-                        @[@"Guardians of the Galaxy Vol. 2",
-                          @"James Gunn[45]",
-                          @"https://picsum.photos/id/15/200/200"],
-                        @[@"Spider-Man: Homecoming",
-                          @"Jon Watts[52] Jonathan Goldstein & John Francis Daley",
-                          @"https://picsum.photos/id/16/200/200"],
-                        @[@"Thor: Ragnarok",
-                          @"Taika Waititi[54] Eric Pearson and Craig Kyle & Christopher L. Yost[55][56] Kevin @Feige",
-                          @"https://picsum.photos/id/17/200/200"],
-                        @[@"Black Panther",
-                          @"Ryan Coogler[57]  Ryan Coogler & Joe Robert Cole[58][59]",
-                          @"https://picsum.photos/id/18/200/200"],
-                        @[@"Avengers: Infinity War",
-                          @"Anthony and Joe Russo[60] Christopher Markus & Stephen McFeely[61]",
-                          @"https://picsum.photos/id/19/200/200"],
-                        @[@"Ant-Man and the Wasp",
-                          @"Peyton Reed[62] Chris McKenna & Erik Sommers and Paul Rudd & Andrew Barrer & Gabriel @Ferrari[63] Kevin Feige and Stephen Broussard",
-                          @"https://picsum.photos/id/20/200/200"],
-                        @[@"Captain Marvel",
-                          @"Anna Boden & Ryan Fleck[64] Anna Boden & Ryan Fleck & Geneva Robertson-Dworet[65] Kevin @Feige",
-                          @"https://picsum.photos/id/21/200/200"],
-                        @[@"Avengers: Endgame",
-                          @"Anthony and Joe Russo[60] Christopher Markus & Stephen McFeely[61]",
-                          @"https://picsum.photos/id/22/200/200"],
-                        @[@"Spider-Man: Far From Home",
-                          @"Jon Watts[66] Chris McKenna & Erik Sommers[67]  Kevin Feige",
-                          @"https://picsum.photos/id/23/200/200"],];
-    }
-    return self;
-}
 
 - (void)reloadInboxMessagesInOrder:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL))success {
     if (!_inboxMessages) {
@@ -101,7 +26,7 @@
     }
     NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.managedObjectContext;
     if(context) {
-        [InAppNotificationEntity fetchAll:BlueShiftInAppNoTriggerEvent forDisplayPage: @"" context:context withHandler:^(BOOL status, NSArray *results) {
+        [InAppNotificationEntity fetchAll:BlueShiftInAppTriggerModeInbox forDisplayPage: @"" context:context withHandler:^(BOOL status, NSArray *results) {
             if (status) {
                 [self->_inboxMessages removeAllObjects];
                 NSArray* orderedResults;
@@ -111,20 +36,23 @@
                     } else {
                         orderedResults = [[results reverseObjectEnumerator] allObjects];
                     }
-                    
                     for (InAppNotificationEntity *inApp in orderedResults) {
                         NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:inApp.payload];
-                        //                        NSDictionary* inboxDict = payloadDictionary[@"data"][@"inapp"][@"inbox"];
-                        int randomNumber = arc4random() % 22;
-                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:randomNumber%2==0?NO:YES title:self->_titleArray[randomNumber][0] detail:self->_titleArray[randomNumber][1] date:[self getLocalDateFromUTCDate:inApp.timestamp] iconURL:self->_titleArray[randomNumber][2] message:payloadDictionary];
+                        NSDictionary* inboxDict = payloadDictionary[@"data"][@"inbox"];
+                        NSString* title = [inboxDict valueForKey:@"title"];
+                        NSString* detail = [inboxDict valueForKey:@"details"];
+                        NSString* icon = [inboxDict valueForKey:@"icon"];
+                        
+                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:inApp.readStatus title:title detail:detail date:[self getLocalDateFromUTCDate:inApp.timestamp] iconURL:icon messagePayload:payloadDictionary];
                         [self->_inboxMessages addObject:msg];
                     }
                 } else {
                     self->_inboxMessages = [@[] mutableCopy];
                 }
                 success(YES);
+            } else {
+                success(NO);
             }
-            success(NO);
         }];
     }
 }
@@ -141,6 +69,13 @@
 }
 - (NSUInteger)numberOfSections {
     return 1;
+}
+
+- (void)markMessageAsRead:(BlueshiftInboxMessage*)message {
+    if (message.readStatus == NO) {
+        [BlueShift.sharedInstance markInboxMessageAsRead:message];
+        message.readStatus = YES;
+    }
 }
 
 - (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^_Nonnull)(NSData* _Nullable))handler {

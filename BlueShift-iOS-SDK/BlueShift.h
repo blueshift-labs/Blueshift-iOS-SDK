@@ -256,6 +256,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message;
 
 - (void)deleteMessageFromInbox:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler;
+
+- (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message;
+
 @end
 
 NS_ASSUME_NONNULL_END

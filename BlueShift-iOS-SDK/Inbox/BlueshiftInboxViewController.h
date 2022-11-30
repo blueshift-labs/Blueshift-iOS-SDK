@@ -27,11 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+IB_DESIGNABLE
 @interface BlueshiftInboxViewController : UITableViewController
 
 @property IBInspectable NSString* _Nullable customCellNibName;
 
 @property IBInspectable NSString* _Nullable inboxDelegateName;
+
+@property IBInspectable UIColor* _Nullable unreadBadgeColor;
 
 @property (nonatomic, weak) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 

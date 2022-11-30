@@ -16,9 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueShiftRequestOperationManager : NSObject<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
-@property NSURLSession *mainURLSession;
-@property NSURLSessionConfiguration *sessionConfiguraion;
-@property NSURLSession *replayURLSesion;
+@property NSURLSession * _Nullable mainURLSession;
+@property NSURLSessionConfiguration* _Nullable sessionConfiguraion;
+@property NSURLSession* _Nullable replayURLSesion;
 
 /// Image cache for storing downloaded images from the inbox and in-app notifications.
 @property (nonatomic, strong) NSCache<NSString*, NSData *> *inboxImageDataCache;

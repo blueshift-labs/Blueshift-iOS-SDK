@@ -26,9 +26,8 @@
 @dynamic createdAt;
 @dynamic displayOn;
 @dynamic timestamp;
-
-- (void)fetchBy:(NSString *)key withValue:(NSString *)value {
-}
+@dynamic availability;
+@dynamic readStatus;
 
 + (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode forDisplayPage:(NSString *)displayOn context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler {
     if (nil != masterContext) {
@@ -50,27 +49,8 @@
 }
 
 + (void *)fetchFromCoreDataFromContext:(NSManagedObjectContext *)context forTriggerMode: (BlueShiftInAppTriggerMode) triggerMode forDisplayPage:(NSString *)displayOn request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler {
-    NSString* triggerStr;
-    switch (triggerMode) {
-        case BlueShiftInAppTriggerNow:
-            triggerStr = kInAppTriggerModeNow;
-            break;
-        case BlueShiftInAppTriggerUpComing:
-            triggerStr = kInAppTriggerModeUpcoming;
-            break;
-        case BlueShiftInAppTriggerEvent:
-            triggerStr = kInAppTriggerModeEvent;
-            break;
-        case BlueShiftInAppNoTriggerEvent:
-            triggerStr = @"";
-            break;
-        case BlueShiftInAppTriggerNowAndUpComing:
-            triggerStr = kInAppTriggerModeNowAndUpcoming;
-            break;
-    }
-    
     displayOn =  (displayOn ? displayOn: @"");
-    NSPredicate *predicate = [self getPredicates: triggerStr andDisplayOn: displayOn];
+    NSPredicate *predicate = [self getPredicateForTrigger:triggerMode andDisplayOn: displayOn];
     if (predicate) {
         [fetchRequest setPredicate:predicate];
     }
@@ -94,41 +74,40 @@
         } else {
             handler(NO, nil);
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         handler(NO, nil);
     }
 }
 
-+ (NSPredicate * _Nullable)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn {
-    if ([triggerStr isEqualToString:kInAppTriggerModeNowAndUpcoming]) {
-        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil];
-    } else if (triggerStr && ![triggerStr isEqualToString: @""]) {
-        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", triggerStr, @"pending", displayOn, @"", nil];
++ (NSPredicate * _Nullable)getPredicateForTrigger:(BlueShiftInAppTriggerMode)trigger andDisplayOn:(NSString *)displayOn {
+    NSString* triggerStr = trigger == BlueShiftInAppTriggerUpComing ? kInAppTriggerModeUpcoming : kInAppTriggerModeNow;
+    
+    if (trigger == BlueShiftInAppTriggerNowAndUpComing) {
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ OR triggerMode == %@)AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@) AND (availability == %@ OR availability == %@)", @"now",@"upcoming", @"pending", displayOn, @"", nil, kBSAvailabiltyInAppOnly, nil];
+    } else if(trigger == BlueShiftInAppTriggerModeInbox) {
+        return [NSPredicate predicateWithFormat:@"triggerMode == %@ AND (availability == %@ OR availability == %@)", kInAppTriggerModeNow, kBSAvailabiltyInboxAndInApp, kBSAvailabiltyInboxOnly];
     } else {
-        return nil;
+        return [NSPredicate predicateWithFormat:@"(triggerMode == %@ AND status == %@) AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@) AND availability == %@", triggerStr, @"pending", displayOn, @"", nil, kBSAvailabiltyInAppOnly];
     }
+}
+
++ (NSPredicate* _Nullable)getPredicateForNotificationIds {
+    return [NSPredicate predicateWithFormat:@"id IN %@", @[]];
 }
 
 - (void) insert:(NSDictionary *)dictionary usingPrivateContext: (NSManagedObjectContext*)privateContext
  andMainContext: (NSManagedObjectContext*)masterContext
         handler:(void (^)(BOOL))handler {
-    if (nil != masterContext && nil != privateContext) {
-        NSManagedObjectContext *context = privateContext;
-        context.parentContext = masterContext;
-        if (context == nil || masterContext == nil) {
-            handler(NO);
-            return;
-        }
+    if (masterContext && privateContext) {
         [self map:dictionary];
         
         @try {
-            if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                [context performBlock:^{
+            if([privateContext isKindOfClass:[NSManagedObjectContext class]]) {
+                [privateContext performBlock:^{
                     @try {
                         NSError *error = nil;
-                        [context save:&error];
+                        [privateContext save:&error];
                         if(masterContext && [masterContext isKindOfClass:[NSManagedObjectContext class]]) {
                             [masterContext performBlock:^{
                                 @try {
@@ -237,6 +216,7 @@
                         if (arrResult.count > 0) {
                             InAppNotificationEntity *entity = arrResult[0];
                             [entity setValue: status forKey: kInAppStatus];
+                            entity.readStatus = YES;
                             error = nil;
                             [context save:&error];
                             handler(YES);
@@ -258,6 +238,40 @@
         handler(NO);
     }
 }
+
+#pragma mark - Inbox
+
++ (void)markNotificationAsRead:(BlueshiftInboxMessage *)message {
+    @try {
+        NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.managedObjectContext;
+        if(context && message.readStatus == NO) {
+            NSEntityDescription *entity;
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:[BlueShift sharedInstance].appDelegate.managedObjectContext];
+            [fetchRequest setEntity:entity];
+            NSPredicate *predicate = [NSPredicate predicateWithFormat: @"id == %@", message.messageUUID];
+            fetchRequest.predicate = predicate;
+            [context performBlock:^{
+                @try {
+                    NSError *error;
+                    NSArray *arrResult = [context executeFetchRequest:fetchRequest error:&error];
+                    if (arrResult.count > 0) {
+                        InAppNotificationEntity *notification = arrResult[0];
+                        notification.readStatus = YES;
+                        error = nil;
+                        [context save:&error];
+                    }
+                } @catch (NSException *exception) {
+                    
+                }
+            }];
+                    
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+}
+
 
 - (void)map:(NSDictionary *)dictionary {
     @try {
@@ -290,7 +304,7 @@
             dictionary = [dictionary objectForKey: kInAppNotificationKey];
         }
         
-        /* get type of In-App msg */
+        // Get type of In-App msg
         if ([dictionary objectForKey: kSilentNotificationPayloadTypeKey] &&
             [dictionary objectForKey: kSilentNotificationPayloadTypeKey] != [NSNull null]) {
             self.type = [dictionary objectForKey: kSilentNotificationPayloadTypeKey];
@@ -301,7 +315,7 @@
             self.displayOn = [dictionary objectForKey: kInAppNotificationPayloadDisplayOnKey];
         }
         
-        /* get start and end Time */
+        // Get start and end Time
         if ([dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] &&
             [dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] != [NSNull null]) {
             self.endTime = [NSNumber numberWithDouble: [[dictionary objectForKey: kSilentNotificationTriggerEndTimeKey] doubleValue]];
@@ -320,10 +334,11 @@
             }
         }
         
-        /* Other properties */
         self.priority = kInAppPriorityMedium;
-        self.eventName = @"";
+        self.eventName = kInAppNotificationKey;
         self.status = kInAppStatusPending;
+        self.readStatus = NO;
+        self.availability = [dictionary valueForKey:kBSAvailabilty];
         self.createdAt = [NSNumber numberWithDouble: (double)[[NSDate date] timeIntervalSince1970]];
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     } @catch (NSException *exception) {

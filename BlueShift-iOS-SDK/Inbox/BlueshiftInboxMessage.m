@@ -8,7 +8,7 @@
 #import "BlueshiftInboxMessage.h"
 
 @implementation BlueshiftInboxMessage
-- (instancetype)initMessageId:(NSString*)mId objectId:(NSManagedObjectID*)oId inAppType:(NSString*)inAppType readStatus:(BOOL)status title:(NSString*)title detail:(NSString*)detail date:(NSDate*)date iconURL:(NSString*)iconURL message:(NSDictionary*)message {
+- (instancetype)initMessageId:(NSString*)mId objectId:(NSManagedObjectID*)oId inAppType:(NSString*)inAppType readStatus:(BOOL)status title:(NSString*)title detail:(NSString*)detail date:(NSDate*)date iconURL:(NSString*)iconURL messagePayload:(NSDictionary*)messagePayload {
     self = [super init];
     if (self) {
         
@@ -30,7 +30,7 @@
         
         self.iconImageURL = iconURL;
                 
-        self.message = message;
+        self.messagePayload = messagePayload;
     }
     return self;
 }

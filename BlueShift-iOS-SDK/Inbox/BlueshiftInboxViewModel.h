@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)numberOfSections;
 
+- (void)markMessageAsRead:(BlueshiftInboxMessage*)message;
 
 @end
 

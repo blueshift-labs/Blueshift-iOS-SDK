@@ -12,11 +12,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftInboxNavigationViewController : UINavigationController
 
-@property IBInspectable NSString* _Nullable tableViewCellNibName;
+@property (nonatomic, assign) IBInspectable NSString* _Nullable customCellNibName;
 
-@property IBInspectable (nonatomic) NSString* _Nullable inboxDelegateName;
+@property (nonatomic, assign) IBInspectable NSString* _Nullable inboxDelegateName;
 
-@property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
+@property (nonatomic, assign) IBInspectable UIColor* _Nullable unreadBadgeColor;
+
+@property (nonatomic, assign) IBInspectable BOOL enableLargeTitle;
+
+@property (nonatomic) id<BlueshiftInboxViewControllerDelegate> _Nullable inboxDelegate;
 
 @end
 

@@ -841,30 +841,30 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 #pragma mark Track delivered, open and click events
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:kBSClick withParams:userInfo canBatchThisEvent:isBatchEvent];
+    [self sendTrackingAnalytics:kBSClick withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
 
 - (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:kBSDelivered withParams:userInfo canBatchThisEvent:isBatchEvent];
+    [self sendTrackingAnalytics:kBSDelivered withParams:userInfo canBatchThisEvent:isBatchEvent];
 }
 
 - (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:kBSDelivered withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendTrackingAnalytics:kBSDelivered withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationShowingWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:kBSOpen withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendTrackingAnalytics:kBSOpen withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationButtonTappedWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:kBSClick withParams: notification canBatchThisEvent: isBatchEvent];
+    [self sendTrackingAnalytics:kBSClick withParams: notification canBatchThisEvent: isBatchEvent];
 }
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload canBacthThisEvent:(BOOL)isBatchEvent {
-    [self sendPushAnalytics:kBSDismiss withParams: notificationPayload canBatchThisEvent: isBatchEvent];
+    [self sendTrackingAnalytics:kBSDismiss withParams: notificationPayload canBatchThisEvent: isBatchEvent];
 }
 
-- (void)sendPushAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
+- (void)sendTrackingAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics:userInfo]) {
         NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
         NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
@@ -959,11 +959,17 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
     if (apiResponse && [apiResponse objectForKey: kInAppNotificationContentPayloadKey]) {
-        NSMutableArray *inAppNotifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
-        if (inAppNotifications.count > 0 && _inAppNotificationMananger) {
-            [_inAppNotificationMananger initializeInAppNotificationFromAPI:inAppNotifications handler:^(BOOL status) {
-                completionHandler(YES);
-            }];
+        NSMutableArray *notifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
+        if (notifications.count > 0 && _inAppNotificationMananger) {
+            if (BlueShift.sharedInstance.config.enableMobileInbox) {
+                [_inAppNotificationMananger initializeInboxNotifications:notifications handler:^(BOOL status) {
+                    completionHandler(YES);
+                }];
+            } else {
+                [_inAppNotificationMananger initializeInAppNotificationFromAPI:notifications handler:^(BOOL status) {
+                    completionHandler(YES);
+                }];
+            }
         } else {
             completionHandler(YES);
         }
@@ -1092,7 +1098,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message {
     if (message) {
-        BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.message forType:message.inAppNotificationType];
+        BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.messagePayload forType:message.inAppNotificationType];
+        inApp.isFromInbox = YES;
         [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
     }
 }
@@ -1102,5 +1109,10 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         handler(status);
     }];
 }
+
+- (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message {
+    [InAppNotificationEntity markNotificationAsRead:message];
+}
+
 
 @end
