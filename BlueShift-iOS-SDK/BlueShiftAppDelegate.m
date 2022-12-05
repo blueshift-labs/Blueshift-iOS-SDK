@@ -17,6 +17,7 @@
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
 static NSManagedObjectContext * _Nullable managedObjectContext;
+static NSManagedObjectContext * _Nullable inboxManagedObjectContext;
 static NSManagedObjectContext * _Nullable realEventManagedObjectContext;
 static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
 
@@ -802,6 +803,8 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 if (!store) {
                     [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     return;
+                } else {
+                    [BlueshiftLog logInfo:@"Core Data path -" withDetails:storeURL.absoluteString methodName:nil];
                 }
                 
                 // Migrate the core data location and remove the old files from document directory if the store location gets changed.
@@ -824,6 +827,9 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 }
                 managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
                 [managedObjectContext setPersistentStoreCoordinator:coordinator];
+                
+                inboxManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                inboxManagedObjectContext.parentContext = managedObjectContext;
 
                 realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
                 [realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
@@ -839,15 +845,18 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     });
 }
 
-- (NSManagedObjectContext *)managedObjectContext {
+- (NSManagedObjectContext* _Nullable)inboxManagedObjectContext {
+    return  inboxManagedObjectContext;
+}
+- (NSManagedObjectContext* _Nullable)managedObjectContext {
     return managedObjectContext;
 }
 
-- (NSManagedObjectContext *)realEventManagedObjectContext {
+- (NSManagedObjectContext* _Nullable)realEventManagedObjectContext {
     return realEventManagedObjectContext;
 }
 
-- (NSManagedObjectContext *)batchEventManagedObjectContext {
+- (NSManagedObjectContext* _Nullable)batchEventManagedObjectContext {
     return batchEventManagedObjectContext;
 }
 

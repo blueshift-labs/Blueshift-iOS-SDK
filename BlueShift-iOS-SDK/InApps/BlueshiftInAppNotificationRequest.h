@@ -16,4 +16,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+
+@interface BlueshiftInboxAPIManager : NSObject
+
++ (void)getUnreadStatus:(void (^)(NSArray*))success failure:(void (^)(NSError*))failure;
+
++ (void)getMessagesForMessageUUIds:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
+
+@end
+
 NS_ASSUME_NONNULL_END

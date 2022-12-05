@@ -48,12 +48,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// @warning In the sceneDelegate enabled apps, In order to access multiple windows to find the keyWindow, this function needs to be executed on the main thread
 + (UIWindow *)getApplicationKeyWindow;
 
-/// Returns MD5 hash for the given string
-+ (NSString *)getMD5ForString:(NSString*)string;
-
 /// Download font awesome file if not downloaded alredy.
 /// @param completionHandler  block to be called after downloading the font file.
 + (void)downloadFontAwesomeFile:(void(^)(void))completionHandler;
+
++ (NSDateFormatter*)getUTCDateFormatter;
+
++ (NSDate*)getUTCDateFromDateString:(NSString*)createdAtDateString;
 
 @end
 

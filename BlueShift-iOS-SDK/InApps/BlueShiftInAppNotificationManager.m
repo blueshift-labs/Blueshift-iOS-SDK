@@ -59,7 +59,7 @@
 - (void)onApplicationEnteringForeground:(NSNotification *)notification {
     // start the timer once app enters foreground.
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
-        [self fetchNowAndUpcomingInAppMessageFromDB];
+//        [self fetchNowAndUpcomingInAppMessageFromDB];
         [self startInAppMessageFetchTimer];
     }
 }
@@ -102,144 +102,108 @@
 #pragma mark - Insert, delete, update in-app notifications
 - (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
     @try {
-        if (notificationArray !=nil && notificationArray.count > 0) {
-            for (int counter = 0; counter < notificationArray.count ; counter++) {
-                NSDictionary* inapp = [notificationArray objectAtIndex: counter];
-                double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
-                // Do not add expired in-app notifications to in-app DB.
-                if ([self checkInAppNotificationExpired:expiresAt] == NO) {
-                    [self addInAppNotificationToDataStore: inapp];
-                } else {
-                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+        if (notificationArray && notificationArray.count > 0) {
+            NSMutableArray *messageUUIDs = [NSMutableArray arrayWithCapacity:[notificationArray count]];
+            [notificationArray enumerateObjectsUsingBlock:^(NSDictionary* obj, NSUInteger idx, BOOL *stop) {
+                [messageUUIDs addObject:[obj[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey]];
+            }];
+            
+            [InAppNotificationEntity checkIfMessagesPresentForMessageUUIDs:messageUUIDs handler:^(BOOL status, NSDictionary * _Nonnull uuids) {
+                for (int counter = 0; counter < notificationArray.count ; counter++) {
+                    NSDictionary* inapp = [notificationArray objectAtIndex: counter];
+                    double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
+                    //Do not add duplicate messages in the db
+                    if(![uuids valueForKey:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey]]) {
+                        // Do not add expired in-app notifications to in-app DB.
+                        if ([self checkInAppNotificationExpired:expiresAt] == NO) {
+                            [self addInAppNotificationToDataStore: inapp];
+                        } else {
+                            [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                        }
+                    } else {
+                        [BlueshiftLog logInfo:@"Skipped adding duplicate in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                    }
                 }
-            }
+                handler(YES);
+            }];
         }
     } @catch (NSException *exception) {
     }
-    handler(YES);
 }
 
-- (void)initializeInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
+- (void)addInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
     @try {
         if (notificationArray && notificationArray.count > 0) {
-            for (int counter = 0; counter < notificationArray.count ; counter++) {
-                NSDictionary* inapp = [notificationArray objectAtIndex: counter];
-                double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
-                // Do not add expired in-app notifications to in-app DB.
-                if ([self checkInAppNotificationExpired:expiresAt] == NO) {
-                   // TODO: remove this code later
-                    NSMutableDictionary *data = [inapp[kInAppNotificationDataKey] mutableCopy];
-                    NSMutableDictionary *mutableInapp = [data[kInAppNotificationKey] mutableCopy];
-                    if([mutableInapp[@"type"] isEqual:@"slide_in_banner"]) {
-                        [mutableInapp setValue:kBSAvailabiltyInAppOnly forKey:kBSAvailabilty];
-                    } else if ([mutableInapp[@"type"] isEqual:@"modal"]){
-                        [mutableInapp setValue:kBSAvailabiltyInboxAndInApp forKey:kBSAvailabilty];
+            NSMutableArray *messageUUIDs = [NSMutableArray arrayWithCapacity:[notificationArray count]];
+            [notificationArray enumerateObjectsUsingBlock:^(NSDictionary* obj, NSUInteger idx, BOOL *stop) {
+                [messageUUIDs addObject:[obj[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey]];
+            }];
+            
+            [InAppNotificationEntity checkIfMessagesPresentForMessageUUIDs:messageUUIDs handler:^(BOOL status, NSDictionary * _Nonnull uuids) {
+                for (int counter = 0; counter < notificationArray.count ; counter++) {
+                    NSDictionary* inapp = [notificationArray objectAtIndex: counter];
+                    double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
+                    //Do not add duplicate messages in the db
+                    if(![uuids valueForKey:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey]]) {
+                        // Do not add expired in-app notifications to in-app DB.
+                        if ([self checkInAppNotificationExpired:expiresAt] == NO) {
+                            [self addInAppNotificationToDataStore: inapp];
+                        } else {
+                            [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                        }
                     } else {
-                        [mutableInapp setValue:kBSAvailabiltyInboxOnly forKey:kBSAvailabilty];
+                        [BlueshiftLog logInfo:@"Skipped adding duplicate in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
                     }
-                    data[kInAppNotificationKey] = mutableInapp;
-                    [data setValue:[@{
-                        @"title": @"Title text",
-                        @"details": @"Detailed text goes here",
-                        @"icon": @"https://picsum.photos/200/200"
-                    } mutableCopy] forKey:@"inbox"];
-                    
-                    // till here
-                    [self addInAppNotificationToDataStore: @{@"data": data}];
-                } else {
-                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                }
+                handler(YES);
+            }];
+        }
+    } @catch (NSException *exception) {
+    }
+}
+
+- (void)addInAppNotificationToDataStore:(NSDictionary *)payload {
+    @try {
+        NSManagedObjectContext *privateContext = [BlueShift sharedInstance].appDelegate.inboxManagedObjectContext;
+        if (privateContext) {
+            NSEntityDescription *entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:privateContext];
+            if(entity) {
+                InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: privateContext];
+                if(inAppNotificationEntity) {
+                    [inAppNotificationEntity insert:payload handler:^(BOOL status) {
+                        if(status) {
+                            [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
+                            // invoke the inApp clicked callback method
+                            if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
+                                [self.inAppNotificationDelegate inAppNotificationDidDeliver:payload];
+                            }
+                        }
+                    }];
                 }
             }
         }
     } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    handler(YES);
-}
-
-
-- (void)addInAppNotificationToDataStore: (NSDictionary *) payload {
-    [self checkInAppNotificationExist: payload handler:^(BOOL status){
-        if (status == NO) {
-            if (nil == self.privateObjectContext) {
-                self.privateObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            }
-            
-            BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-            NSManagedObjectContext *masterContext;
-            if (appDelegate) {
-                @try {
-                    masterContext = appDelegate.managedObjectContext;
-                }
-                @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                }
-            }
-            if(masterContext) {
-                NSEntityDescription *entity;
-                @try {
-                    entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-                }
-                @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                }
-                if(entity != nil) {
-                    InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: masterContext];
-                    
-                    if(inAppNotificationEntity != nil) {
-                        [inAppNotificationEntity insert:payload usingPrivateContext:self.privateObjectContext andMainContext: masterContext handler:^(BOOL status) {
-                            if(status) {
-                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
-                                // invoke the inApp clicked callback method
-                                if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
-                                    [self.inAppNotificationDelegate inAppNotificationDidDeliver:payload];
-                                }
-                            }
-                        }];
-                    }
-                }
-            }
-        }
-    }];
 }
 
 /// Returns true if the In-App exists in the SDK database.
 /// @param payload  In-App notification payload
 /// @param handler completion handler
 - (void)checkInAppNotificationExist:(NSDictionary *)payload handler:(void (^)(BOOL))handler{
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
+    @try {
+        NSString *messageUUID = [self getInAppMessageID: payload];
+        if (messageUUID) {
+//            [InAppNotificationEntity fetchNotificationByID:privateContext forNotificatioID: messageUUID request: fetchRequest handler:^(BOOL status, NSArray *result){
+//                handler(status);
+//            }];
         }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
-    
-    if (masterContext != nil) {
-        NSEntityDescription *entity;
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        @try {
-            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-            [fetchRequest setEntity:entity];
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-        
-        if(entity != nil && fetchRequest.entity != nil) {
-            NSString *notificationID = [self getInAppMessageID: payload];
-            if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-                [InAppNotificationEntity fetchNotificationByID:masterContext forNotificatioID: notificationID request: fetchRequest handler:^(BOOL status, NSArray *result){
-                        handler(status);
-                }];
-            }
-        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
--(NSString *)getInAppMessageID:(NSDictionary *)notificationPayload {
+-(NSString * _Nullable)getInAppMessageID:(NSDictionary *)notificationPayload {
     if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
         return (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
     } else {
@@ -251,9 +215,10 @@
         }
     }
     
-    return @"";
+    return nil;
 }
 
+//TODO: need to modify this to delete only the expired notification
 - (void)deleteExpireInAppNotificationFromDataStore {
     BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
     NSManagedObjectContext *masterContext;
@@ -343,54 +308,9 @@
     return (timeDifference / (3600 * 24));
 }
 
-- (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler {
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
-    
-    if (masterContext != nil) {
-        NSEntityDescription *entity;
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        @try {
-            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-            [fetchRequest setEntity:entity];
-            if(entity != nil && fetchRequest.entity != nil) {
-                [masterContext performBlock:^{
-                    @try {
-                        NSError *error;
-                        NSArray *results = [masterContext executeFetchRequest: fetchRequest error:&error];
-                        NSArray *sortedList = [self sortedInAppMessageWithDate: results];
-                        if (sortedList != nil && [sortedList count] > 0 && sortedList[[sortedList count] - 1]) {
-                            InAppNotificationEntity *notification = results[[sortedList count] -1];
-                            handler(YES, notification.id, notification.timestamp);
-                        } else {
-                            handler(NO, @"", @"");
-                        }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                        handler(NO, @"", @"");
-                    }
-                }];
-            } else {
-                handler(NO, @"", @"");
-            }
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-            handler(NO, @"", @"");
-        }
-    } else {
-        handler(NO, @"", @"");
-    }
-}
 
+
+// TODO: can be removed, not used as used sort descriptor
 - (NSArray *)sortedInAppMessageWithDate:(NSArray *)messageList {
     if (messageList != nil && messageList.count > 0) {
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -464,35 +384,36 @@
 }
 
 - (void)updateInAppNotification:(NSDictionary *)notificationPayload {
-    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-    NSManagedObjectContext *masterContext;
-    if (appDelegate) {
-        @try {
-            masterContext = appDelegate.managedObjectContext;
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
-    }
-    if(masterContext) {
-        NSEntityDescription *entity;
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        @try {
-            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
-            [fetchRequest setEntity:entity];
-        }
-        @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        }
+    //    BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
+    //    NSManagedObjectContext *masterContext;
+    //    if (appDelegate) {
+    //        @try {
+    //            masterContext = appDelegate.managedObjectContext;
+    //        }
+    //        @catch (NSException *exception) {
+    //            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    //        }
+    //    }
+    //    if(masterContext) {
+    //        NSEntityDescription *entity;
+    //        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    //        @try {
+    //            entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:masterContext];
+    //            [fetchRequest setEntity:entity];
+    //        }
+    //        @catch (NSException *exception) {
+    //            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    //        }
+    //
+    NSString *notificationID = [self getInAppMessageID: notificationPayload];
+    if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
         
-        NSString *notificationID = [self getInAppMessageID: notificationPayload];
-        if (notificationID !=nil && ![notificationID isEqualToString:@""]) {
-        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
-            if (status) {
-                [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
-            }
-        }];
-        }
+        [InAppNotificationEntity markMessageAsRead:notificationID];
+        //        [InAppNotificationEntity updateInAppNotificationStatus: masterContext forNotificatioID: notificationID request: fetchRequest notificationStatus:@"Displayed" andAppDelegate: appDelegate handler:^(BOOL status){
+        //            if (status) {
+        //                [BlueshiftLog logInfo:@"Marked in-app message in DB as Displayed, messageId : " withDetails:notificationID methodName:nil];
+        //            }
+        //        }];
     }
 }
 
@@ -504,20 +425,7 @@
     if([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus]) {
         if ([self inAppNotificationDisplayOnPage]) {
             if (!self.currentNotificationController) {
-                BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
-                NSManagedObjectContext *masterContext;
-                if (appDelegate) {
-                    @try {
-                        masterContext = appDelegate.managedObjectContext;
-                    }
-                    @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                    }
-                }
-                if(masterContext == nil) {
-                    return;
-                }
-                [InAppNotificationEntity fetchAll:triggerMode forDisplayPage: [self inAppNotificationDisplayOnPage] context:masterContext withHandler:^(BOOL status, NSArray *results) {
+                [InAppNotificationEntity fetchAllMessagesForTrigger:triggerMode andDisplayPage:[self inAppNotificationDisplayOnPage] withHandler:^(BOOL status, NSArray *results) {
                     if (status) {
                         NSArray *sortedArray = [self sortedInAppNotification: results];
                         NSArray* filteredResults = [self filterInAppNotificationResults: sortedArray];

@@ -24,37 +24,15 @@
     if (!_inboxMessages) {
         _inboxMessages = [[NSMutableArray alloc] init];
     }
-    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.managedObjectContext;
-    if(context) {
-        [InAppNotificationEntity fetchAll:BlueShiftInAppTriggerModeInbox forDisplayPage: @"" context:context withHandler:^(BOOL status, NSArray *results) {
-            if (status) {
-                [self->_inboxMessages removeAllObjects];
-                NSArray* orderedResults;
-                if ([results count] > 0) {
-                    if (sortOrder == NSOrderedDescending) {
-                        orderedResults = results;
-                    } else {
-                        orderedResults = [[results reverseObjectEnumerator] allObjects];
-                    }
-                    for (InAppNotificationEntity *inApp in orderedResults) {
-                        NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:inApp.payload];
-                        NSDictionary* inboxDict = payloadDictionary[@"data"][@"inbox"];
-                        NSString* title = [inboxDict valueForKey:@"title"];
-                        NSString* detail = [inboxDict valueForKey:@"details"];
-                        NSString* icon = [inboxDict valueForKey:@"icon"];
-                        
-                        BlueshiftInboxMessage *msg = [[BlueshiftInboxMessage alloc] initMessageId:inApp.id objectId:inApp.objectID inAppType:inApp.type readStatus:inApp.readStatus title:title detail:detail date:[self getLocalDateFromUTCDate:inApp.timestamp] iconURL:icon messagePayload:payloadDictionary];
-                        [self->_inboxMessages addObject:msg];
-                    }
-                } else {
-                    self->_inboxMessages = [@[] mutableCopy];
-                }
-                success(YES);
-            } else {
-                success(NO);
-            }
-        }];
-    }
+    
+    [BlueShift.sharedInstance getInboxMessages:sortOrder handler:^(BOOL status, NSMutableArray * _Nullable messages) {
+        if (status) {
+            self->_inboxMessages = messages;
+        } else {
+            [self->_inboxMessages removeAllObjects];
+        }
+        success(YES);
+    }];
 }
 
 - (BlueshiftInboxMessage * _Nullable)itemAtIndexPath:(NSIndexPath *)indexPath {
@@ -97,12 +75,6 @@
     return [self sometimeAgoStringFromStringDate:createdAtDate];
 }
 
-- (NSDate*)getLocalDateFromUTCDate:(NSString*)createdAtDateString {
-    NSDateFormatter *dateFormatter = [self getUTCDateFormatter];
-    NSDate* utcDate = [dateFormatter dateFromString:createdAtDateString];
-    return utcDate;
-}
-
 // TODO: check for the different regional calendar types
 - (NSString*)sometimeAgoStringFromStringDate:(NSDate*)createdAtDate {
     if (createdAtDate) {
@@ -134,19 +106,6 @@
         return [NSString stringWithFormat:@"%@ ago",timeString];
     }
     return nil;
-}
-
--(NSDateFormatter*)getUTCDateFormatter {
-    if (_utcDateFormatter) {
-        return _utcDateFormatter;
-    } else {
-        _utcDateFormatter = [[NSDateFormatter alloc] init];
-        [_utcDateFormatter setDateFormat:kDefaultDateFormat];
-        [_utcDateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
-        [_utcDateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
-        [_utcDateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-        return _utcDateFormatter;
-    }
 }
 
 @end

@@ -259,6 +259,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message;
 
+- (void)getInboxMessages:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success;
+
+- (void)getLatestInboxMessagesUsingAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure;
+
 @end
 
 NS_ASSUME_NONNULL_END

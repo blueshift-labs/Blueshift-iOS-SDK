@@ -16,6 +16,10 @@
 #define kBSTrackAPI                @"track"
 #define kBSLiveContent             @"live"
 #define kBSInAppMessages           @"inapp/msg"
+#define kBSInboxMessages           @"http://localhost:8080/inbox/api/v1/messages"
+#define kBSInboxStatus             @"http://localhost:8080/inbox/api/v1/status"
+#define kBSInboxUpdate             @"http://localhost:8080/inbox/api/v1/update"
+
 
 @interface BlueshiftRoutes : NSObject
 
@@ -25,6 +29,9 @@
 + (NSString*)getTrackURL;
 + (NSString*)getLiveContentURL;
 + (NSString*)getInAppMessagesURL;
++ (NSString*)getInboxMessagesURL;
++ (NSString*)getInboxStatusURL;
++ (NSString*)getInboxUpdateURL;
 
 @end
 

@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSString *type;
 @property (nonatomic, retain) NSString *priority;
 @property (nonatomic, retain) NSString *triggerMode;
+
+// Notification name inapp or push
 @property (nonatomic, retain) NSString *eventName;
 @property (nonatomic, retain) NSString *status;
 @property (nonatomic, retain) NSString *displayOn;
@@ -31,15 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, retain) NSData *payload;
 
-@property (nonatomic) BOOL readStatus;
+- (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler;
 
++ (void)fetchAllMessagesForTrigger:(BlueShiftInAppTriggerMode)triggerMode andDisplayPage:(NSString* _Nullable)displayOn  withHandler:(void (^)(BOOL, NSArray *))handler;
 
-- (void) insert:(NSDictionary *)dictionary usingPrivateContext: (NSManagedObjectContext*)privateContext
- andMainContext: (NSManagedObjectContext*)masterContext handler:(void (^)(BOOL))handler;
++ (void)fetchLastReceivedMessageId:(void (^)(BOOL, NSString *, NSString *))handler;
 
-+ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode forDisplayPage:(NSString *)displayOn context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler;
-
-+ (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
++ (void)checkIfMessagesPresentForMessageUUIDs:(NSArray*)messageUUIDs handler:(void (^)(BOOL, NSDictionary *))handler;
 
 + (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler;
 
@@ -48,7 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Erase all the In app notifications records from the SDK database.
 + (void)eraseEntityData;
 
-+ (void)markNotificationAsRead:(BlueshiftInboxMessage *)message;
++ (void)markMessageAsRead:(NSString *)messageUUID;
+
++ (void)updateMessageUnreadStatusInDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray;
+
++ (void)updateDeletedMessagesinDB:(NSArray *)deleteIds;
 
 NS_ASSUME_NONNULL_END
 

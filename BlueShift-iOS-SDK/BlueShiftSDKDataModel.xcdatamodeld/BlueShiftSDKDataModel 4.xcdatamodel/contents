@@ -24,7 +24,6 @@
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="payload" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="priority" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="readStatus" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="startTime" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="status" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="timestamp" optional="YES" attributeType="String" syncable="YES"/>

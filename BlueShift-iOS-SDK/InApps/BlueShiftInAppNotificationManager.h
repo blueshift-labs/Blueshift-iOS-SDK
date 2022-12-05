@@ -21,9 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)load;
 - (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
-- (void)initializeInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
+- (void)addInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
 - (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
-- (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler;
+
 - (void)deleteExpireInAppNotificationFromDataStore;
 - (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray;
 - (void)stopInAppMessageFetchTimer;

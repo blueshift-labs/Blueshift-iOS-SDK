@@ -56,4 +56,16 @@
     return URLString;
 }
 
++ (NSString*)getInboxMessagesURL {
+    return kBSInboxMessages;
+}
+
++ (NSString*)getInboxStatusURL {
+    return kBSInboxStatus;
+}
+
++ (NSString*)getInboxUpdateURL {
+    return kBSInboxUpdate;
+}
+
 @end
