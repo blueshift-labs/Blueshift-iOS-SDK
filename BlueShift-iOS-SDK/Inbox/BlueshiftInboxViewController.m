@@ -218,7 +218,7 @@
 - (void)handleDeleteRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     // Delete the row from the data source
-    [BlueShift.sharedInstance deleteMessageFromInbox:message completionHandler:^(BOOL status) {
+    [BlueShift.sharedInstance deleteInboxMessage:message completionHandler:^(BOOL status) {
 //        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         if (status) {
             [self reloadTableView];

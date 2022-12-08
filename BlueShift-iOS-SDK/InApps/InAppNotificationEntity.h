@@ -7,7 +7,6 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-#import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
 
@@ -35,15 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler;
 
-+ (void)fetchAllMessagesForTrigger:(BlueShiftInAppTriggerMode)triggerMode andDisplayPage:(NSString* _Nullable)displayOn  withHandler:(void (^)(BOOL, NSArray *))handler;
++ (void)fetchAllMessagesForInbox:(NSComparisonResult)sortOrder handler:(void (^)(BOOL, NSArray * _Nullable))handler;
+
++ (void)fetchInAppMessageToDisplayOnScreen:(NSString*)displayOn WithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
 
 + (void)fetchLastReceivedMessageId:(void (^)(BOOL, NSString *, NSString *))handler;
 
 + (void)checkIfMessagesPresentForMessageUUIDs:(NSArray*)messageUUIDs handler:(void (^)(BOOL, NSDictionary *))handler;
-
-+ (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler;
-
-+ (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
 
 /// Erase all the In app notifications records from the SDK database.
 + (void)eraseEntityData;
@@ -53,6 +50,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)updateMessageUnreadStatusInDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray;
 
 + (void)updateDeletedMessagesinDB:(NSArray *)deleteIds;
+
++ (void)deleteInboxMessageFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler;
+
++ (NSFetchRequest*)getFetchRequestForPredicate:(NSPredicate* _Nullable)predicate sortDescriptor:(NSArray<NSSortDescriptor*>* _Nullable)sortDescriptor;
+
++ (void)deleteExpiredMessagesFromDB;
+
++ (void)getUnreadMessagesCountFromDB:(void(^)(NSUInteger))handler;
 
 NS_ASSUME_NONNULL_END
 

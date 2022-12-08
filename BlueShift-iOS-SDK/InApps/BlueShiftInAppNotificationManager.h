@@ -20,17 +20,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString * _Nullable inAppNotificationDisplayOnPage;
 
 - (void)load;
-- (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
-- (void)addInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
-- (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
 
-- (void)deleteExpireInAppNotificationFromDataStore;
-- (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray;
+- (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
+
+- (void)addInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
+
+- (void)fetchAndShowInAppNotification;
+
 - (void)stopInAppMessageFetchTimer;
 
 - (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen;
-
-- (void)removeInAppNotificationFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler;
 
 @end
 

@@ -111,7 +111,6 @@
 		9186B669271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m */; };
 		9186B66A271ED9FB00D425AF /* BlueShiftNotificationWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B64F271ED9FB00D425AF /* BlueShiftNotificationWindow.m */; };
 		9186B66B271ED9FB00D425AF /* InAppNotificationEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B650271ED9FB00D425AF /* InAppNotificationEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9186B66C271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B651271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B66D271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B652271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B653271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B67E271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B670271EDA0C00D425AF /* BlueshiftExtensionAnalyticsHelper.m */; };
@@ -243,7 +242,6 @@
 		9186B64E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BlueShiftInAppNotificationManager.m; path = InApps/BlueShiftInAppNotificationManager.m; sourceTree = "<group>"; };
 		9186B64F271ED9FB00D425AF /* BlueShiftNotificationWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BlueShiftNotificationWindow.m; path = InApps/BlueShiftNotificationWindow.m; sourceTree = "<group>"; };
 		9186B650271ED9FB00D425AF /* InAppNotificationEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InAppNotificationEntity.h; path = InApps/InAppNotificationEntity.h; sourceTree = "<group>"; };
-		9186B651271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlueShiftInAppTriggerMode.h; path = InApps/BlueShiftInAppTriggerMode.h; sourceTree = "<group>"; };
 		9186B652271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlueShiftNotificationSlideBannerViewController.h; path = InApps/BlueShiftNotificationSlideBannerViewController.h; sourceTree = "<group>"; };
 		9186B653271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlueShiftNotificationModalViewController.h; path = InApps/BlueShiftNotificationModalViewController.h; sourceTree = "<group>"; };
 		9186B66F271EDA0C00D425AF /* BlueShiftAppExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShiftAppExtension.h; sourceTree = "<group>"; };
@@ -439,7 +437,6 @@
 				9186B64E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m */,
 				9186B64A271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.h */,
 				9186B64D271ED9FB00D425AF /* BlueshiftInAppNotificationRequest.m */,
-				9186B651271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h */,
 				9186B649271ED9FB00D425AF /* BlueShiftInAppType.h */,
 				9186B640271ED9FA00D425AF /* BlueShiftNotificationCloseButton.h */,
 				9186B63D271ED9FA00D425AF /* BlueShiftNotificationCloseButton.m */,
@@ -530,7 +527,6 @@
 				9186B5F9271ED9EF00D425AF /* BlueshiftLog.h in Headers */,
 				9186B65E271ED9FB00D425AF /* BlueShiftInAppNotificationManager.h in Headers */,
 				9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */,
-				9186B66C271ED9FB00D425AF /* BlueShiftInAppTriggerMode.h in Headers */,
 				918B835C275F93BB0015ADF9 /* BlueshiftVersion.h in Headers */,
 				9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */,
 				917582DE29250F0900022F38 /* BlueshiftInboxMessage.h in Headers */,

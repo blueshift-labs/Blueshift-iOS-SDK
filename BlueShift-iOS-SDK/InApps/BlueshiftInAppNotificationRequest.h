@@ -21,7 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)getUnreadStatus:(void (^)(NSArray*))success failure:(void (^)(NSError*))failure;
 
-+ (void)getMessagesForMessageUUIds:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
++ (void)getMessagesForMessageUUIDs:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
+
++ (void)deleteMessagesWithMessageUUIDs:(NSArray*)messageIds success:(void (^)(BOOL))success failure:(void (^)(NSError*))failure;
 
 @end
 

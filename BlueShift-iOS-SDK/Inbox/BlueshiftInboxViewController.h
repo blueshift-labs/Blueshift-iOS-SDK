@@ -36,7 +36,7 @@ IB_DESIGNABLE
 
 @property IBInspectable UIColor* _Nullable unreadBadgeColor;
 
-@property (nonatomic, weak) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
+@property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 
 @end
 

@@ -12,7 +12,7 @@
 @implementation BlueshiftInAppNotificationRequest
 
 + (void)fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    [BlueshiftInboxAPIManager getMessagesForMessageUUIds:nil success:^(NSDictionary * _Nonnull data) {
+    [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:nil success:^(NSDictionary * _Nonnull data) {
         success(data);
 
     } failure:^(NSError * _Nonnull error) {
@@ -26,7 +26,7 @@
 
 + (void)getUnreadStatus:(void (^)(NSArray*))success failure:(void (^)(NSError*))failure {
     //TODO: remove the fetchAllMessagesForTrigger method call later
-    [InAppNotificationEntity fetchAllMessagesForTrigger:BlueShiftInAppTriggerModeInbox andDisplayPage:nil withHandler:^(BOOL status, NSArray * _Nonnull messages) {
+    [InAppNotificationEntity fetchAllMessagesForInbox:NSOrderedSame handler:^(BOOL status, NSArray *messages) {
         NSMutableDictionary* existingMessages = [[NSMutableDictionary alloc] init];
         for(InAppNotificationEntity* message in messages) {
             if([message.status isEqualToString:kInAppStatusPending]) {
@@ -62,7 +62,7 @@
     }];
 }
 
-+ (void)getMessagesForMessageUUIds:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void)getMessagesForMessageUUIDs:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [[BlueShift sharedInstance] getInAppNotificationAPIPayloadWithCompletionHandler:^(NSDictionary * apiPayload) {
         if(apiPayload) {
             NSMutableDictionary* payload = [apiPayload mutableCopy];
@@ -90,5 +90,30 @@
         }
     }];
 }
+
++ (void)deleteMessagesWithMessageUUIDs:(NSArray*)messageIds success:(void (^)(BOOL))success failure:(void (^)(NSError*))failure {
+    if(BlueShift.sharedInstance.config.apiKey && messageIds && messageIds.count > 0 && [BlueShiftNetworkReachabilityManager networkConnected]) {
+        NSString *url = [BlueshiftRoutes getInboxUpdateURL];
+        NSDictionary* payload = @{
+            @"api_key": BlueShift.sharedInstance.config.apiKey,
+            @"device_id": BlueShiftDeviceData.currentDeviceData.deviceUUID,
+            @"action": @"delete",
+            @"message_uuids": messageIds
+        };
+        
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+            if (status) {
+                [BlueshiftLog logAPICallInfo:@"Succesfully deleted messages." withDetails:nil statusCode:0];
+                success(status);
+            } else {
+                failure(error);
+            }
+        }];
+    } else {
+        NSError *error = (NSError*)@"Unable to delete messages as API key is missing or device is offline.";
+        failure(error);
+    }
+}
+
 
 @end

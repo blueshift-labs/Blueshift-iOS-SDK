@@ -136,6 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyle;
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyleDark;
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *notificationPayload;
+
 @property (nonatomic, assign) BOOL isFromInbox;
 
 - (instancetype)initFromEntity: (InAppNotificationEntity*)appEntity;

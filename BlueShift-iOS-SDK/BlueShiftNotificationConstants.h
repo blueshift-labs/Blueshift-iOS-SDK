@@ -105,4 +105,6 @@
 #define kBSTrackingOpenedByUser                                         @"user"
 #define kBSTrackingOpenedByPrefetch                                     @"prefetch"
 
+#define kBSMessageUUID                                                  @"message_uuid"
+
 #endif
