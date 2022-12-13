@@ -198,10 +198,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             
             if (config.enableMobileInbox) {
                 [self getLatestInboxMessagesUsingAPI:^{
-                    
-                } failure:^(NSError * _Nullable err) {
-                    
-                }];
+                    [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
+                } failure:^(NSError * _Nullable err) { }];
             } else {
                 [self fetchInAppNotificationFromAPI:^(void) {
                     [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
@@ -741,7 +739,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     if (eventName) {
         [parameterMutableDictionary setObject:eventName forKey:kEventGeneric];
     }
-    [self performRequestWithRequestParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
+    [self addCustomEventToQueueWithParams:[parameterMutableDictionary copy] isBatch:isBatchEvent];
 }
 
 #pragma mark Process custom and tracking events
@@ -749,33 +747,35 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 /// Add event to event processing queue
 /// @param requestParameters event parameters
 /// @param isBatchEvent  BOOL to determine if the event needs to be batched or not.
-- (void)performRequestWithRequestParameters:(NSDictionary *)requestParameters canBatchThisEvent:(BOOL)isBatchEvent{
-    @try {
-        if([self validateSDKTrackingRequirements] == false) {
-            return;
-        }
-        NSString *url = nil;
-        if(isBatchEvent) {
-            url = [BlueshiftRoutes getBulkEventsURL];
-        } else {
-            url = [BlueshiftRoutes getRealtimeEventsURL];
-        }
-        NSDictionary* eventParams = [self addDefaultParamsToDictionary:requestParameters];
-        BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[eventParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
-        // Check if blueshiftSerialQueue is not nil
-        if (blueshiftSerialQueue) {
-            if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
-                [BlueShiftRequestQueue addRequestOperation:requestOperation];
-            } else {
-                dispatch_async(blueshiftSerialQueue, ^{
-                    [BlueShiftRequestQueue addRequestOperation:requestOperation];
-                });
+- (void)addCustomEventToQueueWithParams:(NSDictionary *)requestParameters isBatch:(BOOL)isBatchEvent{
+    @synchronized (self) {
+        @try {
+            if([self validateSDKTrackingRequirements] == false) {
+                return;
             }
-        } else { // If blueshiftSerialQueue is not availble then execute it on same thread
-            [BlueShiftRequestQueue addRequestOperation:requestOperation];
+            NSString *url = nil;
+            if(isBatchEvent) {
+                url = [BlueshiftRoutes getBulkEventsURL];
+            } else {
+                url = [BlueshiftRoutes getRealtimeEventsURL];
+            }
+            NSDictionary* eventParams = [self addDefaultParamsToDictionary:requestParameters];
+            BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithRequestURL:url andHttpMethod:BlueShiftHTTPMethodPOST andParameters:[eventParams copy] andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0 andIsBatchEvent:isBatchEvent];
+            // Check if blueshiftSerialQueue is not nil
+            if (blueshiftSerialQueue) {
+                if([self isBlueshiftQueue]) { //check if the the current thread is of BlueShiftRequestQueue
+                    [BlueShiftRequestQueue addRequestOperation:requestOperation];
+                } else {
+                    dispatch_async(blueshiftSerialQueue, ^{
+                        [BlueShiftRequestQueue addRequestOperation:requestOperation];
+                    });
+                }
+            } else { // If blueshiftSerialQueue is not availble then execute it on same thread
+                [BlueShiftRequestQueue addRequestOperation:requestOperation];
+            }
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
@@ -783,16 +783,15 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     NSMutableDictionary *requestMutableParameters = [[NSMutableDictionary alloc] init];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftDeviceData currentDeviceData].toDictionary];
     [requestMutableParameters addEntriesFromDictionary:[BlueShiftAppData currentAppData].toDictionary];
-    if ([BlueShiftUserInfo sharedInstance]==nil) {
+    
+    if ([BlueShiftUserInfo sharedInstance] == nil) {
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"Please set BlueshiftUserInfo for sending the user attributes such as email id, customer id"] withDetails:nil methodName:nil];
     } else {
         NSString *email = [requestMutableParameters objectForKey:kEmail];
         NSMutableDictionary *blueShiftUserInfoMutableDictionary = [[BlueShiftUserInfo sharedInstance].toDictionary mutableCopy];
-        
-        if (email) {
-            if ([blueShiftUserInfoMutableDictionary objectForKey:kEmail]) {
-                [blueShiftUserInfoMutableDictionary removeObjectForKey:kEmail];
-            }
+        // Remove the email id from userInfo if the email id is already exists.
+        if (email && [blueShiftUserInfoMutableDictionary objectForKey:kEmail]) {
+            [blueShiftUserInfoMutableDictionary removeObjectForKey:kEmail];
         }
         
         [requestMutableParameters addEntriesFromDictionary:[blueShiftUserInfoMutableDictionary copy]];
@@ -810,7 +809,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 /// Add a tracking event to event processing queue. The track events could be delivered, open, click or dismiss.
 /// @param parameters tracking parameters
 /// @param isBatchEvent  BOOL to determine if the event needs to be batched or not.
-- (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
+- (void)addTrackingEventToQueueWithParams:(NSMutableDictionary *)parameters isBatch:(BOOL)isBatchEvent{
     @try {
         if([self validateSDKTrackingRequirements] == false) {
             return;
@@ -880,16 +879,16 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)sendTrackingAnalytics:(NSString *)type withParams:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent {
     if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics:userInfo]) {
-        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
-        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
+        NSDictionary *trackingParams = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary: userInfo];
+        NSMutableDictionary *mutableParams = [NSMutableDictionary dictionary];
         
-        if (pushTrackParameterDictionary) {
-            [parameterMutableDictionary addEntriesFromDictionary:pushTrackParameterDictionary];
+        if (trackingParams) {
+            [mutableParams addEntriesFromDictionary:trackingParams];
         }
         if (type) {
-            [parameterMutableDictionary setObject:type forKey:kBSAction];
+            [mutableParams setObject:type forKey:kBSAction];
         }
-        [self performRequestQueue:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
+        [self addTrackingEventToQueueWithParams:mutableParams isBatch:isBatchEvent];
     }
 }
 
@@ -929,11 +928,21 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 - (void)handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
-            [self fetchInAppNotificationFromAPI:^() {
-                if (self->_config.inAppManualTriggerEnabled == NO) {
-                         [self fetchInAppNotificationFromDBforApplicationState:applicationState];
+            if (_config.enableMobileInbox) {
+                if (_config.enableMobileInbox) {
+                    [self getLatestInboxMessagesUsingAPI:^{
+                        if (self->_config.inAppManualTriggerEnabled == NO) {
+                            [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
+                        }
+                    } failure:^(NSError * _Nullable err) { }];
+                }
+            } else {
+                [self fetchInAppNotificationFromAPI:^() {
+                    if (self->_config.inAppManualTriggerEnabled == NO) {
+                        [self fetchInAppNotificationFromDBforApplicationState:applicationState];
                     }
                 } failure:^(NSError *error){ }];
+            }
         } else if(_config.inAppManualTriggerEnabled == NO){
           [self fetchInAppNotificationFromDBforApplicationState:applicationState];
         }
@@ -949,22 +958,18 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure {
-    if(BlueShift.sharedInstance.config.enableMobileInbox == YES) {
-        
-    } else {
-        if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
-            [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
-                [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
-                    success();
-                }];
-            } failure:^(NSError * error) {
-                failure(error);
+    if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
+        [BlueshiftInAppNotificationRequest fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
+            [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
+                success();
             }];
-        } else {
-            NSError *error = (NSError*)@"In-app is opted out, can not fetch in-app notifications from API.";
-            [BlueshiftLog logError:error withDescription:nil methodName:nil];
+        } failure:^(NSError * error) {
             failure(error);
-        }
+        }];
+    } else {
+        NSError *error = (NSError*)@"In-app is opted out, can not fetch in-app notifications from API.";
+        [BlueshiftLog logError:error withDescription:nil methodName:nil];
+        failure(error);
     }
 }
 
@@ -989,7 +994,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             [InAppNotificationEntity updateMessageUnreadStatusInDB:existingMessages status:statusMessageIds];
             
             //Sync deletes messages with local db
-            [InAppNotificationEntity updateDeletedMessagesinDB:deletedMessages];
+            [InAppNotificationEntity syncDeletedMessagesWithDB:deletedMessages];
             
             //Fetch only new messages with pagination
             [self getNewMessagesWithPagination:newMessages];
@@ -1023,27 +1028,28 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         [batchList addObject:messageIds];
     }
     
+    __block NSUInteger sucessAPICount = 0;
+    NSUInteger totalAPICount = batchList.count;
     for (NSArray* batch in batchList) {
         [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:batch success:^(NSDictionary * _Nonnull data) {
-            [self handleInAppMessageForAPIResponse:data withCompletionHandler:^(BOOL status) { }];
+            [self handleInboxMessageForAPIResponse:data withCompletionHandler:^(BOOL status) {
+                sucessAPICount++;
+                if (BlueShift.sharedInstance.config.enableMobileInbox && sucessAPICount == totalAPICount) {
+                    [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
+                }
+            }];
         } failure:^(NSError * _Nonnull error) {
         }];
     }
 }
 
-- (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
+- (void)handleInboxMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
     if (apiResponse && [apiResponse objectForKey: kInAppNotificationContentPayloadKey]) {
         NSMutableArray *notifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
         if (notifications.count > 0 && _inAppNotificationMananger) {
-            if (BlueShift.sharedInstance.config.enableMobileInbox) {
-                [_inAppNotificationMananger addInboxNotifications:notifications handler:^(BOOL status) {
-                    completionHandler(YES);
-                }];
-            } else {
-                [_inAppNotificationMananger initializeInAppNotificationFromAPI:notifications handler:^(BOOL status) {
-                    completionHandler(YES);
-                }];
-            }
+            [_inAppNotificationMananger addInboxNotifications:notifications handler:^(BOOL status) {
+                completionHandler(YES);
+            }];
         } else {
             completionHandler(YES);
         }
@@ -1051,6 +1057,12 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         completionHandler(NO);
         [BlueshiftLog logInfo:@"The in-app API response is nil or does not have content attribute." withDetails:nil methodName:nil];
     }
+}
+
+- (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
+    [self handleInboxMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
+        completionHandler(status);
+    }];
 }
 
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
@@ -1199,11 +1211,15 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)getInboxMessages:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success {
-    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.inboxManagedObjectContext;
+    [BlueshiftLog logInfo:@"Fetching inbox messages from local DB." withDetails:nil methodName:nil];
+    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
     if(context) {
         [InAppNotificationEntity fetchAllMessagesForInbox:sortOrder handler:^(BOOL status, NSArray *results) {
             if (status) {
-                success(YES, [self prepareInboxMessages:results sortOrder:sortOrder]);
+                NSMutableArray<BlueshiftInboxMessage*>* messages = [self prepareInboxMessages:results];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    success(YES, messages);
+                });
             } else {
                 success(NO, nil);
             }
@@ -1213,12 +1229,14 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)getInboxUnreadMessagesCount:(void(^)(NSUInteger))handler {
     [InAppNotificationEntity getUnreadMessagesCountFromDB:^(NSUInteger count) {
-        handler(count);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            handler(count);
+        });
     }];
 }
 
 #pragma mark - Mobile Inbox helper methods
-- (NSMutableArray*)prepareInboxMessages:(NSArray*)results sortOrder:(NSComparisonResult)sortOrder {
+- (NSMutableArray*)prepareInboxMessages:(NSArray*)results {
     NSMutableArray<BlueshiftInboxMessage*>* inboxMessages = [[NSMutableArray alloc] init];
     if ([results count] > 0) {
         for (InAppNotificationEntity *message in results) {

@@ -98,7 +98,7 @@
 //Inbox
 #define kBSAvailabilty                                                  @"availabilty"
 #define kBSAvailabiltyInboxOnly                                         @"Inbox"
-#define kBSAvailabiltyInboxAndInApp                                     @"Inbox+InApp"
+#define kBSAvailabiltyInboxAndInApp                                     @"Inbox + InApp"
 #define kBSAvailabiltyInAppOnly                                         @"InApp"
 
 #define kBSTrackingOpenedBy                                             @"opened_by"

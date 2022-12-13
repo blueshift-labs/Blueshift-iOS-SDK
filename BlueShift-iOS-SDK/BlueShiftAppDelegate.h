@@ -34,10 +34,9 @@
 /// initialise core data objects
 - (void)initializeCoreData;
 
-- (NSManagedObjectContext * _Nullable)managedObjectContext;
-- (NSManagedObjectContext * _Nullable)realEventManagedObjectContext;
-- (NSManagedObjectContext * _Nullable)batchEventManagedObjectContext;
-- (NSManagedObjectContext* _Nullable)inboxManagedObjectContext;
+- (NSManagedObjectContext * _Nullable)eventsMOContext;
+- (NSManagedObjectContext* _Nullable)inboxMOContext;
+
 /// Calling this method will register for push notifications. It will show a push permission dialog to the user.
 /// It is highly recommended to register for push notifications using the SDK method.
 /// SDK takes care of registering the categories for carousel and custom action button push notifications.

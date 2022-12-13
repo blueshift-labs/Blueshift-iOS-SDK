@@ -35,6 +35,7 @@
     NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending: sortOrder == NSOrderedAscending ? YES : NO];
     NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:@[sortByDate]];
     [InAppNotificationEntity fetchMessagesForFetchRequest:fetchRequest withHandler:^(BOOL status, NSArray *messages) {
+        [BlueshiftLog logInfo:@"Fetched inbox messages from local DB, count - " withDetails:[NSNumber numberWithUnsignedInteger:messages.count] methodName:nil];
         handler(status,messages);
     }];
 }
@@ -46,7 +47,7 @@
         predicate = [NSPredicate predicateWithFormat:@"startTime < %@ AND endTime > %@ AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@) AND (availability == %@ OR availability == %@ OR availability == %@ OR availability == %@)", currentTime, currentTime, kInAppStatusPending, displayOn, @"", nil, kBSAvailabiltyInAppOnly, kBSAvailabiltyInboxAndInApp, nil, @""];
     } else {
         // Display now and if inbox is disabled
-        predicate = [NSPredicate predicateWithFormat: @"startTime < %f AND endTime > %f AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", currentTime, currentTime, kInAppStatusPending, displayOn, @"", nil];
+        predicate = [NSPredicate predicateWithFormat: @"startTime < %@ AND endTime > %@ AND status == %@ AND (displayOn == %@ OR displayOn == %@ OR displayOn == %@)", currentTime, currentTime, kInAppStatusPending, displayOn, @"", nil];
     }
 
     NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:NO];
@@ -60,57 +61,52 @@
 }
 
 +(void)fetchMessagesForFetchRequest:(NSFetchRequest*)fetchRequest withHandler:(void (^)(BOOL, NSArray *))handler {
-    @synchronized(self) {
-        @try {
-            NSManagedObjectContext* privateContext = BlueShift.sharedInstance.appDelegate.inboxManagedObjectContext;
-            if (fetchRequest && privateContext) {
-                [privateContext performBlock:^{
-                    @try {
-                        NSError *error;
-                        NSArray *results = [[NSArray alloc]init];
-                        results = [privateContext executeFetchRequest:fetchRequest error:&error];
-                        if (results && results.count > 0) {
-                            handler(YES, results);
-                        } else {
-                            handler(NO, nil);
-                        }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    @try {
+        NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
+        if (fetchRequest && context) {
+            [context performBlock:^{
+                @try {
+                    NSError *error;
+                    NSArray *results = [[NSArray alloc]init];
+                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    if (results && results.count > 0) {
+                        handler(YES, results);
+                    } else {
                         handler(NO, nil);
                     }
-                }];
-            } else {
-                handler(NO, nil);
-            }
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    handler(NO, nil);
+                }
+            }];
+        } else {
             handler(NO, nil);
         }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        handler(NO, nil);
     }
 }
 
-
-
 - (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler {
-    NSManagedObjectContext* privateContext = BlueShift.sharedInstance.appDelegate.inboxManagedObjectContext;
-    if (privateContext) {
+    NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
+    if (context) {
         @try {
             [self map:dictionary];
-            [privateContext performBlock:^{
+            [context performBlock:^{
                 @try {
                     NSError *error = nil;
-                    [privateContext save:&error];
-                    if(privateContext.parentContext) {
-                        [privateContext.parentContext performBlock:^{
+                    [context save:&error];
+                    if(context.parentContext) {
+                        [context.parentContext performBlock:^{
                             @try {
                                 NSError *error = nil;
-                                [privateContext.parentContext save:&error];
-                                handler(YES);
+                                [context.parentContext save:&error];
                             } @catch (NSException *exception) {
                                 [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                                handler(NO);
                             }
                         }];
+                        handler(YES);
                     } else {
                         handler(NO);
                     }
@@ -130,20 +126,21 @@
 
 + (void)checkIfMessagesPresentForMessageUUIDs:(NSArray*)messageUUIDs handler:(void (^)(BOOL, NSDictionary *))handler {
     @try {
-        NSManagedObjectContext *privateContext = BlueShift.sharedInstance.appDelegate.inboxManagedObjectContext;
+        NSManagedObjectContext *context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", messageUUIDs];
         NSFetchRequest* fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
-        if(fetchRequest && privateContext) {
-            [privateContext performBlock:^{
+        if(fetchRequest && context) {
+            [context performBlock:^{
                 @try {
                     NSError *error;
                     NSArray *results = [[NSArray alloc]init];
-                    results = [privateContext executeFetchRequest:fetchRequest error:&error];
+                    results = [context executeFetchRequest:fetchRequest error:&error];
                     NSMutableDictionary* uuids = [[NSMutableDictionary alloc] init];
                     if (results && results.count > 0) {
                         for (InAppNotificationEntity* message in results) {
                             [uuids setValue:@YES forKey:message.id];
                         }
+                        [BlueshiftLog logInfo:@"Messages present in Local, message UUIDs - %@" withDetails:uuids methodName:nil];
                         handler(YES, uuids);
                     } else {
                         handler(NO, nil);
@@ -175,16 +172,16 @@
 
 #pragma mark - Inbox
 + (void)fetchLastReceivedMessageId:(void (^)(BOOL, NSString *, NSString *))handler {
-    NSManagedObjectContext* privateContext = BlueShift.sharedInstance.appDelegate.inboxManagedObjectContext;
+    NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
     @try {
         NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:NO];
         NSFetchRequest* fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:nil sortDescriptor:@[sortByDate]];
         [fetchRequest setFetchLimit:1];
-        if(fetchRequest && privateContext) {
-            [privateContext performBlock:^{
+        if(fetchRequest && context) {
+            [context performBlock:^{
                 @try {
                     NSError *error;
-                    NSArray *results = [privateContext executeFetchRequest: fetchRequest error:&error];
+                    NSArray *results = [context executeFetchRequest: fetchRequest error:&error];
                     if (results.count > 0) {
                         InAppNotificationEntity *notification = results[0];
                         handler(YES, notification.id, notification.timestamp);
@@ -207,7 +204,7 @@
 
 + (void)updateMessageUnreadStatusInDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray {
     if (statusArray && messages && messages.count > 0) {
-        NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.inboxManagedObjectContext;
+        NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
         if(context) {
             [context performBlock:^{
                 @try {
@@ -216,6 +213,7 @@
                         //TODO: verify the data type of recieved bool status
                         if([statusArray[key] isEqual: @YES]) {
                             entity.status = kInAppStatusDisplayed;
+                            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Updated unread status for message UUID - %@",entity.id] withDetails:nil methodName:nil];
                         }
                     }
                     NSError *error;
@@ -225,7 +223,7 @@
                         @try {
                             NSError *error;
                             [context.parentContext save:&error];
-                            //TODO: Fire event to tell SDK taht update is complete and in-app can be shown.
+                            [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
                         } @catch (NSException *exception) {
                             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         }
@@ -239,7 +237,7 @@
 }
 
 + (void)getUnreadMessagesCountFromDB:(void(^)(NSUInteger))handler {
-    NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxManagedObjectContext;
+    NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
     [context performBlock:^{
         NSPredicate* predicate = [NSPredicate predicateWithFormat:@"status == %@",kInAppStatusPending];
         NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
@@ -248,15 +246,14 @@
         if (error) {
             count = 0;
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            handler(count);
-        });
+        [BlueshiftLog logInfo:[NSString stringWithFormat:@"Inbox unread messages count - %lu",(unsigned long)count] withDetails:nil methodName:nil];
+        handler(count);
     }];
 }
 
 + (void)markMessageAsRead:(NSString *)messageUUID {
     @try {
-        NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.inboxManagedObjectContext;
+        NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
         NSPredicate *predicate = [NSPredicate predicateWithFormat: @"id == %@", messageUUID];
         NSFetchRequest *fetchRequest =[InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
         if(context && fetchRequest) {
@@ -269,12 +266,12 @@
                         notification.status = kInAppStatusDisplayed;
                         error = nil;
                         [context save:&error];
-                        
+                        [BlueshiftLog logInfo:@"Marked Inbox message as read, message UUID -" withDetails:notification.id methodName:nil];
                         [context.parentContext performBlock:^{
                             @try {
                                 NSError *error;
                                 [context.parentContext save:&error];
-                            } @catch (NSException *exception) {
+                                [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];                            } @catch (NSException *exception) {
                                 [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                             }
                         }];
@@ -291,20 +288,22 @@
 }
 
 + (void)deleteInboxMessageFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler {
-    NSManagedObjectContext * privateContext = [BlueShift sharedInstance].appDelegate.inboxManagedObjectContext;
-    if (privateContext) {
+    NSManagedObjectContext * context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
+    if (context) {
         @try {
-            [privateContext performBlock:^{
+            [context performBlock:^{
                 @try {
-                    NSManagedObject* managedObject =  [privateContext objectWithID: objectId];
-                    [privateContext deleteObject: managedObject];
+                    InAppNotificationEntity* managedObject =  (InAppNotificationEntity*)[context objectWithID: objectId];
+                    NSString* messageUUID = managedObject.id;
+                    [context deleteObject: managedObject];
                     NSError *saveError = nil;
-                    [privateContext save:&saveError];
-                    if(privateContext.parentContext) {
-                        [privateContext.parentContext performBlock:^{
+                    [context save:&saveError];
+                    [BlueshiftLog logInfo:@"Deleted Inbox message from DB, Message UUID -" withDetails:messageUUID methodName:nil];
+                    if(context.parentContext) {
+                        [context.parentContext performBlock:^{
                             @try {
                                 NSError *error = nil;
-                                [privateContext.parentContext save:&error];
+                                [context.parentContext save:&error];
                                 handler(YES);
                             } @catch (NSException *exception) {
                                 [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -405,8 +404,13 @@
     }
 }
 
-+ (void)updateDeletedMessagesinDB:(NSArray *)deleteIds {
++ (void)postNotificationInboxUnreadMessageCountDidChange {
+    [NSNotificationCenter.defaultCenter postNotificationName:kBSInboxUnreadMessageCountDidChange object:nil];
+}
+
++ (void)syncDeletedMessagesWithDB:(NSArray *)deleteIds {
     if (deleteIds && deleteIds.count > 0) {
+        [BlueshiftLog logInfo:@"Deleting local messages to Sync with server, message UUIDs - " withDetails:deleteIds methodName:nil];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", deleteIds];
         NSFetchRequest* fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
         [InAppNotificationEntity batchDeleteDataForFetchRequest:fetchRequest];
@@ -414,12 +418,14 @@
 }
 
 + (void)deleteExpiredMessagesFromDB {
+    [BlueshiftLog logInfo:@"Deleting expired local messages." withDetails:nil methodName:nil];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"endTime < %f", [[NSDate date] timeIntervalSince1970]];
     NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
     [InAppNotificationEntity batchDeleteDataForFetchRequest:fetchRequest];
 }
 
 + (void)eraseEntityData {
+    [BlueshiftLog logInfo:@"Erasing all the inbox messages." withDetails:nil methodName:nil];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kInAppNotificationEntityNameKey];
     [InAppNotificationEntity batchDeleteDataForFetchRequest:fetchRequest];
 }
@@ -427,7 +433,7 @@
 + (void)batchDeleteDataForFetchRequest:(NSFetchRequest*)fetchRequest {
     if (@available(iOS 9.0, *)) {
         @try {
-            NSManagedObjectContext *context = BlueShift.sharedInstance.appDelegate.inboxManagedObjectContext;
+            NSManagedObjectContext *context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
             if (context) {
                 NSBatchDeleteRequest *deleteRequest = [[NSBatchDeleteRequest alloc] initWithFetchRequest:fetchRequest];
                 [deleteRequest setResultType:NSBatchDeleteResultTypeCount];
@@ -441,15 +447,17 @@
                             }
                             NSBatchDeleteResult* deleteResult = [context executeRequest:deleteRequest error:&error];
                             [context save:&error];
-                            
-                            [context.parentContext performBlock:^{
-                                @try {
-                                    NSError *error;
-                                    [context.parentContext save:&error];
-                                } @catch (NSException *exception) {
-                                    
-                                }
-                            }];
+                            if (context.parentContext) {
+                                [context.parentContext performBlock:^{
+                                    @try {
+                                        NSError *error;
+                                        [context.parentContext save:&error];
+                                        [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
+                                    } @catch (NSException *exception) {
+                                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                                    }
+                                }];
+                            }
                             
                             if (error) {
                                 [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting InApp notifications." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];

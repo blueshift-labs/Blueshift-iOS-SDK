@@ -184,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload canBacthThisEvent:(BOOL)isBatchEvent;
 
-- (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+- (void)addTrackingEventToQueueWithParams:(NSMutableDictionary *)parameters isBatch:(BOOL)isBatchEvent;
 
 #pragma mark In app manual trigger and fetch methods
 /// Calling this method will display single in-app notification if the current screen/VC is registered for displaying in-app notifications.
@@ -234,6 +234,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method will help to add an in-app notification in the SDK database based on the provided dictionary data.
 /// @param completionHandler The block will be called after adding the in-app into the SDK database with status true or false
 - (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler;
+
+- (void)handleInboxMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler;
 
 /// This method will to get the required payload data to make an api call to the Blueshift In-app notifications api.
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call

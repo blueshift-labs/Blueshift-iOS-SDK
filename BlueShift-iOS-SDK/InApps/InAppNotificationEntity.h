@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)updateMessageUnreadStatusInDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray;
 
-+ (void)updateDeletedMessagesinDB:(NSArray *)deleteIds;
++ (void)syncDeletedMessagesWithDB:(NSArray *)deleteIds;
 
 + (void)deleteInboxMessageFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler;
 
@@ -58,6 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)deleteExpiredMessagesFromDB;
 
 + (void)getUnreadMessagesCountFromDB:(void(^)(NSUInteger))handler;
+
++ (void)postNotificationInboxUnreadMessageCountDidChange;
 
 NS_ASSUME_NONNULL_END
 

@@ -76,38 +76,34 @@
 }
 
 #pragma mark - Insert, delete, update in-app notifications
-- (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
-    [self addInboxNotifications:notificationArray handler:^(BOOL status) {
-        handler(status);
-    }];
-}
-
 - (void)addInboxNotifications:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler {
     @try {
         if (notificationArray && notificationArray.count > 0) {
-            NSMutableArray *messageUUIDs = [NSMutableArray arrayWithCapacity:[notificationArray count]];
+            NSMutableArray *newMessageUUIDs = [NSMutableArray arrayWithCapacity:[notificationArray count]];
             [notificationArray enumerateObjectsUsingBlock:^(NSDictionary* obj, NSUInteger idx, BOOL *stop) {
                 NSString* messageUUID = [self getMessageUUID:obj];
                 if (messageUUID) {
-                    [messageUUIDs addObject:messageUUID];
+                    [newMessageUUIDs addObject:messageUUID];
                 }
             }];
             
-            [InAppNotificationEntity checkIfMessagesPresentForMessageUUIDs:messageUUIDs handler:^(BOOL status, NSDictionary * _Nonnull presentUUIDs) {
-                @try {
-                    
-                    dispatch_group_t serviceGroup = dispatch_group_create();
-                    dispatch_group_async(serviceGroup,BlueShift.sharedInstance.dispatch_get_blueshift_queue,^{
+            [InAppNotificationEntity checkIfMessagesPresentForMessageUUIDs:newMessageUUIDs handler:^(BOOL status, NSDictionary * _Nonnull existingMessageUUIDs) {
+                
+                //Create dispatch group to notifify new messages are availble after adding in-apps to DB asynchronously.
+                __block dispatch_group_t serviceGroup = dispatch_group_create();
+                dispatch_group_async(serviceGroup,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
+                    @try {
                         for (int counter = 0; counter < notificationArray.count ; counter++) {
                             NSDictionary* inapp = [notificationArray objectAtIndex: counter];
-                            double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
                             NSString* messageUUID = [self getMessageUUID:inapp];
                             //Do not add duplicate messages in the db
-                            if(messageUUID && ![presentUUIDs valueForKey:messageUUID]) {
+                            if(messageUUID && ![existingMessageUUIDs valueForKey:messageUUID]) {
+                                double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
+                                
                                 // Do not add expired in-app notifications to in-app DB.
                                 if ([self isInboxNotificationExpired:expiresAt] == NO) {
                                     dispatch_group_enter(serviceGroup);
-                                    [self insertMesseageInDB: inapp handler:^(BOOL status) {
+                                    [self insertMesseageInDB:inapp handler:^(BOOL status) {
                                         dispatch_group_leave(serviceGroup);
                                     }];
                                 } else {
@@ -118,12 +114,20 @@
                             }
                         }
                         dispatch_group_notify(serviceGroup,dispatch_get_main_queue(),^{
+                            serviceGroup = nil;
                             handler(YES);
                         });
-                    });
-                } @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                }
+                        //Timout
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC),dispatch_get_main_queue(),^{
+                            if (serviceGroup) {
+                                serviceGroup = nil;
+                                handler(YES);
+                            }
+                        });
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    }
+                });
             }];
         }
     } @catch (NSException *exception) {
@@ -133,7 +137,7 @@
 
 - (void)insertMesseageInDB:(NSDictionary *)payload handler:(void(^)(BOOL))handler{
     @try {
-        NSManagedObjectContext *privateContext = [BlueShift sharedInstance].appDelegate.inboxManagedObjectContext;
+        NSManagedObjectContext *privateContext = [BlueShift sharedInstance].appDelegate.inboxMOContext;
         if (privateContext) {
             [privateContext performBlock:^{
                 NSEntityDescription *entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:privateContext];
