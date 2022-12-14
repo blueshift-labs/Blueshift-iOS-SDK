@@ -132,7 +132,9 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (void)loadFromHTML {
-    [webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
+    if (self.notification.notificationContent.content) {
+        [webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
+    }
 }
 
 - (CGRect)positionWebView{

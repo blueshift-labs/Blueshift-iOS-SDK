@@ -48,8 +48,8 @@ static NSTimer *_batchUploadTimer = nil;
 
 // Create and upload batches
 + (void)createAndUploadBatches {
-//    [self createBatches];
-//    [self uploadBatches];
+    [self createBatches];
+    [self uploadBatches];
 }
 
 + (void)createBatches {

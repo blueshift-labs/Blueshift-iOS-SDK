@@ -201,6 +201,25 @@ static NSDictionary *_inAppTypeDictionay;
     return utcDateFormatter;
 }
 
++ (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload {
+    if ([notificationPayload objectForKey: kBSMessageUUID]) {
+        return (NSString *)[notificationPayload objectForKey: kBSMessageUUID];
+    } else {
+        if([notificationPayload objectForKey:kInAppNotificationDataKey]) {
+            notificationPayload = [notificationPayload objectForKey:kInAppNotificationDataKey];
+            if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+                return (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
+            }
+        }
+    }
+    return nil;
+}
+
++ (BOOL)isInboxNotificationExpired:(double)expiryTime {
+    double currentTime =  [[NSDate date] timeIntervalSince1970];
+    return currentTime > expiryTime;
+}
+
 #pragma mark - Font awesome support
 + (void)downloadFontAwesomeFile:(void(^)(void))completionHandler {
     NSString *fontFileName = [self createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];

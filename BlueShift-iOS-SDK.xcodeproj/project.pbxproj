@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9100575A2949DCA4004D2DCF /* BlueshiftInboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */; };
+		9100575B2949DCA4004D2DCF /* BlueshiftInboxManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 910057592949DCA4004D2DCF /* BlueshiftInboxManager.h */; };
 		912321AB27285D030057DA7A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AA27285D030057DA7A /* Foundation.framework */; };
 		912321AD27285D090057DA7A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AC27285D090057DA7A /* CoreData.framework */; };
 		912321AF27285D0D0057DA7A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AE27285D0D0057DA7A /* CoreTelephony.framework */; };
@@ -134,6 +136,8 @@
 
 /* Begin PBXFileReference section */
 		910057572949DC0B004D2DCF /* BlueShiftSDKDataModel 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "BlueShiftSDKDataModel 4.xcdatamodel"; sourceTree = "<group>"; };
+		910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxManager.m; sourceTree = "<group>"; };
+		910057592949DCA4004D2DCF /* BlueshiftInboxManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueshiftInboxManager.h; sourceTree = "<group>"; };
 		912321AA27285D030057DA7A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		912321AC27285D090057DA7A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		912321AE27285D0D0057DA7A /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -292,6 +296,8 @@
 		9150983A2923A1B20054CB88 /* Inbox */ = {
 			isa = PBXGroup;
 			children = (
+				910057592949DCA4004D2DCF /* BlueshiftInboxManager.h */,
+				910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */,
 				912A5BD62923A29900096CBF /* BlueshiftInboxTableViewCell.xib */,
 				9150983B2923A1CD0054CB88 /* BlueshiftInboxNavigationViewController.h */,
 				9150983C2923A1CD0054CB88 /* BlueshiftInboxNavigationViewController.m */,
@@ -496,6 +502,7 @@
 				9186B610271ED9EF00D425AF /* BlueShiftProduct.h in Headers */,
 				9186B5FE271ED9EF00D425AF /* BlueShiftUserNotificationSettings.h in Headers */,
 				9186B5FD271ED9EF00D425AF /* BlueShiftStatusCodes.h in Headers */,
+				9100575B2949DCA4004D2DCF /* BlueshiftInboxManager.h in Headers */,
 				9186B62E271ED9EF00D425AF /* BlueShiftRequestOperation.h in Headers */,
 				9186B5FF271ED9EF00D425AF /* HttpRequestOperationEntity.h in Headers */,
 				9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */,
@@ -657,6 +664,7 @@
 				9186B5FB271ED9EF00D425AF /* BlueShiftLiveContent.m in Sources */,
 				9186B5F8271ED9EF00D425AF /* BlueShiftRequestOperationManager.m in Sources */,
 				9150983E2923A1CD0054CB88 /* BlueshiftInboxNavigationViewController.m in Sources */,
+				9100575A2949DCA4004D2DCF /* BlueshiftInboxManager.m in Sources */,
 				9186B667271ED9FB00D425AF /* BlueShiftNotificationModalViewController.m in Sources */,
 				9186B66A271ED9FB00D425AF /* BlueShiftNotificationWindow.m in Sources */,
 				9186B602271ED9EF00D425AF /* BlueShiftAppDelegate.m in Sources */,

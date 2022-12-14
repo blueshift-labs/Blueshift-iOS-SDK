@@ -20,6 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) IBInspectable BOOL enableLargeTitle;
 
+@property (nonatomic) IBInspectable  BOOL showActivityIndicator;
+
+@property (nonatomic) IBInspectable  UIColor* activityIndicatorColor;
+
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate> _Nullable inboxDelegate;
 
 @end

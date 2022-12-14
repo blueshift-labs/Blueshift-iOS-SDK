@@ -13,6 +13,9 @@
 #import "BlueshiftInboxViewModel.h"
 #import "BlueshiftConstants.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftInboxManager.h"
+
+#define kBSInboxLoaderSize     50
 
 @interface BlueshiftInboxViewController ()
 
@@ -29,6 +32,7 @@
     self = [super initWithCoder:coder];
     if (self) {
         _viewModel = [[BlueshiftInboxViewModel alloc] init];
+        [self setDefaults];
     }
     return self;
 }
@@ -37,8 +41,14 @@
     self = [super init];
     if (self) {
         _viewModel = [[BlueshiftInboxViewModel alloc] init];
+        [self setDefaults];
     }
     return self;
+}
+
+- (void)setDefaults {
+    self.showActivityIndicator = YES;
+    self.activityIndicatorColor = UIColor.grayColor;
 }
 
 - (void)viewDidLoad {
@@ -51,7 +61,6 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self reloadTableView];
-//    [self setupActivityIndicator];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -64,40 +73,46 @@
 }
 
 - (void)setupTableView {
-    [self initInboxDelageFor:_inboxDelegateName];
+    [self initInboxDelegateFor:_inboxDelegateName];
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc]init];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    //        self.tableView.allowsSelection = NO;
-//    [self reloadTableView];
 }
 
 - (void)setupObservers {
-    [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        if (self.activityIndicator) {
-            [self.activityIndicator stopAnimating];
-            [self.activityIndicator removeFromSuperview];
-        }
-    }];
+    if (_showActivityIndicator) {
+        [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+            if (self.activityIndicator) {
+                [self.activityIndicator stopAnimating];
+                [self.activityIndicator removeFromSuperview];
+            }
+        }];
+    }
 }
 
 - (void)startActivityIndicator {
-    if (!self.activityIndicator) {
-        if (@available(iOS 13.0, *)) {
-            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
-        } else {
-            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    if (_showActivityIndicator) {
+        if (!self.activityIndicator) {
+            if (@available(iOS 13.0, *)) {
+                self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+            } else {
+                self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+            }
+            CGFloat x = (self.tableView.frame.size.width / 2) - (kBSInboxLoaderSize/2);
+            CGFloat centerY = UIScreen.mainScreen.bounds.size.height/2;
+            CGFloat tableViewY = self.tableView.bounds.origin.y > 0 ? self.tableView.bounds.origin.y : - self.tableView.bounds.origin.y;
+            CGFloat y = (centerY-tableViewY) - (kBSInboxLoaderSize/2);
+            self.activityIndicator.color = _activityIndicatorColor;
+            self.activityIndicator.frame = CGRectMake(x, y, kBSInboxLoaderSize, kBSInboxLoaderSize);
         }
-        self.activityIndicator.color = UIColor.redColor;
-        self.activityIndicator.center = self.view.center;
+        [self.tableView addSubview:self.activityIndicator];
+        [self.activityIndicator startAnimating];
     }
-    [self.view addSubview:self.activityIndicator];
-    [self.activityIndicator startAnimating];
 }
 
-- (void)initInboxDelageFor:(NSString*)className {
+- (void)initInboxDelegateFor:(NSString*)className {
     if (!_inboxDelegate && className && [className componentsSeparatedByString:@"."].count > 1) {
         id<BlueshiftInboxViewControllerDelegate> delegate = (id<BlueshiftInboxViewControllerDelegate>)[[NSClassFromString(className) alloc] init];
         if (delegate) {
@@ -218,7 +233,7 @@
 - (void)handleDeleteRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     // Delete the row from the data source
-    [BlueShift.sharedInstance deleteInboxMessage:message completionHandler:^(BOOL status) {
+    [BlueshiftInboxManager deleteInboxMessage:message completionHandler:^(BOOL status) {
 //        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         if (status) {
             [self reloadTableView];
@@ -233,7 +248,7 @@
 
 - (void)handleDidSelectRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
-    [BlueShift.sharedInstance showInboxNotificationForMessage:message];
+    [BlueshiftInboxManager showInboxNotificationForMessage:message];
     [self startActivityIndicator];
     [_viewModel markMessageAsRead:message];
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];

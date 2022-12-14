@@ -36,6 +36,10 @@ IB_DESIGNABLE
 
 @property IBInspectable UIColor* _Nullable unreadBadgeColor;
 
+@property IBInspectable BOOL showActivityIndicator;
+
+@property IBInspectable UIColor* activityIndicatorColor;
+
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 
 @end

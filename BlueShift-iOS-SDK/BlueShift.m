@@ -16,6 +16,7 @@
 #import "BlueshiftInAppNotificationRequest.h"
 #import "BlueshiftInboxMessage.h"
 #import "InAppNotificationEntity.h"
+#import "BlueshiftInboxManager.h"
 
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
@@ -197,7 +198,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             [_inAppNotificationMananger load];
             
             if (config.enableMobileInbox) {
-                [self getLatestInboxMessagesUsingAPI:^{
+                [BlueshiftInboxManager getLatestInboxMessagesUsingAPI:^{
                     [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
                 } failure:^(NSError * _Nullable err) { }];
             } else {
@@ -930,7 +931,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             if (_config.enableMobileInbox) {
                 if (_config.enableMobileInbox) {
-                    [self getLatestInboxMessagesUsingAPI:^{
+                    [BlueshiftInboxManager getLatestInboxMessagesUsingAPI:^{
                         if (self->_config.inAppManualTriggerEnabled == NO) {
                             [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
                         }
@@ -973,94 +974,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
-- (void)getLatestInboxMessagesUsingAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure {
-        [BlueshiftInboxAPIManager getUnreadStatus:^(NSArray * _Nonnull statusArray) {
-            [InAppNotificationEntity fetchAllMessagesForInbox:NSOrderedSame handler:^(BOOL status, NSArray *messages) {
-            NSMutableDictionary* existingMessages = [[NSMutableDictionary alloc] init];
-            for(InAppNotificationEntity* message in messages) {
-                [existingMessages setValue:message forKey:message.id];
-            }
-            NSMutableDictionary* statusMessageIds = statusArray[0];
-
-            // Calculate new messages by substracting the db message ids from the status message ids.
-            NSMutableArray* newMessages = [[statusMessageIds allKeys] mutableCopy];
-            [newMessages removeObjectsInArray:[existingMessages allKeys]];
-            
-            // Calculate deleted messages by substracting status message ids from the db message ids
-            NSMutableArray* deletedMessages = [[existingMessages allKeys] mutableCopy];
-            [deletedMessages removeObjectsInArray:[statusMessageIds allKeys]];
-
-            //Sync unread status with local messages
-            [InAppNotificationEntity updateMessageUnreadStatusInDB:existingMessages status:statusMessageIds];
-            
-            //Sync deletes messages with local db
-            [InAppNotificationEntity syncDeletedMessagesWithDB:deletedMessages];
-            
-            //Fetch only new messages with pagination
-            [self getNewMessagesWithPagination:newMessages];
-        }];
-    } failure:^(NSError * _Nonnull error) {
-
-    }];
-}
-
-- (void)getNewMessagesWithPagination:(NSArray*)messageIds {
-    NSMutableArray *batchList = [[NSMutableArray alloc] init];
-    // Split the messageIds array into array of 10 ids.
-    // Fetch in-apps for 10 ids at a time, and repear same if there are more.
-    if (messageIds && messageIds.count > 10) {
-        NSUInteger paginationLength = messageIds.count/10;
-        if (messageIds.count % 10 != 0) {
-            paginationLength = paginationLength + 1;
-        }
-        for (NSUInteger i = 0; i < paginationLength; i++) {
-            NSRange range;
-            range.location = i * 10;
-            if (i == paginationLength-1) {
-                range.length = messageIds.count % 10;
-            } else {
-                range.length = 10;
-            }
-            NSArray* batch = [messageIds subarrayWithRange:range];
-            [batchList addObject:batch];
-        }
-    } else {
-        [batchList addObject:messageIds];
-    }
-    
-    __block NSUInteger sucessAPICount = 0;
-    NSUInteger totalAPICount = batchList.count;
-    for (NSArray* batch in batchList) {
-        [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:batch success:^(NSDictionary * _Nonnull data) {
-            [self handleInboxMessageForAPIResponse:data withCompletionHandler:^(BOOL status) {
-                sucessAPICount++;
-                if (BlueShift.sharedInstance.config.enableMobileInbox && sucessAPICount == totalAPICount) {
-                    [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
-                }
-            }];
-        } failure:^(NSError * _Nonnull error) {
-        }];
-    }
-}
-
-- (void)handleInboxMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
-    if (apiResponse && [apiResponse objectForKey: kInAppNotificationContentPayloadKey]) {
-        NSMutableArray *notifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
-        if (notifications.count > 0 && _inAppNotificationMananger) {
-            [_inAppNotificationMananger addInboxNotifications:notifications handler:^(BOOL status) {
-                completionHandler(YES);
-            }];
-        } else {
-            completionHandler(YES);
-        }
-    } else {
-        completionHandler(NO);
-        [BlueshiftLog logInfo:@"The in-app API response is nil or does not have content attribute." withDetails:nil methodName:nil];
-    }
-}
-
 - (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
-    [self handleInboxMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
+    [BlueshiftInboxManager handleInboxMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
         completionHandler(status);
     }];
 }
@@ -1180,80 +1095,14 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     return  NO;
 }
 
-#pragma mark - Mobile Inbox External Methods
-
-- (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message {
+- (void)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage*)message {
     if (message) {
-        BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.messagePayload forType:message.inAppNotificationType];
-        inApp.isFromInbox = YES;
-        [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
-    }
-}
-
-- (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler  {
-    [BlueshiftInboxAPIManager deleteMessagesWithMessageUUIDs:@[message.messageUUID] success:^(BOOL status) {
-        if (status) {
-            [InAppNotificationEntity deleteInboxMessageFromDB:message.objectId completionHandler:^(BOOL status) {
-                handler(status);
-            }];
-        } else {
-            handler(status);
-        }
-    } failure:^(NSError * _Nonnull error) {
-        handler(NO);
-    }];
-}
-
-- (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message {
-    if (message.readStatus == NO) {
-        [InAppNotificationEntity markMessageAsRead:message.messageUUID];
-    }
-}
-
-- (void)getInboxMessages:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success {
-    [BlueshiftLog logInfo:@"Fetching inbox messages from local DB." withDetails:nil methodName:nil];
-    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
-    if(context) {
-        [InAppNotificationEntity fetchAllMessagesForInbox:sortOrder handler:^(BOOL status, NSArray *results) {
-            if (status) {
-                NSMutableArray<BlueshiftInboxMessage*>* messages = [self prepareInboxMessages:results];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    success(YES, messages);
-                });
-            } else {
-                success(NO, nil);
-            }
-        }];
-    }
-}
-
-- (void)getInboxUnreadMessagesCount:(void(^)(NSUInteger))handler {
-    [InAppNotificationEntity getUnreadMessagesCountFromDB:^(NSUInteger count) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            handler(count);
-        });
-    }];
-}
-
-#pragma mark - Mobile Inbox helper methods
-- (NSMutableArray*)prepareInboxMessages:(NSArray*)results {
-    NSMutableArray<BlueshiftInboxMessage*>* inboxMessages = [[NSMutableArray alloc] init];
-    if ([results count] > 0) {
-        for (InAppNotificationEntity *message in results) {
-            NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:message.payload];
-            
-            NSDictionary* inboxDict = payloadDictionary[@"data"][@"inbox"];
-            NSString* title = [inboxDict valueForKey:@"title"];
-            NSString* detail = [inboxDict valueForKey:@"details"];
-            NSString* icon = [inboxDict valueForKey:@"icon"];
-            BOOL readStatus = [message.status isEqualToString:kInAppStatusPending] ? NO : YES;
-            
-            NSDate* date = [BlueShiftInAppNotificationHelper getUTCDateFromDateString:message.timestamp];
-            BlueshiftInboxMessage *inboxMessage = [[BlueshiftInboxMessage alloc] initMessageId:message.id objectId:message.objectID inAppType:message.type readStatus:readStatus title:title detail:detail date:date iconURL:icon messagePayload:payloadDictionary];
-            [inboxMessages addObject:inboxMessage];
+        if (message) {
+            BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.messagePayload forType:message.inAppNotificationType];
+            inApp.isFromInbox = YES;
+            [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
         }
     }
-    return inboxMessages;
 }
 
 @end

@@ -11,6 +11,7 @@
 #import "InAppNotificationEntity.h"
 #import "BlueshiftAppDelegate.h"
 #import "BlueShiftRequestOperationManager.h"
+#import "BlueshiftInboxManager.h"
 
 @interface BlueshiftInboxViewModel()
 @property NSDateFormatter* utcDateFormatter;
@@ -25,7 +26,7 @@
         _inboxMessages = [[NSMutableArray alloc] init];
     }
     
-    [BlueShift.sharedInstance getInboxMessages:sortOrder handler:^(BOOL status, NSMutableArray * _Nullable messages) {
+    [BlueshiftInboxManager getInboxMessages:sortOrder handler:^(BOOL status, NSMutableArray * _Nullable messages) {
         if (status) {
             self->_inboxMessages = messages;
         } else {
@@ -51,7 +52,7 @@
 
 - (void)markMessageAsRead:(BlueshiftInboxMessage*)message {
     if (message.readStatus == NO) {
-        [BlueShift.sharedInstance markInboxMessageAsRead:message];
+        [BlueshiftInboxManager markInboxMessageAsRead:message];
         message.readStatus = YES;
     }
 }

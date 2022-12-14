@@ -865,9 +865,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                     if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                         [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing:redirectURL];
                     }
-                }
-                else
-                {
+                } else {
                     if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didFailLinkProcessingWithError:url:)]) {
                         [self.blueshiftUniversalLinksDelegate didFailLinkProcessingWithError:error url:url];
                     }

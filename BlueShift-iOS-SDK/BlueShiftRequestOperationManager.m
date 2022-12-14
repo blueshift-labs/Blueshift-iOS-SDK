@@ -83,7 +83,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
-        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue currentQueue]];
     }
     
     NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, [self getRequestParamStringForDictionary:params]];
@@ -122,7 +122,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
-        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue currentQueue]];
     }
     
     NSURL * url = [NSURL URLWithString:urlString];

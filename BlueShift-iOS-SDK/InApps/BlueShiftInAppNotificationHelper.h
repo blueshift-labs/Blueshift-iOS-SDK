@@ -56,6 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSDate*)getUTCDateFromDateString:(NSString*)createdAtDateString;
 
++ (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload;
+
++ (BOOL)isInboxNotificationExpired:(double)expiryTime;
+
 @end
 
 NS_ASSUME_NONNULL_END

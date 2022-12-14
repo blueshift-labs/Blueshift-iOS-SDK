@@ -235,11 +235,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completionHandler The block will be called after adding the in-app into the SDK database with status true or false
 - (void)handleInAppMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler;
 
-- (void)handleInboxMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler;
-
 /// This method will to get the required payload data to make an api call to the Blueshift In-app notifications api.
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
+
+- (void)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage*)message;
 
 #pragma mark Push and In App notifications Opt In methods
 /// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.
@@ -253,19 +253,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @discussion Calling this function will update the optIn status using the `enablePush` flag of the `BlueshiftAppData` class. After changing the status,
 /// SDK will automatically fire the identify call in order to update the status on the server. There is no need of firing the identify call manually.
 - (void)optInForPushNotifications:(BOOL)isOptedIn;
-
-#pragma mark - Mobile Inbox
-- (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message;
-
-- (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler;
-
-- (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message;
-
-- (void)getInboxMessages:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success;
-
-- (void)getLatestInboxMessagesUsingAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure;
-
-- (void)getInboxUnreadMessagesCount:(void(^)(NSUInteger))handler;
 
 @end
 

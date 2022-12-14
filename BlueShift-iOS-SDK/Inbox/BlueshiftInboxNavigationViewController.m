@@ -90,6 +90,18 @@ IB_DESIGNABLE
     }
 }
 
+- (void)setShowActivityIndicator:(BOOL)showActivityIndicator {
+    if (_inboxViewController) {
+        _inboxViewController.showActivityIndicator = showActivityIndicator;
+    }
+}
+
+- (void)setActivityIndicatorColor:(UIColor *)activityIndicatorColor {
+    if (_inboxViewController) {
+        _inboxViewController.activityIndicatorColor = activityIndicatorColor;
+    }
+}
+
 - (void)setInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
     if (_inboxViewController) {
         _inboxViewController.inboxDelegate = inboxDelegate;
