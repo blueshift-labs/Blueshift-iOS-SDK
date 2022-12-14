@@ -133,6 +133,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		910057572949DC0B004D2DCF /* BlueShiftSDKDataModel 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "BlueShiftSDKDataModel 4.xcdatamodel"; sourceTree = "<group>"; };
 		912321AA27285D030057DA7A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		912321AC27285D090057DA7A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		912321AE27285D0D0057DA7A /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -992,11 +993,12 @@
 		9186B5CC271ED9EA00D425AF /* BlueShiftSDKDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				910057572949DC0B004D2DCF /* BlueShiftSDKDataModel 4.xcdatamodel */,
 				9186B5CD271ED9EA00D425AF /* BlueShiftSDKDataModel.xcdatamodel */,
 				9186B5CE271ED9EA00D425AF /* BlueShiftSDKDataModel 3.xcdatamodel */,
 				9186B5CF271ED9EA00D425AF /* BlueShiftSDKDataModel 2.xcdatamodel */,
 			);
-			currentVersion = 9186B5CE271ED9EA00D425AF /* BlueShiftSDKDataModel 3.xcdatamodel */;
+			currentVersion = 910057572949DC0B004D2DCF /* BlueShiftSDKDataModel 4.xcdatamodel */;
 			path = BlueShiftSDKDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
