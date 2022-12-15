@@ -102,6 +102,12 @@ IB_DESIGNABLE
     }
 }
 
+- (void)setGroupSections:(BOOL)groupSections {
+    if (groupSections) {
+        [self setupGroupedSections];
+    }
+}
+
 - (void)setInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
     if (_inboxViewController) {
         _inboxViewController.inboxDelegate = inboxDelegate;
@@ -113,9 +119,18 @@ IB_DESIGNABLE
     if (self.viewControllers.count > 0 && [self.viewControllers[0] isKindOfClass:[BlueshiftInboxViewController class]]) {
         _inboxViewController = self.viewControllers.lastObject;
     } else {
-        _inboxViewController = [[BlueshiftInboxViewController alloc] init];
+        _inboxViewController = [[BlueshiftInboxViewController alloc] initWithStyle:UITableViewStylePlain];
         [self setViewControllers:@[_inboxViewController] animated:NO];
     }
+}
+
+- (void)setupGroupedSections {
+    BlueshiftInboxViewController* inboxVC = [[BlueshiftInboxViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    [self setViewControllers:@[inboxVC] animated:NO];
+}
+
+- (void)setProperties:(BlueshiftInboxViewController*)inboxVC {
+    
 }
 
 - (void)doneButtonTapped {

@@ -14,8 +14,6 @@
 #import "BlueshiftConstants.h"
 #import "BlueShiftInAppNotificationHelper.h"
 
-#define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
-
 static NSManagedObjectContext * _Nullable inboxMOContext;
 static NSManagedObjectContext * _Nullable eventsMOContext;
 

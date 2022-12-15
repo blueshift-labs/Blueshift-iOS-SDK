@@ -37,8 +37,17 @@
     return self;
 }
 
-- (instancetype)init {
-    self = [super init];
+- (instancetype)initWithStyle:(UITableViewStyle)style {
+    self = [super initWithStyle:style];
+    if (self) {
+        _viewModel = [[BlueshiftInboxViewModel alloc] init];
+        [self setDefaults];
+    }
+    return self;
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         _viewModel = [[BlueshiftInboxViewModel alloc] init];
         [self setDefaults];
@@ -65,7 +74,7 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [_viewModel.inboxMessages removeAllObjects];
+    [_viewModel.sectionInboxMessages removeAllObjects];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -117,15 +126,20 @@
         id<BlueshiftInboxViewControllerDelegate> delegate = (id<BlueshiftInboxViewControllerDelegate>)[[NSClassFromString(className) alloc] init];
         if (delegate) {
             self.inboxDelegate = delegate;
+            if ([self.inboxDelegate respondsToSelector:@selector(messageFilter)]) {
+                _viewModel.messageFilter = self.inboxDelegate.messageFilter;
+            }
+            if ([self.inboxDelegate respondsToSelector:@selector(messageComparator)]) {
+                _viewModel.messageComparator =  self.inboxDelegate.messageComparator;
+            }
         }
     } else {
-//        assertionFailure(@"Failed to init the inbox delegate as module name is missing. The class name should be of format module_name.class_name");
+        [BlueshiftLog logError:nil withDescription:@"Failed to init the inbox delegate as module name is missing. The class name should be of format module_name.class_name" methodName:nil];
     }
-
 }
 
 - (void)reloadTableView {
-    [_viewModel reloadInboxMessagesInOrder:_inboxDelegate.sortOrder handler:^(BOOL isRefresh) {
+    [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
         if(isRefresh) {
             if ([NSThread isMainThread]) {
                 [self.tableView reloadData];
@@ -164,11 +178,11 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return [_viewModel numberOfSections];;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_viewModel.inboxMessages count];
+    return [_viewModel numberOfItemsInSection:section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -233,29 +247,31 @@
 - (void)handleDeleteRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     // Delete the row from the data source
-    [BlueshiftInboxManager deleteInboxMessage:message completionHandler:^(BOOL status) {
-//        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        if (status) {
-            [self reloadTableView];
-        }
-    }];
-    
-    //Callback
-    if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
-        [_inboxDelegate inboxMessageDeleted:message];
+    if (message) {
+        [BlueshiftInboxManager deleteInboxMessage:message completionHandler:^(BOOL status) {
+            if (status) {
+                [self reloadTableView];
+                //Callback
+                if (self->_inboxDelegate && [self->_inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
+                    [self->_inboxDelegate inboxMessageDeleted:message];
+                }
+            }
+        }];
     }
 }
 
 - (void)handleDidSelectRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
-    [BlueshiftInboxManager showInboxNotificationForMessage:message];
-    [self startActivityIndicator];
-    [_viewModel markMessageAsRead:message];
-    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-    
-    //Callback
-    if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
-        [_inboxDelegate inboxMessageSelected:message];
+    if (message) {
+        [self startActivityIndicator];
+        [BlueshiftInboxManager showInboxNotificationForMessage:message];
+        [_viewModel markMessageAsRead:message];
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        //Callback
+        if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
+            [_inboxDelegate inboxMessageSelected:message];
+        }
     }
 }
 

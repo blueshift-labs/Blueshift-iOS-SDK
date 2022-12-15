@@ -12,6 +12,8 @@
 #import "BlueshiftAppDelegate.h"
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueshiftInboxManager.h"
+#import "BlueshiftLog.h"
+
 
 @interface BlueshiftInboxViewModel()
 @property NSDateFormatter* utcDateFormatter;
@@ -21,33 +23,72 @@
 
 @implementation BlueshiftInboxViewModel
 
-- (void)reloadInboxMessagesInOrder:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL))success {
-    if (!_inboxMessages) {
-        _inboxMessages = [[NSMutableArray alloc] init];
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _sectionInboxMessages = [[NSMutableArray alloc] init];
     }
-    
-    [BlueshiftInboxManager getInboxMessages:sortOrder handler:^(BOOL status, NSMutableArray * _Nullable messages) {
-        if (status) {
-            self->_inboxMessages = messages;
+    return self;
+}
+
+- (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success {
+    [BlueshiftInboxManager getInboxMessagesWithHandler:^(BOOL status, NSMutableArray * _Nullable messages) {
+        if (status && messages) {
+            [self->_sectionInboxMessages insertObject:[self filterAndSortMessages:messages] atIndex:0];
         } else {
-            [self->_inboxMessages removeAllObjects];
+            [self->_sectionInboxMessages removeAllObjects];
         }
         success(YES);
     }];
 }
 
-- (BlueshiftInboxMessage * _Nullable)itemAtIndexPath:(NSIndexPath *)indexPath {
-    if(_inboxMessages && _inboxMessages.count > indexPath.row && indexPath.row >= 0){
-        return [_inboxMessages objectAtIndex:indexPath.row];
+- (NSMutableArray<BlueshiftInboxMessage*>*)filterAndSortMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
+    return [[self sortMessages:[self filterMessages:messages]] mutableCopy];
+}
+
+- (NSMutableArray<BlueshiftInboxMessage*>*)filterMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
+    if (_messageFilter) {
+        NSArray *filteredMessages = [messages filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+            return self->_messageFilter(object);
+        }]];
+        return [filteredMessages mutableCopy];
     } else {
-        return nil;
+        return messages;
     }
 }
-- (NSUInteger)numberOfItems {
-    return _inboxMessages ? _inboxMessages.count : 0;
+
+- (NSMutableArray<BlueshiftInboxMessage*>*)sortMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
+    if (self.messageComparator) {
+       NSArray* sortedMessages = [messages sortedArrayUsingComparator:self.messageComparator];
+        return  [sortedMessages mutableCopy];
+    }
+    return messages;
 }
+
+- (BlueshiftInboxMessage * _Nullable)itemAtIndexPath:(NSIndexPath *)indexPath {
+    @try {
+        if(_sectionInboxMessages) {
+            return [[_sectionInboxMessages objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        } else {
+            return nil;
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
+    }
+    return nil;
+}
+
+- (NSUInteger)numberOfItemsInSection:(NSUInteger)section {
+    @try {
+        return _sectionInboxMessages ? [_sectionInboxMessages objectAtIndex:section].count : 0;
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
+    }
+    return 0;
+}
+
 - (NSUInteger)numberOfSections {
-    return 1;
+    return _sectionInboxMessages ?_sectionInboxMessages.count : 0;
 }
 
 - (void)markMessageAsRead:(BlueshiftInboxMessage*)message {
@@ -57,7 +98,7 @@
     }
 }
 
-- (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^_Nonnull)(NSData* _Nullable))handler {
+- (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^)(NSData* _Nullable))handler {
     if (urlString) {
         NSURL *url = [NSURL URLWithString:urlString];
         [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData *data, NSError *error) {

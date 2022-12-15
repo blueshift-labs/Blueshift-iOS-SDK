@@ -11,7 +11,7 @@
 
 @interface BlueShiftRequestQueue ()
 
-+ (void)retryProcessRequestWithContext:(NSManagedObjectContext *)context requestOperation:(BlueShiftRequestOperation*)requestOperation forEntity:(HttpRequestOperationEntity*)operationEntityToBeExecuted;
++ (void)retryRequestOperation:(BlueShiftRequestOperation*)requestOperation forEntity:(HttpRequestOperationEntity*)operationEntityToBeExecuted;
 
 @end
 
@@ -92,8 +92,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 }
 
 + (void)processRequestForQueuedEntity:(HttpRequestOperationEntity*)entity {
-    NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.eventsMOContext;
-    if(context && entity) {
+    if(entity) {
         // Create new request operation
         BlueShiftRequestOperation *requestOperation = [[BlueShiftRequestOperation alloc] initWithHttpRequestOperationEntity:entity];
         
@@ -106,7 +105,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
                 }];
             } else {
                 // Handle the retry for the failed execution
-                [BlueShiftRequestQueue retryProcessRequestWithContext:context requestOperation:requestOperation forEntity:entity];
+                [BlueShiftRequestQueue retryRequestOperation:requestOperation forEntity:entity];
             }
         }];
     } else {
@@ -131,7 +130,7 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
     }
 }
 
-+ (void)retryProcessRequestWithContext:(NSManagedObjectContext *)context requestOperation:(BlueShiftRequestOperation*)requestOperation forEntity:(HttpRequestOperationEntity*)entity {
++ (void)retryRequestOperation:(BlueShiftRequestOperation*)requestOperation forEntity:(HttpRequestOperationEntity*)entity {
     @try {
         // Set retry info
         requestOperation.retryAttemptsCount = requestOperation.retryAttemptsCount - 1;

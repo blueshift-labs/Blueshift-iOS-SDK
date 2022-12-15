@@ -15,7 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
-@property NSComparisonResult sortOrder;
+@property (copy) BOOL(^ _Nullable messageFilter)(BlueshiftInboxMessage*);
+
+@property (copy) NSComparisonResult(^ _Nullable messageComparator)(BlueshiftInboxMessage*, BlueshiftInboxMessage*);
 
 - (NSString* _Nullable)formatDate:(BlueshiftInboxMessage*)message;
 

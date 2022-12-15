@@ -29,10 +29,10 @@
 @dynamic availability;
 
 
-+ (void)fetchAllMessagesForInbox:(NSComparisonResult)sortOrder handler:(void (^)(BOOL, NSArray * _Nullable))handler {
++ (void)fetchAllMessagesForInboxWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
     NSNumber* currentTime = [NSNumber numberWithDouble:(double)[[NSDate date] timeIntervalSince1970]];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"startTime < %@ AND endTime > %@ AND (availability == %@ OR availability == %@)", currentTime, currentTime, kBSAvailabiltyInboxOnly, kBSAvailabiltyInboxAndInApp];
-    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending: sortOrder == NSOrderedAscending ? YES : NO];
+    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:NO];
     NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:@[sortByDate]];
     [InAppNotificationEntity fetchMessagesForFetchRequest:fetchRequest withHandler:^(BOOL status, NSArray *messages) {
         [BlueshiftLog logInfo:@"Fetched inbox messages from local DB, count - " withDetails:[NSNumber numberWithUnsignedInteger:messages.count] methodName:nil];

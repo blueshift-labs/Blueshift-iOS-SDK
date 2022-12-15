@@ -17,11 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSMutableArray* inboxMessages;
 
-- (void)reloadInboxMessagesInOrder:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL))success;
+- (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success;
 
 - (BlueshiftInboxMessage * _Nullable)itemAtIndexPath:(NSIndexPath *)indexPath;
 
-- (NSUInteger)numberOfItems;
+- (NSUInteger)numberOfItemsInSection:(NSUInteger)section;
 
 - (NSUInteger)numberOfSections;
 
@@ -33,10 +33,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSArray* titleArray;
 
-@property NSMutableArray* inboxMessages;
+@property NSMutableArray<NSMutableArray*>* sectionInboxMessages;
 @property NSString* _Nullable blueshiftInboxDateFormat;
+@property BOOL(^ _Nullable messageFilter)(BlueshiftInboxMessage*);
+@property (copy) NSComparisonResult(^ _Nullable messageComparator)(BlueshiftInboxMessage*, BlueshiftInboxMessage*);
 
-- (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^_Nonnull)(NSData* _Nullable))success;
+- (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^)(NSData* _Nullable))success;
 
 - (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate;
 

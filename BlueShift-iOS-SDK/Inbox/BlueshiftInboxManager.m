@@ -21,8 +21,10 @@
 }
 
 + (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler  {
+    //Delete in-app from server first. Deleting in-apps in offline mode is not allowed ATM.
     [BlueshiftInboxAPIManager deleteMessagesWithMessageUUIDs:@[message.messageUUID] success:^(BOOL status) {
         if (status) {
+            //On success, delete the in-app from db.
             [InAppNotificationEntity deleteInboxMessageFromDB:message.objectId completionHandler:^(BOOL status) {
                 handler(status);
             }];
@@ -36,25 +38,23 @@
 
 + (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message {
     if (message.readStatus == NO) {
+        // If message is unread then only mark it as read.
         [InAppNotificationEntity markMessageAsRead:message.messageUUID];
     }
 }
 
-+ (void)getInboxMessages:(NSComparisonResult)sortOrder handler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success {
++ (void)getInboxMessagesWithHandler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success {
     [BlueshiftLog logInfo:@"Fetching inbox messages from local DB." withDetails:nil methodName:nil];
-    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
-    if(context) {
-        [InAppNotificationEntity fetchAllMessagesForInbox:sortOrder handler:^(BOOL status, NSArray *results) {
-            if (status) {
-                NSMutableArray<BlueshiftInboxMessage*>* messages = [BlueshiftInboxManager prepareInboxMessages:results];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    success(YES, messages);
-                });
-            } else {
-                success(NO, nil);
-            }
-        }];
-    }
+    [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *results) {
+        if (status) {
+            NSMutableArray<BlueshiftInboxMessage*>* messages = [BlueshiftInboxManager prepareInboxMessages:results];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                success(YES, messages);
+            });
+        } else {
+            success(NO, nil);
+        }
+    }];
 }
 
 + (void)getInboxUnreadMessagesCount:(void(^)(NSUInteger))handler {
@@ -67,7 +67,7 @@
 
 + (void)getLatestInboxMessagesUsingAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure {
         [BlueshiftInboxAPIManager getUnreadStatus:^(NSArray * _Nonnull statusArray) {
-            [InAppNotificationEntity fetchAllMessagesForInbox:NSOrderedSame handler:^(BOOL status, NSArray *messages) {
+            [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
             NSMutableDictionary* existingMessages = [[NSMutableDictionary alloc] init];
             for(InAppNotificationEntity* message in messages) {
                 [existingMessages setValue:message forKey:message.id];

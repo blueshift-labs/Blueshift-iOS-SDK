@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) IBInspectable  UIColor* activityIndicatorColor;
 
+@property (nonatomic) IBInspectable  BOOL groupSections;
+
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate> _Nullable inboxDelegate;
 
 @end
