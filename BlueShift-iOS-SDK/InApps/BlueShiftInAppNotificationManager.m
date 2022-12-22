@@ -16,6 +16,7 @@
 #import "BlueShift.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
+#import "BlueshiftInboxManager.h"
 
 @interface BlueShiftInAppNotificationManager() <BlueShiftNotificationDelegate>
 
@@ -87,29 +88,33 @@
 - (void)fetchAndShowInAppNotification {
     //Check in-apps are enabled
     if([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus]) {
-        //Check if current screen is registered to display in-apps
-        if ([self inAppNotificationDisplayOnPage]) {
-            //Check if in-app display is not in progress
-            if (!self.currentNotificationController) {
-                //Fetch one in-app to display
-                [InAppNotificationEntity fetchInAppMessageToDisplayOnScreen:[self inAppNotificationDisplayOnPage] WithHandler:^(BOOL status, NSArray *results) {
-                    if (status) {
-                        if ([results count] > 0) {
-                            InAppNotificationEntity *entity = [results objectAtIndex:0];
-                            [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display, message id - " withDetails:entity.id methodName:nil];
-                            [self createNotificationFromDictionary: entity];
+        if([BlueshiftInboxManager isSyncing] != YES) {
+            //Check if current screen is registered to display in-apps
+            if ([self inAppNotificationDisplayOnPage]) {
+                //Check if in-app display is not in progress
+                if (!self.currentNotificationController) {
+                    //Fetch one in-app to display
+                    [InAppNotificationEntity fetchInAppMessageToDisplayOnScreen:[self inAppNotificationDisplayOnPage] WithHandler:^(BOOL status, NSArray *results) {
+                        if (status) {
+                            if ([results count] > 0) {
+                                InAppNotificationEntity *entity = [results objectAtIndex:0];
+                                [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display, message id - " withDetails:entity.id methodName:nil];
+                                [self createNotificationFromDictionary: entity];
+                            } else {
+                                [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                            }
                         } else {
-                            [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
+                            [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                         }
-                    } else {
-                        [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
-                    }
-                }];
+                    }];
+                } else {
+                    [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: In-progress or active in-app detected." withDetails:nil methodName:nil];
+                }
             } else {
-                [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: In-progress or active in-app detected." withDetails:nil methodName:nil];
+                [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: screen is not registered to receive in-apps." withDetails:nil methodName:nil];
             }
         } else {
-            [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: screen is not registered to receive in-apps." withDetails:nil methodName:nil];
+            [BlueshiftLog logInfo:@"Inbox is syncing. Skipped fetching in-apps." withDetails:nil methodName:nil];
         }
     } else {
         [BlueshiftLog logInfo:@"Skipping in-app fetch! Reason: In-App notifications are not enabled" withDetails:nil methodName:nil];
@@ -178,7 +183,7 @@
         NSURL* iconImageURL = isSlideInIconImagePresent ? [NSURL URLWithString:notification.notificationContent.iconImage] : nil;
         NSURL* backgroundImageURL = isBackgroundImagePresent ? [NSURL URLWithString:notification.templateStyle.backgroundImage] : nil;
         dispatch_group_t serviceGroup = dispatch_group_create();
-        dispatch_group_async(serviceGroup,BlueShift.sharedInstance.dispatch_get_blueshift_queue,^{
+        dispatch_group_async(serviceGroup,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
             dispatch_group_enter(serviceGroup);
             [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:iconImageURL handler:^(BOOL status, NSData *data, NSError *error) {
                 dispatch_group_leave(serviceGroup);
@@ -210,7 +215,7 @@
         NSURL* backgroundImageURL = isBackgroundImagePresent ? [NSURL URLWithString:notification.templateStyle.backgroundImage] : nil;
         NSURL* bannerImageURL = isBannerImagePresent ? [NSURL URLWithString:notification.notificationContent.banner] : nil;
         dispatch_group_t serviceGroup = dispatch_group_create();
-        dispatch_group_async(serviceGroup,BlueShift.sharedInstance.dispatch_get_blueshift_queue,^{
+        dispatch_group_async(serviceGroup,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
             dispatch_group_enter(serviceGroup);
             [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:backgroundImageURL handler:^(BOOL status, NSData *data, NSError *error) {
                 dispatch_group_leave(serviceGroup);

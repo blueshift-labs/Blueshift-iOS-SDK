@@ -218,7 +218,10 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 - (NSData* _Nullable)getCachedImageDataForURL:(NSString*)url {
-    return [_inboxImageDataCache objectForKey:url];
+    if (url) {
+        return [_inboxImageDataCache objectForKey:url];
+    }
+    return nil;
 }
 
 @end

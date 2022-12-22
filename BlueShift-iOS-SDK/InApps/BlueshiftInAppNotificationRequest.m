@@ -14,9 +14,8 @@
 + (void)fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:nil success:^(NSDictionary * _Nonnull data) {
         success(data);
-
-    } failure:^(NSError * _Nonnull error) {
-        failure(error);
+    } failure:^(NSError * _Nullable err, NSArray * _Nullable batch) {
+        failure(err);
     }];
 }
 
@@ -24,16 +23,19 @@
 
 @implementation BlueshiftInboxAPIManager
 
-+ (void)getUnreadStatus:(void (^)(NSArray*))success failure:(void (^)(NSError*))failure {
++ (void)getMessageIdsAndStatus:(void (^)(NSArray* _Nullable))success failure:(void (^)(NSError*))failure {
     //TODO: remove the fetchAllMessagesForTrigger method call later
-    [InAppNotificationEntity fetchAllMessagesForInbox:NSOrderedSame handler:^(BOOL status, NSArray *messages) {
-        NSMutableDictionary* existingMessages = [[NSMutableDictionary alloc] init];
+    [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
+        NSMutableArray *responseToBe = [[NSMutableArray alloc] init];
         for(InAppNotificationEntity* message in messages) {
+            NSMutableDictionary* data = [[NSMutableDictionary alloc] init];
             if([message.status isEqualToString:kInAppStatusPending]) {
-                [existingMessages setValue:@NO forKey:message.id];
+                [data setValue:@"read" forKey:@"status"];
             } else {
-                [existingMessages setValue:@YES forKey:message.id];
+                [data setValue:@"unread" forKey:@"status"];
             }
+            [data setValue:message.id forKey:@"message_uuid"];
+            [responseToBe addObject:data];
         }
         // till here remove
         
@@ -41,7 +43,7 @@
             if(apiPayload) {
                 //TODO: below line to be removed later
                 NSMutableDictionary* payload = [apiPayload mutableCopy];
-                [payload setObject:@[existingMessages] forKey:@"content"];
+                [payload setObject:responseToBe forKey:@"content"];
                 
                 NSString *url = [BlueshiftRoutes getInboxStatusURL];
                 [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
@@ -62,7 +64,7 @@
     }];
 }
 
-+ (void)getMessagesForMessageUUIDs:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void)getMessagesForMessageUUIDs:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*, NSArray*))failure {
     [[BlueShift sharedInstance] getInAppNotificationAPIPayloadWithCompletionHandler:^(NSDictionary * apiPayload) {
         if(apiPayload) {
             NSMutableDictionary* payload = [apiPayload mutableCopy];
@@ -78,15 +80,15 @@
             
             [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
                 if (status) {
-                    [BlueshiftLog logAPICallInfo:@"Succesfully fetched in-app messages." withDetails:data statusCode:0];
+                    [BlueshiftLog logAPICallInfo:@"Succesfully fetched Inbox messages." withDetails:data statusCode:0];
                     success(data);
                 } else {
-                    failure(error);
+                    failure(error, messageIds);
                 }
             }];
         } else {
-            NSError *error = (NSError*)@"Unable to fetch in-app messages as device_id is missing.";
-            failure(error);
+            NSError *error = (NSError*)@"Unable to fetch Inbox messages as device_id is missing.";
+            failure(error, messageIds);
         }
     }];
 }

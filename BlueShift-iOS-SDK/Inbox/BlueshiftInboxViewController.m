@@ -55,16 +55,24 @@
     return self;
 }
 
+- (void)dealloc {
+    [_viewModel.sectionInboxMessages removeAllObjects];
+    [BlueShiftRequestOperationManager.sharedRequestOperationManager.inboxImageDataCache removeAllObjects];
+}
+
 - (void)setDefaults {
     self.showActivityIndicator = YES;
     self.activityIndicatorColor = UIColor.grayColor;
+    _viewModel.viewDelegate = self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self initInboxDelegate];
     [self setupTableView];
     [self registerTableViewCells];
     [self setupObservers];
+    [BlueshiftInboxManager syncNewInboxMessages:^{ }];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -72,17 +80,36 @@
     [self reloadTableView];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    [_viewModel.sectionInboxMessages removeAllObjects];
+- (void)initInboxDelegate {
+    @try {
+        if (_inboxDelegate) {
+            [self copyPropertiesToViewModel];
+        } else if (_inboxDelegateName) {
+            if([_inboxDelegateName componentsSeparatedByString:@"."].count > 1) {
+                id<BlueshiftInboxViewControllerDelegate> delegate = (id<BlueshiftInboxViewControllerDelegate>)[[NSClassFromString(_inboxDelegateName) alloc] init];
+                if (delegate) {
+                    self.inboxDelegate = delegate;
+                    [self copyPropertiesToViewModel];
+                }
+            } else {
+                [BlueshiftLog logError:nil withDescription:@"Failed to init the inbox delegate as module name is missing. The class name should be of format module_name.class_name" methodName:nil];
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
+    }
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
+- (void)copyPropertiesToViewModel {
+    if ([self.inboxDelegate respondsToSelector:@selector(messageFilter)]) {
+        _viewModel.messageFilter = self.inboxDelegate.messageFilter;
+    }
+    if ([self.inboxDelegate respondsToSelector:@selector(messageComparator)]) {
+        _viewModel.messageComparator =  self.inboxDelegate.messageComparator;
+    }
 }
 
 - (void)setupTableView {
-    [self initInboxDelegateFor:_inboxDelegateName];
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc]init];
@@ -99,6 +126,9 @@
             }
         }];
     }
+    [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        [self reloadTableView];
+    }];
 }
 
 - (void)startActivityIndicator {
@@ -121,23 +151,6 @@
     }
 }
 
-- (void)initInboxDelegateFor:(NSString*)className {
-    if (!_inboxDelegate && className && [className componentsSeparatedByString:@"."].count > 1) {
-        id<BlueshiftInboxViewControllerDelegate> delegate = (id<BlueshiftInboxViewControllerDelegate>)[[NSClassFromString(className) alloc] init];
-        if (delegate) {
-            self.inboxDelegate = delegate;
-            if ([self.inboxDelegate respondsToSelector:@selector(messageFilter)]) {
-                _viewModel.messageFilter = self.inboxDelegate.messageFilter;
-            }
-            if ([self.inboxDelegate respondsToSelector:@selector(messageComparator)]) {
-                _viewModel.messageComparator =  self.inboxDelegate.messageComparator;
-            }
-        }
-    } else {
-        [BlueshiftLog logError:nil withDescription:@"Failed to init the inbox delegate as module name is missing. The class name should be of format module_name.class_name" methodName:nil];
-    }
-}
-
 - (void)reloadTableView {
     [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
         if(isRefresh) {
@@ -153,6 +166,16 @@
 }
 
 - (void)registerTableViewCells {
+    if([self.inboxDelegate respondsToSelector:@selector(getCustomCellNibNameForMessage:)]) {
+        if (_inboxDelegate.customCellNibNames && _inboxDelegate.customCellNibNames.count > 0) {
+            [_inboxDelegate.customCellNibNames enumerateObjectsUsingBlock:^(NSString * _Nonnull nibName, NSUInteger idx, BOOL * _Nonnull stop) {
+                UINib * nib = [self geNibForName:nibName];
+                if(nib) {
+                    [self.tableView registerNib:nib forCellReuseIdentifier:nibName];
+                }
+            }];
+        }
+    }
     if (_customCellNibName) {
         UINib * nib = [self geNibForName:_customCellNibName];
         if(nib) {
@@ -186,10 +209,10 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    BlueshiftInboxTableViewCell *cell = (BlueshiftInboxTableViewCell*)[tableView dequeueReusableCellWithIdentifier:kBSInboxDefaultCellIdentifier forIndexPath:indexPath];
-
-    //Set labels
-    return [self handleCell:cell ForRowAtIndexPath:indexPath];
+    BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
+    BlueshiftInboxTableViewCell *cell = [self createCellForTableView:tableView atIndexPath:indexPath message:message];
+    //Prepare cell
+    return cell ? [self prepareCell:cell ForMessage:message] : [[UITableViewCell alloc] init];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -200,46 +223,56 @@
     [self handleDidSelectRowAtIndexPath:indexPath];
 }
 
-// Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     return YES;
 }
 
-// Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         [self handleDeleteRowAtIndexPath:indexPath];
     }
 }
 
-- (BlueshiftInboxTableViewCell*)handleCell:(BlueshiftInboxTableViewCell*)cell ForRowAtIndexPath:(NSIndexPath*)indexPath {
-    BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
-    
-    [self setText:message.title toLabel:cell.titleLabel];
-    [self setText:message.detail toLabel:cell.detailLabel];
-    [self setText:[self getFormattedDate: message] toLabel:cell.dateLabel];
-    
-    //Set unread status
-    [cell.unreadBadgeView setHidden:message.readStatus];
-    if (_unreadBadgeColor) {
-        [cell.unreadBadgeView setBackgroundColor:_unreadBadgeColor];
+#pragma mark Helper methods
+
+- (BlueshiftInboxTableViewCell* _Nullable)createCellForTableView:(UITableView*)tableView atIndexPath:(NSIndexPath*)indexPath message:(BlueshiftInboxMessage*)message {
+    BlueshiftInboxTableViewCell* cell = nil;
+    if(message && [self.inboxDelegate respondsToSelector:@selector(getCustomCellNibNameForMessage:)]) {
+        NSString* customNibName = [self.inboxDelegate getCustomCellNibNameForMessage:message];
+        if (customNibName) {
+            cell = (BlueshiftInboxTableViewCell*)[tableView dequeueReusableCellWithIdentifier:customNibName forIndexPath:indexPath];
+        }
     }
-    
-    //Download image
-    [_viewModel downloadImageForURLString:message.iconImageURL completionHandler:^(NSData * _Nullable imageData) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (imageData) {
-                [cell.iconImageView setHidden: NO];
-                cell.iconImageView.image = [[UIImage alloc] initWithData:imageData];
-            } else {
-                [cell.iconImageView setHidden: YES];
+
+    if (!cell) {
+        cell = (BlueshiftInboxTableViewCell*)[tableView dequeueReusableCellWithIdentifier:kBSInboxDefaultCellIdentifier forIndexPath:indexPath];
+    }
+    return cell;
+}
+
+- (BlueshiftInboxTableViewCell*)prepareCell:(BlueshiftInboxTableViewCell*)cell ForMessage:(BlueshiftInboxMessage*)message {
+    @try {
+        if (message) {
+            [self setText:message.title toLabel:cell.titleLabel];
+            [self setText:message.detail toLabel:cell.detailLabel];
+            [self setText:[self getFormattedDate: message] toLabel:cell.dateLabel];
+            
+            //Set unread status
+            [cell.unreadBadgeView setHidden:message.readStatus];
+            if (_unreadBadgeColor) {
+                [cell.unreadBadgeView setBackgroundColor:_unreadBadgeColor];
             }
-        });
-    }];
-    
-    //Configure custom fields
-    if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(configureCustomFieldsForCell:inboxMessage:)]) {
-        [_inboxDelegate configureCustomFieldsForCell:cell inboxMessage:message];
+            
+            //Download image
+            [self setImageForMessage:message cell:cell];
+            
+            //Configure custom fields callback
+            if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(configureCustomFieldsForCell:inboxMessage:)]) {
+                [_inboxDelegate configureCustomFieldsForCell:cell inboxMessage:message];
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
     }
     return cell;
 }
@@ -275,13 +308,24 @@
     }
 }
 
-- (void)setText:(NSString*)text toLabel:(UILabel *)label {
-    if (text && ![text isEqualToString:@""]) {
-        [label setHidden: NO];
-        label.text = text;
+- (void)setImageForMessage:(BlueshiftInboxMessage*)message cell:(BlueshiftInboxTableViewCell*)cell {
+    NSData* imageData = [_viewModel getCachedImageDataForURL:message.iconImageURL];
+    if (imageData) {
+        cell.iconImageView.image = [UIImage imageWithData:imageData];
     } else {
-        [label setHidden: YES];
-        label.text = nil;
+        [_viewModel downloadImageForMessage:message];
+    }
+}
+
+- (void)setText:(NSString*)text toLabel:(UILabel *)label {
+    if (label) {
+        if (text && ![text isEqualToString:@""]) {
+            [label setHidden: NO];
+            label.text = text;
+        } else {
+            [label setHidden: YES];
+            label.text = nil;
+        }
     }
 }
 
@@ -290,6 +334,12 @@
         return [self.inboxDelegate formatDate:message];
     }
     return [_viewModel getDefaultFormatDate: message.date];
+}
+
+- (void)reloadTableViewCellForIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath) {
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
 }
 
 @end

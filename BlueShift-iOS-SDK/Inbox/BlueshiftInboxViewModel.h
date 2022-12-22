@@ -13,9 +13,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol BlueshiftInboxViewDelegate <NSObject>
 
-@optional
+- (void)reloadTableViewCellForIndexPath:(NSIndexPath*)indexPath;
 
-@property NSMutableArray* inboxMessages;
+@end
+
+@interface BlueshiftInboxViewModel: NSObject
+
+@property (weak) id<BlueshiftInboxViewDelegate> _Nullable viewDelegate;
+
+@property NSMutableArray<NSMutableArray*>* sectionInboxMessages;
+
+@property BOOL(^ _Nonnull messageFilter)(BlueshiftInboxMessage*);
+
+@property (copy) NSComparisonResult(^ _Nonnull messageComparator)(BlueshiftInboxMessage*, BlueshiftInboxMessage*);
+
+- (void)downloadImageForMessage:(BlueshiftInboxMessage*)message;
+
+- (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate;
+
+- (NSData*)getCachedImageDataForURL:(NSString*)url;
 
 - (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success;
 
@@ -27,20 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)markMessageAsRead:(BlueshiftInboxMessage*)message;
 
-@end
-
-@interface BlueshiftInboxViewModel: NSObject <BlueshiftInboxViewDelegate>
-
-@property NSArray* titleArray;
-
-@property NSMutableArray<NSMutableArray*>* sectionInboxMessages;
-@property NSString* _Nullable blueshiftInboxDateFormat;
-@property BOOL(^ _Nullable messageFilter)(BlueshiftInboxMessage*);
-@property (copy) NSComparisonResult(^ _Nullable messageComparator)(BlueshiftInboxMessage*, BlueshiftInboxMessage*);
-
-- (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^)(NSData* _Nullable))success;
-
-- (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate;
 
 @end
 

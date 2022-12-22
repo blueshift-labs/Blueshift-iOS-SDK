@@ -809,7 +809,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                         }
                     }
                 }
-                NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+                NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
                 [managedObjectContext setPersistentStoreCoordinator:coordinator];
                 
                 inboxMOContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];

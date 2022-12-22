@@ -198,9 +198,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             [_inAppNotificationMananger load];
             
             if (config.enableMobileInbox) {
-                [BlueshiftInboxManager getLatestInboxMessagesUsingAPI:^{
+                [BlueshiftInboxManager syncNewInboxMessages:^ {
                     [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
-                } failure:^(NSError * _Nullable err) { }];
+                }];
             } else {
                 [self fetchInAppNotificationFromAPI:^(void) {
                     [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
@@ -931,11 +931,11 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary] && _config.inAppBackgroundFetchEnabled == YES) {
             if (_config.enableMobileInbox) {
                 if (_config.enableMobileInbox) {
-                    [BlueshiftInboxManager getLatestInboxMessagesUsingAPI:^{
+                    [BlueshiftInboxManager syncNewInboxMessages:^{
                         if (self->_config.inAppManualTriggerEnabled == NO) {
                             [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
                         }
-                    } failure:^(NSError * _Nullable err) { }];
+                    }];
                 }
             } else {
                 [self fetchInAppNotificationFromAPI:^() {

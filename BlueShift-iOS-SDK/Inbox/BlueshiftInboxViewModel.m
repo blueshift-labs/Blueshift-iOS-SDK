@@ -16,7 +16,6 @@
 
 
 @interface BlueshiftInboxViewModel()
-@property NSDateFormatter* utcDateFormatter;
 
 @end
 
@@ -32,17 +31,16 @@
 }
 
 - (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success {
-    [BlueshiftInboxManager getInboxMessagesWithHandler:^(BOOL status, NSMutableArray * _Nullable messages) {
+    [BlueshiftInboxManager getCachedInboxMessagesWithHandler:^(BOOL status, NSMutableArray * _Nullable messages) {
+        [self->_sectionInboxMessages removeAllObjects];
         if (status && messages) {
-            [self->_sectionInboxMessages insertObject:[self filterAndSortMessages:messages] atIndex:0];
-        } else {
-            [self->_sectionInboxMessages removeAllObjects];
+            [self->_sectionInboxMessages insertObject:[self getSectionedMessages:messages] atIndex:0];
         }
         success(YES);
     }];
 }
 
-- (NSMutableArray<BlueshiftInboxMessage*>*)filterAndSortMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
+- (NSMutableArray<BlueshiftInboxMessage*>*)getSectionedMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
     return [[self sortMessages:[self filterMessages:messages]] mutableCopy];
 }
 
@@ -78,6 +76,20 @@
     return nil;
 }
 
+- (NSIndexPath* _Nullable)getIndexPathForMessageId:(NSString*)messageId {
+    if (_sectionInboxMessages && _sectionInboxMessages.count > 0) {
+        for(int sectionCounter = 0; sectionCounter < _sectionInboxMessages.count; sectionCounter++) {
+            NSUInteger row = [self->_sectionInboxMessages[sectionCounter] indexOfObjectPassingTest:^BOOL(BlueshiftInboxMessage*  _Nonnull obj, NSUInteger idx2, BOOL * _Nonnull stop) {
+                return [obj.messageUUID isEqualToString:messageId];
+            }];
+            if (row != NSNotFound) {
+                return [NSIndexPath indexPathForRow:row inSection:sectionCounter];
+            }
+        }
+    }
+    return nil;
+}
+
 - (NSUInteger)numberOfItemsInSection:(NSUInteger)section {
     @try {
         return _sectionInboxMessages ? [_sectionInboxMessages objectAtIndex:section].count : 0;
@@ -88,7 +100,7 @@
 }
 
 - (NSUInteger)numberOfSections {
-    return _sectionInboxMessages ?_sectionInboxMessages.count : 0;
+    return _sectionInboxMessages ?_sectionInboxMessages.count : 1;
 }
 
 - (void)markMessageAsRead:(BlueshiftInboxMessage*)message {
@@ -98,56 +110,28 @@
     }
 }
 
-- (void)downloadImageForURLString:(NSString*)urlString completionHandler:(void (^)(NSData* _Nullable))handler {
-    if (urlString) {
-        NSURL *url = [NSURL URLWithString:urlString];
+- (NSData*)getCachedImageDataForURL:(NSString*)url {
+    return [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:url];
+}
+
+- (void)downloadImageForMessage:(BlueshiftInboxMessage*)message {
+    if (message.iconImageURL) {
+        NSURL *url = [NSURL URLWithString:message.iconImageURL];
         [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData *data, NSError *error) {
-            if (status) {
-                handler(data);
-            } else {
-                handler(nil);
+            if (status && self->_viewDelegate) {
+                NSIndexPath *indexPath = [self getIndexPathForMessageId:message.messageUUID];
+                if (indexPath) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self->_viewDelegate reloadTableViewCellForIndexPath:indexPath];
+                    });
+                }
             }
         }];
-    } else {
-        handler(nil);
     }
 }
 
 - (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate {
-    return [self sometimeAgoStringFromStringDate:createdAtDate];
-}
-
-// TODO: check for the different regional calendar types
-- (NSString*)sometimeAgoStringFromStringDate:(NSDate*)createdAtDate {
-    if (createdAtDate) {
-        NSCalendar *calendar = [[NSCalendar currentCalendar] initWithCalendarIdentifier:NSCalendarIdentifierISO8601];
-        [calendar setTimeZone:[NSTimeZone systemTimeZone]];
-        [calendar setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
-        
-        NSDateComponents *components = [calendar components:(NSCalendarUnitDay |NSCalendarUnitWeekOfMonth | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:createdAtDate toDate:[NSDate date] options:0];
-        NSDateComponentsFormatter* timeFormatter = [[NSDateComponentsFormatter alloc] init];
-        timeFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleFull;
-        
-        if(components.year > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitYear;
-        } else if(components.month > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitMonth;
-        } else if(components.weekOfMonth > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitWeekOfMonth;
-        } else if(components.day > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitDay;
-        } else if(components.hour > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitHour;
-        } else if(components.minute > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitMinute;
-        } else if(components.second > 0) {
-            timeFormatter.allowedUnits = NSCalendarUnitSecond;
-        }
-        
-        NSString* timeString = [timeFormatter stringFromDateComponents:components];
-        return [NSString stringWithFormat:@"%@ ago",timeString];
-    }
-    return nil;
+    return [NSDateFormatter localizedStringFromDate:createdAtDate dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
 }
 
 @end

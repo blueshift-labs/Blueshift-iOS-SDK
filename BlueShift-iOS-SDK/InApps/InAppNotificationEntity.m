@@ -61,30 +61,32 @@
 }
 
 +(void)fetchMessagesForFetchRequest:(NSFetchRequest*)fetchRequest withHandler:(void (^)(BOOL, NSArray *))handler {
-    @try {
-        NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
-        if (fetchRequest && context) {
-            [context performBlock:^{
-                @try {
-                    NSError *error;
-                    NSArray *results = [[NSArray alloc]init];
-                    results = [context executeFetchRequest:fetchRequest error:&error];
-                    if (results && results.count > 0) {
-                        handler(YES, results);
-                    } else {
+    @synchronized (self) {
+        @try {
+            NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
+            if (fetchRequest && context) {
+                [context performBlock:^{
+                    @try {
+                        NSError *error;
+                        NSArray *results = [[NSArray alloc]init];
+                        results = [context executeFetchRequest:fetchRequest error:&error];
+                        if (results && results.count > 0) {
+                            handler(YES, results);
+                        } else {
+                            handler(NO, nil);
+                        }
+                    } @catch (NSException *exception) {
+                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         handler(NO, nil);
                     }
-                } @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                    handler(NO, nil);
-                }
-            }];
-        } else {
+                }];
+            } else {
+                handler(NO, nil);
+            }
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             handler(NO, nil);
         }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        handler(NO, nil);
     }
 }
 
@@ -202,7 +204,7 @@
     }
 }
 
-+ (void)updateMessageUnreadStatusInDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray {
++ (void)updateMessageUnreadStatusWithDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray {
     if (statusArray && messages && messages.count > 0) {
         NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
         if(context) {
@@ -211,10 +213,13 @@
                     for(NSString* key in statusArray.allKeys) {
                         InAppNotificationEntity* entity = (InAppNotificationEntity*)messages[key];
                         //TODO: verify the data type of recieved bool status
+                        /*
                         if([statusArray[key] isEqual: @YES]) {
                             entity.status = kInAppStatusDisplayed;
                             [BlueshiftLog logInfo:[NSString stringWithFormat:@"Updated unread status for message UUID - %@",entity.id] withDetails:nil methodName:nil];
                         }
+                         */
+                        entity.status = [entity.status isEqualToString:kInAppStatusPending] ? kInAppStatusDisplayed : kInAppStatusPending;
                     }
                     NSError *error;
                     [context save:&error];

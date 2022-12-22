@@ -59,8 +59,10 @@ IB_DESIGNABLE
     [super viewDidLoad];
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.viewControllers.count > 0 && self.viewControllers[0]) {
-            UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
-            self.viewControllers[0].navigationItem.rightBarButtonItem = doneButton;
+            if (self->_showDoneButton) {
+                UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
+                self.viewControllers[0].navigationItem.rightBarButtonItem = doneButton;
+            }
             self.viewControllers[0].navigationItem.title = self.title;
         }
     });
@@ -116,6 +118,7 @@ IB_DESIGNABLE
 
 #pragma mark -
 - (void)setUpInboxViewController {
+    _showDoneButton = YES;
     if (self.viewControllers.count > 0 && [self.viewControllers[0] isKindOfClass:[BlueshiftInboxViewController class]]) {
         _inboxViewController = self.viewControllers.lastObject;
     } else {
