@@ -38,15 +38,10 @@
                         NSError *error = nil;
                         @try {
                             [context save:&error];
-                            if(context.parentContext && [context.parentContext isKindOfClass:[NSManagedObjectContext class]]) {
-                                [context.parentContext performBlock:^{
-                                    @try {
-                                        NSError *error = nil;
-                                        [context.parentContext save:&error];
-                                    } @catch (NSException *exception) {
-                                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                                    }
-                                }];
+                            if(error) {
+                                [BlueshiftLog logError:error withDescription:@"Failed to insert event record." methodName:nil];
+                            } else {
+                                [BlueshiftLog logInfo:@"Inserted event record successfully." withDetails:nil methodName:nil];
                             }
                         } @catch (NSException *exception) {
                             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
@@ -164,17 +159,13 @@
                     NSManagedObject* object = [context objectWithID:objectId];
                     [context deleteObject:object];
                     [context save:&saveError];
-                    if (context.parentContext && [context.parentContext respondsToSelector:@selector(save:)]) {
-                        [context.parentContext performBlock:^{
-                            @try {
-                                NSError *error = nil;
-                                [context.parentContext save:&error];
-                            } @catch (NSException *exception) {
-                                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                            }
-                        }];
+                    if (saveError) {
+                        [BlueshiftLog logError:saveError withDescription:@"Failed to delete event record." methodName:nil];
+                        handler(NO);
+                    } else {
+                        [BlueshiftLog logInfo:@"Deleted event record." withDetails:nil methodName:nil];
+                        handler(YES);
                     }
-                    handler(YES);
                 } else {
                     handler(NO);
                 }
@@ -207,12 +198,6 @@
                             }
                             NSBatchDeleteResult* deleteResult = [context executeRequest:deleteRequest error:&error];
                             [context save:&error];
-                            if (context.parentContext) {
-                                [context.parentContext performBlock:^{
-                                    NSError* error;
-                                    [context.parentContext save:&error];
-                                }];
-                            }
                             if (error) {
                                 [BlueshiftLog logError:error withDescription:@"Failed to save the data after deleting events." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                             } else {

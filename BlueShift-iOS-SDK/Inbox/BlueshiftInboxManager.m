@@ -95,7 +95,7 @@ static BOOL isSyncing = NO;
                 [deletedMessages removeObjectsInArray:[statusMessageIds allKeys]];
                 
                 //Sync server unread messages status with local messages
-                [InAppNotificationEntity updateMessageUnreadStatusWithDB:existingMessages status:statusMessageIds];
+                [InAppNotificationEntity syncMessageUnreadStatusWithDB:existingMessages status:statusMessageIds];
                 
                 //Sync server deleted messages with local db
                 [InAppNotificationEntity syncDeletedMessagesWithDB:deletedMessages];
@@ -270,7 +270,7 @@ static BOOL isSyncing = NO;
                 if(sucessAPICount == totalAPICount) {
                     [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
                     isSyncing = NO;
-                } else {
+                } else if (sucessAPICount > 0) {
                     [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
                     
                     //If some pagination api calls are success,then retry for failed messagesIds and post notification

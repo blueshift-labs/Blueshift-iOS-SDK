@@ -109,16 +109,6 @@ static NSTimer *_batchUploadTimer = nil;
                     @try {
                         NSError *saveError = nil;
                         [context save:&saveError];
-                        if (context.parentContext) {
-                            [context.parentContext performBlockAndWait:^{
-                                @try {
-                                    NSError *saveError = nil;
-                                    [context.parentContext save:&saveError];
-                                } @catch (NSException *exception) {
-                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                                }
-                            }];
-                        }
                     } @catch (NSException *exception) {
                         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
@@ -156,7 +146,6 @@ static NSTimer *_batchUploadTimer = nil;
         }];
     }
 }
-
 
 + (void)processRequestsInQueue:(BatchEventEntity *)batchEvent completetionHandler:(void (^)(BOOL))handler {
     @synchronized(self) {

@@ -809,14 +809,12 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                         }
                     }
                 }
-                NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                [managedObjectContext setPersistentStoreCoordinator:coordinator];
                 
                 inboxMOContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                inboxMOContext.parentContext = managedObjectContext;
-
+                [inboxMOContext setPersistentStoreCoordinator:coordinator];
+                
                 eventsMOContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                eventsMOContext.parentContext = managedObjectContext;
+                [eventsMOContext setPersistentStoreCoordinator:coordinator];
             } else {
                 [BlueshiftLog logInfo:@"Failed to initialise core data as MOMD URL is found nil." withDetails:nil methodName:nil];
             }

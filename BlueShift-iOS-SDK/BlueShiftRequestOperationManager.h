@@ -27,10 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager;
 
 /// To execute the POST requests like event, bulkevents API calls
-- (void) postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler;
+- (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler;
 
 /// To execute the GET request like tracking API calls
-- (void) getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary*, NSError*))handler;
+- (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary*, NSError*))handler;
 
 /// Add Basic authentication to Header
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password;
