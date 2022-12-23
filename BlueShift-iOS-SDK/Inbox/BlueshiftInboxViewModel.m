@@ -122,7 +122,7 @@
                 NSIndexPath *indexPath = [self getIndexPathForMessageId:message.messageUUID];
                 if (indexPath) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self->_viewDelegate reloadTableViewCellForIndexPath:indexPath];
+                        [self->_viewDelegate reloadTableViewCellForIndexPath:indexPath animated:NO];
                     });
                 }
             }

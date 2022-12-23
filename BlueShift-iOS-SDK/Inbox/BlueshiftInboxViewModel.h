@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol BlueshiftInboxViewDelegate <NSObject>
 
-- (void)reloadTableViewCellForIndexPath:(NSIndexPath*)indexPath;
+- (void)reloadTableViewCellForIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
 
 @end
 

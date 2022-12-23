@@ -299,8 +299,8 @@
         [self startActivityIndicator];
         [BlueshiftInboxManager showInboxNotificationForMessage:message];
         [_viewModel markMessageAsRead:message];
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        
+        [self reloadTableViewCellForIndexPath:indexPath animated:YES];
+
         //Callback
         if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
             [_inboxDelegate inboxMessageSelected:message];
@@ -336,9 +336,9 @@
     return [_viewModel getDefaultFormatDate: message.date];
 }
 
-- (void)reloadTableViewCellForIndexPath:(NSIndexPath *)indexPath {
+- (void)reloadTableViewCellForIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated{
     if (indexPath) {
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:animated ? UITableViewRowAnimationAutomatic : UITableViewRowAnimationNone];
     }
 }
 
