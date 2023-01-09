@@ -70,14 +70,16 @@
     [super viewDidLoad];
     [self initInboxDelegate];
     [self setupTableView];
+    [self setupPullToRefresh];
     [self registerTableViewCells];
-    [self setupObservers];
-    [BlueshiftInboxManager syncNewInboxMessages:^{ }];
+    [self SyncInbox];
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self reloadTableView];
+    [self setupObservers];
 }
 
 - (void)initInboxDelegate {
@@ -117,6 +119,14 @@
     self.tableView.delegate = self;
 }
 
+- (void)setupPullToRefresh {
+    if (@available(iOS 10.0, *)) {
+        self.refreshControl = [[UIRefreshControl alloc]init];
+        [self.refreshControl addTarget:self action:@selector(SyncInbox) forControlEvents:UIControlEventValueChanged];
+        [self.tableView addSubview:self.refreshControl];
+    }
+}
+
 - (void)setupObservers {
     if (_showActivityIndicator) {
         [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
@@ -127,7 +137,10 @@
         }];
     }
     [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        [self reloadTableView];
+        BlueshiftInboxChangeType type = (BlueshiftInboxChangeType)[note.userInfo[@"refreshType"] integerValue];
+        if (type == BlueshiftInboxChangeTypeSync) {
+            [self reloadTableView];
+        }
     }];
 }
 
@@ -154,18 +167,21 @@
 - (void)reloadTableView {
     [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
         if(isRefresh) {
-            if ([NSThread isMainThread]) {
-                [self.tableView reloadData];
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.tableView reloadData];
-                });
-            }
+            [self.tableView reloadData];
+        }
+    }];
+}
+
+- (void)SyncInbox {
+    [BlueshiftInboxManager syncNewInboxMessages:^{
+        if (@available(iOS 10.0, *)) {
+            [self.refreshControl endRefreshing];
         }
     }];
 }
 
 - (void)registerTableViewCells {
+    //Register multiple custom nibs
     if([self.inboxDelegate respondsToSelector:@selector(getCustomCellNibNameForMessage:)]) {
         if (_inboxDelegate.customCellNibNames && _inboxDelegate.customCellNibNames.count > 0) {
             [_inboxDelegate.customCellNibNames enumerateObjectsUsingBlock:^(NSString * _Nonnull nibName, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -176,6 +192,7 @@
             }];
         }
     }
+    //Register privided custom cell as default cell
     if (_customCellNibName) {
         UINib * nib = [self geNibForName:_customCellNibName];
         if(nib) {
@@ -183,6 +200,7 @@
             return;
         }
     }
+    //Register SDK cell as default cell
     [self.tableView registerClass:[BlueshiftInboxTableViewCell class] forCellReuseIdentifier:kBSInboxDefaultCellIdentifier];
 }
 
@@ -211,6 +229,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     BlueshiftInboxTableViewCell *cell = [self createCellForTableView:tableView atIndexPath:indexPath message:message];
+    
     //Prepare cell
     return cell ? [self prepareCell:cell ForMessage:message] : [[UITableViewCell alloc] init];
 }
@@ -253,6 +272,7 @@
 - (BlueshiftInboxTableViewCell*)prepareCell:(BlueshiftInboxTableViewCell*)cell ForMessage:(BlueshiftInboxMessage*)message {
     @try {
         if (message) {
+            //Set labels
             [self setText:message.title toLabel:cell.titleLabel];
             [self setText:message.detail toLabel:cell.detailLabel];
             [self setText:[self getFormattedDate: message] toLabel:cell.dateLabel];
@@ -264,7 +284,14 @@
             }
             
             //Download image
-            [self setImageForMessage:message cell:cell];
+            NSData* imageData = [_viewModel getCachedImageDataForURL:message.iconImageURL];
+            if (imageData) {
+                cell.iconImageView.image = [UIImage imageWithData:imageData];
+            } else {
+                [_viewModel downloadImageForMessage:message handler:^(NSData * _Nullable data) {
+                    cell.iconImageView.image = [UIImage imageWithData:data];
+                }];
+            }
             
             //Configure custom fields callback
             if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(configureCustomFieldsForCell:inboxMessage:)]) {
@@ -296,24 +323,16 @@
 - (void)handleDidSelectRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     if (message) {
-        [self startActivityIndicator];
-        [BlueshiftInboxManager showInboxNotificationForMessage:message];
-        [_viewModel markMessageAsRead:message];
-        [self reloadTableViewCellForIndexPath:indexPath animated:YES];
-
+        BOOL isDisplayed = [BlueshiftInboxManager showInboxNotificationForMessage:message];
+        if (isDisplayed) {
+            [self startActivityIndicator];
+            [_viewModel markMessageAsRead:message];
+            [self reloadTableViewCellForIndexPath:indexPath animated:YES];
+        }
         //Callback
         if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
             [_inboxDelegate inboxMessageSelected:message];
         }
-    }
-}
-
-- (void)setImageForMessage:(BlueshiftInboxMessage*)message cell:(BlueshiftInboxTableViewCell*)cell {
-    NSData* imageData = [_viewModel getCachedImageDataForURL:message.iconImageURL];
-    if (imageData) {
-        cell.iconImageView.image = [UIImage imageWithData:imageData];
-    } else {
-        [_viewModel downloadImageForMessage:message];
     }
 }
 

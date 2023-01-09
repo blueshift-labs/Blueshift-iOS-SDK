@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, retain) NSData *payload;
 
-- (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler;
++ (BOOL)insertMesseages:(NSArray<NSDictionary*> *)messagesToInsert;
 
 + (void)fetchAllMessagesForInboxWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
 
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)getUnreadMessagesCountFromDB:(void(^)(NSUInteger))handler;
 
-+ (void)postNotificationInboxUnreadMessageCountDidChange;
++ (void)postNotificationInboxUnreadMessageCountDidChange:(BlueshiftInboxChangeType)refreshType;
 
 NS_ASSUME_NONNULL_END
 

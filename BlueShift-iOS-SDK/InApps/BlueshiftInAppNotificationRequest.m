@@ -30,12 +30,15 @@
         for(InAppNotificationEntity* message in messages) {
             NSMutableDictionary* data = [[NSMutableDictionary alloc] init];
             if([message.status isEqualToString:kInAppStatusPending]) {
-                [data setValue:@"read" forKey:@"status"];
-            } else {
                 [data setValue:@"unread" forKey:@"status"];
+            } else {
+                [data setValue:@"read" forKey:@"status"];
             }
             [data setValue:message.id forKey:@"message_uuid"];
             [responseToBe addObject:data];
+        }
+        if (responseToBe.count == 0) {
+            [responseToBe addObject:@{@"message_uuid":@"abcabcabc", @"status":@"read"}];
         }
         // till here remove
         
@@ -44,6 +47,7 @@
                 //TODO: below line to be removed later
                 NSMutableDictionary* payload = [apiPayload mutableCopy];
                 [payload setObject:responseToBe forKey:@"content"];
+                //till here
                 
                 NSString *url = [BlueshiftRoutes getInboxStatusURL];
                 [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {

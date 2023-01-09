@@ -1095,14 +1095,14 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     return  NO;
 }
 
-- (void)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage*)message {
-    if (message) {
-        if (message) {
-            BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.messagePayload forType:message.inAppNotificationType];
-            inApp.isFromInbox = YES;
-            [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
-        }
+- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage*)message {
+    if (message && message.messagePayload && _inAppNotificationMananger.currentNotificationController == nil) {
+        BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.messagePayload forType:message.inAppNotificationType];
+        inApp.isFromInbox = YES;
+        [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
+        return YES;
     }
+    return NO;
 }
 
 @end

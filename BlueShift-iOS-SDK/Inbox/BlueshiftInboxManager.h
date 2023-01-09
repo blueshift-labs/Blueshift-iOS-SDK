@@ -13,9 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueshiftInboxManager : NSObject
 
 
-/// Show notification for the given Inbox message.
+/// Show notification for the given Inbox message. Returns true or false based on if the in-app is displayed or not.
 /// - Parameter message: inbox message to display
-+ (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message;
++ (BOOL)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message;
 
 
 /// Delete inbox message from the server and local.
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Get the synced inbox messages to show inside the inbox.
 /// The messages will be automatically synced in local db by the SDK and can be retrived using this method to display in the inbox.
-/// - Parameter success: success callback which will provide an array of `BlueshiftInboxMessage` objects
+/// - Parameter success: success callback which will provide an array of `BlueshiftInboxMessage` objects. The handler with response will be invoked on background thread. Perform any UI changes on main thread using GCD.
 + (void)getCachedInboxMessagesWithHandler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success;
 
 
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /// This method will provide the count for unread messages. This count can be used to update the unread notifications badge.
-/// - Parameter handler: completion handler with unread messages count.
+/// - Parameter handler: completion handler with unread messages count. The handler will be invoked with unread count on main thread.
 + (void)getInboxUnreadMessagesCount:(void(^_Nonnull)(NSUInteger))handler;
 
 

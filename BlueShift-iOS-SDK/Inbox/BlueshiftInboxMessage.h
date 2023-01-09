@@ -14,6 +14,12 @@ typedef NS_ENUM (NSUInteger,BlueshiftInboxNotificationType) {
     BlueshiftInboxNotificationTypeInApp
 };
 
+typedef NS_ENUM (NSUInteger, BlueshiftInboxChangeType) {
+    BlueshiftInboxChangeTypeMarkAsUnread       = 0,
+    BlueshiftInboxChangeTypeSync               = 1,
+    BlueshiftInboxChangeTypeMessageDelete      = 2
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftInboxMessage : NSObject

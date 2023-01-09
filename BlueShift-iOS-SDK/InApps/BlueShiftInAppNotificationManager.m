@@ -288,6 +288,7 @@
     if(!notificationController) {
         return false;
     } else if (notificationController.notification.isFromInbox == YES) {
+        //Show in-app notification always if its from the Inbox.
         return YES;
     } if ([self inAppNotificationDisplayOnPage] == nil) {
         [BlueshiftLog logInfo:@"Current screen is not registered to receive in-app notification." withDetails:nil methodName:nil];
@@ -341,6 +342,8 @@
     }
     //Update in-app as displayed
     [self updateInAppNotificationAsDisplayed: notification];
+    [NSNotificationCenter.defaultCenter postNotificationName:kBSInAppNotificationWillAppear object:nil];
+
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self stopInAppMessageFetchTimer];
     }

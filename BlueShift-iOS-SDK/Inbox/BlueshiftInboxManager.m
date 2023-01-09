@@ -13,7 +13,7 @@
 #import "BlueShiftInAppNotificationConstant.h"
 #import "InAppNotificationEntity.h"
 
-#define kPaginationSize     40
+#define kPaginationSize     10
 
 
 static BOOL isSyncing = NO;
@@ -21,8 +21,8 @@ static BOOL isSyncing = NO;
 @implementation BlueshiftInboxManager
 
 #pragma mark - Mobile Inbox External Methods
-+ (void)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message {
-    [BlueShift.sharedInstance createInAppNotificationForInboxMessage:message];
++ (BOOL)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message {
+    return [BlueShift.sharedInstance createInAppNotificationForInboxMessage:message];
 }
 
 + (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler  {
@@ -74,17 +74,19 @@ static BOOL isSyncing = NO;
     isSyncing = YES;
     [BlueshiftInboxAPIManager getMessageIdsAndStatus:^(NSArray * _Nonnull statusArray) {
         [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
-            if (status) {
+            //Get message Ids from status api response
+            NSMutableDictionary* statusMessageIds = [[NSMutableDictionary alloc] init];
+            [statusArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [statusMessageIds setValue:obj[@"status"] forKey:obj[kBSMessageUUID]];
+            }];
+
+            //If messages are present in the db
+            if (status && messages.count > 0) {
                 //Get existing messages id
                 NSMutableDictionary* existingMessages = [[NSMutableDictionary alloc] init];
                 for(InAppNotificationEntity* message in messages) {
                     [existingMessages setValue:message forKey:message.id];
                 }
-                //Get updates message Ids from api response
-                NSMutableDictionary* statusMessageIds = [[NSMutableDictionary alloc] init];
-                [statusArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    [statusMessageIds setValue:obj[@"status"] forKey:obj[kBSMessageUUID]];
-                }];
                 
                 //Calculate new messages by substracting the local db message ids from the status message ids.
                 NSMutableArray* newMessages = [[statusMessageIds allKeys] mutableCopy];
@@ -98,12 +100,15 @@ static BOOL isSyncing = NO;
                 [InAppNotificationEntity syncMessageUnreadStatusWithDB:existingMessages status:statusMessageIds];
                 
                 //Sync server deleted messages with local db
+                //TODO: enable when actual apis are availble
                 [InAppNotificationEntity syncDeletedMessagesWithDB:deletedMessages];
                 
                 //Fetch only new messages with pagination
                 [BlueshiftInboxManager getNewMessagesWithPagination:newMessages isRetry:NO completionHandler:success];
             } else {
-                success();
+                //If messages are not present in the db
+                //Fetch all the messages with pagination
+                [BlueshiftInboxManager getNewMessagesWithPagination:[statusMessageIds allKeys] isRetry:NO completionHandler:success];
             }
         }];
     } failure:^(NSError * _Nonnull error) {
@@ -116,10 +121,10 @@ static BOOL isSyncing = NO;
         NSMutableArray *notifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
         if (notifications.count > 0) {
             [self addInboxNotifications:notifications handler:^(BOOL status) {
-                completionHandler(YES);
+                completionHandler(status);
             }];
         } else {
-            completionHandler(YES);
+            completionHandler(NO);
         }
     } else {
         completionHandler(NO);
@@ -131,6 +136,7 @@ static BOOL isSyncing = NO;
     @try {
         if (messagesToBeAdded && messagesToBeAdded.count > 0) {
             NSMutableArray *newMessageUUIDs = [NSMutableArray arrayWithCapacity:[messagesToBeAdded count]];
+            //get message UUIDs to check if exists already in DB.
             [messagesToBeAdded enumerateObjectsUsingBlock:^(NSDictionary* obj, NSUInteger idx, BOOL *stop) {
                 NSString* messageUUID = [BlueShiftInAppNotificationHelper getMessageUUID:obj];
                 if (messageUUID) {
@@ -139,47 +145,33 @@ static BOOL isSyncing = NO;
             }];
             
             [InAppNotificationEntity checkIfMessagesPresentForMessageUUIDs:newMessageUUIDs handler:^(BOOL status, NSDictionary * _Nonnull existingMessageUUIDs) {
-                //Create dispatch group to notifify new messages are availble after adding in-apps to DB asynchronously.
-                __block dispatch_group_t serviceGroup = dispatch_group_create();
-                __block BOOL newMessageAdded = NO;
-                dispatch_group_async(serviceGroup,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
-                    @try {
-                        for (int counter = 0; counter < messagesToBeAdded.count ; counter++) {
-                            NSDictionary* inapp = [messagesToBeAdded objectAtIndex: counter];
-                            NSString* messageUUID = [BlueShiftInAppNotificationHelper getMessageUUID:inapp];
-                            //Do not add duplicate messages in the db
-                            if(messageUUID && ![existingMessageUUIDs valueForKey:messageUUID]) {
-                                double expiresAt = [inapp[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
-                                
-                                // Do not add expired in-app notifications to in-app DB.
-                                if ([BlueShiftInAppNotificationHelper isInboxNotificationExpired:expiresAt] == NO) {
-                                    dispatch_group_enter(serviceGroup);
-                                    [BlueshiftInboxManager insertMesseageInDB:inapp handler:^(BOOL status) {
-                                        newMessageAdded = YES;
-                                        dispatch_group_leave(serviceGroup);
-                                    }];
-                                } else {
-                                    [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
-                                }
+                @try {
+                    NSMutableArray* messagesToInsertInDB = [[NSMutableArray alloc] init];
+                    for (int counter = 0; counter < messagesToBeAdded.count ; counter++) {
+                        NSDictionary* messagePayload = [messagesToBeAdded objectAtIndex: counter];
+                        NSString* messageUUID = [BlueShiftInAppNotificationHelper getMessageUUID:messagePayload];
+                        //Do not add duplicate messages in the db
+                        if(messageUUID && ![existingMessageUUIDs valueForKey:messageUUID]) {
+                            double expiresAt = [messagePayload[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
+                            
+                            // Do not add expired in-app notifications to in-app DB.
+                            if ([BlueShiftInAppNotificationHelper isInboxNotificationExpired:expiresAt] == NO) {
+                                [messagesToInsertInDB addObject:messagePayload];
                             } else {
-                                [BlueshiftLog logInfo:@"Skipped adding duplicate in-app message to DB. MessageUUID -" withDetails:[inapp[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
+                                [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[messagePayload[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
                             }
+                        } else {
+                            [BlueshiftLog logInfo:@"Skipped adding duplicate in-app message to DB. MessageUUID -" withDetails:[messagePayload[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
                         }
-                        dispatch_group_notify(serviceGroup,dispatch_get_main_queue(),^{
-                            serviceGroup = nil;
-                            handler(newMessageAdded);
-                        });
-                        //Timout
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC),dispatch_get_main_queue(),^{
-                            if (serviceGroup) {
-                                serviceGroup = nil;
-                                handler(newMessageAdded);
-                            }
-                        });
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     }
-                });
+                    if (messagesToInsertInDB.count > 0) {
+                        handler([InAppNotificationEntity insertMesseages:messagesToInsertInDB]);
+                    } else {
+                        handler(NO);
+                    }
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
             }];
         }
     } @catch (NSException *exception) {
@@ -188,41 +180,6 @@ static BOOL isSyncing = NO;
 }
 
 #pragma mark - Mobile Inbox helper methods
-
-+ (void)insertMesseageInDB:(NSDictionary *)payload handler:(void(^)(BOOL))handler{
-    @try {
-        NSManagedObjectContext *privateContext = [BlueShift sharedInstance].appDelegate.inboxMOContext;
-        if (privateContext) {
-            [privateContext performBlock:^{
-                NSEntityDescription *entity = [NSEntityDescription entityForName: kInAppNotificationEntityNameKey inManagedObjectContext:privateContext];
-                if(entity) {
-                    InAppNotificationEntity *inAppNotificationEntity = [[InAppNotificationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext: privateContext];
-                    if(inAppNotificationEntity) {
-                        [inAppNotificationEntity insert:payload handler:^(BOOL status) {
-                            if(status) {
-                                [[BlueShift sharedInstance] trackInAppNotificationDeliveredWithParameter: payload canBacthThisEvent: NO];
-                                // invoke the inApp clicked callback method
-                                if ([BlueShift.sharedInstance.config.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDeliver:)]) {
-                                    [BlueShift.sharedInstance.config.inAppNotificationDelegate inAppNotificationDidDeliver:payload];
-                                }
-                            }
-                            handler(YES);
-                        }];
-                    } else {
-                        handler(NO);
-                    }
-                } else {
-                    handler(NO);
-                }
-            }];
-        } else {
-            handler(NO);
-        }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-        handler(NO);
-    }
-}
 
 + (void)getNewMessagesWithPagination:(NSArray*)messageIds isRetry:(BOOL)isRetry completionHandler:(void(^)(void))handler  {
     NSMutableArray *batchList = [[NSMutableArray alloc] init];
@@ -253,6 +210,7 @@ static BOOL isSyncing = NO;
     __block dispatch_group_t dGroup = dispatch_group_create();
     __block NSArray* failedMessageIds = [[NSMutableArray alloc] init];
     dispatch_group_async(dGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        NSUInteger paginationLocation = 0;
         for (NSArray* batch in batchList) {
             dispatch_group_enter(dGroup);
             [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:batch success:^(NSDictionary * _Nonnull data) {
@@ -265,24 +223,24 @@ static BOOL isSyncing = NO;
                 failedMessageIds = [failedMessageIds arrayByAddingObject:failedBatch];
                 dispatch_group_leave(dGroup);
             }];
-            dispatch_group_notify(dGroup,dispatch_get_main_queue(),^{
-                // All the pagination calls are success, then post notification
-                if(sucessAPICount == totalAPICount) {
-                    [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
-                    isSyncing = NO;
-                } else if (sucessAPICount > 0) {
-                    [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
-                    
-                    //If some pagination api calls are success,then retry for failed messagesIds and post notification
-                    if (!isRetry) {
-                        [BlueshiftInboxManager getNewMessagesWithPagination:failedMessageIds isRetry:YES completionHandler:^{ }];
-                    } else {
-                        isSyncing = NO;
-                    }
-                }
-                handler();
-            });
+            paginationLocation = paginationLocation + kPaginationSize;
         }
+        
+        dispatch_group_notify(dGroup,dispatch_get_main_queue(),^{
+            // All the pagination calls are success, then post notification
+            if(sucessAPICount == totalAPICount) {
+                isSyncing = NO;
+            } else if (sucessAPICount > 0) {
+                //If some pagination api calls are success,then retry for failed messagesIds and post notification
+                if (!isRetry) {
+                    [BlueshiftInboxManager getNewMessagesWithPagination:failedMessageIds isRetry:YES completionHandler:^{ }];
+                } else {
+                    isSyncing = NO;
+                }
+            }
+            [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeSync];
+            handler();
+        });
     });
 }
 

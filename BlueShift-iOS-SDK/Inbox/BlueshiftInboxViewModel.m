@@ -114,18 +114,13 @@
     return [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:url];
 }
 
-- (void)downloadImageForMessage:(BlueshiftInboxMessage*)message {
+- (void)downloadImageForMessage:(BlueshiftInboxMessage*)message handler:(void(^)(NSData*))handler {
     if (message.iconImageURL) {
         NSURL *url = [NSURL URLWithString:message.iconImageURL];
         [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData *data, NSError *error) {
-            if (status && self->_viewDelegate) {
-                NSIndexPath *indexPath = [self getIndexPathForMessageId:message.messageUUID];
-                if (indexPath) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self->_viewDelegate reloadTableViewCellForIndexPath:indexPath animated:NO];
-                    });
-                }
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                handler(data);
+            });
         }];
     }
 }

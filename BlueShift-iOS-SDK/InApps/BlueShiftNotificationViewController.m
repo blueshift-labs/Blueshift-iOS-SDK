@@ -33,7 +33,6 @@
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    [NSNotificationCenter.defaultCenter postNotificationName:kBSInAppNotificationWillAppear object:nil];
     if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidAppear:)]) {
         [[self inAppNotificationDelegate] inAppNotificationDidAppear:self.notification.notificationPayload];
     }
