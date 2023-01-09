@@ -286,16 +286,8 @@
                 [cell.unreadBadgeView setBackgroundColor:_unreadBadgeColor];
             }
             
-            //Download image
-            NSData* imageData = [_viewModel getCachedImageDataForURL:message.iconImageURL];
-            if (imageData) {
-                cell.iconImageView.image = [UIImage imageWithData:imageData];
-            } else {
-                __weak __typeof(BlueshiftInboxTableViewCell*)weakCell = cell;
-                [_viewModel downloadImageForMessage:message handler:^(NSData * _Nullable data) {
-                    weakCell.iconImageView.image = [UIImage imageWithData:data];
-                }];
-            }
+            //Set image
+            [cell setIconImageURL:message.iconImageURL];
             
             //Configure custom fields callback
             if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(configureCustomFieldsForCell:inboxMessage:)]) {

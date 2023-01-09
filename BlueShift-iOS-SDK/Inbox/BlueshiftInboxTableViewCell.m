@@ -7,6 +7,11 @@
 
 #import "BlueshiftInboxTableViewCell.h"
 #import "BlueshiftConstants.h"
+#import "BlueShiftRequestOperationManager.h"
+
+@interface BlueshiftInboxTableViewCell ()
+    @property NSString* thumbnailURL;
+@end
 
 @implementation BlueshiftInboxTableViewCell
 
@@ -16,8 +21,6 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -30,6 +33,28 @@
         return [self layoutTableViewCell:self];
     }
     return self;
+}
+
+- (void)prepareForReuse {
+    [super prepareForReuse];
+    self.iconImageView.image = nil;
+}
+- (void)setIconImageURL:(NSString *)imageURL {
+    if (imageURL) {
+        self.thumbnailURL = imageURL;
+        NSURL *url = [NSURL URLWithString:imageURL];
+        __weak __typeof(self)weakSelf = self;
+        // Download image
+        [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData * _Nonnull imageData, NSError * _Nonnull err) {
+            // Assign image if the url matches
+            if (imageData && [imageURL isEqualToString:weakSelf.thumbnailURL]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    weakSelf.iconImageView.image = [UIImage imageWithData:imageData];
+                    [weakSelf setNeedsLayout];
+                });
+            }
+        }];
+    }
 }
 
 - (instancetype)layoutTableViewCell:(BlueshiftInboxTableViewCell*)cell {

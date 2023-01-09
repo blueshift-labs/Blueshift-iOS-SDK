@@ -27,15 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (copy) NSComparisonResult(^ _Nonnull messageComparator)(BlueshiftInboxMessage*, BlueshiftInboxMessage*);
 
-/// Asynchronous image download for the Inbox messages.
-/// - Parameters:
-///   - message: Blueshift Inbox message object
-///   - handler: The handler will be returned on main thread with the image Data.
-- (void)downloadImageForMessage:(BlueshiftInboxMessage*)message handler:(void(^)(NSData* _Nullable))handler;
-
 - (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate;
-
-- (NSData*)getCachedImageDataForURL:(NSString*)url;
 
 - (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success;
 

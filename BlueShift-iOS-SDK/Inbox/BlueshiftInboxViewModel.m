@@ -112,21 +112,6 @@
     }
 }
 
-- (NSData*)getCachedImageDataForURL:(NSString*)url {
-    return [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:url];
-}
-
-- (void)downloadImageForMessage:(BlueshiftInboxMessage*)message handler:(void(^)(NSData*))handler {
-    if (message.iconImageURL) {
-        NSURL *url = [NSURL URLWithString:message.iconImageURL];
-        [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData *data, NSError *error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                handler(data);
-            });
-        }];
-    }
-}
-
 - (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate {
     return [NSDateFormatter localizedStringFromDate:createdAtDate dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
 }
