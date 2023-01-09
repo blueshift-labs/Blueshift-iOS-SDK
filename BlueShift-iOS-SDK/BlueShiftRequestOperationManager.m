@@ -201,10 +201,11 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
         if (imageData) {
             handler(YES,imageData, nil);
         } else {
+            __weak __typeof(self)weakSelf = self;
             NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                 if (statusCode == kStatusCodeSuccessfullResponse) {
-                    [self->_inboxImageDataCache setObject:data forKey:url.absoluteString];
+                    [weakSelf.inboxImageDataCache setObject:data forKey:url.absoluteString];
                     handler(YES,data,nil);
                 } else {
                     handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:statusCode userInfo:nil]);

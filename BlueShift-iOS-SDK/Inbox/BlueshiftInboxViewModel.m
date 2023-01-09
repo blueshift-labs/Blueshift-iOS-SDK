@@ -31,10 +31,11 @@
 }
 
 - (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success {
+    __weak __typeof(self)weakSelf = self;
     [BlueshiftInboxManager getCachedInboxMessagesWithHandler:^(BOOL status, NSMutableArray * _Nullable messages) {
-        [self->_sectionInboxMessages removeAllObjects];
+        [weakSelf.sectionInboxMessages removeAllObjects];
         if (status && messages) {
-            [self->_sectionInboxMessages insertObject:[self getSectionedMessages:messages] atIndex:0];
+            [weakSelf.sectionInboxMessages insertObject:[self getSectionedMessages:messages] atIndex:0];
         }
         success(YES);
     }];
@@ -46,8 +47,9 @@
 
 - (NSMutableArray<BlueshiftInboxMessage*>*)filterMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
     if (_messageFilter) {
+        __weak __typeof(self)weakSelf = self;
         NSArray *filteredMessages = [messages filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
-            return self->_messageFilter(object);
+            return weakSelf.messageFilter(object);
         }]];
         return [filteredMessages mutableCopy];
     } else {
@@ -79,7 +81,7 @@
 - (NSIndexPath* _Nullable)getIndexPathForMessageId:(NSString*)messageId {
     if (_sectionInboxMessages && _sectionInboxMessages.count > 0) {
         for(int sectionCounter = 0; sectionCounter < _sectionInboxMessages.count; sectionCounter++) {
-            NSUInteger row = [self->_sectionInboxMessages[sectionCounter] indexOfObjectPassingTest:^BOOL(BlueshiftInboxMessage*  _Nonnull obj, NSUInteger idx2, BOOL * _Nonnull stop) {
+            NSUInteger row = [_sectionInboxMessages[sectionCounter] indexOfObjectPassingTest:^BOOL(BlueshiftInboxMessage*  _Nonnull obj, NSUInteger idx2, BOOL * _Nonnull stop) {
                 return [obj.messageUUID isEqualToString:messageId];
             }];
             if (row != NSNotFound) {

@@ -57,9 +57,10 @@ IB_DESIGNABLE
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    __weak __typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.viewControllers.count > 0 && self.viewControllers[0]) {
-            if (self->_showDoneButton) {
+            if (weakSelf.showDoneButton) {
                 UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
                 self.viewControllers[0].navigationItem.rightBarButtonItem = doneButton;
             }

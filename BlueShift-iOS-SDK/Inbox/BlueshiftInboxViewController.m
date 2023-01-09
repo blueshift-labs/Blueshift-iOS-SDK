@@ -128,18 +128,19 @@
 }
 
 - (void)setupObservers {
+    __weak __typeof(self)weakSelf = self;
     if (_showActivityIndicator) {
         [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-            if (self.activityIndicator) {
-                [self.activityIndicator stopAnimating];
-                [self.activityIndicator removeFromSuperview];
+            if (weakSelf.activityIndicator) {
+                [weakSelf.activityIndicator stopAnimating];
+                [weakSelf.activityIndicator removeFromSuperview];
             }
         }];
     }
     [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         BlueshiftInboxChangeType type = (BlueshiftInboxChangeType)[note.userInfo[@"refreshType"] integerValue];
         if (type == BlueshiftInboxChangeTypeSync) {
-            [self reloadTableView];
+            [weakSelf reloadTableView];
         }
     }];
 }
@@ -165,17 +166,19 @@
 }
 
 - (void)reloadTableView {
+    __weak __typeof(self)weakSelf = self;
     [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
         if(isRefresh) {
-            [self.tableView reloadData];
+            [weakSelf.tableView reloadData];
         }
     }];
 }
 
 - (void)SyncInbox {
+    __weak __typeof(self)weakSelf = self;
     [BlueshiftInboxManager syncNewInboxMessages:^{
         if (@available(iOS 10.0, *)) {
-            [self.refreshControl endRefreshing];
+            [weakSelf.refreshControl endRefreshing];
         }
     }];
 }
@@ -288,8 +291,9 @@
             if (imageData) {
                 cell.iconImageView.image = [UIImage imageWithData:imageData];
             } else {
+                __weak __typeof(BlueshiftInboxTableViewCell*)weakCell = cell;
                 [_viewModel downloadImageForMessage:message handler:^(NSData * _Nullable data) {
-                    cell.iconImageView.image = [UIImage imageWithData:data];
+                    weakCell.iconImageView.image = [UIImage imageWithData:data];
                 }];
             }
             
@@ -308,12 +312,13 @@
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     // Delete the row from the data source
     if (message) {
+        __weak __typeof(self)weakSelf = self;
         [BlueshiftInboxManager deleteInboxMessage:message completionHandler:^(BOOL status) {
             if (status) {
                 [self reloadTableView];
                 //Callback
-                if (self->_inboxDelegate && [self->_inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
-                    [self->_inboxDelegate inboxMessageDeleted:message];
+                if (weakSelf.inboxDelegate && [weakSelf.inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
+                    [weakSelf.inboxDelegate inboxMessageDeleted:message];
                 }
             }
         }];
