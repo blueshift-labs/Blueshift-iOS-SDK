@@ -60,10 +60,10 @@ static BOOL isSyncing = NO;
     }];
 }
 
-+ (void)getInboxUnreadMessagesCount:(void(^)(NSUInteger))handler {
-    [InAppNotificationEntity getUnreadMessagesCountFromDB:^(NSUInteger count) {
++ (void)getInboxUnreadMessagesCount:(void(^)(BOOL, NSUInteger))handler {
+    [InAppNotificationEntity getUnreadMessagesCountFromDB:^(BOOL status, NSUInteger count) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            handler(count);
+            handler(status, count);
         });
     }];
 }

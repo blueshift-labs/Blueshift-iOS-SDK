@@ -43,8 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /// This method will provide the count for unread messages. This count can be used to update the unread notifications badge.
-/// - Parameter handler: completion handler with unread messages count. The handler will be invoked with unread count on main thread.
-+ (void)getInboxUnreadMessagesCount:(void(^_Nonnull)(NSUInteger))handler;
+/// - Parameter handler: completion handler with BOOL status and unread messages count. The handler will be invoked on main thread.
++ (void)getInboxUnreadMessagesCount:(void(^_Nonnull)(BOOL, NSUInteger))handler;
 
 
 /// This method is for adding the fetched messages from server to the local db for later use.

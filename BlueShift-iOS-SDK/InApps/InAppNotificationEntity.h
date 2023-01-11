@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)deleteExpiredMessagesFromDB;
 
-+ (void)getUnreadMessagesCountFromDB:(void(^)(NSUInteger))handler;
++ (void)getUnreadMessagesCountFromDB:(void(^)(BOOL, NSUInteger))handler;
 
 + (void)postNotificationInboxUnreadMessageCountDidChange:(BlueshiftInboxChangeType)refreshType;
 

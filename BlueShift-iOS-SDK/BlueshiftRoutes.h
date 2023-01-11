@@ -16,9 +16,9 @@
 #define kBSTrackAPI                @"track"
 #define kBSLiveContent             @"live"
 #define kBSInAppMessages           @"inapp/msg"
-#define kBSInboxMessages           @"http://localhost:8080/inbox/api/v1/messages"
-#define kBSInboxStatus             @"http://localhost:8080/inbox/api/v1/status"
-#define kBSInboxUpdate             @"http://localhost:8080/inbox/api/v1/update"
+#define kBSInboxMessages           @"https://9948-114-143-195-78.in.ngrok.io/inbox/api/v1/messages"
+#define kBSInboxStatus             @"https://9948-114-143-195-78.in.ngrok.io/inbox/api/v1/status"
+#define kBSInboxUpdate             @"https://9948-114-143-195-78.in.ngrok.io/inbox/api/v1/update"
 
 
 @interface BlueshiftRoutes : NSObject

@@ -273,19 +273,23 @@
     }
 }
 
-+ (void)getUnreadMessagesCountFromDB:(void(^)(NSUInteger))handler {
++ (void)getUnreadMessagesCountFromDB:(void(^)(BOOL, NSUInteger))handler {
     NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
     [context performBlock:^{
-        NSNumber* currentTime = [NSNumber numberWithDouble:(double)[[NSDate date] timeIntervalSince1970]];
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"status == %@ AND (availability == %@ OR availability == %@) AND startTime < %@ AND endTime > %@ ",kInAppStatusPending, kBSAvailabilityInboxOnly, kBSAvailabilityInboxAndInApp, currentTime, currentTime];
-        NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
-        NSError* error;
-        NSUInteger count = [context countForFetchRequest:fetchRequest error:&error];
-        if (error) {
-            count = 0;
+        @try {
+            NSNumber* currentTime = [NSNumber numberWithDouble:(double)[[NSDate date] timeIntervalSince1970]];
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"status == %@ AND (availability == %@ OR availability == %@) AND startTime < %@ AND endTime > %@ ",kInAppStatusPending, kBSAvailabilityInboxOnly, kBSAvailabilityInboxAndInApp, currentTime, currentTime];
+            NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
+            NSError* error;
+            NSUInteger count = [context countForFetchRequest:fetchRequest error:&error];
+            if (error) {
+                count = 0;
+            }
+            [BlueshiftLog logInfo:[NSString stringWithFormat:@"Inbox unread messages count - %lu",(unsigned long)count] withDetails:nil methodName:nil];
+            handler(YES, count);
+        } @catch (NSException *exception) {
+            handler(NO, 0);
         }
-        [BlueshiftLog logInfo:[NSString stringWithFormat:@"Inbox unread messages count - %lu",(unsigned long)count] withDetails:nil methodName:nil];
-        handler(count);
     }];
 }
 

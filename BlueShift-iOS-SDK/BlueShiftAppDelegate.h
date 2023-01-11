@@ -48,6 +48,7 @@
 - (NSString *_Nullable)hexadecimalStringFromData:(NSData *_Nullable)data;
 
 /// Share the device token with the SDK by calling this method inside `didRegisterForRemoteNotificationsWithDeviceToken` method.
+/// - Parameter deviceToken: received device token
 - (void)registerForRemoteNotification:(NSData *_Nullable)deviceToken;
 
 - (void)failedToRegisterForRemoteNotificationWithError:(NSError *_Nonnull)error;
