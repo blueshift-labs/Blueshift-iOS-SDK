@@ -53,9 +53,7 @@ static BOOL isSyncing = NO;
     [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *results) {
         if (status) {
             NSMutableArray<BlueshiftInboxMessage*>* messages = [BlueshiftInboxManager prepareInboxMessages:results];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                success(YES, messages);
-            });
+            success(YES, messages);
         } else {
             success(NO, nil);
         }

@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 IB_DESIGNABLE
-@interface BlueshiftInboxViewController : UITableViewController <BlueshiftInboxViewDelegate>
+@interface BlueshiftInboxViewController : UITableViewController
 
 /// If you dont want to use the SDK provided default cell layout, then you can create your own custom layout inside a xib and provide the nib name here.
 /// Setting this value is optional if you want to use the SDK provided default cell layout.
@@ -77,6 +77,8 @@ IB_DESIGNABLE
 /// Create a class which implements the protocol `BlueshiftInboxViewControllerDelegate`, implement the required methods, create a object and assgin it to this property.
 /// @warning Set this property only if you are preseting inbox from the code. Skip setting this if you are configuring the inbox using the storyboard or xib.
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
+
+- (instancetype)initWithInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate;
 
 @end
 

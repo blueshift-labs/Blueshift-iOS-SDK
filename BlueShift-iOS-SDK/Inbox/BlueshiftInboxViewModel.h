@@ -11,15 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol BlueshiftInboxViewDelegate <NSObject>
-
-- (void)reloadTableViewCellForIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
-
-@end
-
 @interface BlueshiftInboxViewModel: NSObject
-
-@property (weak) id<BlueshiftInboxViewDelegate> _Nullable viewDelegate;
 
 @property NSMutableArray<NSMutableArray*>* sectionInboxMessages;
 
@@ -38,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)numberOfSections;
 
 - (void)markMessageAsRead:(BlueshiftInboxMessage*)message;
-
 
 @end
 

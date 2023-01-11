@@ -42,18 +42,23 @@
 - (void)setIconImageURL:(NSString *)imageURL {
     if (imageURL) {
         self.thumbnailURL = imageURL;
-        NSURL *url = [NSURL URLWithString:imageURL];
-        __weak __typeof(self)weakSelf = self;
-        // Download image
-        [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData * _Nonnull imageData, NSError * _Nonnull err) {
-            // Assign image if the url matches
-            if (imageData && [imageURL isEqualToString:weakSelf.thumbnailURL]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    weakSelf.iconImageView.image = [UIImage imageWithData:imageData];
-                    [weakSelf setNeedsLayout];
-                });
-            }
-        }];
+        NSData *thumbnailData = [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:imageURL];
+        if (thumbnailData) {
+            self.iconImageView.image = [UIImage imageWithData:thumbnailData];
+        } else {
+            NSURL *url = [NSURL URLWithString:imageURL];
+            __weak __typeof(self)weakSelf = self;
+            // Download image
+            [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData * _Nonnull thumbnailData, NSError * _Nonnull err) {
+                // Assign thumbnail image if the url matches
+                if (thumbnailData && [imageURL isEqualToString:weakSelf.thumbnailURL]) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        weakSelf.iconImageView.image = [UIImage imageWithData:thumbnailData];
+                        [weakSelf setNeedsLayout];
+                    });
+                }
+            }];
+        }
     }
 }
 

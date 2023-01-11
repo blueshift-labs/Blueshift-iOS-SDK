@@ -20,13 +20,30 @@
 @interface BlueshiftInboxViewController ()
 
 @property (nonatomic, strong) BlueshiftInboxViewModel * viewModel;
-@property UIActivityIndicatorView *activityIndicator;
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 
 @end
 
 @implementation BlueshiftInboxViewController
 
 @synthesize nibName;
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _viewModel = [[BlueshiftInboxViewModel alloc] init];
+        [self setDefaults];
+    }
+    return self;
+}
+
+- (instancetype)initWithInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
+    self = [super init];
+    if (self) {
+        self.inboxDelegate = inboxDelegate;
+    }
+    return self;
+}
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
@@ -63,7 +80,6 @@
 - (void)setDefaults {
     self.showActivityIndicator = YES;
     self.activityIndicatorColor = UIColor.grayColor;
-    _viewModel.viewDelegate = self;
 }
 
 - (void)viewDidLoad {
@@ -73,7 +89,6 @@
     [self setupPullToRefresh];
     [self registerTableViewCells];
     [self SyncInbox];
-
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -121,7 +136,7 @@
 
 - (void)setupPullToRefresh {
     if (@available(iOS 10.0, *)) {
-        self.refreshControl = [[UIRefreshControl alloc]init];
+        self.refreshControl = [[UIRefreshControl alloc] init];
         [self.refreshControl addTarget:self action:@selector(SyncInbox) forControlEvents:UIControlEventValueChanged];
         [self.tableView addSubview:self.refreshControl];
     }
@@ -133,7 +148,7 @@
         [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
             if (weakSelf.activityIndicator) {
                 [weakSelf.activityIndicator stopAnimating];
-                [weakSelf.activityIndicator removeFromSuperview];
+//                [weakSelf.activityIndicator removeFromSuperview];
             }
         }];
     }
@@ -153,14 +168,12 @@
             } else {
                 self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
             }
-            CGFloat x = (self.tableView.frame.size.width / 2) - (kBSInboxLoaderSize/2);
-            CGFloat centerY = UIScreen.mainScreen.bounds.size.height/2;
-            CGFloat tableViewY = self.tableView.bounds.origin.y > 0 ? self.tableView.bounds.origin.y : - self.tableView.bounds.origin.y;
-            CGFloat y = (centerY-tableViewY) - (kBSInboxLoaderSize/2);
             self.activityIndicator.color = _activityIndicatorColor;
-            self.activityIndicator.frame = CGRectMake(x, y, kBSInboxLoaderSize, kBSInboxLoaderSize);
+            [self.tableView addSubview:self.activityIndicator];
+            self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+            [self.activityIndicator.centerXAnchor constraintEqualToAnchor:self.tableView.superview.centerXAnchor].active = YES;
+            [self.activityIndicator.centerYAnchor constraintEqualToAnchor:self.tableView.superview.centerYAnchor].active = YES;
         }
-        [self.tableView addSubview:self.activityIndicator];
         [self.activityIndicator startAnimating];
     }
 }
@@ -169,7 +182,9 @@
     __weak __typeof(self)weakSelf = self;
     [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
         if(isRefresh) {
-            [weakSelf.tableView reloadData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf.tableView reloadData];
+            });
         }
     }];
 }
@@ -178,12 +193,32 @@
     __weak __typeof(self)weakSelf = self;
     [BlueshiftInboxManager syncNewInboxMessages:^{
         if (@available(iOS 10.0, *)) {
-            [weakSelf.refreshControl endRefreshing];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf.refreshControl endRefreshing];
+            });
         }
     }];
 }
 
 - (void)registerTableViewCells {
+    [self registerDefaultTableViewCell];
+    [self registerCustomTableViewCells];
+}
+
+- (void)registerDefaultTableViewCell {
+    //Register either provided custom cell as default cell
+    if (_customCellNibName) {
+        UINib * nib = [self geNibForName:_customCellNibName];
+        if(nib) {
+            [self.tableView registerNib:nib forCellReuseIdentifier:kBSInboxDefaultCellIdentifier];
+            return;
+        }
+    }
+    //Or register SDK cell as default cell
+    [self.tableView registerClass:[BlueshiftInboxTableViewCell class] forCellReuseIdentifier:kBSInboxDefaultCellIdentifier];
+}
+
+- (void)registerCustomTableViewCells {
     //Register multiple custom nibs
     if([self.inboxDelegate respondsToSelector:@selector(getCustomCellNibNameForMessage:)]) {
         if (_inboxDelegate.customCellNibNames && _inboxDelegate.customCellNibNames.count > 0) {
@@ -195,16 +230,6 @@
             }];
         }
     }
-    //Register privided custom cell as default cell
-    if (_customCellNibName) {
-        UINib * nib = [self geNibForName:_customCellNibName];
-        if(nib) {
-            [self.tableView registerNib:nib forCellReuseIdentifier:kBSInboxDefaultCellIdentifier];
-            return;
-        }
-    }
-    //Register SDK cell as default cell
-    [self.tableView registerClass:[BlueshiftInboxTableViewCell class] forCellReuseIdentifier:kBSInboxDefaultCellIdentifier];
 }
 
 - (UINib* _Nullable)geNibForName:(NSString* _Nullable)nibName {
