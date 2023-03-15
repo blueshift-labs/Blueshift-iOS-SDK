@@ -26,7 +26,7 @@
         
         self.detail = detail;
         
-        self.date = date;
+        self.createdAtDate = date;
         
         self.iconImageURL = iconURL;
                 

@@ -107,6 +107,7 @@
 
 - (void)markMessageAsRead:(BlueshiftInboxMessage*)message {
     if (message.readStatus == NO) {
+        //TODO: Confirm if really need to update as in-app display will also update the status.
         [BlueshiftInboxManager markInboxMessageAsRead:message];
         message.readStatus = YES;
     }

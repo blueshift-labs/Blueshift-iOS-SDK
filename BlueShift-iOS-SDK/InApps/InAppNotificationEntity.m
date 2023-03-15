@@ -28,7 +28,6 @@
 @dynamic timestamp;
 @dynamic availability;
 
-
 + (void)fetchAllMessagesForInboxWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
     NSNumber* currentTime = [NSNumber numberWithDouble:(double)[[NSDate date] timeIntervalSince1970]];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"startTime < %@ AND endTime > %@ AND (availability == %@ OR availability == %@)", currentTime, currentTime, kBSAvailabilityInboxOnly, kBSAvailabilityInboxAndInApp];
@@ -423,8 +422,8 @@
         self.eventName = kInAppNotificationKey;
         if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
             // TODO: read the status from the payload and change the default availbility
-            self.status = kInAppStatusPending;
-            self.availability = [dictionary objectForKey:kBSAvailability] ? [dictionary objectForKey:kBSAvailability] : kBSAvailabilityInboxOnly;
+            self.status = [[payload objectForKey:@"status"] isEqualToString:@"unread"] ? kInAppStatusPending : kInAppStatusDisplayed;
+            self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInboxOnly;
         } else {
             self.status = kInAppStatusPending;
             self.availability = kBSAvailabilityInAppOnly;

@@ -66,7 +66,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
             deviceUUID = self.deviceIDFV;
             break;
     }
-    return deviceUUID;
+    return [deviceUUID lowercaseString];
 }
 
 - (void)resetDeviceUUID {

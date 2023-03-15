@@ -87,6 +87,12 @@ IB_DESIGNABLE
     }
 }
 
+- (void)setRefreshControlColor:(UIColor *)refreshControlColor {
+    if (_inboxViewController) {
+        _inboxViewController.refreshControl.tintColor = refreshControlColor;
+    }
+}
+
 - (void)setEnableLargeTitle:(BOOL)enableLargeTitle {
     if (@available(iOS 11.0, *)) {
         self.navigationBar.prefersLargeTitles = YES;

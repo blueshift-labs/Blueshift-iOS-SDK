@@ -53,7 +53,8 @@
 + (NSString*)getInAppMessagesURL {
     NSString *baseURL = [self getBaseURLString];
     NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInAppMessages];
-    return URLString;
+//    return URLString;
+return kBSInAppMessages;
 }
 
 + (NSString*)getInboxMessagesURL {

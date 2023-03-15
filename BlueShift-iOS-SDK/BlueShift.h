@@ -100,8 +100,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Send `pageload` event to track the screen visits.
 /// @param viewController viewController which is visited by the user.
 /// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
-/// @param parameters additional details to send as part of identify event.
+/// @param parameters additional details to send as part of event.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+
+/// Send `pageload` event to track the screen visits.
+/// @param screenName Name of screen which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
+/// @param parameters additional details to send as part of event.
+- (void)trackScreenViewedForScreenName:(NSString*)screenName withParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID canBatchThisEvent:(BOOL)isBatchEvent;
 

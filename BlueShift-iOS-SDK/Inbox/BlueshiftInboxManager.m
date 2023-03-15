@@ -68,7 +68,7 @@ static BOOL isSyncing = NO;
     }];
 }
 
-+ (void)syncNewInboxMessages:(void (^_Nonnull)(void))success {
++ (void)syncNewInboxMessages:(void (^_Nonnull)(void))handler {
     isSyncing = YES;
     [BlueshiftInboxAPIManager getMessageIdsAndStatus:^(NSArray * _Nonnull statusArray) {
         [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
@@ -102,15 +102,15 @@ static BOOL isSyncing = NO;
                 [InAppNotificationEntity syncDeletedMessagesWithDB:deletedMessages];
                 
                 //Fetch only new messages with pagination
-                [BlueshiftInboxManager getNewMessagesWithPagination:newMessages isRetry:NO completionHandler:success];
+                [BlueshiftInboxManager getNewMessagesWithPagination:newMessages isRetry:NO completionHandler:handler];
             } else {
                 //If messages are not present in the db
                 //Fetch all the messages with pagination
-                [BlueshiftInboxManager getNewMessagesWithPagination:[statusMessageIds allKeys] isRetry:NO completionHandler:success];
+                [BlueshiftInboxManager getNewMessagesWithPagination:[statusMessageIds allKeys] isRetry:NO completionHandler:handler];
             }
         }];
     } failure:^(NSError * _Nonnull error) {
-        success();
+        handler();
     }];
 }
 

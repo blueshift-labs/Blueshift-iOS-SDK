@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSString* _Nullable detail;
 
-@property NSDate* _Nullable date;
+@property NSDate* _Nullable createdAtDate;
 
 @property NSString* _Nullable iconImageURL;
 

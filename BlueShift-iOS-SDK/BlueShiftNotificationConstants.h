@@ -96,10 +96,10 @@
 #define kDefaultDateFormat                                              @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
 
 //Inbox
-#define kBSAvailability                                                  @"availability"
-#define kBSAvailabilityInboxOnly                                         @"Inbox"
-#define kBSAvailabilityInboxAndInApp                                     @"Inbox + InApp"
-#define kBSAvailabilityInAppOnly                                         @"InApp"
+#define kBSAvailabilityScope                                             @"scope"
+#define kBSAvailabilityInboxOnly                                         @"inbox"
+#define kBSAvailabilityInboxAndInApp                                     @"inbox+inapp"
+#define kBSAvailabilityInAppOnly                                         @"inapp"
 
 #define kBSTrackingOpenedBy                                             @"opened_by"
 #define kBSTrackingOpenedByUser                                         @"user"

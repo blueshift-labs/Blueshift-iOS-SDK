@@ -38,8 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// This method will sync the new messages received by the user on server with the local db.
 /// After the sync, the new messages will be availble at local db for the later use.
-/// - Parameter success: success callback will tell you that the sync is complete.
-+ (void)syncNewInboxMessages:(void (^_Nonnull)(void))success;
+/// - Parameter handler: success callback will tell you that the sync is complete.
++ (void)syncNewInboxMessages:(void (^_Nonnull)(void))handler;
 
 
 /// This method will provide the count for unread messages. This count can be used to update the unread notifications badge.

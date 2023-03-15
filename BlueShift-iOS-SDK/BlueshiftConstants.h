@@ -102,6 +102,9 @@
 #define kBSDismiss                              @"dismiss"
 #define kBSAction                               @"a"
 
+//Events
+#define kBSScreenViewed                         @"screen_viewed"
+
 //Serial queue
 #define kBSSerialQueue                          "com.blueshift.coresdk"
 

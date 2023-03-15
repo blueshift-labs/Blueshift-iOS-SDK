@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) IBInspectable UIColor* _Nullable unreadBadgeColor;
 
+@property (nonatomic, assign) IBInspectable UIColor* _Nullable refreshControlColor;
+
 /// Set this property to true to enable the large title.
 /// Default value is False.
 @property (nonatomic, assign) IBInspectable BOOL enableLargeTitle;

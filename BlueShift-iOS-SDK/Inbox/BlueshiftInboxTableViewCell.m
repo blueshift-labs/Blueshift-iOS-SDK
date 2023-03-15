@@ -94,7 +94,7 @@
     UIView *badgeView = [[UIView alloc] init];
     badgeView.translatesAutoresizingMaskIntoConstraints = NO;
     badgeView.layer.cornerRadius = 6.0;
-    badgeView.backgroundColor = UIColor.redColor;
+    badgeView.backgroundColor = [UIColor colorWithRed:0 green:193 blue:193 alpha:1];
     [wrapperView addSubview:badgeView];
     
     NSArray *wrapperConstraints = @[[NSLayoutConstraint constraintWithItem:badgeView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:wrapperView attribute: NSLayoutAttributeCenterX multiplier:1.0f constant:0.f],
@@ -185,7 +185,7 @@
     
     UIImageView* imageView = [[UIImageView alloc] init];
     imageView.translatesAutoresizingMaskIntoConstraints = NO;
-    imageView.contentMode = UIViewContentModeScaleAspectFit;
+    imageView.contentMode = UIViewContentModeScaleAspectFill;
 //    imageView.backgroundColor = UIColor.lightGrayColor;
     imageView.clipsToBounds = YES;
     imageView.layer.cornerRadius = 10;

@@ -346,14 +346,16 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     [self trackScreenViewedForViewController:viewController withParameters:nil canBatchThisEvent:isBatchEvent];
 }
 
-
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
-    NSString *viewControllerString = @"";
+    NSString* viewControllerString = NSStringFromClass([viewController class]);
+    [self trackScreenViewedForScreenName:viewControllerString withParameters:parameters canBatchThisEvent:isBatchEvent];
+}
+
+
+- (void)trackScreenViewedForScreenName:(NSString*)screenName withParameters:(NSDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent{
     NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-    
-    if (viewController) {
-        viewControllerString = NSStringFromClass([viewController class]);
-        [parameterMutableDictionary setObject:viewControllerString forKey:@"screen_viewed"];
+    if (screenName) {
+        [parameterMutableDictionary setObject:screenName forKey:kBSScreenViewed];
     }
     
     if (parameters) {
@@ -362,7 +364,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     
     [self trackEventForEventName:kEventPageLoad andParameters:[parameterMutableDictionary copy] canBatchThisEvent:isBatchEvent];
 }
-
 
 - (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID canBatchThisEvent:(BOOL)isBatchEvent{
     [self trackProductViewedWithSKU:sku andCategoryID:categoryID withParameter:nil canBatchThisEvent:isBatchEvent];

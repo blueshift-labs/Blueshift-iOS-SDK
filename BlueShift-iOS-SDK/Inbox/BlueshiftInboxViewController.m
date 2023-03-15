@@ -374,7 +374,7 @@
     if (self.inboxDelegate && [self.inboxDelegate respondsToSelector:@selector(formatDate:)]) {
         return [self.inboxDelegate formatDate:message];
     }
-    return [_viewModel getDefaultFormatDate: message.date];
+    return [_viewModel getDefaultFormatDate: message.createdAtDate];
 }
 
 - (void)reloadTableViewCellForIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated{

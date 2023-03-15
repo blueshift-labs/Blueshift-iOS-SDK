@@ -25,28 +25,28 @@
 
 + (void)getMessageIdsAndStatus:(void (^)(NSArray* _Nullable))success failure:(void (^)(NSError*))failure {
     //TODO: remove the fetchAllMessagesForTrigger method call later
-    [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
-        NSMutableArray *responseToBe = [[NSMutableArray alloc] init];
-        for(InAppNotificationEntity* message in messages) {
-            NSMutableDictionary* data = [[NSMutableDictionary alloc] init];
-            if([message.status isEqualToString:kInAppStatusPending]) {
-                [data setValue:@"unread" forKey:@"status"];
-            } else {
-                [data setValue:@"read" forKey:@"status"];
-            }
-            [data setValue:message.id forKey:@"message_uuid"];
-            [responseToBe addObject:data];
-        }
-        if (responseToBe.count == 0) {
-            [responseToBe addObject:@{@"message_uuid":@"abcabcabc", @"status":@"read"}];
-        }
+//    [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
+//        NSMutableArray *responseToBe = [[NSMutableArray alloc] init];
+//        for(InAppNotificationEntity* message in messages) {
+//            NSMutableDictionary* data = [[NSMutableDictionary alloc] init];
+//            if([message.status isEqualToString:kInAppStatusPending]) {
+//                [data setValue:@"unread" forKey:@"status"];
+//            } else {
+//                [data setValue:@"read" forKey:@"status"];
+//            }
+//            [data setValue:message.id forKey:@"message_uuid"];
+//            [responseToBe addObject:data];
+//        }
+//        if (responseToBe.count == 0) {
+//            [responseToBe addObject:@{@"message_uuid":@"abcabcabc", @"status":@"read"}];
+//        }
         // till here remove
         
         [[BlueShift sharedInstance] getInAppNotificationAPIPayloadWithCompletionHandler:^(NSDictionary * apiPayload) {
             if(apiPayload) {
                 //TODO: below line to be removed later
                 NSMutableDictionary* payload = [apiPayload mutableCopy];
-                [payload setObject:responseToBe forKey:@"content"];
+//                [payload setObject:responseToBe forKey:@"content"];
                 //till here
                 
                 NSString *url = [BlueshiftRoutes getInboxStatusURL];
@@ -54,7 +54,7 @@
                     if (status) {
                         [BlueshiftLog logAPICallInfo:@"Succesfully fetched status for messages." withDetails:data statusCode:0];
                         NSArray* statusArray = (NSArray*)data[@"content"];
-                        if (statusArray && statusArray.count > 0) {
+                        if (![statusArray isEqual: [NSNull null]] && statusArray && statusArray.count > 0) {
                             success(statusArray);
                         } else {
                             success(@[]);
@@ -65,7 +65,7 @@
                 }];
             }
         }];
-    }];
+//    }];
 }
 
 + (void)getMessagesForMessageUUIDs:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*, NSArray*))failure {
