@@ -34,10 +34,10 @@
 - (BlueShiftHTTPMethod)httpMethod;
 
 /// Fetch first record from HttpRequestOperationEntity
-+ (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler;
++ (void)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler;
 
 /// Fetch all the batch records from HttpRequestOperationEntity
-+ (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
++ (void)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
 
 /// Erase all the non synced batched and non-batched events from the HttpRequestOperation Entity of SDK database
 + (void)eraseEntityData;

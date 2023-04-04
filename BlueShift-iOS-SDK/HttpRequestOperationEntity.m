@@ -75,7 +75,7 @@
     return [self.httpMethodNumber blueShiftHTTPMethodValue];
 }
 
-+ (void *)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler {
++ (void)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler {
     NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
     @synchronized (key) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
@@ -136,7 +136,7 @@
     }
 }
 
-+ (void *)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
++ (void)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler {
     NSString *key = [NSString stringWithUTF8String:__PRETTY_FUNCTION__];
     @synchronized(key) {
         BlueShiftAppDelegate *appDelegate = (BlueShiftAppDelegate *)[BlueShift sharedInstance].appDelegate;
