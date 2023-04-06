@@ -132,12 +132,16 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
-    if(!self.networkCarrierName) {
-        self.networkCarrierName = [self getNetworkCarrierName];
-    }
-    // Added check for simulator which returns nil value.
-    if (self.networkCarrierName) {
-        [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
+    if (@available(iOS 16.0, *)) {
+        //Skip adding carrier name to the device info
+    } else {
+        if(!self.networkCarrierName) {
+            self.networkCarrierName = [self getNetworkCarrierName];
+        }
+        // Added check for simulator which returns nil value.
+        if (self.networkCarrierName) {
+            [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
+        }
     }
     
     if (self.currentLocation) {
