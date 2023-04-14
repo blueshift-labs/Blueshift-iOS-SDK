@@ -300,7 +300,7 @@
 }
 
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton {
-    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsInApp}];
+    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift}];
     @try {
         if (_notification) {
             NSString *inAppType = @"";
@@ -327,6 +327,11 @@
             if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:inAppbutton.text]) {
                 [options setValue:inAppbutton.text forKey:openURLOptionsButtonText];
             }
+        }
+        if (_notification.isFromInbox) {
+            [options setValue:openURLOptionsInbox forKey:openURLOptionsChannel];
+        } else {
+            [options setValue:openURLOptionsInApp forKey:openURLOptionsChannel];
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];

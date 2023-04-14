@@ -15,9 +15,6 @@
 
 #define kPaginationSize     10
 
-
-static BOOL isSyncing = NO;
-
 @implementation BlueshiftInboxManager
 
 #pragma mark - Mobile Inbox External Methods
@@ -41,13 +38,6 @@ static BOOL isSyncing = NO;
     }];
 }
 
-+ (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message {
-    if (message.readStatus == NO) {
-        // If message is unread then only mark it as read.
-        [InAppNotificationEntity markMessageAsRead:message.messageUUID];
-    }
-}
-
 + (void)getCachedInboxMessagesWithHandler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success {
     [BlueshiftLog logInfo:@"Fetching inbox messages from local DB." withDetails:nil methodName:nil];
     [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *results) {
@@ -69,7 +59,6 @@ static BOOL isSyncing = NO;
 }
 
 + (void)syncNewInboxMessages:(void (^_Nonnull)(void))handler {
-    isSyncing = YES;
     [BlueshiftInboxAPIManager getMessageIdsAndStatus:^(NSArray * _Nonnull statusArray) {
         [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
             //Get message Ids from status api response
@@ -98,19 +87,17 @@ static BOOL isSyncing = NO;
                 [InAppNotificationEntity syncMessageUnreadStatusWithDB:existingMessages status:statusMessageIds];
                 
                 //Sync server deleted messages with local db
-                //TODO: enable when actual apis are availble
                 [InAppNotificationEntity syncDeletedMessagesWithDB:deletedMessages];
                 
                 //Fetch only new messages with pagination
-                [BlueshiftInboxManager getNewMessagesWithPagination:newMessages isRetry:NO completionHandler:handler];
+                [BlueshiftInboxManager getNewMessagesWithPagination:newMessages completionHandler:handler];
             } else {
                 //If messages are not present in the db
                 //Fetch all the messages with pagination
-                [BlueshiftInboxManager getNewMessagesWithPagination:[statusMessageIds allKeys] isRetry:NO completionHandler:handler];
+                [BlueshiftInboxManager getNewMessagesWithPagination:[statusMessageIds allKeys] completionHandler:handler];
             }
         }];
     } failure:^(NSError * _Nonnull error) {
-        handler();
     }];
 }
 
@@ -179,8 +166,13 @@ static BOOL isSyncing = NO;
 
 #pragma mark - Mobile Inbox helper methods
 
-+ (void)getNewMessagesWithPagination:(NSArray*)messageIds isRetry:(BOOL)isRetry completionHandler:(void(^)(void))handler  {
-    NSMutableArray *batchList = [[NSMutableArray alloc] init];
++ (void)getNewMessagesWithPagination:(NSArray*)messageIds completionHandler:(void(^)(void))handler  {
+    if (messageIds.count == 0) {
+        [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeSync];
+        handler();
+        return;
+    }
+    NSMutableArray *paginationList = [[NSMutableArray alloc] init];
     // Split the messageIds array into array of 30 ids.
     // Fetch in-apps for 30 ids at a time, and repear same if there are more.
     if (messageIds && messageIds.count > kPaginationSize) {
@@ -197,49 +189,28 @@ static BOOL isSyncing = NO;
                 range.length = kPaginationSize;
             }
             NSArray* batch = [messageIds subarrayWithRange:range];
-            [batchList addObject:batch];
+            [paginationList addObject:batch];
         }
     } else {
-        [batchList addObject:messageIds];
+        [paginationList addObject:messageIds];
     }
-    
-    NSUInteger totalAPICount = batchList.count;
-    __block NSUInteger sucessAPICount = 0;
-    __block dispatch_group_t dGroup = dispatch_group_create();
-    __block NSArray* failedMessageIds = [[NSMutableArray alloc] init];
-    dispatch_group_async(dGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        NSUInteger paginationLocation = 0;
-        for (NSArray* batch in batchList) {
-            dispatch_group_enter(dGroup);
-            [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:batch success:^(NSDictionary * _Nonnull data) {
-                [self handleInboxMessageForAPIResponse:data withCompletionHandler:^(BOOL status) {
-                    sucessAPICount++;
-                    dispatch_group_leave(dGroup);
-                }];
-            } failure:^(NSError * _Nullable err, NSArray * _Nullable failedBatch) {
-                //Collect failed request messageIds for retry
-                failedMessageIds = [failedMessageIds arrayByAddingObject:failedBatch];
-                dispatch_group_leave(dGroup);
+    [self getPageAtIdex:0 fromPaginationList:paginationList completionHanlder:handler];
+}
+
++ (void)getPageAtIdex:(NSUInteger)page fromPaginationList:(NSArray*)paginationList completionHanlder:(void(^)(void))handler {
+    if(page == paginationList.count) {
+        [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeSync];
+        handler();
+        return;
+    } else {
+        [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:paginationList[page] success:^(NSDictionary * _Nonnull data) {
+            [self handleInboxMessageForAPIResponse:data withCompletionHandler:^(BOOL status) {
+                [self getPageAtIdex:page+1 fromPaginationList:paginationList completionHanlder:handler];
             }];
-            paginationLocation = paginationLocation + kPaginationSize;
-        }
-        
-        dispatch_group_notify(dGroup,dispatch_get_main_queue(),^{
-            // All the pagination calls are success, then post notification
-            if(sucessAPICount == totalAPICount) {
-                isSyncing = NO;
-            } else if (sucessAPICount > 0) {
-                //If some pagination api calls are success,then retry for failed messagesIds and post notification
-                if (!isRetry) {
-                    [BlueshiftInboxManager getNewMessagesWithPagination:failedMessageIds isRetry:YES completionHandler:^{ }];
-                } else {
-                    isSyncing = NO;
-                }
-            }
-            [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeSync];
-            handler();
-        });
-    });
+        } failure:^(NSError * _Nullable err, NSArray * _Nullable failedBatch) {
+            [self getPageAtIdex:page+1 fromPaginationList:paginationList completionHanlder:handler];
+        }];
+    }
 }
 
 + (NSMutableArray*)prepareInboxMessages:(NSArray*)results {
@@ -264,10 +235,6 @@ static BOOL isSyncing = NO;
 
 + (void)deleteAllInboxMessagesFromDB {
     [InAppNotificationEntity eraseEntityData];
-}
-
-+ (BOOL)isSyncing {
-    return isSyncing;
 }
 
 @end

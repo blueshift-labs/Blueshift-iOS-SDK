@@ -148,7 +148,6 @@
         [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
             if (weakSelf.activityIndicator) {
                 [weakSelf.activityIndicator stopAnimating];
-//                [weakSelf.activityIndicator removeFromSuperview];
             }
         }];
     }
@@ -348,7 +347,7 @@
         BOOL isDisplayed = [BlueshiftInboxManager showInboxNotificationForMessage:message];
         if (isDisplayed) {
             [self startActivityIndicator];
-            [_viewModel markMessageAsRead:message];
+            message.readStatus = YES;
             [self reloadTableViewCellForIndexPath:indexPath animated:YES];
         }
         //Callback

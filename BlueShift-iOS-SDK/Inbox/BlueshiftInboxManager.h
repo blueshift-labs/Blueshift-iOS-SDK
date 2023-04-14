@@ -24,12 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - handler: completion handler with `BOOL` completion status
 + (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler;
 
-
-/// Mark an inbox notification as read when visited.
-/// - Parameter message: inbox message to mark as read
-+ (void)markInboxMessageAsRead:(BlueshiftInboxMessage* _Nullable)message;
-
-
 /// Get the synced inbox messages to show inside the inbox.
 /// The messages will be automatically synced in local db by the SDK and can be retrived using this method to display in the inbox.
 /// - Parameter success: success callback which will provide an array of `BlueshiftInboxMessage` objects. The handler with response will be invoked on background thread. Perform any UI changes on main thread using GCD.
@@ -65,8 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Delete the inbox messages if user if logging out or profile is getting changed.
 /// This method will delete all the local inbox messages, and new messages will be fetched for the new user/profile.
 + (void)deleteAllInboxMessagesFromDB;
-
-+ (BOOL)isSyncing;
 
 @end
 

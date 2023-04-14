@@ -105,16 +105,8 @@
     return _sectionInboxMessages ?_sectionInboxMessages.count : 1;
 }
 
-- (void)markMessageAsRead:(BlueshiftInboxMessage*)message {
-    if (message.readStatus == NO) {
-        //TODO: Confirm if really need to update as in-app display will also update the status.
-        [BlueshiftInboxManager markInboxMessageAsRead:message];
-        message.readStatus = YES;
-    }
-}
-
 - (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate {
-    return [NSDateFormatter localizedStringFromDate:createdAtDate dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+    return [NSDateFormatter localizedStringFromDate:createdAtDate dateStyle:NSDateFormatterLongStyle timeStyle:NSDateFormatterShortStyle];
 }
 
 @end

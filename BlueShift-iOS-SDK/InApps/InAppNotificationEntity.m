@@ -60,33 +60,31 @@
 }
 
 +(void)fetchMessagesForFetchRequest:(NSFetchRequest*)fetchRequest withHandler:(void (^)(BOOL, NSArray *))handler {
-//    @synchronized (self) {
-        @try {
-            NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
-            if (fetchRequest && context) {
-                [context performBlock:^{
-                    @try {
-                        NSError *error;
-                        NSArray *results = [[NSArray alloc]init];
-                        results = [context executeFetchRequest:fetchRequest error:&error];
-                        if (results && results.count > 0) {
-                            handler(YES, results);
-                        } else {
-                            handler(YES, nil);
-                        }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                        handler(NO, nil);
+    @try {
+        NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
+        if (fetchRequest && context) {
+            [context performBlock:^{
+                @try {
+                    NSError *error;
+                    NSArray *results = [[NSArray alloc]init];
+                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    if (results && results.count > 0) {
+                        handler(YES, results);
+                    } else {
+                        handler(YES, nil);
                     }
-                }];
-            } else {
-                handler(NO, nil);
-            }
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    handler(NO, nil);
+                }
+            }];
+        } else {
             handler(NO, nil);
         }
-//    }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        handler(NO, nil);
+    }
 }
 
 
@@ -126,36 +124,6 @@
         return success;
     } else {
         return success;
-    }
-}
-
-- (void)insert:(NSDictionary *)dictionary handler:(void (^)(BOOL))handler {
-    NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
-    if (context) {
-        @try {
-            [self map:dictionary];
-            [context performBlock:^{
-                @try {
-                    NSError *error = nil;
-                    [context save:&error];
-                    if (error) {
-                        [BlueshiftLog logError:error withDescription:[NSString stringWithFormat:@"Failed to insert Inbox message, message UUID - %@", self.id] methodName:nil];
-                        handler(NO);
-                    } else {
-                        [BlueshiftLog logInfo:@"Successfully added inbox message, message UUID - " withDetails:self.id methodName:nil];
-                        handler(YES);
-                    }
-                } @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                    handler(NO);
-                }
-            }];
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-            handler(NO);
-        }
-    } else {
-        handler(NO);
     }
 }
 
@@ -205,7 +173,6 @@
     return fetchRequest;
 }
 
-#pragma mark - Inbox
 + (void)fetchLastReceivedMessageId:(void (^)(BOOL, NSString *, NSString *))handler {
     NSManagedObjectContext* context = BlueShift.sharedInstance.appDelegate.inboxMOContext;
     @try {
@@ -237,30 +204,24 @@
     }
 }
 
-+ (void)syncMessageUnreadStatusWithDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray {
-    if (statusArray && messages && messages.count > 0) {
+#pragma mark - Inbox
++ (void)syncMessageUnreadStatusWithDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statuses {
+    if (statuses && messages && messages.count > 0) {
         NSManagedObjectContext* context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
         if(context) {
             [context performBlock:^{
                 @try {
-//                    BOOL isStatusChanged = NO;
-                    for(NSString* key in statusArray.allKeys) {
+                    for(NSString* key in statuses.allKeys) {
                         if (messages[key]) {
                             InAppNotificationEntity* entity = (InAppNotificationEntity*)messages[key];
-                            //TODO: verify the data type of recieved bool status
-                            
-                            if([statusArray[key] isEqual: @"read"]) {
+                            if([statuses[key] isEqual: @"read"]) {
                                 entity.status = kInAppStatusDisplayed;
-//                                isStatusChanged = YES;
                                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"Updated unread status for message UUID - %@",entity.id] withDetails:nil methodName:nil];
                             }
                         }
                     }
                     NSError *error;
                     [context save:&error];
-//                    if (isStatusChanged && !error) {
-//                        [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange];
-//                    } else {
                     if (error) {
                         [BlueshiftLog logError:error withDescription:@"Failed to save updated Inbox messages." methodName:nil];
                     }
@@ -423,7 +384,7 @@
         if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
             // TODO: read the status from the payload and change the default availbility
             self.status = [[payload objectForKey:@"status"] isEqualToString:@"unread"] ? kInAppStatusPending : kInAppStatusDisplayed;
-            self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInboxOnly;
+            self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInAppOnly;
         } else {
             self.status = kInAppStatusPending;
             self.availability = kBSAvailabilityInAppOnly;

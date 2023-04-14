@@ -198,13 +198,11 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             [_inAppNotificationMananger load];
             
             if (config.enableMobileInbox) {
-                [BlueshiftInboxManager syncNewInboxMessages:^ {
-                    [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
-                }];
+                [BlueshiftInboxManager syncNewInboxMessages:^{}];
             } else {
                 [self fetchInAppNotificationFromAPI:^(void) {
-                    [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
-                } failure:^(NSError *error){ }];
+                } failure:^(NSError *error){
+                }];
             }
         }
         

@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)markMessageAsRead:(NSString *)messageUUID;
 
-+ (void)syncMessageUnreadStatusWithDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statusArray;
++ (void)syncMessageUnreadStatusWithDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statuses;
 
 + (void)syncDeletedMessagesWithDB:(NSArray *)deleteIds;
 

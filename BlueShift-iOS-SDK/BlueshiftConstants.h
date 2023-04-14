@@ -64,6 +64,7 @@
 #define openURLOptionsBlueshift                 @"Blueshift"
 #define openURLOptionsChannel                   @"channel"
 #define openURLOptionsInApp                     @"inApp"
+#define openURLOptionsInbox                     @"inbox"
 #define openURLOptionsPush                      @"push"
 #define openURLOptionsModal                     @"modal"
 #define openURLOptionsSlideIn                   @"slideInBanner"
