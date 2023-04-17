@@ -31,7 +31,7 @@
 /// Trigger request executions from the Queue
 + (void)processRequestsInQueue;
 
-/// Add Request non-batch Operation to the Queue
+/// Add events using to Queue
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation;
 
 /// Add batch Request Operation to DB

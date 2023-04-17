@@ -64,6 +64,7 @@
 #define openURLOptionsBlueshift                 @"Blueshift"
 #define openURLOptionsChannel                   @"channel"
 #define openURLOptionsInApp                     @"inApp"
+#define openURLOptionsInbox                     @"inbox"
 #define openURLOptionsPush                      @"push"
 #define openURLOptionsModal                     @"modal"
 #define openURLOptionsSlideIn                   @"slideInBanner"
@@ -102,6 +103,9 @@
 #define kBSDismiss                              @"dismiss"
 #define kBSAction                               @"a"
 
+//Events
+#define kBSScreenViewed                         @"screen_viewed"
+
 //Serial queue
 #define kBSSerialQueue                          "com.blueshift.coresdk"
 
@@ -117,6 +121,8 @@
 //NSNotificationCenter constant
 #define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
 #define kBSStatus                               @"status"
+#define kBSInAppNotificationWillAppear          @"BlueshiftInAppNotificationWillAppear"
+#define kBSInboxUnreadMessageCountDidChange     @"BlueshiftInboxUnreadMessageCountDidChange"
 
 //Default time interval for in-app notificaiton
 #define kDefaultInAppTimeInterval               60
@@ -133,5 +139,10 @@
 #define kBSGoToSettingDefaultText               @"You have disabled Push notifications for your app, please go to settings to enable it."
 #define kBSGoToSettingDefaultOkayButton         @"Settings"
 #define kBSGoToSettingDefaultCancelButton       @"Not Now"
+
+
+//Mobile inbox constants
+#define kBSInboxDefaultCellIdentifier           @"BlueshiftInboxDefaultCell"
+
 
 #endif /* BlueshiftConstants_h */

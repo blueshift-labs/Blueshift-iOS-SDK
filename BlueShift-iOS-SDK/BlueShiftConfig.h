@@ -65,6 +65,8 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// Set `enableInAppNotification` property to true to enable in-app notifications. By default in-app notifications are disabled.
 @property BOOL enableInAppNotification;
 
+@property BOOL enableMobileInbox;
+
 /// Set the `InAppManualTriggerEnabled` property to true, to stop the SDK from displaying in-app messages automatically.
 /// @note You can display the in-app messages manually by calling below SDK method and it will only show one in-app.
 /// @code

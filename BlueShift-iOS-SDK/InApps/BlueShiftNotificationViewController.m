@@ -119,48 +119,19 @@
 /// @param imageURL Image url to download the image
 /// @param imageView  assign the downloaded image to imageView
 - (void)loadImageFromURL:(NSString *)imageURL forImageView:(UIImageView *)imageView {
-    UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:imageURL]];
+    UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:imageURL]];
     imageView.image = image;
 }
 
 - (void)setBackgroundImageFromURL:(UIView *)notificationView {
     if (notificationView && [self isBackgroundImagePresentForNotification:self.notification]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
-        UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
+        UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:backgroundImageURL]];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.frame = notificationView.bounds;
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         [notificationView addSubview:imageView];
     }
-}
-
--(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
-    NSData *imageData = [[NSData alloc] init];
-    @try {
-        if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:urlString]) {
-            NSString *urlMD5Hash = [BlueShiftInAppNotificationHelper getMD5ForString: urlString];
-            if([BlueShift sharedInstance].inAppImageDataCache && [[BlueShift sharedInstance].inAppImageDataCache objectForKey: urlMD5Hash]) {
-                imageData = [[BlueShift sharedInstance].inAppImageDataCache objectForKey:urlMD5Hash];
-                [BlueshiftLog logInfo:@"Loading image from image cache for url" withDetails:urlString methodName:nil];
-            } else {
-                NSURL *url = [NSURL URLWithString:urlString];
-                if (url) {
-                    [BlueshiftLog logInfo:@"Downloading image using url" withDetails:urlString methodName:nil];
-                    imageData = [[NSData alloc] initWithContentsOfURL:url];
-                    if (imageData) {
-                        if ([BlueShift sharedInstance].inAppImageDataCache == nil) {
-                            [BlueShift sharedInstance].inAppImageDataCache = [[NSCache alloc] init];
-                        }
-                        [[BlueShift sharedInstance].inAppImageDataCache setObject:imageData forKey:urlMD5Hash];
-                        [BlueshiftLog logInfo:@"Downloaded image successfully with size in KB" withDetails:[NSNumber numberWithFloat:(imageData.length/1024.0f)] methodName:nil];
-                    }
-                }
-            }
-        }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-    }
-    return imageData;
 }
 
 - (void)setBackgroundColor:(UIView *)notificationView {
@@ -329,7 +300,7 @@
 }
 
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton {
-    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsInApp}];
+    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift}];
     @try {
         if (_notification) {
             NSString *inAppType = @"";
@@ -356,6 +327,11 @@
             if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:inAppbutton.text]) {
                 [options setValue:inAppbutton.text forKey:openURLOptionsButtonText];
             }
+        }
+        if (_notification.isFromInbox) {
+            [options setValue:openURLOptionsInbox forKey:openURLOptionsChannel];
+        } else {
+            [options setValue:openURLOptionsInApp forKey:openURLOptionsChannel];
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];

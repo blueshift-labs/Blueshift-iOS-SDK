@@ -9,13 +9,16 @@
 #define BlueShift_iOS_SDK_BlueShiftRoutes_h
 
 
-#define kBS_USBaseURL              @"https://api.getblueshift.com/"
+#define kBS_USBaseURL              @"https://api.bsftstaging.com/"
 #define kBS_EUBaseURL              @"https://api.eu.getblueshift.com/"
 #define kBSRealtimeEvent           @"api/v1/event"
 #define kBSBulkEvents              @"api/v1/bulkevents"
 #define kBSTrackAPI                @"track"
 #define kBSLiveContent             @"live"
 #define kBSInAppMessages           @"inapp/msg"
+#define kBSInboxMessages           @"inbox/api/v1/messages"
+#define kBSInboxStatus             @"inbox/api/v1/status"
+#define kBSInboxUpdate             @"inbox/api/v1/update"
 
 @interface BlueshiftRoutes : NSObject
 
@@ -25,6 +28,9 @@
 + (NSString*)getTrackURL;
 + (NSString*)getLiveContentURL;
 + (NSString*)getInAppMessagesURL;
++ (NSString*)getInboxMessagesURL;
++ (NSString*)getInboxStatusURL;
++ (NSString*)getInboxUpdateURL;
 
 @end
 

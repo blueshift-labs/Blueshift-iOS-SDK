@@ -28,6 +28,8 @@
 /// Fetch batches to send async as part of bulk events
 + (void)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
 
++ (void)deleteEntryForObjectId:(NSManagedObjectID *)objectId completetionHandler:(void (^)(BOOL))handler;
+
 /// Erase all the non synced event batches from the BatchEvent Entity of SDK database
 + (void)eraseEntityData;
 

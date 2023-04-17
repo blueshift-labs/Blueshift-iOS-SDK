@@ -29,6 +29,7 @@
         NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
         NSString *timestamp = [self getCurrentUTCTimestamp];
         NSString* notificationType = [pushDetailsDictionary objectForKey: kNotificationTypeIdentifierKey];
+        NSString* openedBy = [pushDetailsDictionary objectForKey:kBSTrackingOpenedBy];
         if (bsft_user_uuid) {
             [pushTrackParametersMutableDictionary setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
         }
@@ -49,6 +50,10 @@
         }
         if ([self isNotNilAndNotEmpty:urlElement]) {
             [pushTrackParametersMutableDictionary setObject:urlElement forKey: kNotificationURLElementKey];
+        }
+        //TODO: verify for push
+        if (openedBy && pushDetailsDictionary[kInAppNotificationDataKey][kInAppNotificationKey]) {
+            [pushTrackParametersMutableDictionary setObject:openedBy forKey: kBSTrackingOpenedBy];
         }
         
         if([notificationType isEqualToString:kNotificationKey]) {
@@ -194,7 +199,7 @@
 + (NSString *)getCurrentUTCTimestamp {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"];
+    [dateFormatter setDateFormat:kDefaultDateFormat];
     [dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
     [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
     return [dateFormatter stringFromDate:[NSDate date]];
