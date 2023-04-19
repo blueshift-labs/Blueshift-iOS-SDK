@@ -56,6 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)insertMesseages:(NSArray<NSDictionary*> *)messagesToInsert;
 
++ (void)fetchAllMessagesWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
+
 + (void)fetchAllMessagesForInboxWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
 
 + (void)fetchInAppMessageToDisplayOnScreen:(NSString*)displayOn WithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;

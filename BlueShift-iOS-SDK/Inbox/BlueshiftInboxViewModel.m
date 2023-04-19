@@ -6,11 +6,7 @@
 //
 
 #import "BlueshiftInboxViewModel.h"
-#import "BlueShift.h"
 #import "BlueshiftConstants.h"
-#import "InAppNotificationEntity.h"
-#import "BlueshiftAppDelegate.h"
-#import "BlueShiftRequestOperationManager.h"
 #import "BlueshiftInboxManager.h"
 #import "BlueshiftLog.h"
 

@@ -10,7 +10,7 @@
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftNotificationConstants.h"
 #import "BlueshiftLog.h"
-#import "BlueShiftConstants.h"
+#import "BlueshiftConstants.h"
 
 @implementation InAppNotificationEntity
 
@@ -27,6 +27,14 @@
 @dynamic displayOn;
 @dynamic timestamp;
 @dynamic availability;
+
++ (void)fetchAllMessagesWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
+    NSFetchRequest *fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:nil sortDescriptor:nil];
+    [InAppNotificationEntity fetchMessagesForFetchRequest:fetchRequest withHandler:^(BOOL status, NSArray *messages) {
+        [BlueshiftLog logInfo:@"Fetched all messages from local DB, count - " withDetails:[NSNumber numberWithUnsignedInteger:messages.count] methodName:nil];
+        handler(status,messages);
+    }];
+}
 
 + (void)fetchAllMessagesForInboxWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
     NSNumber* currentTime = [NSNumber numberWithDouble:(double)[[NSDate date] timeIntervalSince1970]];
@@ -143,7 +151,7 @@
                         for (InAppNotificationEntity* message in results) {
                             [uuids setValue:@YES forKey:message.id];
                         }
-                        [BlueshiftLog logInfo:@"Messages present in Local, message UUIDs - %@" withDetails:uuids methodName:nil];
+                        [BlueshiftLog logInfo:@"Messages present in Local, message UUIDs - " withDetails:uuids methodName:nil];
                         handler(YES, uuids);
                     } else {
                         handler(NO, nil);
@@ -214,7 +222,7 @@
                     for(NSString* key in statuses.allKeys) {
                         if (messages[key]) {
                             InAppNotificationEntity* entity = (InAppNotificationEntity*)messages[key];
-                            if([statuses[key] isEqual: @"read"]) {
+                            if([statuses[key] isEqual: @"read"] && [entity.status isEqualToString:kInAppStatusPending]) {
                                 entity.status = kInAppStatusDisplayed;
                                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"Updated unread status for message UUID - %@",entity.id] withDetails:nil methodName:nil];
                             }

@@ -60,13 +60,12 @@
 
 + (void)syncInboxMessages:(void (^_Nonnull)(void))handler {
     [BlueshiftInboxAPIManager getMessageIdsAndStatus:^(NSArray * _Nonnull statusArray) {
-        [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
+        [InAppNotificationEntity fetchAllMessagesWithHandler:^(BOOL status, NSArray *messages) {
             //Get message Ids from status api response
             NSMutableDictionary* statusMessageIds = [[NSMutableDictionary alloc] init];
             [statusArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 [statusMessageIds setValue:obj[@"status"] forKey:obj[kBSMessageUUID]];
             }];
-
             //If messages are present in the db
             if (status && messages.count > 0) {
                 //Get existing messages id
@@ -74,7 +73,8 @@
                 for(InAppNotificationEntity* message in messages) {
                     [existingMessages setValue:message forKey:message.id];
                 }
-                
+                [BlueshiftLog logInfo:@"Existing in-app messages, UUID - " withDetails:existingMessages.allKeys methodName:nil];
+
                 //Calculate new messages by substracting the local db message ids from the status message ids.
                 NSMutableArray* newMessages = [[statusMessageIds allKeys] mutableCopy];
                 [newMessages removeObjectsInArray:[existingMessages allKeys]];
