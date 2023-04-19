@@ -19,10 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet UILabel *detailLabel;
 
 
-/// Date label of the notification
+/// Created at Date label of the notification
 @property (strong, nonatomic) IBOutlet UILabel *dateLabel;
 
-/// Imageview for the Notification Icon
+/// Imageview for the Notification Icon image
 @property (strong, nonatomic) IBOutlet UIImageView *iconImageView;
 
 /// Unread badge view to change the color based on status

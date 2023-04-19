@@ -22,42 +22,44 @@ static BlueShiftRequestQueueStatus _requestQueueStatus = BlueShiftRequestQueueSt
 
 #pragma mark Real time events processing
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation {
-    if(requestOperation) {
-        @try {
-            
-            NSString *url = requestOperation.url;
-            BOOL isBatchEvent = requestOperation.isBatchEvent;
-            
-            if ([BlueShiftNetworkReachabilityManager networkConnected] == NO)  {
-                isBatchEvent = YES;
-            }
-            // Treat all the tracking events as non-batched events to stop them from getting batched
-            NSString *trackURL = [BlueshiftRoutes getTrackURL];
-            if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
-                isBatchEvent = NO;
-            }
-            //Insert event to in the core data HttpRequestOperationEntity
-            NSManagedObjectContext *context = BlueShift.sharedInstance.appDelegate.eventsMOContext;
-            if (context) {
-                [context performBlock:^{
-                    @try {
-                        NSEntityDescription *entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context];
-                        if(entity) {
-                            HttpRequestOperationEntity * httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
-                            if(httpRequestOperationEntity) {
-                                [httpRequestOperationEntity insertEntryWithMethod:requestOperation.httpMethod andParameters:requestOperation.parameters andURL:url andNextRetryTimeStamp:requestOperation.nextRetryTimeStamp andRetryAttemptsCount:requestOperation.retryAttemptsCount andIsBatchEvent:isBatchEvent];
-                                if(!isBatchEvent) {
-                                    [BlueShiftRequestQueue processRequestsInQueue];
+    @synchronized (self) {
+        if(requestOperation) {
+            @try {
+                
+                NSString *url = requestOperation.url;
+                BOOL isBatchEvent = requestOperation.isBatchEvent;
+                
+                if ([BlueShiftNetworkReachabilityManager networkConnected] == NO)  {
+                    isBatchEvent = YES;
+                }
+                // Treat all the tracking events as non-batched events to stop them from getting batched
+                NSString *trackURL = [BlueshiftRoutes getTrackURL];
+                if ([requestOperation.url rangeOfString:trackURL].location != NSNotFound) {
+                    isBatchEvent = NO;
+                }
+                //Insert event to in the core data HttpRequestOperationEntity
+                NSManagedObjectContext *context = BlueShift.sharedInstance.appDelegate.eventsMOContext;
+                if (context) {
+                    [context performBlock:^{
+                        @try {
+                            NSEntityDescription *entity = [NSEntityDescription entityForName:kHttpRequestOperationEntity inManagedObjectContext:context];
+                            if(entity) {
+                                HttpRequestOperationEntity * httpRequestOperationEntity = [[HttpRequestOperationEntity alloc] initWithEntity:entity insertIntoManagedObjectContext:context];
+                                if(httpRequestOperationEntity) {
+                                    [httpRequestOperationEntity insertEntryWithMethod:requestOperation.httpMethod andParameters:requestOperation.parameters andURL:url andNextRetryTimeStamp:requestOperation.nextRetryTimeStamp andRetryAttemptsCount:requestOperation.retryAttemptsCount andIsBatchEvent:isBatchEvent];
+                                    if(!isBatchEvent) {
+                                        [BlueShiftRequestQueue processRequestsInQueue];
+                                    }
                                 }
                             }
+                        } @catch (NSException *exception) {
+                            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                         }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                    }
-                }];
+                    }];
+                }
+            } @catch (NSException *exception) {
+                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
             }
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
     }
 }

@@ -17,83 +17,79 @@
 @dynamic createdAt;
 
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount {
-//    @synchronized(self) {
-        NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.eventsMOContext;
-        if (context) {
-            @try {
-                if (parametersArray) {
-                    self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
-                }
-                self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
-                self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
-                self.createdAt = [[NSDate date] timeIntervalSince1970];
-                [context performBlock:^{
-                    @try {
-                        NSError *error = nil;
-                        [context save:&error];
-                        if(error) {
-                            [BlueshiftLog logError:error withDescription:@"Failed to insert batch event record." methodName:nil];
-                        } else {
-                            [BlueshiftLog logInfo:@"Inserted batch event record successfully." withDetails:nil methodName:nil];
-                        }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                    }
-                }];
-            } @catch (NSException *exception) {
-                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.eventsMOContext;
+    if (context) {
+        @try {
+            if (parametersArray) {
+                self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
             }
+            self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
+            self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];
+            self.createdAt = [[NSDate date] timeIntervalSince1970];
+            [context performBlock:^{
+                @try {
+                    NSError *error = nil;
+                    [context save:&error];
+                    if(error) {
+                        [BlueshiftLog logError:error withDescription:@"Failed to insert batch event record." methodName:nil];
+                    } else {
+                        [BlueshiftLog logInfo:@"Inserted batch event record successfully." withDetails:nil methodName:nil];
+                    }
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+            }];
+        } @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
-//    }
+    }
 }
 
 + (void)fetchBatchesFromCoreDataWithCompletionHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
-//    @synchronized(self) {
-        NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.eventsMOContext;
-        if(context) {
-            @try {
-                NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
-                if (fetchRequest) {
-                    NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
-                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
-                    NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:YES];
-                    [fetchRequest setSortDescriptors:@[sortByDate]];
-                    [fetchRequest setPredicate:predicate];
-                    @try {
-                        if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
-                            [context performBlock:^{
-                                @try {
-                                    NSError *error;
-                                    NSArray *results = [[NSArray alloc]init];
-                                    results = [context executeFetchRequest:fetchRequest error:&error];
-                                    if (results && results.count > 0) {
-                                        handler(YES, results);
-                                    } else {
-                                        handler(NO, nil);
-                                    }
-                                } @catch (NSException *exception) {
-                                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.eventsMOContext;
+    if(context) {
+        @try {
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kBatchEventEntity];
+            if (fetchRequest) {
+                NSNumber *currentTimeStamp = [NSNumber numberWithDouble:[[[NSDate date] dateByAddingMinutes:kRequestRetryMinutesInterval] timeIntervalSince1970]];
+                NSPredicate *predicate = [NSPredicate predicateWithFormat:@"nextRetryTimeStamp < %@", currentTimeStamp];
+                NSSortDescriptor *sortByDate = [NSSortDescriptor sortDescriptorWithKey:kBSCreatedAt ascending:YES];
+                [fetchRequest setSortDescriptors:@[sortByDate]];
+                [fetchRequest setPredicate:predicate];
+                @try {
+                    if(context && [context isKindOfClass:[NSManagedObjectContext class]]) {
+                        [context performBlock:^{
+                            @try {
+                                NSError *error;
+                                NSArray *results = [[NSArray alloc]init];
+                                results = [context executeFetchRequest:fetchRequest error:&error];
+                                if (results && results.count > 0) {
+                                    handler(YES, results);
+                                } else {
                                     handler(NO, nil);
                                 }
-                            }];
-                        } else {
-                            handler(NO, nil);
-                        }
-                    } @catch (NSException *exception) {
-                        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                            } @catch (NSException *exception) {
+                                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                                handler(NO, nil);
+                            }
+                        }];
+                    } else {
                         handler(NO, nil);
                     }
-                } else {
+                } @catch (NSException *exception) {
+                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     handler(NO, nil);
                 }
+            } else {
+                handler(NO, nil);
             }
-            @catch (NSException *exception) {
-                [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-            }
-        } else {
-            handler(NO, nil);
         }
-//    }
+        @catch (NSException *exception) {
+            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+        }
+    } else {
+        handler(NO, nil);
+    }
 }
 
 + (void)deleteEntryForObjectId:(NSManagedObjectID *)objectId completionHandler:(void (^)(BOOL))handler {

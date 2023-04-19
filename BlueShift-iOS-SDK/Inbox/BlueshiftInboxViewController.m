@@ -14,6 +14,10 @@
 #import "BlueshiftConstants.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftInboxManager.h"
+#import "BlueshiftInboxMessage.h"
+#import "BlueshiftInboxTableViewCell.h"
+#import "BlueshiftInboxMessage.h"
+#import "BlueshiftInboxViewModel.h"
 
 #define kBSInboxLoaderSize     50
 
@@ -28,6 +32,7 @@
 
 @synthesize nibName;
 
+#pragma mark Init methods
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -72,19 +77,10 @@
     return self;
 }
 
-- (void)dealloc {
-    [_viewModel.sectionInboxMessages removeAllObjects];
-    [BlueShiftRequestOperationManager.sharedRequestOperationManager.inboxImageDataCache removeAllObjects];
-}
-
-- (void)setDefaults {
-    self.showActivityIndicator = YES;
-    self.activityIndicatorColor = UIColor.grayColor;
-}
-
+#pragma mark Lifecycle methods
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self initInboxDelegate];
+    [self setInboxDelegate];
     [self setupTableView];
     [self setupPullToRefresh];
     [self registerTableViewCells];
@@ -97,7 +93,18 @@
     [self setupObservers];
 }
 
-- (void)initInboxDelegate {
+- (void)dealloc {
+    [_viewModel.sectionInboxMessages removeAllObjects];
+    [BlueShiftRequestOperationManager.sharedRequestOperationManager.inboxImageDataCache removeAllObjects];
+}
+
+#pragma mark Inbox Setup
+- (void)setDefaults {
+    self.showActivityIndicator = YES;
+    self.activityIndicatorColor = UIColor.grayColor;
+}
+
+- (void)setInboxDelegate {
     @try {
         if (_inboxDelegate) {
             [self setPropertiesToViewModel];
@@ -178,6 +185,7 @@
     }
 }
 
+#pragma mark sync methods
 - (void)reloadTableView {
     __weak __typeof(self)weakSelf = self;
     [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
@@ -200,6 +208,7 @@
     }];
 }
 
+#pragma mark Register tableview cells
 - (void)registerTableViewCells {
     [self registerDefaultTableViewCell];
     [self registerCustomTableViewCells];
@@ -244,8 +253,7 @@
     return nil;
 }
 
-#pragma mark - Table view data source
-
+#pragma mark - Table view
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return [_viewModel numberOfSections];;
 }

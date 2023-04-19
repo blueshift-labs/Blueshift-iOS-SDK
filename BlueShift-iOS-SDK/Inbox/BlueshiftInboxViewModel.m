@@ -14,12 +14,6 @@
 #import "BlueshiftInboxManager.h"
 #import "BlueshiftLog.h"
 
-
-@interface BlueshiftInboxViewModel()
-
-@end
-
-
 @implementation BlueshiftInboxViewModel
 
 - (instancetype)init {

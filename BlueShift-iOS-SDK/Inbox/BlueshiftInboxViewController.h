@@ -82,6 +82,7 @@ IB_DESIGNABLE
 /// @warning Set this property only if you are preseting inbox from the code. Skip setting this if you are configuring the inbox using the storyboard or xib.
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 
+/// Init the InboxViewController with the `BlueshiftInboxViewControllerDelegate` delegate
 - (instancetype)initWithInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate;
 
 @end

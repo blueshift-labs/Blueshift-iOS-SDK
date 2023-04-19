@@ -56,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Default value is True.
 @property (nonatomic) IBInspectable  BOOL showDoneButton;
 
+/// Set `BlueshiftInboxViewControllerDelegate` delegate
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate> _Nullable inboxDelegate;
 
 @end

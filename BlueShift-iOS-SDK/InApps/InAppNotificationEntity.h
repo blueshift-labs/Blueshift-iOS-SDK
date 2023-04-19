@@ -14,23 +14,45 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface InAppNotificationEntity : NSManagedObject
 
+/// message uuid
 @property (nonatomic, retain) NSString *id;
+
+/// Type of inapp message -slidein/modal/html
 @property (nonatomic, retain) NSString *type;
+
+/// Priority for the message, default medium.
 @property (nonatomic, retain) NSString *priority;
+
+/// Trigger mode can be now or upcoming based on the `trigger` value
 @property (nonatomic, retain) NSString *triggerMode;
 
-// Notification name inapp or push
+/// Message type, inapp or push
 @property (nonatomic, retain) NSString *eventName;
+
+/// Unread Status - pending/displayed
 @property (nonatomic, retain) NSString *status;
+
+/// Display on specific screen eg - CartViewController
 @property (nonatomic, retain) NSString *displayOn;
+
+/// Set timestamp from the message payload `timestamp`
 @property (nonatomic, retain) NSString *timestamp;
+
+/// Inbox availabilty - inapp/ inbox+inapp/ inbox
 @property (nonatomic, retain) NSString *availability;
 
+/// Start time for the message, `trigger` is set as future date.
 @property (nonatomic, retain) NSNumber *startTime;
+
+/// Expiry date for the message
 @property (nonatomic, retain) NSNumber *endTime;
+
+/// Message creation date from the payload
 @property (nonatomic, retain) NSNumber *createdAt;
 
+/// Entire mesasge payload
 @property (nonatomic, retain) NSData *payload;
+
 
 + (BOOL)insertMesseages:(NSArray<NSDictionary*> *)messagesToInsert;
 
