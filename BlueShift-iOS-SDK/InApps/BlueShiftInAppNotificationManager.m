@@ -1,6 +1,6 @@
 //
 //  BlueShiftInAppNotificationManager.m
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 10/07/19.
 //

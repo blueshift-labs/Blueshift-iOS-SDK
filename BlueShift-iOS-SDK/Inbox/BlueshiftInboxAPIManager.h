@@ -1,8 +1,8 @@
 //
-//  BlueshiftInAppNotificationRequest.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueshiftInboxAPIManager.h
+//  BlueShift-iOS-SDK
 //
-//  Created by Noufal on 29/10/19.
+//  Created by Ketan on 18/04/23.
 //
 
 #import <Foundation/Foundation.h>

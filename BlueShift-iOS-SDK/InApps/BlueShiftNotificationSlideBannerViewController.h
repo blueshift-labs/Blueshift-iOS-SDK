@@ -1,6 +1,6 @@
 //
 //  BlueShiftNotificationSlideBannerViewController.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by Noufal Subair on 23/07/19.
 //

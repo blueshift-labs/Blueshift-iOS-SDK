@@ -1,6 +1,6 @@
 //
 //  BlueshiftEventAnalyticsHelper.m
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by Noufal on 18/10/19.
 //

@@ -1,6 +1,6 @@
 //
 //  BlueShiftPushNotificationSettings.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 05/11/17.
 //

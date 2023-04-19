@@ -1,6 +1,6 @@
 //
 //  BlueShiftNotificationView.m
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 12/07/19.
 //
