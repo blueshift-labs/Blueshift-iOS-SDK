@@ -5,8 +5,8 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 
-#import "BlueShiftHTTPMethod.h"
-#import "BatchEventEntity.h"
+#import <BlueShiftHTTPMethod.h>
+#import <BatchEventEntity.h>
 
 @class BatchEventEntity;
 

@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
-#import "BlueShift.h"
+#import <BlueShift.h>
 
 @interface BlueShiftUserNotificationCenterDelegate : NSObject<UNUserNotificationCenterDelegate>
 

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import "BlueShiftInAppType.h"
+#import <BlueShiftInAppType.h>
 
 typedef NS_ENUM (NSUInteger,BlueshiftInboxNotificationType) {
     BlueshiftInboxNotificationTypeInApp

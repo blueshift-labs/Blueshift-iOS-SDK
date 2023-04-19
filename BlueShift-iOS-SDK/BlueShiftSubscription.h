@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "BlueShiftSubscriptionState.h"
+#import <BlueShiftSubscriptionState.h>
 
 @interface BlueShiftSubscription : NSObject
 

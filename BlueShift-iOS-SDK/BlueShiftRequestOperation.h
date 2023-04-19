@@ -5,8 +5,8 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 
-#import "BlueShiftHTTPMethod.h"
-#import "HttpRequestOperationEntity.h"
+#import <BlueShiftHTTPMethod.h>
+#import <HttpRequestOperationEntity.h>
 
 @class HttpRequestOperationEntity;
 

@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "BlueShiftHTTPMethod.h"
+#import <BlueShiftHTTPMethod.h>
 
 @interface NSNumber (BlueShiftHelpers)
 

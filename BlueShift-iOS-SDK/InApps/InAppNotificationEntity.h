@@ -7,8 +7,8 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-#import "BlueShiftAppDelegate.h"
-#import "BlueShiftInAppNotificationHelper.h"
+#import <BlueShiftAppDelegate.h>
+#import <BlueShiftInAppNotificationHelper.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

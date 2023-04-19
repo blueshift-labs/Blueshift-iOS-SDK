@@ -6,29 +6,29 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BlueShiftConfig.h"
-#import "BlueShiftDeviceData.h"
-#import "BlueShiftAppDelegate.h"
-#import "BlueShiftPushDelegate.h"
-#import "BlueShiftPushParamDelegate.h"
-#import "BlueShiftNetworkReachabilityManager.h"
-#import "BlueShiftSubscriptionState.h"
-#import "BlueShiftRequestOperation.h"
-#import "BlueShiftRequestQueue.h"
-#import "BlueshiftRoutes.h"
-#import "BlueShiftUserInfo.h"
-#import "BlueShiftTrackEvents.h"
-#import "BlueShiftProduct.h"
-#import "BlueShiftSubscription.h"
-#import "BlueShiftHttpRequestBatchUpload.h"
-#import "BlueShiftBatchUploadConfig.h"
-#import "BlueShiftAppData.h"
-#import "BlueShiftPushNotificationSettings.h"
-#import "BlueShiftUserNotificationSettings.h"
-#import "BlueShiftUserNotificationCenterDelegate.h"
-#import "BlueshiftEventAnalyticsHelper.h"
-#import "BlueShiftLiveContent.h"
-#import "BlueshiftInboxMessage.h"
+#import <BlueShiftConfig.h>
+#import <BlueShiftDeviceData.h>
+#import <BlueShiftAppDelegate.h>
+#import <BlueShiftPushDelegate.h>
+#import <BlueShiftPushParamDelegate.h>
+#import <BlueShiftNetworkReachabilityManager.h>
+#import <BlueShiftSubscriptionState.h>
+#import <BlueShiftRequestOperation.h>
+#import <BlueShiftRequestQueue.h>
+#import <BlueshiftRoutes.h>
+#import <BlueShiftUserInfo.h>
+#import <BlueShiftTrackEvents.h>
+#import <BlueShiftProduct.h>
+#import <BlueShiftSubscription.h>
+#import <BlueShiftHttpRequestBatchUpload.h>
+#import <BlueShiftBatchUploadConfig.h>
+#import <BlueShiftAppData.h>
+#import <BlueShiftPushNotificationSettings.h>
+#import <BlueShiftUserNotificationSettings.h>
+#import <BlueShiftUserNotificationCenterDelegate.h>
+#import <BlueshiftEventAnalyticsHelper.h>
+#import <BlueShiftLiveContent.h>
+#import <BlueshiftInboxMessage.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -6,8 +6,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "BlueShiftInAppType.h"
-#import "InAppNotificationEntity.h"
+#import <BlueShiftInAppType.h>
+#import <InAppNotificationEntity.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -11,14 +11,13 @@
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
 #import <UIKit/UIKit.h>
-#import "BlueShift.h"
-#import "BlueShiftPushDelegate.h"
-#import "BlueShiftPushParamDelegate.h"
+#import <BlueShift.h>
+#import <BlueShiftPushDelegate.h>
+#import <BlueShiftPushParamDelegate.h>
 #import <CoreData/CoreData.h>
-#import "BlueShiftTrackEvents.h"
-#import "BlueshiftEventAnalyticsHelper.h"
-#import "BlueshiftUniversalLinksDelegate.h"
-
+#import <BlueShiftTrackEvents.h>
+#import <BlueshiftEventAnalyticsHelper.h>
+#import <BlueshiftUniversalLinksDelegate.h>
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate>
 
 @property NSDictionary * _Nullable userInfo DEPRECATED_MSG_ATTRIBUTE("This property will be removed in upcoming releases");
