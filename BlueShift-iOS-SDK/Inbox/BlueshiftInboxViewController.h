@@ -59,8 +59,12 @@ IB_DESIGNABLE
 @property IBInspectable NSString* _Nullable inboxDelegateName;
 
 /// Set this property to change the unread badge color displayed on the inbox message cell.
-/// The default color is Red.
+/// The default color is Cyan.
 @property IBInspectable UIColor* _Nullable unreadBadgeColor;
+
+/// Set this property to change the color for the pull down to refresh control.
+/// The default color is Cyan.
+@property IBInspectable UIColor* _Nullable refreshControlColor;
 
 /// Set this property to true or false if you want to show/hide the activity indicator while displaying the in-app notification.
 /// The in-app notification might take time to display as it needs to download the resources like images or html pages.

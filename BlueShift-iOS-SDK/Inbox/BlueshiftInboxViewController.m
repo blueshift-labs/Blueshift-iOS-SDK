@@ -100,13 +100,13 @@
 - (void)initInboxDelegate {
     @try {
         if (_inboxDelegate) {
-            [self copyPropertiesToViewModel];
+            [self setPropertiesToViewModel];
         } else if (_inboxDelegateName) {
             if([_inboxDelegateName componentsSeparatedByString:@"."].count > 1) {
                 id<BlueshiftInboxViewControllerDelegate> delegate = (id<BlueshiftInboxViewControllerDelegate>)[[NSClassFromString(_inboxDelegateName) alloc] init];
                 if (delegate) {
                     self.inboxDelegate = delegate;
-                    [self copyPropertiesToViewModel];
+                    [self setPropertiesToViewModel];
                 }
             } else {
                 [BlueshiftLog logError:nil withDescription:@"Failed to init the inbox delegate as module name is missing. The class name should be of format module_name.class_name" methodName:nil];
@@ -117,7 +117,7 @@
     }
 }
 
-- (void)copyPropertiesToViewModel {
+- (void)setPropertiesToViewModel {
     if ([self.inboxDelegate respondsToSelector:@selector(messageFilter)]) {
         _viewModel.messageFilter = self.inboxDelegate.messageFilter;
     }
@@ -137,6 +137,7 @@
 - (void)setupPullToRefresh {
     if (@available(iOS 10.0, *)) {
         self.refreshControl = [[UIRefreshControl alloc] init];
+        self.refreshControl.tintColor = self.refreshControlColor ? self.refreshControlColor : [UIColor colorWithRed:0/255.0 green:193.0/255.0 blue:193.0/255.0 alpha:1];
         [self.refreshControl addTarget:self action:@selector(SyncInbox) forControlEvents:UIControlEventValueChanged];
         [self.tableView addSubview:self.refreshControl];
     }
@@ -145,7 +146,7 @@
 - (void)setupObservers {
     __weak __typeof(self)weakSelf = self;
     if (_showActivityIndicator) {
-        [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationWillAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationDidAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
             if (weakSelf.activityIndicator) {
                 [weakSelf.activityIndicator stopAnimating];
             }
@@ -167,7 +168,7 @@
             } else {
                 self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
             }
-            self.activityIndicator.color = _activityIndicatorColor;
+            self.activityIndicator.color = _activityIndicatorColor ? _activityIndicatorColor :  [UIColor colorWithRed:0/255.0 green:193.0/255.0 blue:193.0/255.0 alpha:1];
             [self.tableView addSubview:self.activityIndicator];
             self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
             [self.activityIndicator.centerXAnchor constraintEqualToAnchor:self.tableView.superview.centerXAnchor].active = YES;
@@ -190,7 +191,7 @@
 
 - (void)SyncInbox {
     __weak __typeof(self)weakSelf = self;
-    [BlueshiftInboxManager syncNewInboxMessages:^{
+    [BlueshiftInboxManager syncInboxMessages:^{
         if (@available(iOS 10.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.refreshControl endRefreshing];
@@ -344,7 +345,7 @@
 - (void)handleDidSelectRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     if (message) {
-        BOOL isDisplayed = [BlueshiftInboxManager showInboxNotificationForMessage:message];
+        BOOL isDisplayed = [BlueshiftInboxManager showNotificationForInboxMessage:message];
         if (isDisplayed) {
             [self startActivityIndicator];
             message.readStatus = YES;

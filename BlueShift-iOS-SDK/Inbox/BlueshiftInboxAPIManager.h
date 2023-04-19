@@ -6,23 +6,16 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "BlueShiftRequestOperationManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BlueshiftInAppNotificationRequest : NSObject
-
+@interface BlueshiftInboxAPIManager : NSObject
 
 /// API call to get the in-app notifications from the server. The response will be a dictionary containing messages.
 /// - Parameters:
 ///   - success: success callback
 ///   - failure: failure callback
 + (void) fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
-
-@end
-
-
-@interface BlueshiftInboxAPIManager : NSObject
 
 
 /// API call to get the unread status infomration for Inbox messages. The response will be an array of objects consisting the message ids, read status, and other info.

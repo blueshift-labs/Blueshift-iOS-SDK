@@ -89,7 +89,7 @@ IB_DESIGNABLE
 
 - (void)setRefreshControlColor:(UIColor *)refreshControlColor {
     if (_inboxViewController) {
-        _inboxViewController.refreshControl.tintColor = refreshControlColor;
+        _inboxViewController.refreshControlColor = refreshControlColor;
     }
 }
 

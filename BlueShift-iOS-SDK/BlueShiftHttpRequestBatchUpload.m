@@ -14,7 +14,7 @@
 
 + (void)processBatches:(NSMutableArray*)batchList;
 
-+ (void)handleRetryBatchUploadForRequestOperation:(BlueShiftBatchRequestOperation*)requestOperation objectId:(NSManagedObjectID *)objectId completetionHandler:(void (^)(BOOL))handler;
++ (void)handleRetryBatchUploadForRequestOperation:(BlueShiftBatchRequestOperation*)requestOperation objectId:(NSManagedObjectID *)objectId completionHandler:(void (^)(BOOL))handler;
 
 @end
 
@@ -103,7 +103,7 @@ static NSTimer *_batchUploadTimer = nil;
                     }
                 }
             }
-            [self insertBatchRecord:paramsArray];
+            [self insertBatchEvent:paramsArray];
             if (context && [context isKindOfClass:[NSManagedObjectContext class]]) {
                 [context performBlockAndWait:^{
                     @try {
@@ -118,7 +118,7 @@ static NSTimer *_batchUploadTimer = nil;
     }
 }
 
-+ (void)insertBatchRecord:(NSArray *)paramsArray {
++ (void)insertBatchEvent:(NSArray *)paramsArray {
     BlueShiftBatchRequestOperation *requestOperation = [[BlueShiftBatchRequestOperation alloc] initParametersList:paramsArray andRetryAttemptsCount:kRequestTryMaximumLimit andNextRetryTimeStamp:0];
     [BlueShiftRequestQueue addBatchRequestOperation:requestOperation];
 }
@@ -126,7 +126,7 @@ static NSTimer *_batchUploadTimer = nil;
 // Upload all batches one by one
 + (void)uploadBatches {
     if (BlueShift.sharedInstance.config.apiKey) {
-        [BatchEventEntity fetchBatchesFromCoreDataWithCompletetionHandler:^(BOOL status, NSArray *batches) {
+        [BatchEventEntity fetchBatchesFromCoreDataWithCompletionHandler:^(BOOL status, NSArray *batches) {
             if (status) {
                 if(batches && batches.count > 0) {
                     [self uploadBatchAtIndex:0 fromBatches:batches];
@@ -141,13 +141,13 @@ static NSTimer *_batchUploadTimer = nil;
         return;
     } else {
         BatchEventEntity *batchEvent = [batches objectAtIndex:index];
-        [self processRequestsInQueue:batchEvent completetionHandler:^(BOOL status) {
+        [self processRequestsInQueue:batchEvent completionHandler:^(BOOL status) {
             [self uploadBatchAtIndex:index+1 fromBatches:batches];
         }];
     }
 }
 
-+ (void)processRequestsInQueue:(BatchEventEntity *)batchEvent completetionHandler:(void (^)(BOOL))handler {
++ (void)processRequestsInQueue:(BatchEventEntity *)batchEvent completionHandler:(void (^)(BOOL))handler {
     @synchronized(self) {
         // Process requet when requestQueue and internet is available
         if (_requestQueueStatus == BlueShiftRequestQueueStatusAvailable && [BlueShiftNetworkReachabilityManager networkConnected]==YES) {
@@ -158,16 +158,16 @@ static NSTimer *_batchUploadTimer = nil;
                 _requestQueueStatus = BlueShiftRequestQueueStatusBusy;
                 
                 // Performs the request operation
-                [BlueShiftHttpRequestBatchUpload performRequestOperation:requestOperation  completetionHandler:^(BOOL status) {
+                [BlueShiftHttpRequestBatchUpload performRequestOperation:requestOperation  completionHandler:^(BOOL status) {
                     if (status == YES) {
                         // delete batch records for the request operation if it is successfully executed
-                        [BatchEventEntity deleteEntryForObjectId:batchEvent.objectID completetionHandler:^(BOOL status) {
+                        [BatchEventEntity deleteEntryForObjectId:batchEvent.objectID completionHandler:^(BOOL status) {
                             _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
                             handler(status);
                         }];
                     } else {
                         // Retry the request when fails
-                        [BlueShiftHttpRequestBatchUpload handleRetryBatchUploadForRequestOperation:requestOperation objectId:batchEvent.objectID completetionHandler:^(BOOL status) {
+                        [BlueShiftHttpRequestBatchUpload handleRetryBatchUploadForRequestOperation:requestOperation objectId:batchEvent.objectID completionHandler:^(BOOL status) {
                             _requestQueueStatus = BlueShiftRequestQueueStatusAvailable;
                             handler(status);
                         }];
@@ -179,11 +179,11 @@ static NSTimer *_batchUploadTimer = nil;
 }
 
 
-+ (void)handleRetryBatchUploadForRequestOperation:(BlueShiftBatchRequestOperation*)requestOperation objectId:(NSManagedObjectID *)objectId completetionHandler:(void (^)(BOOL))handler {
++ (void)handleRetryBatchUploadForRequestOperation:(BlueShiftBatchRequestOperation*)requestOperation objectId:(NSManagedObjectID *)objectId completionHandler:(void (^)(BOOL))handler {
     @try {
         @try {
             // Delete the existing record
-            [BatchEventEntity deleteEntryForObjectId:objectId completetionHandler:^(BOOL status) {
+            [BatchEventEntity deleteEntryForObjectId:objectId completionHandler:^(BOOL status) {
                 if (status) {
                     //Decrese the retry count
                     requestOperation.retryAttemptsCount = requestOperation.retryAttemptsCount - 1;
@@ -227,7 +227,7 @@ static NSTimer *_batchUploadTimer = nil;
     }
 }
 
-+ (void)performRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation completetionHandler:(void (^)(BOOL))handler {
++ (void)performRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation completionHandler:(void (^)(BOOL))handler {
     NSString *url = [BlueshiftRoutes getBulkEventsURL];
     
     NSMutableArray *parametersArray = (NSMutableArray*)requestOperation.paramsArray;
@@ -236,7 +236,7 @@ static NSTimer *_batchUploadTimer = nil;
         return;
     }
     NSDictionary *paramsDictionary = @{@"events": parametersArray};
-    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:paramsDictionary completetionHandler:^(BOOL status, NSDictionary* response, NSError *error) {
+    [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:paramsDictionary completionHandler:^(BOOL status, NSDictionary* response, NSError *error) {
         handler(status);
     }];
 }

@@ -56,7 +56,7 @@ FOUNDATION_EXPORT const unsigned char BlueShift_iOS_SDKVersionString[];
 #import "BlueShiftInAppNotificationDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationManager.h"
-#import "BlueshiftInAppNotificationRequest.h"
+#import "BlueshiftInboxAPIManager.h"
 #import "BlueShiftInAppType.h"
 #import "BlueShiftNotificationCloseButton.h"
 #import "BlueShiftNotificationModalViewController.h"

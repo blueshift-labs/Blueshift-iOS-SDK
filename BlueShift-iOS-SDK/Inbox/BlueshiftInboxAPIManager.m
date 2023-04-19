@@ -5,11 +5,12 @@
 //  Created by Noufal on 29/10/19.
 //
 
-#import "BlueshiftInAppNotificationRequest.h"
+#import "BlueshiftInboxAPIManager.h"
 #import "BlueshiftLog.h"
 #import "InAppNotificationEntity.h"
+#import "BlueShiftRequestOperationManager.h"
 
-@implementation BlueshiftInAppNotificationRequest
+@implementation BlueshiftInboxAPIManager
 
 + (void)fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:nil success:^(NSDictionary * _Nonnull data) {
@@ -19,15 +20,11 @@
     }];
 }
 
-@end
-
-@implementation BlueshiftInboxAPIManager
-
 + (void)getMessageIdsAndStatus:(void (^)(NSArray* _Nullable))success failure:(void (^)(NSError*))failure {
         [[BlueShift sharedInstance] getInAppNotificationAPIPayloadWithCompletionHandler:^(NSDictionary * apiPayload) {
             if(apiPayload) {
                 NSString *url = [BlueshiftRoutes getInboxStatusURL];
-                [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: apiPayload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+                [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: apiPayload completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
                     if (status) {
                         [BlueshiftLog logAPICallInfo:@"Succesfully fetched status for messages." withDetails:data statusCode:0];
                         NSArray* statusArray = (NSArray*)data[kInAppNotificationContentPayloadKey];
@@ -44,6 +41,9 @@
         }];
 }
 
+//This same method will be used to fetch messages for inbox and for inapp notifications.
+//If inbox is enabled, then it will use inbox apis to fetch messages.
+//If inbox is disabled, then it will use the inapp apis to getch messages.
 + (void)getMessagesForMessageUUIDs:(NSArray* _Nullable)messageIds success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*, NSArray*))failure {
     [[BlueShift sharedInstance] getInAppNotificationAPIPayloadWithCompletionHandler:^(NSDictionary * apiPayload) {
         if(apiPayload) {
@@ -58,16 +58,16 @@
                 url = [BlueshiftRoutes getInAppMessagesURL];
             }
             
-            [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
                 if (status) {
-                    [BlueshiftLog logAPICallInfo:@"Succesfully fetched Inbox messages." withDetails:data statusCode:0];
+                    [BlueshiftLog logAPICallInfo:@"Succesfully fetched messages." withDetails:data statusCode:0];
                     success(data);
                 } else {
                     failure(error, messageIds);
                 }
             }];
         } else {
-            NSError *error = (NSError*)@"Unable to fetch Inbox messages as device_id is missing.";
+            NSError *error = (NSError*)@"Unable to fetch messages as device_id is missing.";
             failure(error, messageIds);
         }
     }];
@@ -83,7 +83,7 @@
             @"message_uuids": messageIds
         };
         
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if (status) {
                 [BlueshiftLog logAPICallInfo:@"Succesfully deleted messages." withDetails:nil statusCode:0];
                 success(status);

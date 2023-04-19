@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Fetch all the batch records from HttpRequestOperationEntity
 + (void)fetchBatchedEventsFromDBWithCompletionHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
 
-+ (void)deleteRecordForObjectId:(NSManagedObjectID*)objectId completetionHandler:(void (^)(BOOL))handler;
++ (void)deleteRecordForObjectId:(NSManagedObjectID*)objectId completionHandler:(void (^)(BOOL))handler;
 
 /// Erase all the non synced batched and non-batched events from the HttpRequestOperation Entity of SDK database
 + (void)eraseEntityData;

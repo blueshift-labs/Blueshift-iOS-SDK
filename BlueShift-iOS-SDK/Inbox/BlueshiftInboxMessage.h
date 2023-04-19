@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property BlueshiftInboxNotificationType messageType;
 
-@property NSString* inAppNotificationType;
+@property NSString* _Nullable inAppNotificationType;
 
 @property BOOL readStatus;
 
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSDictionary* _Nullable messagePayload;
 
-- (instancetype)initMessageId:(NSString* _Nullable)mId objectId:(NSManagedObjectID* _Nullable)oId inAppType:(NSString* _Nullable)inAppType readStatus:(BOOL)status title:(NSString* _Nullable)title detail:(NSString* _Nullable)detail date:(NSDate* _Nullable)date iconURL:(NSString* _Nullable)iconURL messagePayload:(NSDictionary* _Nullable)messagePayload;
+- (instancetype)initWithMessageId:(NSString* _Nullable)messageId objectId:(NSManagedObjectID* _Nullable)objectId inAppType:(NSString* _Nullable)inAppType readStatus:(BOOL)status title:(NSString* _Nullable)title detail:(NSString* _Nullable)detail createdAtDate:(NSDate* _Nullable)createdAtDate iconImageURL:(NSString* _Nullable)iconImageURL messagePayload:(NSDictionary* _Nullable)messagePayload;
 
 @end
 

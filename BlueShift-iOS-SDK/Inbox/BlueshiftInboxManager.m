@@ -8,7 +8,7 @@
 #import "BlueshiftInboxManager.h"
 #import "BlueShift.h"
 #import "BlueShiftInAppNotification.h"
-#import "BlueshiftInAppNotificationRequest.h"
+#import "BlueshiftInboxAPIManager.h"
 #import "BlueshiftLog.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "InAppNotificationEntity.h"
@@ -18,7 +18,7 @@
 @implementation BlueshiftInboxManager
 
 #pragma mark - Mobile Inbox External Methods
-+ (BOOL)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message {
++ (BOOL)showNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message {
     return [BlueShift.sharedInstance createInAppNotificationForInboxMessage:message];
 }
 
@@ -58,7 +58,7 @@
     }];
 }
 
-+ (void)syncNewInboxMessages:(void (^_Nonnull)(void))handler {
++ (void)syncInboxMessages:(void (^_Nonnull)(void))handler {
     [BlueshiftInboxAPIManager getMessageIdsAndStatus:^(NSArray * _Nonnull statusArray) {
         [InAppNotificationEntity fetchAllMessagesForInboxWithHandler:^(BOOL status, NSArray *messages) {
             //Get message Ids from status api response
@@ -98,10 +98,11 @@
             }
         }];
     } failure:^(NSError * _Nonnull error) {
+        handler();
     }];
 }
 
-+ (void)handleInboxMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
++ (void)processInboxMessagesForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^)(BOOL))completionHandler {
     if (apiResponse && [apiResponse objectForKey: kInAppNotificationContentPayloadKey]) {
         NSMutableArray *notifications = [apiResponse objectForKey: kInAppNotificationContentPayloadKey];
         if (notifications.count > 0) {
@@ -140,7 +141,7 @@
                             double expiresAt = [messagePayload[kInAppNotificationDataKey][kInAppNotificationKey][kSilentNotificationTriggerEndTimeKey] doubleValue];
                             
                             // Do not add expired in-app notifications to in-app DB.
-                            if ([BlueShiftInAppNotificationHelper isInboxNotificationExpired:expiresAt] == NO) {
+                            if ([BlueShiftInAppNotificationHelper isExpired:expiresAt] == NO) {
                                 [messagesToInsertInDB addObject:messagePayload];
                             } else {
                                 [BlueshiftLog logInfo:@"Skipped adding expired in-app message to DB. MessageUUID -" withDetails:[messagePayload[kInAppNotificationDataKey] objectForKey: kInAppNotificationModalMessageUDIDKey] methodName:nil];
@@ -204,7 +205,7 @@
         return;
     } else {
         [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:paginationList[page] success:^(NSDictionary * _Nonnull data) {
-            [self handleInboxMessageForAPIResponse:data withCompletionHandler:^(BOOL status) {
+            [self processInboxMessagesForAPIResponse:data withCompletionHandler:^(BOOL status) {
                 [self getPageAtIdex:page+1 fromPaginationList:paginationList completionHanlder:handler];
             }];
         } failure:^(NSError * _Nullable err, NSArray * _Nullable failedBatch) {
@@ -226,7 +227,7 @@
             BOOL readStatus = [message.status isEqualToString:kInAppStatusPending] ? NO : YES;
             
             NSDate* date = [BlueShiftInAppNotificationHelper getUTCDateFromDateString:message.timestamp];
-            BlueshiftInboxMessage *inboxMessage = [[BlueshiftInboxMessage alloc] initMessageId:message.id objectId:message.objectID inAppType:message.type readStatus:readStatus title:title detail:detail date:date iconURL:icon messagePayload:payloadDictionary];
+            BlueshiftInboxMessage *inboxMessage = [[BlueshiftInboxMessage alloc] initWithMessageId:message.id objectId:message.objectID inAppType:message.type readStatus:readStatus title:title detail:detail createdAtDate:date iconImageURL:icon messagePayload:payloadDictionary];
             [inboxMessages addObject:inboxMessage];
         }
     }

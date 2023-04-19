@@ -28,6 +28,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)resetURLSessionConfig {
     self.sessionConfiguraion = nil;
     self.mainURLSession = nil;
+    [self.inboxImageDataCache removeAllObjects];
 }
 
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
@@ -76,7 +77,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 #pragma mark - Handle GET url
-- (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+- (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     if (![BlueShift sharedInstance].config.apiKey) {
         [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
         handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
@@ -115,7 +116,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 #pragma mark - Handle POST url
-- (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+- (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     if (![BlueShift sharedInstance].config.apiKey) {
         [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
         handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);

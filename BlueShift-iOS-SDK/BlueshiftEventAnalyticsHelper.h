@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftEventAnalyticsHelper : NSObject
 
-+ (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary;
++ (NSDictionary *)getTrackingParamsForNotification:(NSDictionary *)details;
 + (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
 

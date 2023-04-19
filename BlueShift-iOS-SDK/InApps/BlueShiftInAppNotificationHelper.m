@@ -215,7 +215,7 @@ static NSDictionary *_inAppTypeDictionay;
     return nil;
 }
 
-+ (BOOL)isInboxNotificationExpired:(double)expiryTime {
++ (BOOL)isExpired:(double)expiryTime {
     double currentTime =  [[NSDate date] timeIntervalSince1970];
     return currentTime > expiryTime;
 }

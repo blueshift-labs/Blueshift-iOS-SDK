@@ -31,10 +31,10 @@
 /// Trigger request executions from the Queue
 + (void)processRequestsInQueue;
 
-/// Add events using to Queue
+/// Add realttime events to db
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation;
 
-/// Add batch Request Operation to DB
+/// Add batch events to db
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation;
 
 @end

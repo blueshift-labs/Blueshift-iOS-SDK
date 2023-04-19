@@ -445,7 +445,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         }
         
         lastProcessedPushNotificationUUID = pushUUID;
-//        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:notification];
         [BlueShift.sharedInstance trackPushClickedWithParameters:notification canBatchThisEvent:NO];
         
         [self handleDeeplinkForPushNotification: notification];
@@ -602,6 +601,8 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         [self.blueShiftPushDelegate pushNotificationDidClick:[userInfo copy] forActionIdentifier:identifier];
     }
 }
+
+
 
 #pragma mark - Application lifecyle events
 - (void)appDidBecomeActive:(UIApplication *)application {
@@ -787,8 +788,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 if (!store) {
                     [BlueshiftLog logError:error withDescription:@"Unresolved error while creating persistent store coordinator" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
                     return;
-                } else {
-                    [BlueshiftLog logInfo:@"Core Data path -" withDetails:storeURL.absoluteString methodName:nil];
                 }
                 
                 // Migrate the core data location and remove the old files from document directory if the store location gets changed.

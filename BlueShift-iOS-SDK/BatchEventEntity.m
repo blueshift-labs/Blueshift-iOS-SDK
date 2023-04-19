@@ -47,7 +47,7 @@
 //    }
 }
 
-+ (void)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
++ (void)fetchBatchesFromCoreDataWithCompletionHandler:(void (^)(BOOL, NSArray * _Nullable))handler {
 //    @synchronized(self) {
         NSManagedObjectContext *context = [BlueShift sharedInstance].appDelegate.eventsMOContext;
         if(context) {
@@ -96,7 +96,7 @@
 //    }
 }
 
-+ (void)deleteEntryForObjectId:(NSManagedObjectID *)objectId completetionHandler:(void (^)(BOOL))handler {
++ (void)deleteEntryForObjectId:(NSManagedObjectID *)objectId completionHandler:(void (^)(BOOL))handler {
     NSManagedObjectContext *context = BlueShift.sharedInstance.appDelegate.eventsMOContext;
     if (context) {
         @try {

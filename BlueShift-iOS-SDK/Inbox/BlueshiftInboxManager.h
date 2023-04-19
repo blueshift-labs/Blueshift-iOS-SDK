@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Show notification for the given Inbox message. Returns true or false based on if the in-app is displayed or not.
 /// - Parameter message: inbox message to display
-+ (BOOL)showInboxNotificationForMessage:(BlueshiftInboxMessage* _Nullable)message;
++ (BOOL)showNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message;
 
 
 /// Delete inbox message from the server and local.
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method will sync the new messages received by the user on server with the local db.
 /// After the sync, the new messages will be availble at local db for the later use.
 /// - Parameter handler: success callback will tell you that the sync is complete.
-+ (void)syncNewInboxMessages:(void (^_Nonnull)(void))handler;
++ (void)syncInboxMessages:(void (^_Nonnull)(void))handler;
 
 
 /// This method will provide the count for unread messages. This count can be used to update the unread notifications badge.
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - apiResponse: apiResponse received from the `getMessagesForMessageUUIDs` API call.
 ///   - completionHandler: completion handler with `BOOL` completion status
 /// - Not recommended to use unless needed as the `syncNewInboxMessages` method does the work of making api call and adding it to local db.
-+ (void)handleInboxMessageForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^_Nonnull)(BOOL))completionHandler;
++ (void)processInboxMessagesForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^_Nonnull)(BOOL))completionHandler;
 
 /// Delete the inbox messages if user if logging out or profile is getting changed.
 /// This method will delete all the local inbox messages, and new messages will be fetched for the new user/profile.

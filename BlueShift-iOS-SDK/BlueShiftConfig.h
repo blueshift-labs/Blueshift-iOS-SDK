@@ -76,7 +76,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 
 /// By default `inAppBackgroundFetchEnabled` property is set as true.
 /// When this feature is enabled, the SDK fetches the latest in-app messages in background, stores it locally to display when needed. If you don't want the SDK to fetch in-app automatically, set this property to false.
-@property BOOL inAppBackgroundFetchEnabled;
+@property BOOL inAppBackgroundFetchEnabled DEPRECATED_MSG_ATTRIBUTE("From SDK v2.4.0, SDK will not use this property, SDK will always fetch the inapp and inbox messages automatically and store it at local.");
 
 /// From iOS SDK v2.1.7, it prints the logs when this property is set to true. It is recommended to set this property to true only for debug purpose.
 /// @discussion The SDK logs are divided into 4 categories:

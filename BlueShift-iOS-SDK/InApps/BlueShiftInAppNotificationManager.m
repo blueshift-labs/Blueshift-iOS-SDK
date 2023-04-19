@@ -53,8 +53,7 @@
 
 - (void)onApplicationEnteringForeground:(NSNotification *)notification {
     // start the timer once app enters foreground.
-    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && [[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
-//        [self fetchAndShowInAppNotification];
+    if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO && ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES || BlueShift.sharedInstance.config.enableMobileInbox == YES)) {
         [self startInAppMessageFetchTimer];
     }
 }
@@ -96,9 +95,10 @@
                 [InAppNotificationEntity fetchInAppMessageToDisplayOnScreen:[self inAppNotificationDisplayOnPage] WithHandler:^(BOOL status, NSArray *results) {
                     if (status) {
                         if ([results count] > 0) {
-                            InAppNotificationEntity *entity = [results objectAtIndex:0];
-                            [BlueshiftLog logInfo:@"Fetched one in-app message from DB to display, message id - " withDetails:entity.id methodName:nil];
-                            [self createNotificationFromDictionary: entity];
+                            InAppNotificationEntity *inAppEntity = results.firstObject;
+                            BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
+                            [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
+                            [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
                         } else {
                             [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                         }
@@ -118,15 +118,9 @@
 }
 
 #pragma mark - Display in-app notification
-- (void)createNotificationFromDictionary:(InAppNotificationEntity *)inAppEntity {
-    BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
-    [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
-    [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
-}
-
 - (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (notification && (self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive)) {
+        if (notification == nil || self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
             [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];
             return;
         }
@@ -323,6 +317,9 @@
 
 // Notification render Callbacks
 -(void)inAppDidShow:(NSDictionary *)notification fromViewController:(BlueShiftNotificationViewController *)controller {
+    //Send broadcast to let inbox know that inapp is displayed on the screen.
+    [NSNotificationCenter.defaultCenter postNotificationName:kBSInAppNotificationDidAppear object:nil];
+
     // Set opened by attribute for inbox
     NSMutableDictionary* mutableNotification = [notification mutableCopy];
     if (controller.notification.isFromInbox) {
@@ -330,15 +327,16 @@
     } else {
         [mutableNotification setValue:kBSTrackingOpenedByPrefetch forKey:kBSTrackingOpenedBy];
     }
+    //Update in-app as displayed
+    [self updateInAppNotificationAsDisplayed: notification];
+
+    //Perform open tracking
     [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter: mutableNotification canBacthThisEvent: NO];
-    
+
     // invoke the inApp open callback method
     if ([self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidOpen:)]) {
         [self.inAppNotificationDelegate inAppNotificationDidOpen:notification];
     }
-    //Update in-app as displayed
-    [self updateInAppNotificationAsDisplayed: notification];
-    [NSNotificationCenter.defaultCenter postNotificationName:kBSInAppNotificationWillAppear object:nil];
 
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self stopInAppMessageFetchTimer];

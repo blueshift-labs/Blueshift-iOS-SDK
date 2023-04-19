@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload;
 
-+ (BOOL)isInboxNotificationExpired:(double)expiryTime;
++ (BOOL)isExpired:(double)expiryTime;
 
 @end
 
