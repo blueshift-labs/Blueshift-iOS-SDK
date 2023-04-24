@@ -20,17 +20,6 @@
     return self;
 }
 
-- (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success {
-    __weak __typeof(self)weakSelf = self;
-    [BlueshiftInboxManager getCachedInboxMessagesWithHandler:^(BOOL status, NSMutableArray * _Nullable messages) {
-        [weakSelf.sectionInboxMessages removeAllObjects];
-        if (status && messages) {
-            [weakSelf.sectionInboxMessages insertObject:[self getSectionedMessages:messages] atIndex:0];
-        }
-        success(YES);
-    }];
-}
-
 - (NSMutableArray<BlueshiftInboxMessage*>*)getSectionedMessages:(NSMutableArray<BlueshiftInboxMessage*>*)messages {
     return [[self sortMessages:[self filterMessages:messages]] mutableCopy];
 }
@@ -55,6 +44,23 @@
     return messages;
 }
 
+- (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate {
+    return [NSDateFormatter localizedStringFromDate:createdAtDate dateStyle:NSDateFormatterLongStyle timeStyle:NSDateFormatterShortStyle];
+}
+
+- (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success {
+    __weak __typeof(self)weakSelf = self;
+    [BlueshiftInboxManager getCachedInboxMessagesWithHandler:^(BOOL status, NSMutableArray * _Nullable messages) {
+        [weakSelf.sectionInboxMessages removeAllObjects];
+        if (status && messages) {
+            [weakSelf.sectionInboxMessages insertObject:[self getSectionedMessages:messages] atIndex:0];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(YES);
+        });
+    }];
+}
+
 - (BlueshiftInboxMessage * _Nullable)itemAtIndexPath:(NSIndexPath *)indexPath {
     @try {
         if(_sectionInboxMessages) {
@@ -68,21 +74,7 @@
     return nil;
 }
 
-- (NSIndexPath* _Nullable)getIndexPathForMessageId:(NSString*)messageId {
-    if (_sectionInboxMessages && _sectionInboxMessages.count > 0) {
-        for(int sectionCounter = 0; sectionCounter < _sectionInboxMessages.count; sectionCounter++) {
-            NSUInteger row = [_sectionInboxMessages[sectionCounter] indexOfObjectPassingTest:^BOOL(BlueshiftInboxMessage*  _Nonnull obj, NSUInteger idx2, BOOL * _Nonnull stop) {
-                return [obj.messageUUID isEqualToString:messageId];
-            }];
-            if (row != NSNotFound) {
-                return [NSIndexPath indexPathForRow:row inSection:sectionCounter];
-            }
-        }
-    }
-    return nil;
-}
-
-- (NSUInteger)numberOfItemsInSection:(NSUInteger)section {
+- (NSInteger)numberOfItemsInSection:(NSInteger)section {
     @try {
         return _sectionInboxMessages ? [_sectionInboxMessages objectAtIndex:section].count : 0;
     } @catch (NSException *exception) {
@@ -91,12 +83,7 @@
     return 0;
 }
 
-- (NSUInteger)numberOfSections {
+- (NSInteger)numberOfSections {
     return _sectionInboxMessages ?_sectionInboxMessages.count : 1;
 }
-
-- (NSString*)getDefaultFormatDate:(NSDate*)createdAtDate {
-    return [NSDateFormatter localizedStringFromDate:createdAtDate dateStyle:NSDateFormatterLongStyle timeStyle:NSDateFormatterShortStyle];
-}
-
 @end

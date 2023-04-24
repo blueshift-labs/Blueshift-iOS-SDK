@@ -58,19 +58,19 @@
 
 + (NSString*)getInboxMessagesURL {
     NSString *baseURL = [self getBaseURLString];
-    NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInboxMessages];
+    NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInboxMessagesPath];
     return URLString;
 }
 
 + (NSString*)getInboxStatusURL {
     NSString *baseURL = [self getBaseURLString];
-    NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInboxStatus];
+    NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInboxStatusPath];
     return URLString;
 }
 
 + (NSString*)getInboxUpdateURL {
     NSString *baseURL = [self getBaseURLString];
-    NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInboxUpdate];
+    NSString *URLString = [NSString stringWithFormat:@"%@%@", baseURL, kBSInboxUpdatePath];
     return URLString;
 }
 

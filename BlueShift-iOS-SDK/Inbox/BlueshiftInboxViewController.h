@@ -82,6 +82,9 @@ IB_DESIGNABLE
 /// @warning Set this property only if you are preseting inbox from the code. Skip setting this if you are configuring the inbox using the storyboard or xib.
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate>_Nullable inboxDelegate;
 
+/// This text will be displayed when there are no messages present to display in the inbox.
+@property IBInspectable NSString* _Nullable noMessagesText;
+
 /// Init the InboxViewController with the `BlueshiftInboxViewControllerDelegate` delegate
 - (instancetype)initWithInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate;
 

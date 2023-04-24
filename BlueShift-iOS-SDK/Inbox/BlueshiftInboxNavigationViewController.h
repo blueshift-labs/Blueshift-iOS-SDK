@@ -56,6 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Default value is True.
 @property (nonatomic) IBInspectable  BOOL showDoneButton;
 
+/// This text will be displayed when there are no messages present to display in the inbox.
+@property (nonatomic) IBInspectable NSString* _Nullable noMessagesText;
+
 /// Set `BlueshiftInboxViewControllerDelegate` delegate
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate> _Nullable inboxDelegate;
 

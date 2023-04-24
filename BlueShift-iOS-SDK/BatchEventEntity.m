@@ -61,8 +61,7 @@
                         [context performBlock:^{
                             @try {
                                 NSError *error;
-                                NSArray *results = [[NSArray alloc]init];
-                                results = [context executeFetchRequest:fetchRequest error:&error];
+                                NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
                                 if (results && results.count > 0) {
                                     handler(YES, results);
                                 } else {

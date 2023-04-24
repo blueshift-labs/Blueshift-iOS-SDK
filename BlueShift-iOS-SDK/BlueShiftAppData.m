@@ -26,7 +26,7 @@ static BlueShiftAppData *_currentAppData = nil;
 }
 
 - (NSString *)appName {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleNameKey];;
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleNameKey];
 }
 
 - (NSString *)appVersion {

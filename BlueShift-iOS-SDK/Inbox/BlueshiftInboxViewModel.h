@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Calling this method, SDK will fetch all valid messages from the inbox db from the local and update the `sectionInboxMessages`.
 /// Use `sectionInboxMessages` as your datasource to your tableview. On the succes callback, you can just refresh the tableview.
 /// - Parameter success: callback telling you the reload is complete.
-- (void)reloadInboxMessagesWithHandler:(void (^_Nonnull)(BOOL))success;
+- (void)reloadInboxMessagesWithHandler:(void (^)(BOOL))success;
 
 /// Get item at the given indexpath. SDK will parse the indexpath to get the selected item from the `sectionInboxMessages`.
 /// - Parameter indexPath: indexPath of the selected row of tableview.
@@ -40,11 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Calling this method will return the number of items in section by looking at `sectionInboxMessages` and given `section` value.
 /// - Parameter section: section to get the number of items for.
-- (NSUInteger)numberOfItemsInSection:(NSUInteger)section;
+- (NSInteger)numberOfItemsInSection:(NSInteger)section;
 
 
 /// Returns the number of sections by looking at the `sectionInboxMessages`.
-- (NSUInteger)numberOfSections;
+- (NSInteger)numberOfSections;
 
 @end
 

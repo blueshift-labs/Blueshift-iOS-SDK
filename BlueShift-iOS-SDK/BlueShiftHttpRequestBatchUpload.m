@@ -62,7 +62,6 @@ static NSTimer *_batchUploadTimer = nil;
                     batchLength = batchLength + 1;
                 }
                 for (NSUInteger i = 0; i < batchLength; i++) {
-                    NSArray *operationEntitiesToBeExecuted = [[NSArray alloc] init];
                     NSRange range;
                     range.location = i * kBatchSize;
                     if (i == batchLength-1) {
@@ -70,8 +69,7 @@ static NSTimer *_batchUploadTimer = nil;
                     } else {
                         range.length = kBatchSize;
                     }
-                    operationEntitiesToBeExecuted = [results subarrayWithRange:range];
-                    [batchList addObject:operationEntitiesToBeExecuted];
+                    [batchList addObject:[results subarrayWithRange:range]];
                 }
                 
                 [BlueShiftHttpRequestBatchUpload processBatches:batchList];

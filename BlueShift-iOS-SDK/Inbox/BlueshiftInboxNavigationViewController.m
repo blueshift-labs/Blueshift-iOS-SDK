@@ -117,6 +117,12 @@ IB_DESIGNABLE
     }
 }
 
+- (void)setNoMessagesText:(NSString *)noMessagesText {
+    if(_inboxViewController) {
+        _inboxViewController.noMessagesText = noMessagesText;
+    }
+}
+
 - (void)setInboxDelegate:(id<BlueshiftInboxViewControllerDelegate>)inboxDelegate {
     if (_inboxViewController) {
         _inboxViewController.inboxDelegate = inboxDelegate;

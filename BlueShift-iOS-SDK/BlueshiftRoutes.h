@@ -16,9 +16,9 @@
 #define kBSTrackAPI                @"track"
 #define kBSLiveContent             @"live"
 #define kBSInAppMessages           @"inapp/msg"
-#define kBSInboxMessages           @"inbox/api/v1/messages"
-#define kBSInboxStatus             @"inbox/api/v1/status"
-#define kBSInboxUpdate             @"inbox/api/v1/update"
+#define kBSInboxMessagesPath       @"inbox/api/v1/messages"
+#define kBSInboxStatusPath         @"inbox/api/v1/status"
+#define kBSInboxUpdatePath         @"inbox/api/v1/update"
 
 @interface BlueshiftRoutes : NSObject
 

@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Icon imageView wrapper view
 @property (strong, nonatomic) IBOutlet UIView *iconWrapperView;
 
-- (void)setIconImageURL:(NSString *)imageURL;
+- (void)setIconImageURL:(NSString * _Nullable)imageURL;
 
 @end
 

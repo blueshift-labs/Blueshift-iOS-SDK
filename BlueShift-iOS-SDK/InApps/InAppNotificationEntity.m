@@ -74,8 +74,7 @@
             [context performBlock:^{
                 @try {
                     NSError *error;
-                    NSArray *results = [[NSArray alloc]init];
-                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
                     if (results && results.count > 0) {
                         handler(YES, results);
                     } else {
@@ -144,8 +143,7 @@
             [context performBlock:^{
                 @try {
                     NSError *error;
-                    NSArray *results = [[NSArray alloc]init];
-                    results = [context executeFetchRequest:fetchRequest error:&error];
+                    NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
                     NSMutableDictionary* uuids = [[NSMutableDictionary alloc] init];
                     if (results && results.count > 0) {
                         for (InAppNotificationEntity* message in results) {
@@ -222,7 +220,7 @@
                     for(NSString* key in statuses.allKeys) {
                         if (messages[key]) {
                             InAppNotificationEntity* entity = (InAppNotificationEntity*)messages[key];
-                            if([statuses[key] isEqual: @"read"] && [entity.status isEqualToString:kInAppStatusPending]) {
+                            if([statuses[key] isEqual: kBSInboxReadStatus] && [entity.status isEqualToString:kInAppStatusPending]) {
                                 entity.status = kInAppStatusDisplayed;
                                 [BlueshiftLog logInfo:[NSString stringWithFormat:@"Updated unread status for message UUID - %@",entity.id] withDetails:nil methodName:nil];
                             }
@@ -391,7 +389,7 @@
         self.eventName = kInAppNotificationKey;
         if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
             // TODO: read the status from the payload and change the default availbility
-            self.status = [[payload objectForKey:@"status"] isEqualToString:@"unread"] ? kInAppStatusPending : kInAppStatusDisplayed;
+            self.status = [[payload objectForKey:@"status"] isEqualToString:kBSInboxUnreadStatus] ? kInAppStatusPending : kInAppStatusDisplayed;
             self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInAppOnly;
         } else {
             self.status = kInAppStatusPending;
@@ -405,7 +403,7 @@
 }
 
 + (void)postNotificationInboxUnreadMessageCountDidChange:(BlueshiftInboxChangeType)refreshType {
-    [NSNotificationCenter.defaultCenter postNotificationName:kBSInboxUnreadMessageCountDidChange object:nil userInfo:@{@"refreshType": [NSNumber numberWithUnsignedInteger:refreshType]}];
+    [NSNotificationCenter.defaultCenter postNotificationName:kBSInboxUnreadMessageCountDidChange object:nil userInfo:@{kBSInboxRefreshType: [NSNumber numberWithUnsignedInteger:refreshType]}];
 }
 
 + (void)syncDeletedMessagesWithDB:(NSArray *)deleteIds {

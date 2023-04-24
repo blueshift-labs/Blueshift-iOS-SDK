@@ -25,7 +25,7 @@
 
 @property (nonatomic, strong) BlueshiftInboxViewModel * viewModel;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
-
+@property UILabel* noMessageLabel;
 @end
 
 @implementation BlueshiftInboxViewController
@@ -134,6 +134,15 @@
 }
 
 - (void)setupTableView {
+    if (self.noMessagesText) {
+        _noMessageLabel = [[UILabel alloc] init];
+        _noMessageLabel.text = self.noMessagesText;
+        _noMessageLabel.numberOfLines = 0;
+        _noMessageLabel.textColor = UIColor.blackColor;
+        _noMessageLabel.center = self.tableView.center;
+        _noMessageLabel.textAlignment = NSTextAlignmentCenter;
+    }
+    
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc]init];
@@ -160,7 +169,7 @@
         }];
     }
     [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        BlueshiftInboxChangeType type = (BlueshiftInboxChangeType)[note.userInfo[@"refreshType"] integerValue];
+        BlueshiftInboxChangeType type = (BlueshiftInboxChangeType)[note.userInfo[kBSInboxRefreshType] integerValue];
         if (type == BlueshiftInboxChangeTypeSync) {
             [weakSelf reloadTableView];
         }
@@ -190,9 +199,7 @@
     __weak __typeof(self)weakSelf = self;
     [_viewModel reloadInboxMessagesWithHandler:^(BOOL isRefresh) {
         if(isRefresh) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf.tableView reloadData];
-            });
+            [weakSelf.tableView reloadData];
         }
     }];
 }
@@ -255,7 +262,8 @@
 
 #pragma mark - Table view
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [_viewModel numberOfSections];;
+    [self setNoMessagesLabelToTableView];
+    return [_viewModel numberOfSections];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -289,6 +297,13 @@
 }
 
 #pragma mark Helper methods
+- (void)setNoMessagesLabelToTableView {
+    if (_noMessageLabel && _viewModel.sectionInboxMessages.firstObject && _viewModel.sectionInboxMessages.firstObject.count == 0) {
+        self.tableView.backgroundView = _noMessageLabel;
+    } else {
+        self.tableView.backgroundView = nil;
+    }
+}
 
 - (BlueshiftInboxTableViewCell* _Nullable)createCellForTableView:(UITableView*)tableView atIndexPath:(NSIndexPath*)indexPath message:(BlueshiftInboxMessage*)message {
     BlueshiftInboxTableViewCell* cell = nil;

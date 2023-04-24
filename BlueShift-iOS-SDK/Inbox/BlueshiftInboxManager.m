@@ -12,6 +12,8 @@
 #import "BlueshiftLog.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "InAppNotificationEntity.h"
+#import "BlueShiftNotificationConstants.h"
+#import "BlueShiftConstants.h"
 
 #define kPaginationSize     10
 
@@ -64,7 +66,7 @@
             //Get message Ids from status api response
             NSMutableDictionary* statusMessageIds = [[NSMutableDictionary alloc] init];
             [statusArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [statusMessageIds setValue:obj[@"status"] forKey:obj[kBSMessageUUID]];
+                [statusMessageIds setValue:obj[kInAppStatus] forKey:obj[kBSMessageUUID]];
             }];
             //If messages are present in the db
             if (status && messages.count > 0) {
@@ -220,10 +222,10 @@
         for (InAppNotificationEntity *message in results) {
             NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:message.payload];
             
-            NSDictionary* inboxDict = payloadDictionary[@"data"][@"inbox"];
-            NSString* title = [inboxDict valueForKey:@"title"];
-            NSString* detail = [inboxDict valueForKey:@"details"];
-            NSString* icon = [inboxDict valueForKey:@"icon"];
+            NSDictionary* inboxDict = payloadDictionary[kBSInboxMessageData][kBSInbox];
+            NSString* title = [inboxDict valueForKey:kBSInboxMessageTitle];
+            NSString* detail = [inboxDict valueForKey:kBSInboxMessageDetails];
+            NSString* icon = [inboxDict valueForKey:kBSInboxMessageIcon];
             BOOL readStatus = [message.status isEqualToString:kInAppStatusPending] ? NO : YES;
             
             NSDate* date = [BlueShiftInAppNotificationHelper getUTCDateFromDateString:message.timestamp];

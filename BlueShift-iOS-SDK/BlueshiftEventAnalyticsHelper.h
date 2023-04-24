@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueshiftEventAnalyticsHelper : NSObject
 
 + (NSDictionary *)getTrackingParamsForNotification:(NSDictionary *)details;
-+ (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
++ (NSString * _Nullable)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
 
 /// Check if the payload is InApp silent push notification

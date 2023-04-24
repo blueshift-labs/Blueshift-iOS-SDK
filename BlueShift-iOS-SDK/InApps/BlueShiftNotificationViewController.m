@@ -168,7 +168,7 @@
 }
 
 - (BOOL)shouldShowCloseButton {
-    if (self.notification.templateStyle.enableCloseButton) {
+    if (self.notification.templateStyle.enableCloseButton != nil) {
         return [self.notification.templateStyle.enableCloseButton boolValue];
     }
     return [self checkDefaultCloseButtonStatusForInApp];

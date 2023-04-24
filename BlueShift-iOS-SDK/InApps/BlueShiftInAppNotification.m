@@ -413,8 +413,7 @@
         NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
 
         if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-            NSDictionary *payloadDictionary = [[NSDictionary alloc] init];
-            payloadDictionary = [inAppDictionary objectForKey:kInAppNotificationKey];
+            NSDictionary *payloadDictionary = [inAppDictionary objectForKey:kInAppNotificationKey];
         
             self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
         

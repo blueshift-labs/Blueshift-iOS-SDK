@@ -9,6 +9,7 @@
 #import "BlueshiftLog.h"
 #import "InAppNotificationEntity.h"
 #import "BlueShiftRequestOperationManager.h"
+#import "BlueshiftConstants.h"
 
 @implementation BlueshiftInboxAPIManager
 
@@ -52,7 +53,7 @@
             if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
                 url = [BlueshiftRoutes getInboxMessagesURL];
                 if (messageIds) {
-                    [payload setValue:messageIds forKey:@"message_uuids"];
+                    [payload setValue:messageIds forKey:kBSMessageUUIDs];
                 }
             } else {
                 url = [BlueshiftRoutes getInAppMessagesURL];
@@ -77,10 +78,10 @@
     if(BlueShift.sharedInstance.config.apiKey && messageIds && messageIds.count > 0 && [BlueShiftNetworkReachabilityManager networkConnected]) {
         NSString *url = [BlueshiftRoutes getInboxUpdateURL];
         NSDictionary* payload = @{
-            @"api_key": BlueShift.sharedInstance.config.apiKey,
-            @"device_id": BlueShiftDeviceData.currentDeviceData.deviceUUID,
-            @"action": @"delete",
-            @"message_uuids": messageIds
+            kAPIKey: BlueShift.sharedInstance.config.apiKey,
+            kDeviceID: BlueShiftDeviceData.currentDeviceData.deviceUUID,
+            kBSInboxAction: kBSInboxActionDelete,
+            kBSMessageUUIDs: messageIds
         };
         
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {

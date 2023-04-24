@@ -83,8 +83,6 @@
 
 #define kInAppTriggerModeNow                                            @"now"
 #define kInAppTriggerModeUpcoming                                       @"upcoming"
-#define kInAppTriggerModeInbox                                          @"Inbox"
-#define kInAppTriggerModeNowAndUpcoming                                 @"NowAndUpComing"
 
 #define kInAppPriorityMedium                                            @"medium"
 #define kInAppId                                                        @"id"
@@ -94,16 +92,6 @@
 #define kInAppStatusDisplayed                                           @"displayed"
 
 #define kDefaultDateFormat                                              @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
-
-//Inbox
-#define kBSAvailabilityScope                                             @"scope"
-#define kBSAvailabilityInboxOnly                                         @"inbox"
-#define kBSAvailabilityInboxAndInApp                                     @"inbox+inapp"
-#define kBSAvailabilityInAppOnly                                         @"inapp"
-
-#define kBSTrackingOpenedBy                                             @"opened_by"
-#define kBSTrackingOpenedByUser                                         @"user"
-#define kBSTrackingOpenedByPrefetch                                     @"prefetch"
 
 #define kBSMessageUUID                                                  @"message_uuid"
 

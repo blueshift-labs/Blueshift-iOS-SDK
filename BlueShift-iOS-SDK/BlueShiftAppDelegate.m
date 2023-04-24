@@ -323,7 +323,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 //add title, body and userinfo
                 UNMutableNotificationContent* notificationContent = [[UNMutableNotificationContent alloc] init];
                 notificationContent.title = [notification objectForKey:kNotificationTitleKey];
-                notificationContent.body =  [notification objectForKey:kNotificationBodyKey];;
+                notificationContent.body =  [notification objectForKey:kNotificationBodyKey];
                 notificationContent.sound = [notification objectForKey:kNotificationSoundIdentifierKey] ? [notification objectForKey:kNotificationSoundIdentifierKey] : [UNNotificationSound defaultSound];
                 notificationContent.categoryIdentifier = [notification objectForKey: kNotificationCategoryIdentifierKey];
                 notificationContent.userInfo = [notification mutableCopy];
@@ -475,7 +475,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
 }
 
--(void)shareDeepLinkToApp:(NSURL* _Nonnull)deepLinkURL userInfo:(NSDictionary* _Nonnull)userInfo {
+-(void)shareDeepLinkToApp:(NSURL* _Nullable)deepLinkURL userInfo:(NSDictionary* _Nonnull)userInfo {
     if (deepLinkURL && [self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
         NSMutableDictionary *pushOptions = [@{openURLOptionsSource:openURLOptionsBlueshift,
                                               openURLOptionsChannel:openURLOptionsPush,

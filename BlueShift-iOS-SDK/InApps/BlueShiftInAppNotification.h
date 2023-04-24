@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 @property (nonatomic, copy, readwrite, nullable) NSString *position;
 @property (nonatomic, assign, readwrite) float height;
-@property (nonatomic, assign, readwrite) float width;;
+@property (nonatomic, assign, readwrite) float width;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
 @property (nonatomic, assign, readwrite, nullable) NSNumber* enableCloseButton;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;

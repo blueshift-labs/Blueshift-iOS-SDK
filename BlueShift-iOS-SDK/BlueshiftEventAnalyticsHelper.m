@@ -85,7 +85,7 @@
     return [trackingParams copy];
 }
 
-+ (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
++ (NSString * _Nullable)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
     if (notificationPayload && key && ![key isEqualToString:@""]) {
         if ([notificationPayload objectForKey: key]) {
             return (NSString *)[notificationPayload objectForKey: key];

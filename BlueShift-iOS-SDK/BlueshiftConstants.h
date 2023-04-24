@@ -143,6 +143,28 @@
 
 //Mobile inbox constants
 #define kBSInboxDefaultCellIdentifier           @"BlueshiftInboxDefaultCell"
+#define kBSMessageUUIDs                         @"message_uuids"
+#define kBSInboxAction                          @"action"
+#define kBSInboxActionDelete                    @"delete"
+#define kBSInboxRefreshType                     @"refreshType"
 
+#define kBSAvailabilityScope                    @"scope"
+#define kBSAvailabilityInboxOnly                @"inbox"
+#define kBSAvailabilityInboxAndInApp            @"inbox+inapp"
+#define kBSAvailabilityInAppOnly                @"inapp"
+
+#define kBSInbox                                @"inbox"
+#define kBSInboxMessageData                     @"data"
+#define kBSInboxMessageTitle                    @"title"
+#define kBSInboxMessageDetails                  @"details"
+#define kBSInboxMessageIcon                     @"icon"
+
+#define kBSTrackingOpenedBy                     @"opened_by"
+#define kBSTrackingOpenedByUser                 @"user"
+#define kBSTrackingOpenedByPrefetch             @"prefetch"
+
+#define kBSInboxUnreadStatus                    @"unread"
+#define kBSInboxReadStatus                      @"read"
+#define kBSInboxStatus                      @"status"
 
 #endif /* BlueshiftConstants_h */
