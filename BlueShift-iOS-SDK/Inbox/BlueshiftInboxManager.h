@@ -22,8 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Delete inbox message from the server and local.
 /// - Parameters:
 ///   - message: inbox message to delete
-///   - handler: completion handler with `BOOL` completion status
-+ (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler;
+///   - handler: completion handler with `BOOL` completion status and `NSString` error message.
+/// - The completion handler returns on the background thread, make sure you run any UI activity on main thread in the callback.
++ (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL, NSString* _Nullable))handler;
 
 /// Get the synced inbox messages to show inside the inbox.
 /// The messages will be automatically synced in local db by the SDK and can be retrived using this method to display in the inbox.

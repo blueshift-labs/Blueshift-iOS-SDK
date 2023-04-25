@@ -24,20 +24,22 @@
     return [BlueShift.sharedInstance createInAppNotificationForInboxMessage:message];
 }
 
-+ (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL))handler  {
-    //Delete in-app from server first. Deleting in-apps in offline mode is not allowed ATM.
-    [BlueshiftInboxAPIManager deleteMessagesWithMessageUUIDs:@[message.messageUUID] success:^(BOOL status) {
-        if (status) {
++ (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL, NSString* _Nullable))handler  {
+    if ([BlueShiftNetworkReachabilityManager networkConnected]) {
+        //Delete in-app from server first. Deleting in-apps in offline mode is not allowed ATM.
+        [BlueshiftInboxAPIManager deleteMessagesWithMessageUUIDs:@[message.messageUUID] success:^(void) {
             //On success, delete the in-app from db.
             [InAppNotificationEntity deleteInboxMessageFromDB:message.objectId completionHandler:^(BOOL status) {
-                handler(status);
+                handler(status, nil);
             }];
-        } else {
-            handler(status);
-        }
-    } failure:^(NSError * _Nonnull error) {
-        handler(NO);
-    }];
+        } failure:^(NSError * _Nonnull error) {
+            handler(NO, error.localizedDescription);
+        }];
+    } else {
+        NSString *desc = NSLocalizedString(kBSDeviceIsOfflineDescriptionLocalizedKey, @"");
+        desc = [desc isEqualToString: kBSDeviceIsOfflineDescriptionLocalizedKey] ? kBSDeviceIsOfflineDescription : desc;
+        handler(NO, desc);
+    }
 }
 
 + (void)getCachedInboxMessagesWithHandler:(void (^_Nonnull)(BOOL, NSMutableArray<BlueshiftInboxMessage*>* _Nullable))success {

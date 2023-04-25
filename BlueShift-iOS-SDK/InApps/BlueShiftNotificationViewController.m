@@ -347,6 +347,12 @@
 
     NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
     [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
+    if (_notification.isFromInbox) {
+        [actionPayload setValue:openURLOptionsInbox forKey:openURLOptionsChannel];
+    } else {
+        [actionPayload setValue:openURLOptionsInApp forKey:openURLOptionsChannel];
+    }
+
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
     [BlueshiftLog logInfo:@"Delivered in-app notification deeplink to the actionButtonDidTapped delegate method" withDetails:actionPayload methodName:nil];
 }

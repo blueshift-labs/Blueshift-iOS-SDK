@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - messageIds: array of message ids to delete from server
 ///   - success: success callback
 ///   - failure: failure callback
-+ (void)deleteMessagesWithMessageUUIDs:(NSArray*)messageIds success:(void (^)(BOOL))success failure:(void (^)(NSError* _Nullable))failure;
++ (void)deleteMessagesWithMessageUUIDs:(NSArray*)messageIds success:(void (^)(void))success failure:(void (^)(NSError* _Nullable))failure;
 
 @end
 

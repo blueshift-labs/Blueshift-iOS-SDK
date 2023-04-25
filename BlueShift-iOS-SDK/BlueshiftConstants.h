@@ -165,6 +165,10 @@
 
 #define kBSInboxUnreadStatus                    @"unread"
 #define kBSInboxReadStatus                      @"read"
-#define kBSInboxStatus                      @"status"
+#define kBSInboxStatus                          @"status"
+
+#define kBSDeviceIsOfflineDescriptionLocalizedKey       @"BLUESHIFT_DEVICE_OFFLINE_ALERT_TITLE"
+#define kBSDeviceIsOfflineDescription                   @"Deleting message is not allowed when device is offline!"
+#define kBSAlertOkayButtonLocalizedKey          @"BLUESHIFT_ALERT_OKAY_BUTTON"
 
 #endif /* BlueshiftConstants_h */

@@ -74,7 +74,7 @@
     }];
 }
 
-+ (void)deleteMessagesWithMessageUUIDs:(NSArray*)messageIds success:(void (^)(BOOL))success failure:(void (^)(NSError*))failure {
++ (void)deleteMessagesWithMessageUUIDs:(NSArray*)messageIds success:(void (^)(void))success failure:(void (^)(NSError*))failure {
     if(BlueShift.sharedInstance.config.apiKey && messageIds && messageIds.count > 0 && [BlueShiftNetworkReachabilityManager networkConnected]) {
         NSString *url = [BlueshiftRoutes getInboxUpdateURL];
         NSDictionary* payload = @{
@@ -87,7 +87,7 @@
         [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL: url andParams: payload completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if (status) {
                 [BlueshiftLog logAPICallInfo:@"Succesfully deleted messages." withDetails:nil statusCode:0];
-                success(status);
+                success();
             } else {
                 failure(error);
             }

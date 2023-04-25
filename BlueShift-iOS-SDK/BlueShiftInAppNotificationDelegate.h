@@ -14,8 +14,9 @@
 
 @optional
 /// This callback method will be called when user performs an action on the in-app notification.
-/// You will receive the in-app notification deep link in the notificationDictionary as ios_link attribute.
-/// @param notificationDictionary in-app action/click details
+/// If deep link is available, you will receive the in-app notification deep link in the notificationDictionary as `ios_link` attribute.
+/// @param notificationDictionary in-app action/click details. Use `channel`value to differenciate between the in-app and inbox clicks.
+/// `channel` = `inbox` then click has come from inbox inapp display, while `channel`=`inApp` then it has come from regular in-app notification.
 /// @warning Implementing this method will override the default behaviour of delivering deep-link to the OpenUrl method of the appDelegate and instead deep link will be delivered in this method.
 - (void)actionButtonDidTapped:(NSDictionary *)notificationDictionary;
 

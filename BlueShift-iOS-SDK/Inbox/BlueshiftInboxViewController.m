@@ -26,9 +26,13 @@
 @property (nonatomic, strong) BlueshiftInboxViewModel * viewModel;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @property UILabel* noMessageLabel;
+
 @end
 
-@implementation BlueshiftInboxViewController
+@implementation BlueshiftInboxViewController {
+    _Nullable id inAppNotificationDidAppearToken;
+    _Nullable id unreadMessageCountDidChangeToken;
+}
 
 @synthesize nibName;
 
@@ -89,8 +93,19 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self reloadTableView];
     [self setupObservers];
+    [self reloadTableView];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    if (inAppNotificationDidAppearToken) {
+        [[NSNotificationCenter defaultCenter] removeObserver:inAppNotificationDidAppearToken];
+    }
+    
+    if (unreadMessageCountDidChangeToken) {
+        [[NSNotificationCenter defaultCenter] removeObserver:unreadMessageCountDidChangeToken];
+    }
 }
 
 - (void)dealloc {
@@ -101,7 +116,6 @@
 #pragma mark Inbox Setup
 - (void)setDefaults {
     self.showActivityIndicator = YES;
-    self.activityIndicatorColor = UIColor.grayColor;
 }
 
 - (void)setInboxDelegate {
@@ -209,7 +223,9 @@
     [BlueshiftInboxManager syncInboxMessages:^{
         if (@available(iOS 10.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf.refreshControl endRefreshing];
+                if (weakSelf.refreshControl.isRefreshing) {
+                    [weakSelf.refreshControl endRefreshing];
+                }
             });
         }
     }];
@@ -353,14 +369,27 @@
     // Delete the row from the data source
     if (message) {
         __weak __typeof(self)weakSelf = self;
-        [BlueshiftInboxManager deleteInboxMessage:message completionHandler:^(BOOL status) {
+        [BlueshiftInboxManager deleteInboxMessage:message completionHandler:^(BOOL status, NSString* errorMessage ) {
+            dispatch_async(dispatch_get_main_queue(), ^{
             if (status) {
-                [self reloadTableView];
-                //Callback
-                if (weakSelf.inboxDelegate && [weakSelf.inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
-                    [weakSelf.inboxDelegate inboxMessageDeleted:message];
-                }
+                    [self reloadTableView];
+                    
+                    //Callback
+                    if (weakSelf.inboxDelegate && [weakSelf.inboxDelegate respondsToSelector:@selector(inboxMessageDeleted:)]) {
+                        [weakSelf.inboxDelegate inboxMessageDeleted:message];
+                    }
+            } else {
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:errorMessage preferredStyle: UIAlertControllerStyleAlert];
+                NSString *okayText = NSLocalizedString(kBSAlertOkayButtonLocalizedKey, @"");
+                okayText = [okayText isEqualToString: kBSAlertOkayButtonLocalizedKey] ? @"Okay" : okayText;
+                UIAlertAction *action = [UIAlertAction actionWithTitle:okayText style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                }];
+                
+                [alert addAction:action];
+                [self.navigationController presentViewController:alert animated:YES completion:^{
+                }];
             }
+            });
         }];
     }
 }
