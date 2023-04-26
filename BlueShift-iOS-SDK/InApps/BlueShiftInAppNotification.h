@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <BlueShiftInAppType.h>
 #import <InAppNotificationEntity.h>
+#import <BlueshiftInboxViewController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -138,6 +139,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *notificationPayload;
 
 @property (nonatomic, assign) BOOL isFromInbox;
+
+@property (nonatomic, weak) id<BlueshiftInboxInAppNotificationDelegate> _Nullable inboxDelegate;
 
 - (instancetype)initFromEntity: (InAppNotificationEntity*)appEntity;
 

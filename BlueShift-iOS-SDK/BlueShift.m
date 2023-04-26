@@ -1092,10 +1092,11 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 #pragma mark Mobile Inbox
-- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage*)message {
+- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message inboxInAppDelegate:(id<BlueshiftInboxInAppNotificationDelegate> _Nullable)inboxInAppDelegate {
     if (message && message.messagePayload && _inAppNotificationMananger.currentNotificationController == nil) {
         BlueShiftInAppNotification* inApp = [[BlueShiftInAppNotification alloc] initFromPayload:message.messagePayload forType:message.inAppNotificationType];
         inApp.isFromInbox = YES;
+        inApp.inboxDelegate = inboxInAppDelegate;
         [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
         return YES;
     }

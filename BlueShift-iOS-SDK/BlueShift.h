@@ -29,6 +29,7 @@
 #import <BlueshiftEventAnalyticsHelper.h>
 #import <BlueShiftLiveContent.h>
 #import <BlueshiftInboxMessage.h>
+#import <BlueshiftInboxViewController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -245,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
 
-- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage*)message;
+- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message inboxInAppDelegate:(id<BlueshiftInboxInAppNotificationDelegate> _Nullable)inboxInAppDelegate;
 
 #pragma mark Push and In App notifications Opt In methods
 /// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.

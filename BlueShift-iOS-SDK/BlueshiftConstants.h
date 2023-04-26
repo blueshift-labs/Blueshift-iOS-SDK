@@ -170,5 +170,6 @@
 #define kBSDeviceIsOfflineDescriptionLocalizedKey       @"BLUESHIFT_DEVICE_OFFLINE_ALERT_TITLE"
 #define kBSDeviceIsOfflineDescription                   @"Deleting message is not allowed when device is offline!"
 #define kBSAlertOkayButtonLocalizedKey          @"BLUESHIFT_ALERT_OKAY_BUTTON"
+#define kBSDoneButtonLocalizedKey               @"BLUESHIFT_DONE_BUTTON"
 
 #endif /* BlueshiftConstants_h */

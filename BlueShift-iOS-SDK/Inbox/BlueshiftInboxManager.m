@@ -20,8 +20,8 @@
 @implementation BlueshiftInboxManager
 
 #pragma mark - Mobile Inbox External Methods
-+ (BOOL)showNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message {
-    return [BlueShift.sharedInstance createInAppNotificationForInboxMessage:message];
++ (BOOL)showNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message inboxInAppDelegate:(id<BlueshiftInboxInAppNotificationDelegate> _Nullable)inboxInAppDelegate {
+    return [BlueShift.sharedInstance createInAppNotificationForInboxMessage:message inboxInAppDelegate:inboxInAppDelegate];
 }
 
 + (void)deleteInboxMessage:(BlueshiftInboxMessage* _Nullable)message completionHandler:(void (^_Nonnull)(BOOL, NSString* _Nullable))handler  {

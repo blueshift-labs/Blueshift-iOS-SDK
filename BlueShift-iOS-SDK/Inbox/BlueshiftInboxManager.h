@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <BlueshiftInboxMessage.h>
+#import <BlueshiftInboxViewController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,8 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Show notification for the given Inbox message. Returns true or false based on if the in-app is displayed or not.
 /// - Parameter message: inbox message to display
 /// - Returns BOOL based on if the notification was successfully displayed or not.
-+ (BOOL)showNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message;
-
++ (BOOL)showNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message inboxInAppDelegate:(id<BlueshiftInboxInAppNotificationDelegate> _Nullable)inboxInAppDelegate;
 
 /// Delete inbox message from the server and local.
 /// - Parameters:

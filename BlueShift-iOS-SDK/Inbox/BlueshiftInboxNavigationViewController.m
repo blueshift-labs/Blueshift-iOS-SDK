@@ -6,6 +6,7 @@
 //
 
 #import "BlueshiftInboxNavigationViewController.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueshiftInboxNavigationViewController ()
 @property BlueshiftInboxViewController* inboxViewController;
@@ -61,7 +62,9 @@ IB_DESIGNABLE
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.viewControllers.count > 0 && self.viewControllers[0]) {
             if (weakSelf.showDoneButton) {
-                UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
+                NSString *doneText = NSLocalizedString(kBSDoneButtonLocalizedKey, @"") ;
+                doneText = [doneText isEqualToString: kBSDoneButtonLocalizedKey] ? @"Done" : doneText;
+                UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:doneText style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
                 self.viewControllers[0].navigationItem.rightBarButtonItem = doneButton;
             }
             self.viewControllers[0].navigationItem.title = self.title;

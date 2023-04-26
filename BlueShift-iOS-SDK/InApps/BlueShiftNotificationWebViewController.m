@@ -212,7 +212,7 @@ API_AVAILABLE(ios(8.0))
         
         size.width = itemWidth;
         size.height = itemHeight;
-    }else {
+    } else {
         
     }
     
@@ -280,26 +280,8 @@ API_AVAILABLE(ios(8.0))
             [self processInAppActionForDeepLink:nil details:details];
         }
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
-            NSString *deepLink = (url && url.absoluteString) ? url.absoluteString : @"";
-            NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:inAppOptions];
-            [actionPayload setObject: deepLink forKey: kInAppNotificationModalPageKey];
-            [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
-            [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-        } else if([url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
-                  [url.absoluteString isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
-            // Placeholder
-            // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
-            // This case is already handled in the [self processInAppActionForDeepLink:]
-        }
-        else if(url && [BlueShift sharedInstance].appDelegate.mainAppDelegate &&
-                  [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] &&
-                  [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString]) {
-            if (@available(iOS 9.0, *)) {
-                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
-                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
-            }
-        }
+        
+        [self shareDeepLinkToApp:url.absoluteString options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }

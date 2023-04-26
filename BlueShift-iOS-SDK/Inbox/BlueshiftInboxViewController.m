@@ -106,6 +106,8 @@
     if (unreadMessageCountDidChangeToken) {
         [[NSNotificationCenter defaultCenter] removeObserver:unreadMessageCountDidChangeToken];
     }
+    [self.activityIndicator removeFromSuperview];
+    self.activityIndicator = nil;
 }
 
 - (void)dealloc {
@@ -152,7 +154,7 @@
         _noMessageLabel = [[UILabel alloc] init];
         _noMessageLabel.text = self.noMessagesText;
         _noMessageLabel.numberOfLines = 0;
-        _noMessageLabel.textColor = UIColor.blackColor;
+        _noMessageLabel.textColor = UIColor.grayColor;
         _noMessageLabel.center = self.tableView.center;
         _noMessageLabel.textAlignment = NSTextAlignmentCenter;
     }
@@ -177,7 +179,7 @@
     __weak __typeof(self)weakSelf = self;
     if (_showActivityIndicator) {
         [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationDidAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-            if (weakSelf.activityIndicator) {
+            if (weakSelf.activityIndicator && weakSelf.activityIndicator.isAnimating) {
                 [weakSelf.activityIndicator stopAnimating];
             }
         }];
@@ -205,6 +207,13 @@
             [self.activityIndicator.centerYAnchor constraintEqualToAnchor:self.tableView.superview.centerYAnchor].active = YES;
         }
         [self.activityIndicator startAnimating];
+        
+        __weak __typeof(self)weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            if (weakSelf.activityIndicator && weakSelf.activityIndicator.isAnimating) {
+                [weakSelf.activityIndicator stopAnimating];
+            }
+        });
     }
 }
 
@@ -229,6 +238,12 @@
             });
         }
     }];
+    //Force Dismiss the refresh control after 5 seconds
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if (weakSelf.refreshControl.isRefreshing) {
+            [weakSelf.refreshControl endRefreshing];
+        }
+    });
 }
 
 #pragma mark Register tableview cells
@@ -311,6 +326,25 @@
         [self handleDeleteRowAtIndexPath:indexPath];
     }
 }
+
+#pragma mark BlueshiftInboxInAppNotificationDelegate methods
+-(void)inboxInAppNotificationActionTappedWithDeepLink:(NSString * _Nullable)deepLink options:(nonnull NSDictionary *)options{
+    if([self.inboxDelegate respondsToSelector:@selector(inboxNotificationActionTappedWithDeepLink:inboxViewController:options:)]) {
+        [self.inboxDelegate inboxNotificationActionTappedWithDeepLink:deepLink inboxViewController:self options:options];
+    }
+}
+
+- (BOOL)isInboxNotificationActionTappedImplementedByHostApp {
+    if([self.inboxDelegate respondsToSelector:@selector(inboxNotificationActionTappedWithDeepLink:inboxViewController:options:)]) {
+        return YES;
+    }
+    return NO;
+}
+
+- (UIWindowScene*)getInboxWindowScene API_AVAILABLE(ios(13.0)) {
+    return self.view.window.windowScene;
+}
+
 
 #pragma mark Helper methods
 - (void)setNoMessagesLabelToTableView {
@@ -397,15 +431,11 @@
 - (void)handleDidSelectRowAtIndexPath:(NSIndexPath*)indexPath {
     BlueshiftInboxMessage* message = [_viewModel itemAtIndexPath:indexPath];
     if (message) {
-        BOOL isDisplayed = [BlueshiftInboxManager showNotificationForInboxMessage:message];
+        BOOL isDisplayed = [BlueshiftInboxManager showNotificationForInboxMessage:message inboxInAppDelegate: self];
         if (isDisplayed) {
             [self startActivityIndicator];
             message.readStatus = YES;
             [self reloadTableViewCellForIndexPath:indexPath animated:YES];
-        }
-        //Callback
-        if (_inboxDelegate && [_inboxDelegate respondsToSelector:@selector(inboxMessageSelected:)]) {
-            [_inboxDelegate inboxMessageSelected:message];
         }
     }
 }

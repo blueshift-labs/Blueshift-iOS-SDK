@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The in-app notification might take time to display as it needs to download the resources like images or html pages.
 /// The inbox will show activity indicatory till the time it is downloading the resources, once its ready it will hide the activity indicator and present the in-app notification.
 /// The default value is True.
-@property (nonatomic) IBInspectable  UIColor* activityIndicatorColor;
+@property (nonatomic) IBInspectable  UIColor* _Nullable activityIndicatorColor;
 
 /// Set this property to true to enable the large title.
 /// Default value is False.
@@ -57,6 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) IBInspectable  BOOL showDoneButton;
 
 /// This text will be displayed when there are no messages present to display in the inbox.
+/// You can use `\n` in the text to jump to new line.
 @property (nonatomic) IBInspectable NSString* _Nullable noMessagesText;
 
 /// Set `BlueshiftInboxViewControllerDelegate` delegate

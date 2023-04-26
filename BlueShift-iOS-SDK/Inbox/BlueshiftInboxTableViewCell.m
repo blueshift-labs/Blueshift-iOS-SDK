@@ -186,7 +186,6 @@
     UIImageView* imageView = [[UIImageView alloc] init];
     imageView.translatesAutoresizingMaskIntoConstraints = NO;
     imageView.contentMode = UIViewContentModeScaleAspectFill;
-//    imageView.backgroundColor = UIColor.lightGrayColor;
     imageView.clipsToBounds = YES;
     imageView.layer.cornerRadius = 10;
     [wrapperView addSubview:imageView];
