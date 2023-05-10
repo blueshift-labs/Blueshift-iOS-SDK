@@ -70,14 +70,17 @@
 
 - (UIWindow*)getKeyWindowBasedOnInAppOrigin {
     //If in-app is originated from inbox, then use scene from the inbox screen
-    if (_notification && _notification.isFromInbox) {
+    if (_notification && _notification.isFromInbox && _notification.inboxDelegate && [_notification.inboxDelegate respondsToSelector:@selector(getInboxWindowScene)]) {
         if (@available(iOS 13.0, *)) {
-            if (@available(iOS 15.0, *)) {
-                return _notification.inboxDelegate.getInboxWindowScene.keyWindow;
-            } else {
-                for (UIWindow *window in _notification.inboxDelegate.getInboxWindowScene.windows) {
-                    if (window && window.isKeyWindow) {
-                        return window;
+            UIWindowScene* windowScene = _notification.inboxDelegate.getInboxWindowScene;
+            if (windowScene) {
+                if (@available(iOS 15.0, *)) {
+                    return _notification.inboxDelegate.getInboxWindowScene.keyWindow;
+                } else {
+                    for (UIWindow *window in _notification.inboxDelegate.getInboxWindowScene.windows) {
+                        if (window && window.isKeyWindow) {
+                            return window;
+                        }
                     }
                 }
             }
@@ -291,14 +294,14 @@
     [self hide:YES];
 }
 
-- (void)shareDeepLinkToApp:(NSString*)deepLink options:(NSDictionary*)options {
+- (void)shareDeepLinkToApp:(NSString* _Nullable)deepLink options:(NSDictionary*)options {
     if([deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
        [deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL] ||
        [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:deepLink] == NO) {
         // Placeholder
         // Do not send the deep links with type dismiss or ask-pn-permission or nil or empty to openURL:options:
         // This case is already handled in the [self processInAppActionForDeepLink:]
-    } else if (_notification && _notification.isFromInbox == YES && [self.notification.inboxDelegate isInboxNotificationActionTappedImplementedByHostApp] == YES) {
+    } else if (_notification && _notification.isFromInbox == YES && [self.notification.inboxDelegate respondsToSelector:@selector(isInboxNotificationActionTappedImplementedByHostApp)] && [self.notification.inboxDelegate isInboxNotificationActionTappedImplementedByHostApp] == YES) {
         // Handle the Deep link of in-apps originated from inbox and have implemented the callback method
         // `inboxNotificationActionTappedWithDeepLink:inboxViewController:options:`
         [_notification.inboxDelegate inboxInAppNotificationActionTappedWithDeepLink:deepLink options:options];
@@ -319,7 +322,7 @@
     }
 }
 
-- (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details {
+- (void)processInAppActionForDeepLink:(NSString* _Nullable)deepLink details:(NSDictionary*)details {
     if (deepLink == nil || [deepLink isEqualToString:@""] || [deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
     } else if ([deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {

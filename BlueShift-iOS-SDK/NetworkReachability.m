@@ -387,14 +387,12 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 {
     if([self isReachable])
     {
-        if([self isReachableViaWiFi])
+        if([self isReachableViaWiFi]) {
             return ReachableViaWiFi;
-        
-#if	TARGET_OS_IPHONE
-        return ReachableViaWWAN;
-#endif
+        } else {
+            return ReachableViaWWAN;
+        }
     }
-    
     return NotReachable;
 }
 

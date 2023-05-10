@@ -208,6 +208,10 @@
         handler();
         return;
     } else {
+        // Show first 10 messages on the inbox, and send one more broadcast once sync is completed. 
+        if (page == 1) {
+                [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeSync];
+            }
         [BlueshiftInboxAPIManager getMessagesForMessageUUIDs:paginationList[page] success:^(NSDictionary * _Nonnull data) {
             [self processInboxMessagesForAPIResponse:data withCompletionHandler:^(BOOL status) {
                 [self getPageAtIdex:page+1 fromPaginationList:paginationList completionHanlder:handler];

@@ -341,7 +341,7 @@
     return NO;
 }
 
-- (UIWindowScene*)getInboxWindowScene API_AVAILABLE(ios(13.0)) {
+- (UIWindowScene* _Nullable)getInboxWindowScene API_AVAILABLE(ios(13.0)) {
     return self.view.window.windowScene;
 }
 

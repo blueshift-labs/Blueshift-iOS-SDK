@@ -251,7 +251,6 @@
 
 - (instancetype)initFromDictionary: (NSDictionary *) contenStyletDictionary withType: (BlueShiftInAppType)inAppType {
     if (self = [super init]) {
-        
         @try {
             switch (inAppType) {
                 case BlueShiftInAppTypeHTML:
@@ -392,13 +391,11 @@
 
 @implementation BlueShiftInAppNotification
 
-- (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity {
+- (instancetype)initFromEntity:(InAppNotificationEntity *) appEntity {
     if (self = [super init]) {
         @try {
-            self.objectID = appEntity.objectID;
-            
             NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
-            return [self initFromPayload:payloadDictionary forType:appEntity.type];
+            return [self setDataUsingPayload:payloadDictionary forType:appEntity.type];
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }
@@ -406,48 +403,59 @@
     return self;
 }
 
-- (instancetype)initFromPayload: (NSDictionary *)payload forType:(NSString*)type {
-    if ([payload objectForKey: kInAppNotificationDataKey]) {
-        self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: type];
-        self.notificationPayload = payload;
-        NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
-
-        if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
-            NSDictionary *payloadDictionary = [inAppDictionary objectForKey:kInAppNotificationKey];
-        
-            self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
-        
-            if ([payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey] &&
-                [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey] != [NSNull null]) {
-                NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey];
-                self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: contenStyletDictionary withType: self.inAppType];
-            }
-            
-            if ([payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey] &&
-                [payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey] != [NSNull null]) {
-                NSDictionary *contentStyleDarkDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey];
-                self.contentStyleDark = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: contentStyleDarkDictionary withType: self.inAppType];
-            }
-        
-            if ([payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey] &&
-                [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey] != [NSNull null]) {
-                NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey];
-                self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary: templateStyleDictionary withType: self.inAppType];
-            }
-            
-            if ([payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey] &&
-                [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey] != [NSNull null]){
-                NSDictionary *templateStyleDarkDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey];
-                self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
-            }
-            
-            self.position = kInAppNotificationModalPositionCenterKey;
-            self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
-            self.width = kInAppNotificationDefaultWidth;
-            self.height = kInAppNotificationDefaultHeight;
-        
-        }
+- (instancetype)initFromPayload:(NSDictionary *)payload forType:(NSString*)type {
+    if (self = [super init]) {
+        return [self setDataUsingPayload:payload forType:type];
     }
     return self;
+}
+
+- (instancetype)setDataUsingPayload:(NSDictionary*)payload forType:(NSString*)type {
+    @try {
+        if ([payload objectForKey: kInAppNotificationDataKey]) {
+            self.inAppType = [BlueShiftInAppNotificationHelper inAppTypeFromString: type];
+            self.notificationPayload = payload;
+            NSDictionary *inAppDictionary = [payload objectForKey: kInAppNotificationDataKey];
+            
+            if ([inAppDictionary objectForKey: kInAppNotificationKey]) {
+                NSDictionary *payloadDictionary = [inAppDictionary objectForKey:kInAppNotificationKey];
+                
+                self.notificationContent = [[BlueShiftInAppNotificationContent alloc] initFromDictionary: payloadDictionary withType: self.inAppType];
+                
+                if ([payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey] &&
+                    [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey] != [NSNull null]) {
+                    NSDictionary *contenStyletDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleKey];
+                    self.contentStyle = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: contenStyletDictionary withType: self.inAppType];
+                }
+                
+                if ([payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey] &&
+                    [payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey] != [NSNull null]) {
+                    NSDictionary *contentStyleDarkDictionary = [payloadDictionary objectForKey: kInAppNotificationModalContentStyleDarkKey];
+                    self.contentStyleDark = [[BlueShiftInAppNotificationContentStyle alloc] initFromDictionary: contentStyleDarkDictionary withType: self.inAppType];
+                }
+                
+                if ([payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey] &&
+                    [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey] != [NSNull null]) {
+                    NSDictionary *templateStyleDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleKey];
+                    self.templateStyle = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary: templateStyleDictionary withType: self.inAppType];
+                }
+                
+                if ([payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey] &&
+                    [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey] != [NSNull null]){
+                    NSDictionary *templateStyleDarkDictionary = [payloadDictionary objectForKey: kInAppNotificationModalTemplateStyleDarkKey];
+                    self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
+                }
+                
+                self.position = kInAppNotificationModalPositionCenterKey;
+                self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
+                self.width = kInAppNotificationDefaultWidth;
+                self.height = kInAppNotificationDefaultHeight;
+            }
+        }
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+    }
+    return self;
+    
 }
 @end

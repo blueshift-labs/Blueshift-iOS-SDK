@@ -44,6 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// The default value is True.
 @property (nonatomic) IBInspectable  UIColor* _Nullable activityIndicatorColor;
 
+/// This text will be displayed when there are no messages present to display in the inbox.
+/// You can use `\n` in the text to jump to new line.
+@property (nonatomic) IBInspectable NSString* _Nullable noMessagesText;
+
 /// Set this property to true to enable the large title.
 /// Default value is False.
 @property (nonatomic, assign) IBInspectable BOOL enableLargeTitle;
@@ -55,10 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Set this property to true in case you want to show `Done` button on the navigation bar in order to dismiss the inbox.
 /// Default value is True.
 @property (nonatomic) IBInspectable  BOOL showDoneButton;
-
-/// This text will be displayed when there are no messages present to display in the inbox.
-/// You can use `\n` in the text to jump to new line.
-@property (nonatomic) IBInspectable NSString* _Nullable noMessagesText;
 
 /// Set `BlueshiftInboxViewControllerDelegate` delegate
 @property (nonatomic) id<BlueshiftInboxViewControllerDelegate> _Nullable inboxDelegate;

@@ -70,9 +70,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol BlueshiftInboxInAppNotificationDelegate <NSObject>
 @optional
+/// Implement this method to override the deep link default delivery behaviour.
 - (void)inboxInAppNotificationActionTappedWithDeepLink:(NSString* _Nullable)deepLink options:(NSDictionary<NSString*, id>*)options;
+
+/// Implement this method and return true when you implement the `inboxInAppNotificationActionTappedWithDeepLink: options:` method.
 - (BOOL)isInboxNotificationActionTappedImplementedByHostApp;
-- (UIWindowScene*)getInboxWindowScene API_AVAILABLE(ios(13.0));
+
+/// Implement this method and return the current screen's window scene object.
+/// This is to give access to the current screen of the inbox so that inbox notification can be presented in the same window scene.
+- (UIWindowScene* _Nullable)getInboxWindowScene API_AVAILABLE(ios(13.0));
+
 @end
 
 IB_DESIGNABLE

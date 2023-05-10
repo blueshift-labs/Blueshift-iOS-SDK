@@ -71,7 +71,6 @@
 #define kInAppNotificationModalSilentPushKey                            @"silent_push"
 #define kInAppNotificationBackgroundFetch                               @"in_app_background_fetch"
 #define kInAppNotificationAction                                        @"action"
-#define kInAppNotificationMarkAsOpen                                    @"in_app_mark_as_open"
 #define kInAppNotificationOpenedInAppUUID                               @"opened_in_app_message_uuids"
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
 #define kPushNotificationDeepLinkURLKey                                 @"deep_link_url"

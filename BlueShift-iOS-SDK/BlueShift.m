@@ -1100,6 +1100,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         [_inAppNotificationMananger createInAppNotification:inApp displayOnScreen:@""];
         return YES;
     }
+    [BlueshiftLog logInfo:@"Active In-app notification detected or message payload is nil, skipped displaying current inbox message." withDetails:nil methodName:nil];
     return NO;
 }
 

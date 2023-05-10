@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)url;
 
-+ (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
 + (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
 
 + (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;

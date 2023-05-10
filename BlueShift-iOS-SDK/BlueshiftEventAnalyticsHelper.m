@@ -118,19 +118,6 @@
     }
 }
 
-+(BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo {
-    if (userInfo && [userInfo objectForKey: kSilentNotificationPayloadIdentifierKey]) {
-        NSDictionary *silentPushData = [[userInfo objectForKey: kSilentNotificationPayloadIdentifierKey] objectForKey: kInAppNotificationModalSilentPushKey];
-        if (silentPushData && [[silentPushData objectForKey:kInAppNotificationAction] isEqual: kInAppNotificationMarkAsOpen]) {
-            return YES;
-        } else {
-            return NO;
-        }
-    } else {
-        return NO;
-    }
-}
-
 + (BOOL) isInAppSilenPushNotificationPayload: (NSDictionary*)userInfo {
     BOOL isSilenPushNotificationPayload = false;
     if (userInfo) {
