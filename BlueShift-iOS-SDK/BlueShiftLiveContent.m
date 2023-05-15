@@ -14,25 +14,37 @@
 
 + (void) fetchLiveContentByEmail:(NSString *)slotName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [self fetchLiveContentByEmail:slotName withContext:nil success:^(NSDictionary *data) {
-        success(data);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(data);
+        });
     } failure:^(NSError *error) {
-        failure(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failure(error);
+        });
     }];
 }
 
 + (void) fetchLiveContentByCustomerID:(NSString *)slotName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [self fetchLiveContentByCustomerID:slotName withContext:nil success:^(NSDictionary * data) {
-        success(data);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(data);
+        });
     } failure:^(NSError * error) {
-        failure(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failure(error);
+        });
     }];
 }
 
 + (void) fetchLiveContentByDeviceID:(NSString *)slotName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     [self fetchLiveContentByDeviceID:slotName withContext:nil success:^(NSDictionary *data) {
-        success(data);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(data);
+        });
     } failure:^(NSError *error) {
-        failure(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failure(error);
+        });
     }];
 }
 
