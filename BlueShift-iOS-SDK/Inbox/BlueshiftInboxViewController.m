@@ -178,13 +178,13 @@
 - (void)setupObservers {
     __weak __typeof(self)weakSelf = self;
     if (_showActivityIndicator) {
-        [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationDidAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        inAppNotificationDidAppearToken = [NSNotificationCenter.defaultCenter addObserverForName:kBSInAppNotificationDidAppear object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
             if (weakSelf.activityIndicator && weakSelf.activityIndicator.isAnimating) {
                 [weakSelf.activityIndicator stopAnimating];
             }
         }];
     }
-    [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+    unreadMessageCountDidChangeToken = [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         BlueshiftInboxChangeType type = (BlueshiftInboxChangeType)[note.userInfo[kBSInboxRefreshType] integerValue];
         if (type == BlueshiftInboxChangeTypeSync || type == BlueshiftInboxChangeTypeMarkAsUnread) {
             [weakSelf reloadTableView];
