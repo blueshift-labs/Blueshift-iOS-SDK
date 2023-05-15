@@ -9,7 +9,7 @@
 #define BlueShift_iOS_SDK_BlueShiftRoutes_h
 
 
-#define kBS_USBaseURL              @"https://api.bsftstaging.com/"
+#define kBS_USBaseURL              @"https://api.getblueshift.com/"
 #define kBS_EUBaseURL              @"https://api.eu.getblueshift.com/"
 #define kBSRealtimeEvent           @"api/v1/event"
 #define kBSBulkEvents              @"api/v1/bulkevents"

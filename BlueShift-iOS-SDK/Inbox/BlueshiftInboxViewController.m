@@ -186,7 +186,7 @@
     }
     [NSNotificationCenter.defaultCenter addObserverForName:kBSInboxUnreadMessageCountDidChange object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         BlueshiftInboxChangeType type = (BlueshiftInboxChangeType)[note.userInfo[kBSInboxRefreshType] integerValue];
-        if (type == BlueshiftInboxChangeTypeSync) {
+        if (type == BlueshiftInboxChangeTypeSync || type == BlueshiftInboxChangeTypeMarkAsUnread) {
             [weakSelf reloadTableView];
         }
     }];
@@ -434,7 +434,6 @@
         BOOL isDisplayed = [BlueshiftInboxManager showNotificationForInboxMessage:message inboxInAppDelegate: self];
         if (isDisplayed) {
             [self startActivityIndicator];
-            message.readStatus = YES;
             [self reloadTableViewCellForIndexPath:indexPath animated:YES];
         }
     }
