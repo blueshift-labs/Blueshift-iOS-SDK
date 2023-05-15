@@ -85,9 +85,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setInboxDelegate];
+    [self registerTableViewCells];
     [self setupTableView];
     [self setupPullToRefresh];
-    [self registerTableViewCells];
     [self SyncInbox];
 }
 
