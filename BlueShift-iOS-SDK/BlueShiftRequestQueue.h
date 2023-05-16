@@ -6,18 +6,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <BlueShiftRequestOperationManager.h>
-#import <BlueShiftAppDelegate.h>
+#import "BlueShiftRequestOperationManager.h"
+#import "BlueShiftAppDelegate.h"
 #import <CoreData/CoreData.h>
-#import <HttpRequestOperationEntity.h>
-#import <BlueShiftHTTPMethod.h>
-#import <NSNumber+BlueShiftHelpers.h>
-#import <BlueShiftStatusCodes.h>
-#import <BlueShiftRequestOperation.h>
-#import <BlueShiftRequestQueueStatus.h>
-#import <BlueShiftNetworkReachabilityManager.h>
-#import <NSDate+BlueShiftDateHelpers.h>
-#import <BlueShiftBatchRequestOperation.h>
+#import "HttpRequestOperationEntity.h"
+#import "BlueShiftHTTPMethod.h"
+#import "NSNumber+BlueShiftHelpers.h"
+#import "BlueShiftStatusCodes.h"
+#import "BlueShiftRequestOperation.h"
+#import "BlueShiftRequestQueueStatus.h"
+#import "BlueShiftNetworkReachabilityManager.h"
+#import "NSDate+BlueShiftDateHelpers.h"
+#import "BlueShiftBatchRequestOperation.h"
 
 
 @class BlueShiftRequestOperation;

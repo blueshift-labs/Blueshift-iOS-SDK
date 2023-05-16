@@ -7,10 +7,10 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import <NSNumber+BlueShiftHelpers.h>
-#import <BlueShiftHTTPMethod.h>
-#import <BlueShiftAppDelegate.h>
-#import <NSDate+BlueShiftDateHelpers.h>
+#import "NSNumber+BlueShiftHelpers.h"
+#import "BlueShiftHTTPMethod.h"
+#import "BlueShiftAppDelegate.h"
+#import "NSDate+BlueShiftDateHelpers.h"
 
 @interface BatchEventEntity : NSManagedObject
 

@@ -5,12 +5,12 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 
+#import "BlueShiftAppDelegate.h"
 #import <CoreData/CoreData.h>
-#import <BlueShiftAppDelegate.h>
-#import <HttpRequestOperationEntity.h>
-#import <BlueShiftHTTPMethod.h>
-#import <NSNumber+BlueShiftHelpers.h>
-#import <BlueShiftStatusCodes.h>
+#import "HttpRequestOperationEntity.h"
+#import "BlueShiftHTTPMethod.h"
+#import "NSNumber+BlueShiftHelpers.h"
+#import "BlueShiftStatusCodes.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

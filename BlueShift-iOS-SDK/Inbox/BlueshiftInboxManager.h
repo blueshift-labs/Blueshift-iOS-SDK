@@ -6,7 +6,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <BlueshiftInboxViewController.h>
+#import "BlueshiftInboxMessage.h"
+#import "BlueshiftInboxViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

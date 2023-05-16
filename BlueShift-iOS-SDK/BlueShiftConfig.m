@@ -5,10 +5,10 @@
 //  Copyright (c) Blueshift. All rights reserved.
 //
 
+#import "BlueShiftConfig.h"
+#import "BlueshiftLog.h"
 #import <objc/runtime.h>
-#import <BlueShiftConfig.h>
-#import <BlueshiftLog.h>
-#import <BlueshiftConstants.h>
+#import "BlueshiftConstants.h"
 
 @implementation BlueShiftConfig
 

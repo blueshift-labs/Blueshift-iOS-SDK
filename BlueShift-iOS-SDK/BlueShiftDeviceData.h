@@ -12,7 +12,7 @@
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <CoreLocation/CoreLocation.h>
-#import <BlueshiftDeviceIdSource.h>
+#import "BlueshiftDeviceIdSource.h"
 
 @class BlueShift;
 

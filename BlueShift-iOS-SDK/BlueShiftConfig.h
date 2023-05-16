@@ -7,11 +7,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
-#import <BlueShiftUserInfo.h>
-#import <BlueShiftPushDelegate.h>
-#import <BlueShiftInAppNotificationDelegate.h>
-#import <BlueshiftUniversalLinksDelegate.h>
-#import <BlueshiftDeviceIdSource.h>
+#import "BlueShiftUserInfo.h"
+#import "BlueShiftPushDelegate.h"
+#import "BlueShiftInAppNotificationDelegate.h"
+#import "BlueshiftUniversalLinksDelegate.h"
+#import "BlueshiftDeviceIdSource.h"
 
 typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
     BlueshiftRegionUS,
