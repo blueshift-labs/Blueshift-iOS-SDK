@@ -45,6 +45,6 @@
 #define kThreadSleepTimeInterval                                        0.1
 #define kThreadSleepIterations                                          20
 
-#define kBlueshiftExtensionSDKVersion                                   @"2.3.1"
+#define kBlueshiftExtensionSDKVersion                                   @"2.4.0"
 
 #endif
