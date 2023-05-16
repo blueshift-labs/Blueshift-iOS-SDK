@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// This method will sync the new messages received by the user on server with the local db.
 /// After the sync, the new messages will be availble at local db for the later use.
-/// - Parameter handler: success callback will tell you that the sync is complete.
+/// - Parameter handler: success callback will tell you that the sync is complete. The callback handler will be invoked on the background thread.
 + (void)syncInboxMessages:(void (^_Nonnull)(void))handler;
 
 
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method is for adding the fetched messages from server to the local db for later use.
 /// - Parameters:
 ///   - messagesToBeAdded: messages array to add in the db.
-///   - handler: completion handler with `BOOL` completion status
+///   - handler: completion handler with `BOOL` completion status. Handler will be called on background thread.
 /// - Not recommended to use unless needed as the `syncNewInboxMessages` method does the work of making api call and adding it to local db.
 + (void)addInboxNotifications:(NSMutableArray *)messagesToBeAdded handler:(void (^_Nonnull)(BOOL))handler;
 
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method is for adding the fetched messages from server to the local db for later use.
 /// - Parameters:
 ///   - apiResponse: apiResponse received from the `getMessagesForMessageUUIDs` API call.
-///   - completionHandler: completion handler with `BOOL` completion status
+///   - completionHandler: completion handler with `BOOL` completion status. Handler will be called on background thread.
 /// - Not recommended to use unless needed as the `syncNewInboxMessages` method does the work of making api call and adding it to local db.
 + (void)processInboxMessagesForAPIResponse:(NSDictionary *)apiResponse withCompletionHandler:(void (^_Nonnull)(BOOL))completionHandler;
 

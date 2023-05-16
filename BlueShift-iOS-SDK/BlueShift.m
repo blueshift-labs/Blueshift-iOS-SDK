@@ -958,10 +958,14 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
         [BlueshiftInboxAPIManager fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
             [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
-                success();
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    success();
+                });
             }];
         } failure:^(NSError * error) {
-            failure(error);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                failure(error);
+            });
         }];
     } else {
         NSError *error = (NSError*)@"In-app is opted out, can not fetch in-app notifications from API.";
