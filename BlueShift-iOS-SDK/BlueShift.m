@@ -928,18 +928,20 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState {
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES) {
-        if (_config.enableMobileInbox) {
-            [BlueshiftInboxManager syncInboxMessages:^{
-                if (self->_config.inAppManualTriggerEnabled == NO) {
-                    [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
-                }
-            }];
-        } else if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary]) {
-            [self fetchInAppNotificationFromAPI:^() {
-                if (self->_config.inAppManualTriggerEnabled == NO) {
-                    [self fetchInAppNotificationFromDBforApplicationState:applicationState];
-                }
-            } failure:^(NSError *error){ }];
+        if ([BlueshiftEventAnalyticsHelper isFetchInAppAction: dictionary]) {
+            if (_config.enableMobileInbox) {
+                [BlueshiftInboxManager syncInboxMessages:^{
+                    if (self->_config.inAppManualTriggerEnabled == NO) {
+                        [self fetchInAppNotificationFromDBforApplicationState:UIApplicationStateActive];
+                    }
+                }];
+            } else {
+                [self fetchInAppNotificationFromAPI:^() {
+                    if (self->_config.inAppManualTriggerEnabled == NO) {
+                        [self fetchInAppNotificationFromDBforApplicationState:applicationState];
+                    }
+                } failure:^(NSError *error){ }];
+            }
         } else if (_config.inAppManualTriggerEnabled == NO){
             [self fetchInAppNotificationFromDBforApplicationState:applicationState];
         }

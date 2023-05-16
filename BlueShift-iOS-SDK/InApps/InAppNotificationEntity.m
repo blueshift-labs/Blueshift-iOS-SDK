@@ -388,7 +388,6 @@
         self.priority = kInAppPriorityMedium;
         self.eventName = kInAppNotificationKey;
         if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
-            // TODO: read the status from the payload and change the default availbility
             self.status = [[payload objectForKey:@"status"] isEqualToString:kBSInboxUnreadStatus] ? kInAppStatusPending : kInAppStatusDisplayed;
             self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInAppOnly;
         } else {
