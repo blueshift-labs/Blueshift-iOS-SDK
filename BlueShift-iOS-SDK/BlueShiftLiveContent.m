@@ -12,35 +12,47 @@
 
 @implementation BlueShiftLiveContent
 
-+ (void) fetchLiveContentByEmail:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    [self fetchLiveContentByEmail:campaignName withContext:nil success:^(NSDictionary *data) {
-        success(data);
++ (void) fetchLiveContentByEmail:(NSString *)slotName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
+    [self fetchLiveContentByEmail:slotName withContext:nil success:^(NSDictionary *data) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(data);
+        });
     } failure:^(NSError *error) {
-        failure(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failure(error);
+        });
     }];
 }
 
-+ (void) fetchLiveContentByCustomerID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    [self fetchLiveContentByCustomerID:campaignName withContext:nil success:^(NSDictionary * data) {
-        success(data);
++ (void) fetchLiveContentByCustomerID:(NSString *)slotName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
+    [self fetchLiveContentByCustomerID:slotName withContext:nil success:^(NSDictionary * data) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(data);
+        });
     } failure:^(NSError * error) {
-        failure(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failure(error);
+        });
     }];
 }
 
-+ (void) fetchLiveContentByDeviceID:(NSString *)campaignName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
-    [self fetchLiveContentByDeviceID:campaignName withContext:nil success:^(NSDictionary *data) {
-        success(data);
++ (void) fetchLiveContentByDeviceID:(NSString *)slotName success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
+    [self fetchLiveContentByDeviceID:slotName withContext:nil success:^(NSDictionary *data) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            success(data);
+        });
     } failure:^(NSError *error) {
-        failure(error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failure(error);
+        });
     }];
 }
 
-+ (void) fetchLiveContentByEmail:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByEmail:(NSString *)slotName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [BlueshiftRoutes getLiveContentURL];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *email = [BlueShiftUserInfo sharedInstance].email;
-    if(email && apiKey && campaignName) {
+    if(email && apiKey && slotName) {
         if(!context) {
             context = @{};
         }
@@ -49,11 +61,11 @@
                                    };
         NSDictionary *parameters = @{
                                          @"api_key":apiKey,
-                                         @"slot":campaignName,
+                                         @"slot":slotName,
                                          @"user": userData,
                                          @"context":context
                                      };
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if(status) {
                 success(data);
             } else {
@@ -67,11 +79,11 @@
     }
 }
 
-+ (void) fetchLiveContentByCustomerID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByCustomerID:(NSString *)slotName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [BlueshiftRoutes getLiveContentURL];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *customerID = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
-    if(customerID && apiKey && campaignName) {
+    if(customerID && apiKey && slotName) {
         if(!context) {
             context = @{};
         }
@@ -80,11 +92,11 @@
                                    };
         NSDictionary *parameters = @{
                                          @"api_key":apiKey,
-                                         @"slot":campaignName,
+                                         @"slot":slotName,
                                          @"user": userData,
                                          @"context":context
                                      };
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if(status) {
                 success(data);
             } else {
@@ -98,11 +110,11 @@
     }
 }
 
-+ (void) fetchLiveContentByDeviceID:(NSString *)campaignName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
++ (void) fetchLiveContentByDeviceID:(NSString *)slotName withContext:(NSDictionary *)context success:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure {
     NSString *url = [BlueshiftRoutes getLiveContentURL];
     NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
     NSString *deviceID = [BlueShiftDeviceData currentDeviceData].deviceUUID;
-    if(deviceID && apiKey && campaignName) {
+    if(deviceID && apiKey && slotName) {
         if(!context) {
             context = @{};
         }
@@ -111,11 +123,11 @@
                                    };
         NSDictionary *parameters = @{
                                          @"api_key":apiKey,
-                                         @"slot":campaignName,
+                                         @"slot":slotName,
                                          @"user": userData,
                                          @"context":context
                                      };
-        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completetionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
+        [[BlueShiftRequestOperationManager sharedRequestOperationManager] postRequestWithURL:url andParams:parameters completionHandler:^(BOOL status, NSDictionary *data, NSError *error) {
             if(status) {
                 success(data);
             } else {

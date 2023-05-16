@@ -12,6 +12,8 @@
 #import "BlueShiftAppDelegate.h"
 #import "NSDate+BlueShiftDateHelpers.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface HttpRequestOperationEntity : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * httpMethodNumber;
@@ -34,12 +36,16 @@
 - (BlueShiftHTTPMethod)httpMethod;
 
 /// Fetch first record from HttpRequestOperationEntity
-+ (void)fetchFirstRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, HttpRequestOperationEntity *))handler;
++ (void)fetchOneRealTimeEventFromDBWithCompletionHandler:(void (^)(BOOL, HttpRequestOperationEntity * _Nullable))handler;
 
 /// Fetch all the batch records from HttpRequestOperationEntity
-+ (void)fetchBatchWiseRecordFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
++ (void)fetchBatchedEventsFromDBWithCompletionHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
+
++ (void)deleteRecordForObjectId:(NSManagedObjectID*)objectId completionHandler:(void (^)(BOOL))handler;
 
 /// Erase all the non synced batched and non-batched events from the HttpRequestOperation Entity of SDK database
 + (void)eraseEntityData;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -20,6 +20,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _sharedRequestOperationManager = [[BlueShiftRequestOperationManager alloc]init];
+        _sharedRequestOperationManager.inboxImageDataCache = [[NSCache alloc] init];
     });
     return _sharedRequestOperationManager;
 }
@@ -27,6 +28,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)resetURLSessionConfig {
     self.sessionConfiguraion = nil;
     self.mainURLSession = nil;
+    [self.inboxImageDataCache removeAllObjects];
 }
 
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
@@ -74,14 +76,15 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     return  paramsString;
 }
 
-- (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+#pragma mark - Handle GET url
+- (void)getRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     if (![BlueShift sharedInstance].config.apiKey) {
         [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
         handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
     }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
-        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue currentQueue]];
     }
     
     NSString *urlWithParams = [NSString stringWithFormat:@"%@?%@", urlString, [self getRequestParamStringForDictionary:params]];
@@ -112,14 +115,15 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
-- (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completetionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
+#pragma mark - Handle POST url
+- (void)postRequestWithURL:(NSString *)urlString andParams:(NSDictionary *)params completionHandler:(void (^)(BOOL, NSDictionary *,NSError *))handler{
     if (![BlueShift sharedInstance].config.apiKey) {
         [BlueshiftLog logInfo:@"API key not set." withDetails:nil methodName:nil];
         handler(false, nil, [NSError errorWithDomain:@"API key not set." code:NSNotFound userInfo:nil]);
     }
     [self addBasicAuthenticationRequestHeaderForUsername:[BlueShift sharedInstance].config.apiKey andPassword:@""];
     if(!_mainURLSession) {
-        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue mainQueue]];
+        _mainURLSession = [NSURLSession sessionWithConfiguration: self.sessionConfiguraion delegate: nil delegateQueue: [NSOperationQueue currentQueue]];
     }
     
     NSURL * url = [NSURL URLWithString:urlString];
@@ -151,6 +155,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     [dataTask resume];
 }
 
+#pragma mark - Handle Universal links replay
 - (void)replayUniversalLink:(NSURL *)url completionHandler:(void (^)(BOOL, NSURL*, NSError*))handler {
     if(!_replayURLSesion) {
         NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -188,6 +193,37 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
     completionHandler(nil);
+}
+
+#pragma mark - Handle downloading of images
+-(void)downloadImageForURL:(NSURL*)url handler:(void (^)(BOOL, NSData *, NSError *))handler {
+    if (url) {
+        NSData* imageData = [self getCachedImageDataForURL:url.absoluteString];
+        if (imageData) {
+            handler(YES,imageData, nil);
+        } else {
+            __weak __typeof(self)weakSelf = self;
+            NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+                if (statusCode == kStatusCodeSuccessfullResponse) {
+                    [weakSelf.inboxImageDataCache setObject:data forKey:url.absoluteString];
+                    handler(YES,data,nil);
+                } else {
+                    handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:statusCode userInfo:nil]);
+                }
+            }];
+            [dataTask resume];
+        }
+    } else {
+        handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:NSNotFound userInfo:nil]);
+    }
+}
+
+- (NSData* _Nullable)getCachedImageDataForURL:(NSString*)url {
+    if (url) {
+        return [_inboxImageDataCache objectForKey:url];
+    }
+    return nil;
 }
 
 @end

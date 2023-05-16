@@ -19,7 +19,6 @@ In addition, include the following details based on the nature of the issue.
 - Campaign Name/Link (if available)
 - Template Name/Link (if available)
 - Any extra details that you think would help in repro the issue
-- Compatible with Carthage as prebuild framework, building from GitHub source code is currently not supported
 
 File support tickets for issues that you want to report on GitHub.
 

@@ -1,6 +1,6 @@
 //
 //  BlueShiftInAppNotificationHelper.m
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 11/07/19.
 //
@@ -183,18 +183,41 @@ static NSDictionary *_inAppTypeDictionay;
     return NO;
 }
 
-+ (NSString *)getMD5ForString:(NSString*)string {
-    const char *cStr = [string UTF8String];
-    unsigned char result[CC_MD5_DIGEST_LENGTH];
-    CC_MD5( cStr, (CC_LONG)strlen(cStr), result );
++ (NSDate*)getUTCDateFromDateString:(NSString*)createdAtDateString {
+    if (createdAtDateString) {
+        NSDateFormatter *dateFormatter = [self getUTCDateFormatter];
+        NSDate* utcDate = [dateFormatter dateFromString:createdAtDateString];
+        return utcDate;
+    }
+    return [NSDate date];
+}
 
-    return [NSString stringWithFormat:
-        @"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-        result[0], result[1], result[2], result[3],
-        result[4], result[5], result[6], result[7],
-        result[8], result[9], result[10], result[11],
-        result[12], result[13], result[14], result[15]
-    ];
++ (NSDateFormatter*)getUTCDateFormatter {
+    NSDateFormatter* utcDateFormatter = [[NSDateFormatter alloc] init];
+    [utcDateFormatter setDateFormat:kDefaultDateFormat];
+    [utcDateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
+    [utcDateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
+    [utcDateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    return utcDateFormatter;
+}
+
++ (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload {
+    if ([notificationPayload objectForKey: kBSMessageUUID]) {
+        return (NSString *)[notificationPayload objectForKey: kBSMessageUUID];
+    } else {
+        if([notificationPayload objectForKey:kInAppNotificationDataKey]) {
+            notificationPayload = [notificationPayload objectForKey:kInAppNotificationDataKey];
+            if ([notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey]) {
+                return (NSString *)[notificationPayload objectForKey: kInAppNotificationModalMessageUDIDKey];
+            }
+        }
+    }
+    return nil;
+}
+
++ (BOOL)isExpired:(double)expiryTime {
+    double currentTime =  [[NSDate date] timeIntervalSince1970];
+    return currentTime > expiryTime;
 }
 
 #pragma mark - Font awesome support

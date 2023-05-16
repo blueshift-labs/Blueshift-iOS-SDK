@@ -61,7 +61,6 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
         if (self.unsubscribed != nil) {
             [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserUnsubscribedPush value:self.unsubscribed];
         }
-        [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserAdditionalInfo value:self.additionalUserInfo];
         if (self.dateOfBirth) {
             NSNumber *dateOfBirthTimeStamp = [NSNumber numberWithDouble:[self.dateOfBirth timeIntervalSinceReferenceDate]];
             [BlueshiftEventAnalyticsHelper addToDictionary:sharedUserInfoMutableDictionary key:kBSUserDOB value:dateOfBirthTimeStamp];
@@ -155,7 +154,6 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
                 blueShiftUserInfo.dateOfBirth = [NSDate dateWithTimeIntervalSinceReferenceDate:dateOfBirthTimeStamp];
             }
             blueShiftUserInfo.extras = [currentUserInfoDictionary objectForKey:kBSUserExtras];
-            blueShiftUserInfo.additionalUserInfo = [currentUserInfoDictionary objectForKey:kBSUserAdditionalInfo];
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
         }

@@ -26,7 +26,9 @@
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount;
 
 /// Fetch batches to send async as part of bulk events
-+ (void)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
++ (void)fetchBatchesFromCoreDataWithCompletionHandler:(void (^)(BOOL, NSArray *))handler;
+
++ (void)deleteEntryForObjectId:(NSManagedObjectID *)objectId completionHandler:(void (^)(BOOL))handler;
 
 /// Erase all the non synced event batches from the BatchEvent Entity of SDK database
 + (void)eraseEntityData;

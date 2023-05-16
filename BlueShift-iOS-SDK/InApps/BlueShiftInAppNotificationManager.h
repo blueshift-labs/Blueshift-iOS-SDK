@@ -1,6 +1,6 @@
 //
 //  BlueShiftInAppNotificationManager.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 10/07/19.
 //
@@ -20,12 +20,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString * _Nullable inAppNotificationDisplayOnPage;
 
 - (void)load;
-- (void)initializeInAppNotificationFromAPI:(NSMutableArray *)notificationArray handler:(void (^)(BOOL))handler;
-- (void)fetchInAppNotificationsFromDataStore: (BlueShiftInAppTriggerMode) triggerMode;
-- (void)fetchLastInAppMessageIDFromDB:(void (^)(BOOL, NSString *, NSString *))handler;
-- (void)deleteExpireInAppNotificationFromDataStore;
-- (void)markAsDisplayedForNotificationsViewedOnOtherDevice:(NSArray *)messageUUIDArray;
+
+- (void)fetchAndShowInAppNotification;
+
 - (void)stopInAppMessageFetchTimer;
+
+- (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen;
+
 @end
 
 NS_ASSUME_NONNULL_END

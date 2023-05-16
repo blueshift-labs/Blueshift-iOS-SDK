@@ -14,11 +14,8 @@
 #import "BlueshiftConstants.h"
 #import "BlueShiftInAppNotificationHelper.h"
 
-#define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
-
-static NSManagedObjectContext * _Nullable managedObjectContext;
-static NSManagedObjectContext * _Nullable realEventManagedObjectContext;
-static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
+static NSManagedObjectContext * _Nullable inboxMOContext;
+static NSManagedObjectContext * _Nullable eventsMOContext;
 
 @implementation BlueShiftAppDelegate {
     NSString *lastProcessedPushNotificationUUID;
@@ -326,7 +323,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                 //add title, body and userinfo
                 UNMutableNotificationContent* notificationContent = [[UNMutableNotificationContent alloc] init];
                 notificationContent.title = [notification objectForKey:kNotificationTitleKey];
-                notificationContent.body =  [notification objectForKey:kNotificationBodyKey];;
+                notificationContent.body =  [notification objectForKey:kNotificationBodyKey];
                 notificationContent.sound = [notification objectForKey:kNotificationSoundIdentifierKey] ? [notification objectForKey:kNotificationSoundIdentifierKey] : [UNNotificationSound defaultSound];
                 notificationContent.categoryIdentifier = [notification objectForKey: kNotificationCategoryIdentifierKey];
                 notificationContent.userInfo = [notification mutableCopy];
@@ -448,8 +445,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         }
         
         lastProcessedPushNotificationUUID = pushUUID;
-        NSDictionary *pushTrackParameterDictionary = [BlueshiftEventAnalyticsHelper pushTrackParameterDictionaryForPushDetailsDictionary:notification];
-        [self trackPushClickedWithParameters:pushTrackParameterDictionary];
+        [BlueShift.sharedInstance trackPushClickedWithParameters:notification canBatchThisEvent:NO];
         
         [self handleDeeplinkForPushNotification: notification];
     } @catch (NSException *exception) {
@@ -479,7 +475,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
--(void)shareDeepLinkToApp:(NSURL* _Nonnull)deepLinkURL userInfo:(NSDictionary* _Nonnull)userInfo {
+-(void)shareDeepLinkToApp:(NSURL* _Nullable)deepLinkURL userInfo:(NSDictionary* _Nonnull)userInfo {
     if (deepLinkURL && [self.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
         NSMutableDictionary *pushOptions = [@{openURLOptionsSource:openURLOptionsBlueshift,
                                               openURLOptionsChannel:openURLOptionsPush,
@@ -606,6 +602,8 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     }
 }
 
+
+
 #pragma mark - Application lifecyle events
 - (void)appDidBecomeActive:(UIApplication *)application {
     // Moved the code to the observer
@@ -689,18 +687,6 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
             [parameterMutableDictionary addEntriesFromDictionary:parameters];
         }
         [[BlueShift sharedInstance] trackEventForEventName:kEventAppOpen andParameters:parameters canBatchThisEvent:NO];
-}
-
-#pragma mark - Track Push clicks
-- (void)trackPushClickedWithParameters:(NSDictionary *)parameters {
-    if ([BlueshiftEventAnalyticsHelper isSendPushAnalytics: parameters]) {
-        NSMutableDictionary *parameterMutableDictionary = [NSMutableDictionary dictionary];
-        if (parameters) {
-            [parameterMutableDictionary addEntriesFromDictionary:parameters];
-            [parameterMutableDictionary setObject:kBSClick forKey:kBSAction];
-        }
-        [[BlueShift sharedInstance] performRequestQueue:[parameterMutableDictionary copy] canBatchThisEvent:NO];
-    }
 }
 
 #pragma mark - Core Data
@@ -822,14 +808,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                         }
                     }
                 }
-                managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-                [managedObjectContext setPersistentStoreCoordinator:coordinator];
-
-                realEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-                [realEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
-
-                batchEventManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-                [batchEventManagedObjectContext setPersistentStoreCoordinator:coordinator];
+                
+                inboxMOContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                [inboxMOContext setPersistentStoreCoordinator:coordinator];
+                
+                eventsMOContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                [eventsMOContext setPersistentStoreCoordinator:coordinator];
             } else {
                 [BlueshiftLog logInfo:@"Failed to initialise core data as MOMD URL is found nil." withDetails:nil methodName:nil];
             }
@@ -839,16 +823,12 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
     });
 }
 
-- (NSManagedObjectContext *)managedObjectContext {
-    return managedObjectContext;
+- (NSManagedObjectContext* _Nullable)inboxMOContext {
+    return  inboxMOContext;
 }
 
-- (NSManagedObjectContext *)realEventManagedObjectContext {
-    return realEventManagedObjectContext;
-}
-
-- (NSManagedObjectContext *)batchEventManagedObjectContext {
-    return batchEventManagedObjectContext;
+- (NSManagedObjectContext* _Nullable)eventsMOContext {
+    return eventsMOContext;
 }
 
 #pragma mark - Universal links
@@ -880,9 +860,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
                     if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                         [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing:redirectURL];
                     }
-                }
-                else
-                {
+                } else {
                     if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didFailLinkProcessingWithError:url:)]) {
                         [self.blueshiftUniversalLinksDelegate didFailLinkProcessingWithError:error url:url];
                     }
@@ -891,7 +869,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         } else if ([url.absoluteString rangeOfString: kUniversalLinkTrackURLKey].location != NSNotFound && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] && [queriesPayload objectForKey: kUniversalLinkRedirectURLKey] != [NSNull null]) {
             NSURL *redirectURL = [[NSURL alloc] initWithString: [queriesPayload objectForKey: kUniversalLinkRedirectURLKey]];
             [queriesPayload removeObjectForKey:kUniversalLinkRedirectURLKey];
-            [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
+            [[BlueShift sharedInstance] addTrackingEventToQueueWithParams:queriesPayload isBatch:NO];
             [BlueshiftLog logInfo:@"Universal link is of /track type. Passing the redirectURL to host app." withDetails:redirectURL methodName:nil];
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing: redirectURL];
@@ -899,7 +877,7 @@ static NSManagedObjectContext * _Nullable batchEventManagedObjectContext;
         } else {
             [BlueshiftLog logInfo:@"Universal link is not from the Blueshift. Passing the url to app without processing." withDetails:url methodName:nil];
             if ([[BlueShift sharedInstance] isBlueshiftUniversalLinkURL:url]) {
-                [[BlueShift sharedInstance] performRequestQueue:queriesPayload canBatchThisEvent:NO];
+                [[BlueShift sharedInstance] addTrackingEventToQueueWithParams:queriesPayload isBatch:NO];
             }
             if ([self.blueshiftUniversalLinksDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
                 [self.blueshiftUniversalLinksDelegate didCompleteLinkProcessing:url];

@@ -34,11 +34,6 @@
 /// Set this flag to true if you want to stop receiving push notifications for that user.
 @property NSNumber* _Nullable  unsubscribed;
 
-/// The data stored in the additionalUserInfo will be populated on server with `additional_user_info__` prefix to every key name.
-/// If key is stored as `profession`, then server will popluate it as `additional_user_info__profession` in the events.
-/// Make sure you call BlueShiftUserInfo.sharedInstance()?.save() after setting/modifying the user info.
-@property NSMutableDictionary* _Nullable additionalUserInfo DEPRECATED_MSG_ATTRIBUTE("This property is deprecated,use extras proprety instead to save additional information.");
-
 /// The data stored in the extras will be sent to server as it is as part of every event.
 /// If key is stored as `profession`, then server will populate it as `profession` in the events.
 /// Make sure you call BlueShiftUserInfo.sharedInstance()?.save() after setting/modifying the user info.

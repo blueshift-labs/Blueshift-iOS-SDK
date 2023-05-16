@@ -1,6 +1,6 @@
 //
 //  BlueShiftInAppNotification.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 10/07/19.
 //
@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import "BlueShiftInAppType.h"
 #import "InAppNotificationEntity.h"
+#import "BlueshiftInboxViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite, nullable) NSNumber *backgroundRadius;
 @property (nonatomic, copy, readwrite, nullable) NSString *position;
 @property (nonatomic, assign, readwrite) float height;
-@property (nonatomic, assign, readwrite) float width;;
+@property (nonatomic, assign, readwrite) float width;
 @property (nonatomic, assign, readwrite) BOOL enableBackgroundAction;
 @property (nonatomic, assign, readwrite, nullable) NSNumber* enableCloseButton;
 @property (nonatomic, readwrite) BlueShiftInAppLayoutMargin *margin;
@@ -137,7 +138,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) BlueShiftInAppNotificationContentStyle *contentStyleDark;
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *notificationPayload;
 
-- (instancetype)initFromEntity: (InAppNotificationEntity *) appEntity;
+@property (nonatomic, assign) BOOL isFromInbox;
+
+@property (nonatomic, weak) id<BlueshiftInboxInAppNotificationDelegate> _Nullable inboxDelegate;
+
+- (instancetype)initFromEntity: (InAppNotificationEntity*)appEntity;
+
+- (instancetype)initFromPayload: (NSDictionary *)payload forType:(NSString*)type;
 
 @end
 

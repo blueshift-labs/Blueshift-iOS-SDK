@@ -1,6 +1,6 @@
 //
 //  BlueshiftEventAnalyticsHelper.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by Noufal on 18/10/19.
 //
@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlueshiftEventAnalyticsHelper : NSObject
 
-+ (NSDictionary *)pushTrackParameterDictionaryForPushDetailsDictionary:(NSDictionary *)pushDetailsDictionary;
-+ (NSString *)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
++ (NSDictionary *)getTrackingParamsForNotification:(NSDictionary *)details;
++ (NSString * _Nullable)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key;
 + (BOOL)isSendPushAnalytics:(NSDictionary *)userInfo;
 
 /// Check if the payload is InApp silent push notification
@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)url;
 
-+ (BOOL)isMarkInAppAsOpen:(NSDictionary*)userInfo;
 + (BOOL)isFetchInAppAction:(NSDictionary*)userInfo;
 
 + (BOOL)isSchedulePushNotification:(NSDictionary*)userInfo;

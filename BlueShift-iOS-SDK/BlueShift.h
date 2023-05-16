@@ -28,6 +28,8 @@
 #import "BlueShiftUserNotificationCenterDelegate.h"
 #import "BlueshiftEventAnalyticsHelper.h"
 #import "BlueShiftLiveContent.h"
+#import "BlueshiftInboxMessage.h"
+#import "BlueshiftInboxViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,9 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong)  BlueShiftUserNotificationSettings * _Nullable userNotification API_AVAILABLE(ios(10.0));
 @property BlueShiftAppDelegate * _Nullable appDelegate;
 @property BlueShiftUserNotificationCenterDelegate * _Nullable userNotificationDelegate;
-
-/// Image cache for storing downloaded images from the in-app notifications. The cache will be cleared when in-app gets dismissed.
-@property (nonatomic, strong) NSCache<NSString*, NSData *> *inAppImageDataCache;
 
 + (instancetype _Nullable)sharedInstance;
 
@@ -102,8 +101,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Send `pageload` event to track the screen visits.
 /// @param viewController viewController which is visited by the user.
 /// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
-/// @param parameters additional details to send as part of identify event.
+/// @param parameters additional details to send as part of event.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+
+/// Send `pageload` event to track the screen visits.
+/// @param screenName Name of screen which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
+/// @param parameters additional details to send as part of event.
+- (void)trackScreenViewedForScreenName:(NSString*)screenName withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID canBatchThisEvent:(BOOL)isBatchEvent;
 
@@ -186,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload canBacthThisEvent:(BOOL)isBatchEvent;
 
-- (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+- (void)addTrackingEventToQueueWithParams:(NSMutableDictionary *)parameters isBatch:(BOOL)isBatchEvent;
 
 #pragma mark In app manual trigger and fetch methods
 /// Calling this method will display single in-app notification if the current screen/VC is registered for displaying in-app notifications.
@@ -240,6 +245,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method will to get the required payload data to make an api call to the Blueshift In-app notifications api.
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
+
+- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message inboxInAppDelegate:(id<BlueshiftInboxInAppNotificationDelegate> _Nullable)inboxInAppDelegate;
 
 #pragma mark Push and In App notifications Opt In methods
 /// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.

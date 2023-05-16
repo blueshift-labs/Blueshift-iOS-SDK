@@ -1,6 +1,6 @@
 //
 //  BlueShiftNotificationViewController.m
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 10/07/19.
 //
@@ -68,11 +68,33 @@
     return notificationView;
 }
 
+- (UIWindow*)getKeyWindowBasedOnInAppOrigin {
+    //If in-app is originated from inbox, then use scene from the inbox screen
+    if (_notification && _notification.isFromInbox && _notification.inboxDelegate && [_notification.inboxDelegate respondsToSelector:@selector(getInboxWindowScene)]) {
+        if (@available(iOS 13.0, *)) {
+            UIWindowScene* windowScene = _notification.inboxDelegate.getInboxWindowScene;
+            if (windowScene) {
+                if (@available(iOS 15.0, *)) {
+                    return _notification.inboxDelegate.getInboxWindowScene.keyWindow;
+                } else {
+                    for (UIWindow *window in _notification.inboxDelegate.getInboxWindowScene.windows) {
+                        if (window && window.isKeyWindow) {
+                            return window;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //If its normal in-app, use the key window
+    return [BlueShiftInAppNotificationHelper getApplicationKeyWindow];
+}
+
 - (void)createWindow {
     self.window = nil;
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
     if (@available(iOS 13.0, *)) {
-        UIWindowScene *windowScene = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene;
+        UIWindowScene *windowScene = [self getKeyWindowBasedOnInAppOrigin].windowScene;
         if (windowScene) {
             self.window = [[windowClass alloc] initWithWindowScene: windowScene];
         }
@@ -80,7 +102,7 @@
     if (self.window == nil) {
         self.window = [[windowClass alloc] init];
     }
-    self.window.frame = [BlueShiftInAppNotificationHelper getApplicationKeyWindow].frame;
+    self.window.frame = [self getKeyWindowBasedOnInAppOrigin].frame;
     self.window.alpha = 0;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.windowLevel = UIWindowLevelNormal;
@@ -119,48 +141,19 @@
 /// @param imageURL Image url to download the image
 /// @param imageView  assign the downloaded image to imageView
 - (void)loadImageFromURL:(NSString *)imageURL forImageView:(UIImageView *)imageView {
-    UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:imageURL]];
+    UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:imageURL]];
     imageView.image = image;
 }
 
 - (void)setBackgroundImageFromURL:(UIView *)notificationView {
     if (notificationView && [self isBackgroundImagePresentForNotification:self.notification]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
-        UIImage *image = [[UIImage alloc] initWithData:[self loadAndCacheImageForURLString:backgroundImageURL]];
+        UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:backgroundImageURL]];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.frame = notificationView.bounds;
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         [notificationView addSubview:imageView];
     }
-}
-
--(NSData*)loadAndCacheImageForURLString:(NSString*)urlString {
-    NSData *imageData = [[NSData alloc] init];
-    @try {
-        if([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:urlString]) {
-            NSString *urlMD5Hash = [BlueShiftInAppNotificationHelper getMD5ForString: urlString];
-            if([BlueShift sharedInstance].inAppImageDataCache && [[BlueShift sharedInstance].inAppImageDataCache objectForKey: urlMD5Hash]) {
-                imageData = [[BlueShift sharedInstance].inAppImageDataCache objectForKey:urlMD5Hash];
-                [BlueshiftLog logInfo:@"Loading image from image cache for url" withDetails:urlString methodName:nil];
-            } else {
-                NSURL *url = [NSURL URLWithString:urlString];
-                if (url) {
-                    [BlueshiftLog logInfo:@"Downloading image using url" withDetails:urlString methodName:nil];
-                    imageData = [[NSData alloc] initWithContentsOfURL:url];
-                    if (imageData) {
-                        if ([BlueShift sharedInstance].inAppImageDataCache == nil) {
-                            [BlueShift sharedInstance].inAppImageDataCache = [[NSCache alloc] init];
-                        }
-                        [[BlueShift sharedInstance].inAppImageDataCache setObject:imageData forKey:urlMD5Hash];
-                        [BlueshiftLog logInfo:@"Downloaded image successfully with size in KB" withDetails:[NSNumber numberWithFloat:(imageData.length/1024.0f)] methodName:nil];
-                    }
-                }
-            }
-        }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-    }
-    return imageData;
 }
 
 - (void)setBackgroundColor:(UIView *)notificationView {
@@ -197,7 +190,7 @@
 }
 
 - (BOOL)shouldShowCloseButton {
-    if (self.notification.templateStyle.enableCloseButton) {
+    if (self.notification.templateStyle.enableCloseButton != nil) {
         return [self.notification.templateStyle.enableCloseButton boolValue];
     }
     return [self checkDefaultCloseButtonStatusForInApp];
@@ -292,32 +285,44 @@
         }
         [self processInAppActionForDeepLink:buttonDetails.iosLink details:details];
         
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)] && self.notification) {
-            [self sendActionButtonTappedDelegate: buttonDetails];
-        } else if([buttonDetails.iosLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
-                  [buttonDetails.iosLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
-            // Placeholder
-            // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
-            // This case is already handled in the [self processInAppActionForDeepLink:]
-        } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate &&
-                  [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] &&
-                  [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:buttonDetails.iosLink]) {
-            if (@available(iOS 9.0, *)) {
-                NSURL *deepLinkURL = [NSURL URLWithString: buttonDetails.iosLink];
-                if (deepLinkURL) {
-                    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-                    [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:inAppOptions];
-                    [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails:inAppOptions methodName:nil];
-                }
-            }
-        }
+        NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
+        
+        [self shareDeepLinkToApp:buttonDetails.iosLink options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     [self hide:YES];
 }
 
-- (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details {
+- (void)shareDeepLinkToApp:(NSString* _Nullable)deepLink options:(NSDictionary*)options {
+    if([deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
+       [deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL] ||
+       [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:deepLink] == NO) {
+        // Placeholder
+        // Do not send the deep links with type dismiss or ask-pn-permission or nil or empty to openURL:options:
+        // This case is already handled in the [self processInAppActionForDeepLink:]
+    } else if (_notification && _notification.isFromInbox == YES && [self.notification.inboxDelegate respondsToSelector:@selector(isInboxNotificationActionTappedImplementedByHostApp)] && [self.notification.inboxDelegate isInboxNotificationActionTappedImplementedByHostApp] == YES) {
+        // Handle the Deep link of in-apps originated from inbox and have implemented the callback method
+        // `inboxNotificationActionTappedWithDeepLink:inboxViewController:options:`
+        [_notification.inboxDelegate inboxInAppNotificationActionTappedWithDeepLink:deepLink options:options];
+    } else if (_notification && _notification.isFromInbox == NO && self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+        // Handle the deep link if in-app is not originated from inbox and host app has implemented the callback method
+        // `actionButtonDidTapped`
+        [self sendActionButtonTappedDelegate:deepLink options:options];
+    } else if([BlueShift sharedInstance].appDelegate.mainAppDelegate &&
+              [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+        // Default callback mecanism
+        if (@available(iOS 9.0, *)) {
+            NSURL *deepLinkURL = [NSURL URLWithString: deepLink];
+            if (deepLinkURL) {
+                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:options];
+                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", deepLinkURL] withDetails:options methodName:nil];
+            }
+        }
+    }
+}
+
+- (void)processInAppActionForDeepLink:(NSString* _Nullable)deepLink details:(NSDictionary*)details {
     if (deepLink == nil || [deepLink isEqualToString:@""] || [deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL]) {
         [self sendActionEventAnalytics:details forActionType:BlueshiftInAppDismissAction];
     } else if ([deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
@@ -329,7 +334,7 @@
 }
 
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton {
-    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift,openURLOptionsChannel:openURLOptionsInApp}];
+    NSMutableDictionary *options = [[NSMutableDictionary alloc] initWithDictionary:@{openURLOptionsSource:openURLOptionsBlueshift}];
     @try {
         if (_notification) {
             NSString *inAppType = @"";
@@ -357,20 +362,22 @@
                 [options setValue:inAppbutton.text forKey:openURLOptionsButtonText];
             }
         }
+        if (_notification.isFromInbox) {
+            [options setValue:openURLOptionsInbox forKey:openURLOptionsChannel];
+        } else {
+            [options setValue:openURLOptionsInApp forKey:openURLOptionsChannel];
+        }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
     return options;
 }
 
-- (void)sendActionButtonTappedDelegate:(BlueShiftInAppNotificationButton *)actionButton {
-    NSDictionary *inAppOptions = [self getInAppOpenURLOptions:actionButton];
-    NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:inAppOptions];
-    NSString *iosLink = actionButton.iosLink ? actionButton.iosLink : @"";
-    [actionPayload setObject: iosLink forKey: kInAppNotificationModalPageKey];
+- (void)sendActionButtonTappedDelegate:(NSString*)deepLink options:(NSDictionary*)options {
+    NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:options];
+    [actionPayload setObject: deepLink forKey: kInAppNotificationModalPageKey];
 
-    NSString *buttonType = actionButton.buttonType ? actionButton.buttonType : @"";
-    [actionPayload setObject: buttonType forKey: kInAppNotificationButtonTypeKey];
+    [actionPayload setObject: kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
     [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
     [BlueshiftLog logInfo:@"Delivered in-app notification deeplink to the actionButtonDidTapped delegate method" withDetails:actionPayload methodName:nil];
 }

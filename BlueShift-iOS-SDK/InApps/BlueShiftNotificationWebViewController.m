@@ -1,6 +1,6 @@
 //
 //  BlueShiftNotificationWebViewController.m
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 11/07/19.
 //
@@ -15,11 +15,11 @@
 
 API_AVAILABLE(ios(8.0))
 @interface BlueShiftNotificationWebViewController ()<WKNavigationDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
-    WKWebView *webView;
     BOOL isAutoHeight;
     BOOL isAutoWidth;
 }
 
+@property WKWebView *webView;
 @property(nonatomic, retain) UIPanGestureRecognizer *panGesture;
 @property(nonatomic, assign) CGFloat initialHorizontalCenter;
 @property(nonatomic, assign) CGFloat initialTouchPositionX;
@@ -28,6 +28,7 @@ API_AVAILABLE(ios(8.0))
 @end
 
 @implementation BlueShiftNotificationWebViewController
+
 
 - (void)loadView {
     if (self.canTouchesPassThroughWindow) {
@@ -61,7 +62,7 @@ API_AVAILABLE(ios(8.0))
 - (void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     //Resize webview on orientation change
-    [self resizeWebViewAsPerContent:webView];
+    [self resizeWebViewAsPerContent:_webView];
 }
 
 - (void)setAutomaticScale {
@@ -96,25 +97,25 @@ API_AVAILABLE(ios(8.0))
     [self createCloseButton:frame];
     [self setBackgroundDim];
     if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey]) {
-      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
-      webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
+      _webView.autoresizingMask = _webView.autoresizingMask | UIViewAutoresizingFlexibleWidth;
+      _webView.autoresizingMask = _webView.autoresizingMask | UIViewAutoresizingFlexibleHeight;
     }
 }
 
 - (WKWebView *)createWebView  API_AVAILABLE(ios(8.0)){
     WKWebViewConfiguration *wkConfig = [[WKWebViewConfiguration alloc] init];
     wkConfig.allowsInlineMediaPlayback = YES;
-    webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:wkConfig];
-    webView.scrollView.showsHorizontalScrollIndicator = NO;
-    webView.scrollView.showsVerticalScrollIndicator = NO;
-    webView.scrollView.scrollEnabled = YES;
-    webView.scrollView.bounces = NO;
-    webView.backgroundColor = [UIColor whiteColor];
-    webView.opaque = NO;
-    webView.tag = 188293;
-    webView.clipsToBounds = TRUE;
-    [self setBackgroundRadius:webView];
-    return webView;
+    _webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:wkConfig];
+    _webView.scrollView.showsHorizontalScrollIndicator = NO;
+    _webView.scrollView.showsVerticalScrollIndicator = NO;
+    _webView.scrollView.scrollEnabled = YES;
+    _webView.scrollView.bounces = NO;
+    _webView.backgroundColor = [UIColor whiteColor];
+    _webView.opaque = NO;
+    _webView.tag = 188293;
+    _webView.clipsToBounds = TRUE;
+    [self setBackgroundRadius:_webView];
+    return _webView;
 }
 
 - (void)setWebViewDelegate:(WKWebView *)webView  API_AVAILABLE(ios(8.0)){
@@ -127,12 +128,14 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (void)loadFromURL {
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.notification.notificationContent.url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0]];
-    webView.navigationDelegate = nil;
+    [_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.notification.notificationContent.url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0]];
+    _webView.navigationDelegate = nil;
 }
 
 - (void)loadFromHTML {
-    [webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
+    if (self.notification.notificationContent.content) {
+        [_webView loadHTMLString:[kInAppNotificationModalHTMLHeaderKey stringByAppendingString: self.notification.notificationContent.content] baseURL:nil];
+    }
 }
 
 - (CGRect)positionWebView{
@@ -209,20 +212,20 @@ API_AVAILABLE(ios(8.0))
         
         size.width = itemWidth;
         size.height = itemHeight;
-    }else {
+    } else {
         
     }
     
     // prevent webview content insets for Cover
     if (@available(iOS 11.0, *)) {
         if ([self.notification.dimensionType  isEqual: kInAppNotificationModalResolutionPercntageKey] && height == 100.0) {
-            webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
     }
     
-    CGRect frame = webView.frame;
+    CGRect frame = _webView.frame;
     frame.size = size;
-    webView.autoresizingMask = UIViewAutoresizingNone;
+    _webView.autoresizingMask = UIViewAutoresizingNone;
     
     CGSize screenSize = [BlueShiftInAppNotificationHelper getApplicationWindowSize:self.window];
     
@@ -233,7 +236,7 @@ API_AVAILABLE(ios(8.0))
     if([position  isEqual: kInAppNotificationModalPositionTopKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = 0.0f + extra + 20.0f;
-        webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
+        _webView.autoresizingMask = _webView.autoresizingMask | UIViewAutoresizingFlexibleBottomMargin;
     } else if([position  isEqual:  kInAppNotificationModalPositionCenterKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         double yPosition = (screenSize.height - size.height) / 2.0f;
@@ -241,7 +244,7 @@ API_AVAILABLE(ios(8.0))
     } else if([position  isEqual: kInAppNotificationModalPositionBottomKey]) {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         frame.origin.y = screenSize.height - size.height;
-        webView.autoresizingMask = webView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
+        _webView.autoresizingMask = _webView.autoresizingMask | UIViewAutoresizingFlexibleTopMargin;
     } else {
         frame.origin.x = (screenSize.width - size.width) / 2.0f;
         double yPosition = (screenSize.height - size.height) / 2.0f;
@@ -250,7 +253,7 @@ API_AVAILABLE(ios(8.0))
     
     frame.origin.x = frame.origin.x < 0.0f ? 0.0f : frame.origin.x;
     frame.origin.y = frame.origin.y < 0.0f ? 0.0f : frame.origin.y;
-    webView.frame = frame;
+    _webView.frame = frame;
     _originalCenter = frame.origin.x + frame.size.width / 2.0f;
     
     return frame;
@@ -277,26 +280,8 @@ API_AVAILABLE(ios(8.0))
             [self processInAppActionForDeepLink:nil details:details];
         }
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
-            NSString *deepLink = (url && url.absoluteString) ? url.absoluteString : @"";
-            NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:inAppOptions];
-            [actionPayload setObject: deepLink forKey: kInAppNotificationModalPageKey];
-            [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey: kInAppNotificationButtonTypeKey];
-            [[self inAppNotificationDelegate] actionButtonDidTapped: actionPayload];
-        } else if([url.absoluteString isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
-                  [url.absoluteString isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
-            // Placeholder
-            // Do not send the deep links with type dismiss or ask-pn-permission to openURL:options:
-            // This case is already handled in the [self processInAppActionForDeepLink:]
-        }
-        else if(url && [BlueShift sharedInstance].appDelegate.mainAppDelegate &&
-                  [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)] &&
-                  [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:url.absoluteString]) {
-            if (@available(iOS 9.0, *)) {
-                [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL: url options:inAppOptions];
-                [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered in-app notification deeplink to AppDelegate openURL method, Deep link - ", [url absoluteString]] withDetails:inAppOptions methodName:nil];
-            }
-        }
+        
+        [self shareDeepLinkToApp:url.absoluteString options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
@@ -321,11 +306,12 @@ API_AVAILABLE(ios(8.0))
 }
 
 - (void)showInAppOnWebViewLoad {
+    __weak __typeof(self)weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         if ([self delegate] && [[self delegate] respondsToSelector:@selector(presentInAppViewController:forNotification:)]) {
             [[self delegate] presentInAppViewController:self forNotification:self.notification];
         }
-        [self resizeWebViewAsPerContent:self->webView];
+        [self resizeWebViewAsPerContent:weakSelf.webView];
     });
 }
 
@@ -359,7 +345,7 @@ API_AVAILABLE(ios(8.0))
                 self.notification.templateStyle.width = maxWidth;
             }
         } else {
-            self.notification.templateStyle.width = webView.frame.size.width;
+            self.notification.templateStyle.width = _webView.frame.size.width;
         }
         if (isAutoHeight) {
             CGFloat maxHeight = [BlueShiftInAppNotificationHelper getPresentationAreaHeightForWindow:self.window];
@@ -370,7 +356,7 @@ API_AVAILABLE(ios(8.0))
                 self.notification.templateStyle.height = maxHeight;
             }
         } else {
-            self.notification.templateStyle.height = webView.frame.size.height;
+            self.notification.templateStyle.height = _webView.frame.size.height;
         }
     }
 }

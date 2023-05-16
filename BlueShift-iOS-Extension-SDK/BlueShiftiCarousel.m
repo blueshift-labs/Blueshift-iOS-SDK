@@ -981,14 +981,12 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, BlueShiftiCaro
         case iCarouselTypeInvertedRotary:
         case iCarouselTypeInvertedCylinder:
         {
-            //TODO: improve this
             _numberOfVisibleItems = ceil([self circularCarouselItemCount] / 2.0);
             break;
         }
         case iCarouselTypeWheel:
         case iCarouselTypeInvertedWheel:
         {
-            //TODO: improve this
             CGFloat count = [self circularCarouselItemCount];
             CGFloat spacing = [self valueForOption:iCarouselOptionSpacing withDefault:1.0];
             CGFloat arc = [self valueForOption:iCarouselOptionArc withDefault:M_PI * 2.0];
