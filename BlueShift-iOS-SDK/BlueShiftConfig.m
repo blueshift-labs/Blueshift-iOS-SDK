@@ -18,6 +18,7 @@
         // Remote notifications
         self.enableSilentPushNotification = YES;
         self.enablePushNotification = YES;
+        self.enableHandlingPushNotificationBadges = NO;
                 
         // App open
         self.enableAppOpenTrackEvent = false;

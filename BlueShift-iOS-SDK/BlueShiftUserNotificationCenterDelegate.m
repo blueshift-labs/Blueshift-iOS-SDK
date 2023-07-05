@@ -34,10 +34,12 @@
     [BlueshiftLog logInfo:[NSString stringWithFormat:@"Push notification action response received - %@", response.actionIdentifier] withDetails:response methodName:nil];
     if([response.actionIdentifier isEqualToString:@"com.apple.UNNotificationDefaultActionIdentifier"]) {
         [[BlueShift sharedInstance].appDelegate handleRemoteNotification:response.notification.request.content.userInfo];
-        completionHandler();
+    } else if ([response.actionIdentifier isEqualToString:@"com.apple.UNNotificationDismissActionIdentifier"]) {
+        [BlueshiftLog logInfo:@"Blueshift: Push notification dismissed." withDetails:nil methodName:nil];
     } else {
-        [[BlueShift sharedInstance].appDelegate handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo completionHandler: completionHandler];
+        [[BlueShift sharedInstance].appDelegate handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo completionHandler:^{}];
     }
+    [BlueShift.sharedInstance refreshApplicationBadgeCountWithCompletionHandler:completionHandler];
 }
 
 @end

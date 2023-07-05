@@ -282,6 +282,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
                 [UIApplication.sharedApplication endBackgroundTask: background_task];
                 background_task = UIBackgroundTaskInvalid;
             }];
+            if (@available(iOS 10.0, *)) {
+                [self refreshApplicationBadgeCountWithCompletionHandler:^{}];
+            }
             //Send existing cached events to Blueshift irrespecitive of SDK Tracking enabled status
             [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
         } @catch (NSException *exception) {
@@ -308,6 +311,19 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         return currentQueue == self;
     } @catch (NSException *exception) {
         return NO;
+    }
+}
+
+- (void)refreshApplicationBadgeCountWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
+    if (BlueShift.sharedInstance.config.enableHandlingPushNotificationBadges) {
+        [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIApplication.sharedApplication.applicationIconBadgeNumber = notifications.count;
+                completionHandler();
+            });
+        }];
+    } else {
+        completionHandler();
     }
 }
 

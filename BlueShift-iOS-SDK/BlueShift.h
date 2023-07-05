@@ -30,6 +30,11 @@
 #import "BlueShiftLiveContent.h"
 #import "BlueshiftInboxMessage.h"
 #import "BlueshiftInboxViewController.h"
+#import "BlueshiftInboxNavigationViewController.h"
+#import "BlueshiftInboxManager.h"
+#import "BlueshiftInboxAPIManager.h"
+#import "BlueshiftInboxTableViewCell.h"
+#import "BlueshiftInboxViewModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,6 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns Blueshift serial queue instance for executing tasks on the Blueshift queue.
 - (dispatch_queue_t _Nullable) dispatch_get_blueshift_queue;
+
+- (void)refreshApplicationBadgeCountWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0));
 
 #pragma mark In App registration methods
 /// Register for in-app notifications in order to show the in-app notifications on the view controller or screen. To register, call this method in the `viewDidAppear` lifecycle method of VC.

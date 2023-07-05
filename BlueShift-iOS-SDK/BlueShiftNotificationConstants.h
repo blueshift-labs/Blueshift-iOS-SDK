@@ -39,7 +39,7 @@
 #define kNotificationActionOpenCartIdentifier                           @"open_cart"
 
 #define kNotificationCategorySilentPushIdentifier                       @"silent push"
-#define kNotificationCategoryOfferIdentifier                            @"promotion"
+#define kNotificationPromotionIdentifier                                @"promotion"
 #define kNotificationProductIDIdenfierKey                               @"product_id"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
 

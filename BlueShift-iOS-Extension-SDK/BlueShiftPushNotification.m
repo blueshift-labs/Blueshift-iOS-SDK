@@ -203,7 +203,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             __block bool isCategoryRegistrationComplteted = NO;
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
             if (notificationActions.count > 0) {
-                UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+                UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
                 [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
                     NSMutableSet<UNNotificationCategory *> * updatedCategories = [existingCategories mutableCopy];
                     // Add category if it is not present in the UNUserNotificationCenter
@@ -283,6 +283,22 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         }
     }
     return NO;
+}
+
+- (NSNumber*)getUpdatedBadgeNumber {
+    __block NSUInteger badgeCount = 0;
+    [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            badgeCount = notifications.count;
+        });
+    }];
+    int counter = 0;
+    // Sleep thread till the it gets count of notificaitons or counter reaches to 20 (2 seconds)
+    while (badgeCount == 0 && counter < kThreadSleepIterations) {
+        counter++;
+        [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+    }
+    return [NSNumber numberWithUnsignedInteger:badgeCount+1];
 }
 
 @end

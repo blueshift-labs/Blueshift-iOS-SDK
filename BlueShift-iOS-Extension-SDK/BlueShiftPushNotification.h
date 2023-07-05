@@ -41,6 +41,8 @@ API_AVAILABLE(ios(10.0))
 
 - (BOOL)hasBlueShiftAttachments;
 
+- (NSNumber*)getUpdatedBadgeNumber;
+
 /// The Blueshift iOS Extension SDK will no longer send the `delivered` event for push notifications.
 /// Blueshift will now provide the push delivery stats based on the APNS's response.
 /// This method is deprecated and will  be removed in the future release.
