@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import "BlueShiftInAppType.h"
 #import <UIKit/UIKit.h>
+#import "BlueshiftInboxMessage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,6 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload;
 
 + (BOOL)isExpired:(double)expiryTime;
+
++ (NSDictionary *)convertMessageToDictionary:(BlueshiftInboxMessage*)message;
+    
++ (BlueshiftInboxMessage*)convertDictionaryToMessage:(NSDictionary *)messageDict;
 
 @end
 

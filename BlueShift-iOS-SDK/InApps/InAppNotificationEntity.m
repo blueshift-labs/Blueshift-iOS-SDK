@@ -292,37 +292,19 @@
     }
 }
 
-+ (void)deleteInboxMessageFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler {
-    NSManagedObjectContext * context = [BlueShift sharedInstance].appDelegate.inboxMOContext;
-    if (context) {
-        @try {
-            [context performBlock:^{
-                @try {
-                    InAppNotificationEntity* managedObject =  (InAppNotificationEntity*)[context objectWithID: objectId];
-                    NSString* messageUUID = managedObject.id;
-                    [context deleteObject: managedObject];
-                    NSError *saveError = nil;
-                    [context save:&saveError];
-                    if (saveError) {
-                        [BlueshiftLog logError:saveError withDescription:[NSString stringWithFormat:@"Failed to Delete Inbox message from DB, Message UUID - %@", messageUUID] methodName:nil];
-                        handler(NO);
-                    } else {
-                        [BlueshiftLog logInfo:@"Deleted Inbox message from DB, Message UUID -" withDetails:messageUUID methodName:nil];
-                        [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeMessageDelete];
-                        handler(YES);
-                    }
-                } @catch (NSException *exception) {
-                    [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
-                    handler(NO);
-                }
-            }];
-        } @catch (NSException *exception) {
-            [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
++ (void)deleteInboxMessageFromDB:(NSString *)messageUUID completionHandler:(void (^_Nonnull)(BOOL))handler {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", @[messageUUID]];
+    NSFetchRequest* fetchRequest = [InAppNotificationEntity getFetchRequestForPredicate:predicate sortDescriptor:nil];
+    [InAppNotificationEntity batchDeleteDataForFetchRequest:fetchRequest handler:^(BOOL status, NSInteger count) {
+        if (status) {
+            [BlueshiftLog logInfo:@"Deleted Inbox message from DB, Message UUID -" withDetails:messageUUID methodName:nil];
+            [InAppNotificationEntity postNotificationInboxUnreadMessageCountDidChange:BlueshiftInboxChangeTypeMessageDelete];
+            handler(YES);
+        } else {
+            [BlueshiftLog logError:nil withDescription:[NSString stringWithFormat:@"Failed to Delete Inbox message from DB, Message UUID - %@", messageUUID] methodName:nil];
             handler(NO);
         }
-    } else {
-        handler(NO);
-    }
+    }];
 }
 
 - (void)map:(NSDictionary *)dictionary {
