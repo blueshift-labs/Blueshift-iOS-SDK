@@ -55,9 +55,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// @note By default this property is set to true.
 @property BOOL enablePushNotification;
 
-/// Setting this property to true will allow the SDK to update the
-@property BOOL enableHandlingPushNotificationBadges;
-
 @property BOOL enableLocationAccess DEPRECATED_MSG_ATTRIBUTE("From SDK v2.1.7, SDK has stopped tracking the location automatically. The app needs to set the updated location to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
 
 /// From SDK v2.1.13, the automatic app_open tracking will be disabled by default. In order to track the app_open set this flag to true.

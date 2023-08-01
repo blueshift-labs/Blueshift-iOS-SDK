@@ -315,7 +315,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 - (void)refreshApplicationBadgeCountWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
-    if (BlueShift.sharedInstance.config.enableHandlingPushNotificationBadges) {
+    if (BlueShiftAppData.currentAppData.enablePush) {
         [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 UIApplication.sharedApplication.applicationIconBadgeNumber = notifications.count;
