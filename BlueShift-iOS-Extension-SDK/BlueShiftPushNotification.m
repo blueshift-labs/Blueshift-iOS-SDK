@@ -299,6 +299,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             counter++;
             [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
         }
+        // Increment the number by one to include current notification
         return [NSNumber numberWithUnsignedInteger:badgeCount+1];
     }
     return nil;

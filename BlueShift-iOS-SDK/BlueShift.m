@@ -282,9 +282,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
                 [UIApplication.sharedApplication endBackgroundTask: background_task];
                 background_task = UIBackgroundTaskInvalid;
             }];
-            if (@available(iOS 10.0, *)) {
-                [self refreshApplicationBadgeCountWithCompletionHandler:^{}];
-            }
+            
             //Send existing cached events to Blueshift irrespecitive of SDK Tracking enabled status
             [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
         } @catch (NSException *exception) {
@@ -314,6 +312,11 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
+/// Calling this method will update the Application badge number to the number of pending notifications in the notification center.
+/// The SDK calls this method to update the badge when 'auto update badge' type of push notficiation is receved/clicked/dismissed.
+/// You may call this method on the app launch/ app enters foreground/ app enters background event to force refresh the badge.
+/// - Note The SDK will only update badge if app has push notifications enabled from app setting and `enablePush` is set as true.
+/// - Parameter completionHandler: handler to perform some task after badge update
 - (void)refreshApplicationBadgeCountWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
     if (BlueShiftAppData.currentAppData.enablePush) {
         [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
