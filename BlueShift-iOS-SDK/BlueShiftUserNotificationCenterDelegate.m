@@ -39,7 +39,13 @@
     } else {
         [[BlueShift sharedInstance].appDelegate handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo completionHandler:^{}];
     }
-    [BlueShift.sharedInstance refreshApplicationBadgeCountWithCompletionHandler:completionHandler];
+    
+    // Update the badge only if the push notification is of type 'auto update badge'
+    if ([BlueShift.sharedInstance isAutoUpdateBadgePushNotification:response.notification.request]) {
+        [BlueShift.sharedInstance refreshApplicationBadgeWithCompletionHandler:completionHandler];
+    } else {
+        completionHandler();
+    }
 }
 
 @end

@@ -317,8 +317,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 /// You may call this method on the app launch/ app enters foreground/ app enters background event to force refresh the badge.
 /// - Note The SDK will only update badge if app has push notifications enabled from app setting and `enablePush` is set as true.
 /// - Parameter completionHandler: handler to perform some task after badge update
-- (void)refreshApplicationBadgeCountWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
+- (void)refreshApplicationBadgeWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
     if (BlueShiftAppData.currentAppData.enablePush) {
+        
         [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 UIApplication.sharedApplication.applicationIconBadgeNumber = notifications.count;
@@ -328,6 +329,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     } else {
         completionHandler();
     }
+}
+
+- (BOOL)isAutoUpdateBadgePushNotification:(UNNotificationRequest *)request {
+    if([[request.content.userInfo objectForKey:kAutoUpdateBadge] boolValue] == YES) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark Device token

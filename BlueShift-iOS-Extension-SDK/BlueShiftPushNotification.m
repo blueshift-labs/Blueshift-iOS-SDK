@@ -286,11 +286,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
 }
 
 - (NSNumber* _Nullable)getUpdatedBadgeNumberForRequest:(UNNotificationRequest *)request {
-    if ([self isAutoUpdateBadgePushNotificaiton:request]) {
-        __block NSUInteger badgeCount = 0;
+    if ([self isAutoUpdateBadgePushNotification:request]) {
+        __block NSNumber* badgeCount;
         [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                badgeCount = notifications.count;
+                badgeCount = [NSNumber numberWithUnsignedInteger: notifications.count];
             });
         }];
         int counter = 0;
@@ -300,12 +300,16 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
         }
         // Increment the number by one to include current notification
-        return [NSNumber numberWithUnsignedInteger:badgeCount+1];
+        if (badgeCount) {
+            return [NSNumber numberWithInt:1];
+        } else {
+            return [NSNumber numberWithInt: badgeCount.intValue + 1];
+        }
     }
     return nil;
 }
 
-- (BOOL)isAutoUpdateBadgePushNotificaiton:(UNNotificationRequest *)request {
+- (BOOL)isAutoUpdateBadgePushNotification:(UNNotificationRequest *)request {
     if([[request.content.userInfo objectForKey:kAutoUpdateBadge] boolValue] == YES) {
         return YES;
     }
