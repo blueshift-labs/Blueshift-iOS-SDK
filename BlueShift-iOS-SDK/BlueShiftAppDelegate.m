@@ -31,13 +31,14 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
             @try {
                 NSMutableDictionary<NSString*, UNNotificationCategory *>* categoryDictionary = [NSMutableDictionary dictionary];
                 // Create a dictionary of existing category-identifiers and categories for comparison
-                if ([[NSUserDefaults standardUserDefaults] boolForKey:@"kBSCategoryMigrationForDismissAction"] == NO) {
+                if ([[NSUserDefaults standardUserDefaults] boolForKey:kBSCategoryMigrationForDismissAction] == NO) {
                     //Do the category migration to support the updating of badge count using custom dismiss action option. This needs to be done only once.
                     [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                        //create new category with dismiss action
                         UNNotificationCategory* updatedCategory = [UNNotificationCategory categoryWithIdentifier:categoryItem.identifier actions:categoryItem.actions intentIdentifiers:categoryItem.intentIdentifiers options:UNNotificationCategoryOptionCustomDismissAction];
                         [categoryDictionary setValue:updatedCategory forKey:updatedCategory.identifier];
                     }];
-                    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"kBSCategoryMigrationForDismissAction"];
+                    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kBSCategoryMigrationForDismissAction];
                     [BlueshiftLog logInfo:@"Migration completed for adding custom dismiss action to the categories" withDetails:nil methodName:nil];
                 } else {
                     [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {

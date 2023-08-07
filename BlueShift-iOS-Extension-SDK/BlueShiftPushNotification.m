@@ -285,20 +285,30 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     return NO;
 }
 
-- (NSNumber*)getUpdatedBadgeNumber {
-    __block NSUInteger badgeCount = 0;
-    [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            badgeCount = notifications.count;
-        });
-    }];
-    int counter = 0;
-    // Sleep thread till the it gets count of notificaitons or counter reaches to 20 (2 seconds)
-    while (badgeCount == 0 && counter < kThreadSleepIterations) {
-        counter++;
-        [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+- (NSNumber* _Nullable)getUpdatedBadgeNumberForRequest:(UNNotificationRequest *)request {
+    if ([self isAutoUpdateBadgePushNotificaiton:request]) {
+        __block NSUInteger badgeCount = 0;
+        [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                badgeCount = notifications.count;
+            });
+        }];
+        int counter = 0;
+        // Sleep thread till the it gets count of notificaitons or counter reaches to 20 (2 seconds)
+        while (badgeCount == 0 && counter < kThreadSleepIterations) {
+            counter++;
+            [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+        }
+        return [NSNumber numberWithUnsignedInteger:badgeCount+1];
     }
-    return [NSNumber numberWithUnsignedInteger:badgeCount+1];
+    return nil;
+}
+
+- (BOOL)isAutoUpdateBadgePushNotificaiton:(UNNotificationRequest *)request {
+    if([[request.content.userInfo objectForKey:kAutoUpdateBadge] boolValue] == YES) {
+        return YES;
+    }
+    return NO;
 }
 
 @end

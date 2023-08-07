@@ -54,7 +54,7 @@
 #define kBlueshiftEnableTracking                @"BlueshiftEnableTracking"
 #define kBlueshiftEnableInApp                   @"BlueshiftEnableInApp"
 #define ksavedBlueShiftUserInfoDictionary       @"savedBlueShiftUserInfoDictionary"
-
+#define kBSCategoryMigrationForDismissAction    @"BlueshiftCategoryMigrationForDismissAction"
 //Bool
 #define kYES                                    @"YES"
 #define kNO                                     @"NO"
