@@ -301,9 +301,9 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         }
         // Increment the number by one to include current notification
         if (badgeCount) {
-            return [NSNumber numberWithInt:1];
-        } else {
             return [NSNumber numberWithInt: badgeCount.intValue + 1];
+        } else {
+            return [NSNumber numberWithInt: 1];
         }
     }
     return nil;

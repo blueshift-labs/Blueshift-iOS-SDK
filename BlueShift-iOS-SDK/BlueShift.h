@@ -227,6 +227,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @returns true or false based on if push notification is of Blueshift custom action type or not.
 - (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response API_AVAILABLE(ios(10.0));
 
+/// Check if the url received from the `application: open url:, options:` method is from Blueshift.
+/// @param url url to check
+/// @param urlOptions options dictionary
+- (BOOL)isBlueshiftOpenURLData:(NSURL*)url additionalData:(NSDictionary<UIApplicationOpenURLOptionsKey,id> * _Nonnull)urlOptions;
+
 #pragma mark SDK tracking methods
 /// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
 /// It will also erase all the non synced events data from the SDK database while disabling the SDK and they will not be sent to Blueshift server.

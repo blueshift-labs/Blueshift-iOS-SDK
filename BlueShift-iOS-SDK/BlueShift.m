@@ -312,6 +312,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
+#pragma mark Update Application Badge
 /// Calling this method will update the Application badge number to the number of pending notifications in the notification center.
 /// The SDK calls this method to update the badge when 'auto update badge' type of push notficiation is receved/clicked/dismissed.
 /// You may call this method on the app launch/ app enters foreground/ app enters background event to force refresh the badge.
@@ -1096,7 +1097,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
 }
 
-#pragma mark Universal links
+#pragma mark IsBlueshift data
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url {
     if (url != nil) {
         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL: url];
@@ -1122,6 +1123,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         return  YES;
     }
     return  NO;
+}
+
+- (BOOL)isBlueshiftOpenURLData:(NSURL*)url additionalData:(NSDictionary<UIApplicationOpenURLOptionsKey,id> * _Nonnull)urlOptions {
+    if (url && urlOptions && [urlOptions[openURLOptionsSource] isEqual:openURLOptionsBlueshift]) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark Mobile Inbox
