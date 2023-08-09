@@ -289,13 +289,11 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     if ([self isAutoUpdateBadgePushNotification:request]) {
         __block NSNumber* badgeCount;
         [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                badgeCount = [NSNumber numberWithUnsignedInteger: notifications.count];
-            });
+            badgeCount = [NSNumber numberWithUnsignedInteger: notifications.count];
         }];
         int counter = 0;
         // Sleep thread till the it gets count of notificaitons or counter reaches to 20 (2 seconds)
-        while (badgeCount == 0 && counter < kThreadSleepIterations) {
+        while (!badgeCount && counter < kThreadSleepIterations) {
             counter++;
             [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
         }
