@@ -240,7 +240,6 @@ static NSDictionary *_inAppTypeDictionay;
 }
 
 #pragma mark - Inbox
-
 + (NSDictionary *)convertMessageToDictionary:(BlueshiftInboxMessage*)message {
     NSMutableDictionary *messageDict = [NSMutableDictionary dictionary];
     @try {
