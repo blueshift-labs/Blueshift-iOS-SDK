@@ -239,46 +239,4 @@ static NSDictionary *_inAppTypeDictionay;
     }
 }
 
-#pragma mark - Inbox
-+ (NSDictionary *)convertMessageToDictionary:(BlueshiftInboxMessage*)message {
-    NSMutableDictionary *messageDict = [NSMutableDictionary dictionary];
-    @try {
-        [messageDict setValue:message.messageUUID forKey:@"messageId"];
-        [messageDict setValue:message.messagePayload forKey:@"data"];
-        NSString* status = message.readStatus ? @"read" : @"unread";
-        [messageDict setValue:status forKey:@"status"];
-        double seconds = [message.createdAtDate timeIntervalSince1970];
-        NSNumber *timestamp = [NSNumber numberWithInteger: (NSInteger)seconds];
-        [messageDict setValue:timestamp forKey:@"createdAt"];
-        [messageDict setValue:message.title forKey:@"title"];
-        [messageDict setValue:message.detail forKey:@"details"];
-        [messageDict setValue:message.objectId.URIRepresentation.absoluteString forKey:@"objectId"];
-        NSString *imageUrl = [message.iconImageURL isEqualToString:@""]? nil : message.iconImageURL;
-        [messageDict setValue:imageUrl forKey:@"imageUrl"];
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
-    }
-    return [messageDict copy];
-}
-
-+ (BlueshiftInboxMessage*)convertDictionaryToMessage:(NSDictionary *)messageDict {
-    BlueshiftInboxMessage* message = [[BlueshiftInboxMessage alloc] init];
-    @try {
-        message.messageUUID = [messageDict valueForKey:@"messageId"];
-        NSDictionary* data = [messageDict valueForKey:@"data"];
-        message.messagePayload = [data copy];
-        message.inAppNotificationType = [[[data valueForKey:@"data"] valueForKey:@"inapp"] valueForKey:@"type"];
-        NSString* urlString = [messageDict valueForKey:@"objectId"];
-        if (urlString && ![urlString isEqualToString:@""]) {
-            NSURL* url = [NSURL URLWithString:urlString];
-            if (url) {
-                message.objectId = [BlueShift.sharedInstance.appDelegate.inboxMOContext.persistentStoreCoordinator managedObjectIDForURIRepresentation:url];
-            }
-        }
-    } @catch (NSException *exception) {
-        [BlueshiftLog logException:exception withDescription:nil methodName:nil];
-    }
-    return message;
-}
-
 @end
