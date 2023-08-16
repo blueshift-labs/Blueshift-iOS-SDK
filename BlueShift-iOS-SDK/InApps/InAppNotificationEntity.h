@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)syncDeletedMessagesWithDB:(NSArray *)deleteIds;
 
-+ (void)deleteInboxMessageFromDB:(NSManagedObjectID *)objectId completionHandler:(void (^_Nonnull)(BOOL))handler;
++ (void)deleteInboxMessageFromDB:(NSString *)messageUUID completionHandler:(void (^_Nonnull)(BOOL))handler;
 
 + (NSFetchRequest*)getFetchRequestForPredicate:(NSPredicate* _Nullable)predicate sortDescriptor:(NSArray<NSSortDescriptor*>* _Nullable)sortDescriptor;
 

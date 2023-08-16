@@ -56,6 +56,9 @@
 #define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
 #define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
+#define kBSAccountAdapterUUID                                           @"account_adapter_uuid"
+#define kBSAdapterUUID                                                  @"adapter_uuid"
+
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"

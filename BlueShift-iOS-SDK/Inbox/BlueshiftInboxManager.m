@@ -29,7 +29,7 @@
         //Delete in-app from server first. Deleting in-apps in offline mode is not allowed ATM.
         [BlueshiftInboxAPIManager deleteMessagesWithMessageUUIDs:@[message.messageUUID] success:^(void) {
             //On success, delete the in-app from db.
-            [InAppNotificationEntity deleteInboxMessageFromDB:message.objectId completionHandler:^(BOOL status) {
+            [InAppNotificationEntity deleteInboxMessageFromDB:message.messageUUID completionHandler:^(BOOL status) {
                 handler(status, nil);
             }];
         } failure:^(NSError * _Nonnull error) {
