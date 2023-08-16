@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload;
 
 + (BOOL)isExpired:(double)expiryTime;
+
 @end
 
 NS_ASSUME_NONNULL_END

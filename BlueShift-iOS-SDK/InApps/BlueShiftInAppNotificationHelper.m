@@ -9,7 +9,6 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShift.h"
-#import "BlueshiftLog.h"
 
 static NSDictionary *_inAppTypeDictionay;
 
