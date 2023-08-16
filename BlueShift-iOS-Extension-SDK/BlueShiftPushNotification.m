@@ -203,7 +203,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
             __block bool isCategoryRegistrationComplteted = NO;
             NSMutableArray<UNNotificationAction *>* notificationActions = [self getNotificationActions:actionsArray];
             if (notificationActions.count > 0) {
-                UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+                UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:pushCategory actions:notificationActions intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
                 [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull existingCategories) {
                     NSMutableSet<UNNotificationCategory *> * updatedCategories = [existingCategories mutableCopy];
                     // Add category if it is not present in the UNUserNotificationCenter
@@ -281,6 +281,35 @@ static BlueShiftPushNotification *_sharedInstance = nil;
         if ([categoryItem.identifier isEqualToString:categoryIdentifier]) {
             return YES;
         }
+    }
+    return NO;
+}
+
+- (NSNumber* _Nullable)getUpdatedBadgeNumberForRequest:(UNNotificationRequest *)request {
+    if ([self isAutoUpdateBadgePushNotification:request]) {
+        __block NSNumber* badgeCount;
+        [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            badgeCount = [NSNumber numberWithUnsignedInteger: notifications.count];
+        }];
+        int counter = 0;
+        // Sleep thread till the it gets count of notificaitons or counter reaches to 20 (2 seconds)
+        while (!badgeCount && counter < kThreadSleepIterations) {
+            counter++;
+            [NSThread sleepForTimeInterval:kThreadSleepTimeInterval];
+        }
+        // Increment the number by one to include current notification
+        if (badgeCount) {
+            return [NSNumber numberWithInt: badgeCount.intValue + 1];
+        } else {
+            return [NSNumber numberWithInt: 1];
+        }
+    }
+    return nil;
+}
+
+- (BOOL)isAutoUpdateBadgePushNotification:(UNNotificationRequest *)request {
+    if([[request.content.userInfo objectForKey:kAutoUpdateBadge] boolValue] == YES) {
+        return YES;
     }
     return NO;
 }

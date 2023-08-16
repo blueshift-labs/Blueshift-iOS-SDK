@@ -30,6 +30,11 @@
 #import "BlueShiftLiveContent.h"
 #import "BlueshiftInboxMessage.h"
 #import "BlueshiftInboxViewController.h"
+#import "BlueshiftInboxNavigationViewController.h"
+#import "BlueshiftInboxManager.h"
+#import "BlueshiftInboxAPIManager.h"
+#import "BlueshiftInboxTableViewCell.h"
+#import "BlueshiftInboxViewModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,6 +67,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns Blueshift serial queue instance for executing tasks on the Blueshift queue.
 - (dispatch_queue_t _Nullable) dispatch_get_blueshift_queue;
+
+- (void)refreshApplicationBadgeWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0));
+
+- (BOOL)isAutoUpdateBadgePushNotification:(UNNotificationRequest *)request API_AVAILABLE(ios(10.0));
 
 #pragma mark In App registration methods
 /// Register for in-app notifications in order to show the in-app notifications on the view controller or screen. To register, call this method in the `viewDidAppear` lifecycle method of VC.
@@ -217,6 +226,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param response userInfo dictionary from the push notification p ayload.
 /// @returns true or false based on if push notification is of Blueshift custom action type or not.
 - (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response API_AVAILABLE(ios(10.0));
+
+/// Check if the url received from the `application: open url:, options:` method is from Blueshift.
+/// @param url url to check
+/// @param urlOptions options dictionary
+- (BOOL)isBlueshiftOpenURLData:(NSURL*)url additionalData:(NSDictionary<UIApplicationOpenURLOptionsKey,id> * _Nonnull)urlOptions;
 
 #pragma mark SDK tracking methods
 /// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
