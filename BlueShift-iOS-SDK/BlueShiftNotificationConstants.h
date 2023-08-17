@@ -39,9 +39,10 @@
 #define kNotificationActionOpenCartIdentifier                           @"open_cart"
 
 #define kNotificationCategorySilentPushIdentifier                       @"silent push"
-#define kNotificationCategoryOfferIdentifier                            @"promotion"
+#define kNotificationPromotionIdentifier                                @"promotion"
 #define kNotificationProductIDIdenfierKey                               @"product_id"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
+#define kAutoUpdateBadge                                                @"auto_update_badge"
 
 #define kNotificationCarouselIdentifier                                 @"carousel"
 #define kNotificationCarouselAnimationIdentifier                        @"carousel_animation"
@@ -55,6 +56,10 @@
 #define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
 #define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
+#define kBSAccountAdapterUUID                                           @"account_adapter_uuid"
+#define kBSAdapterUUID                                                  @"adapter_uuid"
+#define kBSTrackingAAID                                                 @"bsft_aaid"
+
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"

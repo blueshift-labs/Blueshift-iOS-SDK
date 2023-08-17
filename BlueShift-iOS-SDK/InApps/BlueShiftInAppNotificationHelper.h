@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import "BlueShiftInAppType.h"
 #import <UIKit/UIKit.h>
+#import "BlueshiftInboxMessage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

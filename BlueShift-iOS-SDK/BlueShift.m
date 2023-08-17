@@ -282,6 +282,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
                 [UIApplication.sharedApplication endBackgroundTask: background_task];
                 background_task = UIBackgroundTaskInvalid;
             }];
+            
             //Send existing cached events to Blueshift irrespecitive of SDK Tracking enabled status
             [BlueShiftHttpRequestBatchUpload batchEventsUploadInBackground];
         } @catch (NSException *exception) {
@@ -309,6 +310,33 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     } @catch (NSException *exception) {
         return NO;
     }
+}
+
+#pragma mark Update Application Badge
+/// Calling this method will update the Application badge number to the number of pending notifications in the notification center.
+/// The SDK calls this method to update the badge when 'auto update badge' type of push notficiation is receved/clicked/dismissed.
+/// You may call this method on the app launch/ app enters foreground/ app enters background event to force refresh the badge.
+/// - Note The SDK will only update badge if app has push notifications enabled from app setting and `enablePush` is set as true.
+/// - Parameter completionHandler: handler to perform some task after badge update
+- (void)refreshApplicationBadgeWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
+    if (BlueShiftAppData.currentAppData.enablePush) {
+        
+        [UNUserNotificationCenter.currentNotificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIApplication.sharedApplication.applicationIconBadgeNumber = notifications.count;
+                completionHandler();
+            });
+        }];
+    } else {
+        completionHandler();
+    }
+}
+
+- (BOOL)isAutoUpdateBadgePushNotification:(UNNotificationRequest *)request {
+    if([[request.content.userInfo objectForKey:kAutoUpdateBadge] boolValue] == YES) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark Device token
@@ -1069,7 +1097,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     [[BlueShift sharedInstance]identifyUserWithDetails:nil canBatchThisEvent:NO];
 }
 
-#pragma mark Universal links
+#pragma mark IsBlueshift data
 - (BOOL)isBlueshiftUniversalLinkURL:(NSURL *)url {
     if (url != nil) {
         NSMutableDictionary *queriesPayload = [BlueshiftEventAnalyticsHelper getQueriesFromURL: url];
@@ -1095,6 +1123,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         return  YES;
     }
     return  NO;
+}
+
+- (BOOL)isBlueshiftOpenURLData:(NSURL*)url additionalData:(NSDictionary<UIApplicationOpenURLOptionsKey,id> * _Nonnull)urlOptions {
+    if (url && urlOptions && [urlOptions[openURLOptionsSource] isEqual:openURLOptionsBlueshift]) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark Mobile Inbox

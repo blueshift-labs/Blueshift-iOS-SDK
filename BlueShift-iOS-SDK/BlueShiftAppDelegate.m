@@ -31,9 +31,34 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
             @try {
                 NSMutableDictionary<NSString*, UNNotificationCategory *>* categoryDictionary = [NSMutableDictionary dictionary];
                 // Create a dictionary of existing category-identifiers and categories for comparison
-                [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
-                    [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];
-                }];
+                if ([[NSUserDefaults standardUserDefaults] boolForKey:kBSCategoryMigrationForDismissAction] == NO) {
+                    //Do the category migration to support the updating of badge count using custom dismiss action option. This needs to be done only once.
+                    [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                        //create new category with dismiss action
+                        UNNotificationCategory* updatedCategory = nil;
+                        if (@available(iOS 12.0, *)) {
+                            updatedCategory = [UNNotificationCategory categoryWithIdentifier:categoryItem.identifier
+                               actions:categoryItem.actions intentIdentifiers:categoryItem.intentIdentifiers
+                               hiddenPreviewsBodyPlaceholder:categoryItem.hiddenPreviewsBodyPlaceholder
+                               categorySummaryFormat:categoryItem.categorySummaryFormat
+                               options:UNNotificationCategoryOptionCustomDismissAction];
+                        } else if (@available(iOS 11.0, *)) {
+                            updatedCategory = [UNNotificationCategory categoryWithIdentifier:categoryItem.identifier actions:categoryItem.actions intentIdentifiers:categoryItem.intentIdentifiers hiddenPreviewsBodyPlaceholder:categoryItem.hiddenPreviewsBodyPlaceholder options:UNNotificationCategoryOptionCustomDismissAction];
+                        } else {
+                            updatedCategory = [UNNotificationCategory categoryWithIdentifier:categoryItem.identifier actions:categoryItem.actions intentIdentifiers:categoryItem.intentIdentifiers  options:UNNotificationCategoryOptionCustomDismissAction];
+                        }
+                        
+                        if (updatedCategory) {
+                            [categoryDictionary setValue:updatedCategory forKey:updatedCategory.identifier];
+                        }
+                    }];
+                    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kBSCategoryMigrationForDismissAction];
+                    [BlueshiftLog logInfo:@"Migration completed for adding custom dismiss action to the categories" withDetails:nil methodName:nil];
+                } else {
+                    [[existingCategories allObjects] enumerateObjectsUsingBlock:^(UNNotificationCategory * _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
+                        [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];
+                    }];
+                }
                 // Add new categories from the configCategories to register.
                 [configCategories enumerateObjectsUsingBlock:^(UNNotificationCategory *  _Nonnull categoryItem, NSUInteger idx, BOOL * _Nonnull stop) {
                     [categoryDictionary setValue:categoryItem forKey:categoryItem.identifier];

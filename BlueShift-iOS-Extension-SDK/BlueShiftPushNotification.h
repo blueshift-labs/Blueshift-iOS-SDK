@@ -41,6 +41,12 @@ API_AVAILABLE(ios(10.0))
 
 - (BOOL)hasBlueShiftAttachments;
 
+
+/// Returns the number of pending notifications (including the current notification)  in the notification center.
+/// You should assign this number to badge, so that the iOS will update the badge number on app icon after presenting the notificaiton.
+/// - Parameter request: notification request
+- (NSNumber* _Nullable)getUpdatedBadgeNumberForRequest:(UNNotificationRequest *)request;
+
 /// The Blueshift iOS Extension SDK will no longer send the `delivered` event for push notifications.
 /// Blueshift will now provide the push delivery stats based on the APNS's response.
 /// This method is deprecated and will  be removed in the future release.

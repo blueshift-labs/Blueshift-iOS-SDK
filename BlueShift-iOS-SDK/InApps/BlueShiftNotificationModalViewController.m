@@ -190,7 +190,7 @@
             descriptionLabel = [self createDescriptionLabel:yPadding];
             if (self.notification.templateStyle != nil && self.notification.templateStyle.height > 0) {
                 CGRect newFrame = descriptionLabel.frame;
-                CGFloat newHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:self.notification.templateStyle.height forWindow:self.window] - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
+                CGFloat newHeight = notificationView.frame.size.height - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
                 newFrame.size.height = newHeight;
                 descriptionLabel.frame = newFrame;
             }

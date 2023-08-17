@@ -30,6 +30,18 @@
         NSString *timestamp = [self getCurrentUTCTimestamp];
         NSString* notificationType = [details objectForKey: kNotificationTypeIdentifierKey];
         NSString* openedBy = [details objectForKey:kBSTrackingOpenedBy];
+        NSString* adapterId = nil;
+        if ([details objectForKey:kBSAdapterUUID]) {
+            //Check for adapter uuid in push payload
+            adapterId = [details objectForKey:kBSAdapterUUID];
+        } else if (details[kInAppNotificationDataKey][kBSAdapterUUID]) {
+            //Check for adapter uuid in inbox payload
+            adapterId = details[kInAppNotificationDataKey][kBSAdapterUUID];
+        } else {
+            //Check for adapter uuid in inapp payload
+            adapterId = [details objectForKey:kBSAccountAdapterUUID];
+        }
+        
         if (bsft_user_uuid) {
             [trackingParams setObject:bsft_user_uuid forKey: kInAppNotificationModalUIDKey];
         }
@@ -77,6 +89,9 @@
         }
         if (appName) {
             [trackingParams setObject:appName forKey: kAppName];
+        }
+        if (adapterId) {
+            [trackingParams setObject:adapterId forKey: kBSTrackingAAID];
         }
         if (timestamp) {
             [trackingParams setObject:timestamp forKey: kInAppNotificationModalTimestampKey];

@@ -862,7 +862,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.0;
+				MARKETING_VERSION = 2.4.1;
 				MODULEMAP_FILE = "BlueShift-iOS-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -892,7 +892,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.0;
+				MARKETING_VERSION = 2.4.1;
 				MODULEMAP_FILE = "BlueShift-iOS-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -923,7 +923,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.0;
+				MARKETING_VERSION = 2.4.1;
 				MODULEMAP_FILE = "BlueShift-iOS-Extension-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-Extension-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -954,7 +954,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.0;
+				MARKETING_VERSION = 2.4.1;
 				MODULEMAP_FILE = "BlueShift-iOS-Extension-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-Extension-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
