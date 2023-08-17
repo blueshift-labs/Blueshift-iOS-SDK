@@ -91,7 +91,7 @@
             [trackingParams setObject:appName forKey: kAppName];
         }
         if (adapterId) {
-            [trackingParams setObject:adapterId forKey: kBSAdapterUUID];
+            [trackingParams setObject:adapterId forKey: kBSTrackingAAID];
         }
         if (timestamp) {
             [trackingParams setObject:timestamp forKey: kInAppNotificationModalTimestampKey];

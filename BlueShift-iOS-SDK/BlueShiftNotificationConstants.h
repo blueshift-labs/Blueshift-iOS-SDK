@@ -58,6 +58,7 @@
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
 #define kBSAccountAdapterUUID                                           @"account_adapter_uuid"
 #define kBSAdapterUUID                                                  @"adapter_uuid"
+#define kBSTrackingAAID                                                 @"bsft_aaid"
 
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
