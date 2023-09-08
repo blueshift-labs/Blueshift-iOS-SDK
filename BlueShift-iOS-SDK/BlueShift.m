@@ -936,7 +936,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)unregisterForInAppMessage {
     if (_inAppNotificationMananger) {
-        [BlueshiftLog logInfo:@"Successfully unegistered for in-app for screen " withDetails:_inAppNotificationMananger.inAppNotificationDisplayOnPage methodName:nil];
+        [BlueshiftLog logInfo:@"Successfully unregistered for in-app for screen " withDetails:_inAppNotificationMananger.inAppNotificationDisplayOnPage methodName:nil];
         _inAppNotificationMananger.inAppNotificationDisplayOnPage = nil;
     }
 }

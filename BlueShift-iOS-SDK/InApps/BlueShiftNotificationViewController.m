@@ -13,6 +13,7 @@
 #import "BlueShiftNotificationCloseButton.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
+#import "BlueshiftWebBrowserViewController.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -90,6 +91,7 @@
     return [BlueShiftInAppNotificationHelper getApplicationKeyWindow];
 }
 
+
 - (void)createWindow {
     self.window = nil;
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
@@ -106,6 +108,10 @@
     self.window.alpha = 0;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.windowLevel = UIWindowLevelNormal;
+}
+
+- (void)createWindowAndPresent {
+    [self createWindow];
     self.window.rootViewController = self;
     [self.window setHidden:NO];
 }
@@ -291,16 +297,20 @@
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    [self hide:YES];
 }
 
 - (void)shareDeepLinkToApp:(NSString* _Nullable)deepLink options:(NSDictionary*)options {
+    [self hide:YES];
+    NSURL *deepLinkURL = [NSURL URLWithString:deepLink];
     if([deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
        [deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL] ||
        [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:deepLink] == NO) {
         // Placeholder
         // Do not send the deep links with type dismiss or ask-pn-permission or nil or empty to openURL:options:
         // This case is already handled in the [self processInAppActionForDeepLink:]
+    } else if ([BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL] == YES) {
+        //TODO: change the condition later
+        //Placeholder to open links in the browser.
     } else if (_notification && _notification.isFromInbox == YES && [self.notification.inboxDelegate respondsToSelector:@selector(isInboxNotificationActionTappedImplementedByHostApp)] && [self.notification.inboxDelegate isInboxNotificationActionTappedImplementedByHostApp] == YES) {
         // Handle the Deep link of in-apps originated from inbox and have implemented the callback method
         // `inboxNotificationActionTappedWithDeepLink:inboxViewController:options:`

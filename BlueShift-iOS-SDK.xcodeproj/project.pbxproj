@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		9100575A2949DCA4004D2DCF /* BlueshiftInboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */; };
 		9100575B2949DCA4004D2DCF /* BlueshiftInboxManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 910057592949DCA4004D2DCF /* BlueshiftInboxManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 910EB34F2A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h */; };
+		910EB3522A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 910EB3502A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m */; };
 		912321AB27285D030057DA7A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AA27285D030057DA7A /* Foundation.framework */; };
 		912321AD27285D090057DA7A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AC27285D090057DA7A /* CoreData.framework */; };
 		912321AF27285D0D0057DA7A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AE27285D0D0057DA7A /* CoreTelephony.framework */; };
@@ -138,6 +140,8 @@
 		910057572949DC0B004D2DCF /* BlueShiftSDKDataModel 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "BlueShiftSDKDataModel 4.xcdatamodel"; sourceTree = "<group>"; };
 		910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxManager.m; sourceTree = "<group>"; };
 		910057592949DCA4004D2DCF /* BlueshiftInboxManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueshiftInboxManager.h; sourceTree = "<group>"; };
+		910EB34F2A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftWebBrowserViewController.h; sourceTree = "<group>"; };
+		910EB3502A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlueshiftWebBrowserViewController.m; sourceTree = "<group>"; };
 		912321AA27285D030057DA7A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		912321AC27285D090057DA7A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		912321AE27285D0D0057DA7A /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -409,6 +413,8 @@
 				9186B5A9271ED9E900D425AF /* NSDate+BlueShiftDateHelpers.m */,
 				9186B5CB271ED9EA00D425AF /* NSNumber+BlueShiftHelpers.h */,
 				9186B5EC271ED9EE00D425AF /* NSNumber+BlueShiftHelpers.m */,
+				910EB34F2A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h */,
+				910EB3502A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m */,
 			);
 			path = "BlueShift-iOS-SDK";
 			sourceTree = "<group>";
@@ -532,6 +538,7 @@
 				9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */,
 				915098412923A1F30054CB88 /* BlueshiftInboxViewController.h in Headers */,
 				918B835C275F93BB0015ADF9 /* BlueshiftVersion.h in Headers */,
+				910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */,
 				9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */,
 				9100575B2949DCA4004D2DCF /* BlueshiftInboxManager.h in Headers */,
 				912A5BDA2923ABEE00096CBF /* BlueshiftInboxTableViewCell.h in Headers */,
@@ -665,6 +672,7 @@
 				9186B5F8271ED9EF00D425AF /* BlueShiftRequestOperationManager.m in Sources */,
 				9150983E2923A1CD0054CB88 /* BlueshiftInboxNavigationViewController.m in Sources */,
 				9100575A2949DCA4004D2DCF /* BlueshiftInboxManager.m in Sources */,
+				910EB3522A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m in Sources */,
 				9186B667271ED9FB00D425AF /* BlueShiftNotificationModalViewController.m in Sources */,
 				9186B66A271ED9FB00D425AF /* BlueShiftNotificationWindow.m in Sources */,
 				9186B602271ED9EF00D425AF /* BlueShiftAppDelegate.m in Sources */,

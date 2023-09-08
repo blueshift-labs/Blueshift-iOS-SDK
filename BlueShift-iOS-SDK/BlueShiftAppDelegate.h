@@ -102,6 +102,9 @@
 /// @return returns a dictionary with the values for deep link URL and the clicked button name. Use key `clk_url` to get the deep link URL and use `clk_elmt` to get button name from the dictionary.
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier;
 
+/// Call this method to open a web url in the SDKs internal webview browser screen.
+- (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL;
+
 // SceneDelegate lifecycle methods
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
 - (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");

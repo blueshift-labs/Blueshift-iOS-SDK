@@ -13,6 +13,7 @@
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "BlueshiftWebBrowserViewController.h"
 
 static NSManagedObjectContext * _Nullable inboxMOContext;
 static NSManagedObjectContext * _Nullable eventsMOContext;
@@ -492,7 +493,10 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 if (deepLinkURL == nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey]) {
                     deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
                 }
-                [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];
+                //TODO: modify the condition later
+                if ([self openDeepLinkInWebViewBrowser:deepLinkURL] == NO) {
+                    [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];
+                }
             }
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:nil];
@@ -509,6 +513,32 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         [self.mainAppDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
     }
+}
+
+- (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL {
+    NSString* urlComponent = [deepLinkURL.absoluteString componentsSeparatedByString:@"://"].firstObject;
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@://", urlComponent]];
+    if (deepLinkURL) {
+        if ([self isValidWebURL:deepLinkURL]) {
+            BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
+            webBrowser.url = deepLinkURL;
+            [webBrowser show:YES];
+        } else if ([UIApplication.sharedApplication canOpenURL:url]) {
+            [UIApplication.sharedApplication openURL:deepLinkURL];
+        } else {
+            return NO;
+        }
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)isValidWebURL:(NSURL*)url {
+    NSString* urlScheme = url.scheme.lowercaseString;
+    if ([urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"]) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark - Handle Carousel PushNotifications

@@ -318,6 +318,8 @@
             [payload setValue:self.id forKey:kInAppId];
         }
         
+        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+        
         /* get in-app payload */
         if ([dictionary objectForKey: kSilentNotificationPayloadIdentifierKey]) {
             dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
@@ -369,6 +371,7 @@
         
         self.priority = kInAppPriorityMedium;
         self.eventName = kInAppNotificationKey;
+        self.createdAt = [NSNumber numberWithDouble: (double)[[BlueShiftInAppNotificationHelper getUTCDateFromDateString:self.timestamp] timeIntervalSince1970]];
         if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
             self.status = [[payload objectForKey:@"status"] isEqualToString:kBSInboxUnreadStatus] ? kInAppStatusPending : kInAppStatusDisplayed;
             self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInAppOnly;
@@ -376,8 +379,6 @@
             self.status = kInAppStatusPending;
             self.availability = kBSAvailabilityInAppOnly;
         }
-        self.createdAt = [NSNumber numberWithDouble: (double)[[BlueShiftInAppNotificationHelper getUTCDateFromDateString:self.timestamp] timeIntervalSince1970]];
-        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }

@@ -122,7 +122,12 @@ static NSDictionary *_inAppTypeDictionay;
     if (@available(iOS 13.0, *)) {
         if ([NSThread isMainThread] == YES) {
             if (@available(iOS 15.0, *)) {
-                for(UIWindowScene *windowScene in [[UIApplication sharedApplication].connectedScenes allObjects]) {
+                for(UIScene *scene in [[UIApplication sharedApplication].connectedScenes allObjects]) {
+                    if (![scene isKindOfClass:[UIWindowScene class]]) {
+                      continue;
+                    }
+                    
+                    UIWindowScene *windowScene = (UIWindowScene *)scene;
                     if(windowScene && windowScene.activationState == UISceneActivationStateForegroundActive && windowScene.keyWindow) {
                         return windowScene.keyWindow;
                     }
