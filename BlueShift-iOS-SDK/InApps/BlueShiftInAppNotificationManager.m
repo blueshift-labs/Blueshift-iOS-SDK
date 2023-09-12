@@ -98,7 +98,13 @@
                             InAppNotificationEntity *inAppEntity = results.firstObject;
                             BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
                             [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
-                            [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
+                            if (inAppNotification.notificationPayload) {
+                                [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
+                            } else {
+                                NSString* messageUUID = [BlueShiftInAppNotificationHelper getMessageUUID:inAppNotification.notificationPayload];
+                                [InAppNotificationEntity deleteInboxMessageFromDB:messageUUID completionHandler:^(BOOL status) {
+                                }];
+                            }
                         } else {
                             [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                         }
