@@ -341,9 +341,11 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 #pragma mark Device token
 - (void)setDeviceToken {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:kBlueshiftDeviceToken];
-    [defaults synchronize];
+    if ([BlueShiftDeviceData currentDeviceData].deviceToken) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:[BlueShiftDeviceData currentDeviceData].deviceToken forKey:kBlueshiftDeviceToken];
+        [defaults synchronize];
+    }
 }
 
 - (NSString * _Nullable) getDeviceToken {
