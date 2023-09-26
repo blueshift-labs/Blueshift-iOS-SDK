@@ -516,30 +516,35 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL {
-    NSString* urlComponent = [deepLinkURL.absoluteString componentsSeparatedByString:@"://"].firstObject;
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@://", urlComponent]];
     if (deepLinkURL) {
         if ([self isValidWebURL:deepLinkURL]) {
             BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
             webBrowser.url = deepLinkURL;
             [webBrowser show:YES];
-        } else if ([UIApplication.sharedApplication canOpenURL:url]) {
-            [UIApplication.sharedApplication openURL:deepLinkURL];
-        } else {
-            return NO;
+            return YES;
+        } else if ([UIApplication.sharedApplication canOpenURL:deepLinkURL]) {
+            return [UIApplication.sharedApplication openURL:deepLinkURL];
         }
-        return YES;
     }
     return NO;
 }
 
 - (BOOL)isValidWebURL:(NSURL*)url {
     NSString* urlScheme = url.scheme.lowercaseString;
-    if ([urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"]) {
+    if (([urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"])) {
         return YES;
     }
     return NO;
 }
+
+- (BOOL)isOpenInWebURL:(NSURL*)url {
+    NSMutableDictionary *queryParams = [BlueshiftEventAnalyticsHelper getQueriesFromURL:url];
+    if ([[queryParams objectForKey:@"openInWeb"] isEqualToString:@"true"]) {
+        return YES;
+    }
+    return NO;
+}
+
 
 #pragma mark - Handle Carousel PushNotifications
 - (NSDictionary*)handleCarouselPushNotification:(NSDictionary *) userInfo {
