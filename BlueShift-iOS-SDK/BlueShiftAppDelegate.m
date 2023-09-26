@@ -493,8 +493,8 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 if (deepLinkURL == nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey]) {
                     deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
                 }
-                //TODO: modify the condition later
-                if ([self openDeepLinkInWebViewBrowser:deepLinkURL] == NO) {
+
+                if ([self openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton:[self getShowOpenInBrowserButtonValue:userInfo]] == NO) {
                     [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];
                 }
             }
@@ -502,6 +502,16 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
             [BlueshiftLog logException:exception withDescription:nil methodName:nil];
         }
     }
+}
+
+- (NSNumber* _Nullable)getShowOpenInBrowserButtonValue:(NSDictionary*)userInfo {
+    NSNumber *showOpenInBrowserButtonValue = [userInfo valueForKey:@"showOpenInBrowserButton"];
+    if (showOpenInBrowserButtonValue != nil && [showOpenInBrowserButtonValue intValue] == 1) {
+        return @YES;
+    } else {
+        return @NO;
+    }
+    return nil;
 }
 
 -(void)shareDeepLinkToApp:(NSURL* _Nullable)deepLinkURL userInfo:(NSDictionary* _Nonnull)userInfo {
@@ -515,11 +525,14 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
 }
 
-- (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL {
-    if (deepLinkURL) {
+- (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
+    if (deepLinkURL && [self isOpenInWebURL:deepLinkURL]) {
         if ([self isValidWebURL:deepLinkURL]) {
             BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
             webBrowser.url = deepLinkURL;
+            if (showOpenInBrowserButton) {
+                webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
+            }
             [webBrowser show:YES];
             return YES;
         } else if ([UIApplication.sharedApplication canOpenURL:deepLinkURL]) {

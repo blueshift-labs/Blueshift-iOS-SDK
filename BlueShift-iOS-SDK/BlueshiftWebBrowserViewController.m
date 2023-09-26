@@ -8,9 +8,6 @@
 
 #import "BlueshiftWebBrowserViewController.h"
 
-#define UIKitLocalizedString(key) [[NSBundle bundleWithIdentifier:@"com.apple.UIKit"] localizedStringForKey:key value:@"DONE" table:nil]
-
-
 @interface BlueshiftWebBrowserViewController ()<WKNavigationDelegate>
 @property (nonatomic, strong) WKWebView *webView;
 @property (nonatomic, strong) UIProgressView *progressView;
@@ -21,6 +18,15 @@
 
 @implementation BlueshiftWebBrowserViewController
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _showOpenInBrowserButton = YES;
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -29,7 +35,6 @@
     [self setupProgressView];
     [self activateConstraints];
     
-    // Load a URL in the WKWebView
     NSURLRequest *request = [NSURLRequest requestWithURL:_url];
     [_webView loadRequest:request];
 }
@@ -51,7 +56,11 @@
         _openInBrowserButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openInBrowser)];
     }
     self.navigationItem.leftBarButtonItem = doneButton;
-    self.navigationItem.rightBarButtonItems = @[_openInBrowserButton, _reloadButton];
+    if (_showOpenInBrowserButton) {
+        self.navigationItem.rightBarButtonItems = @[_openInBrowserButton, _reloadButton];
+    } else {
+        self.navigationItem.rightBarButtonItem = _reloadButton;
+    }
     if (@available(iOS 15, *)){
             UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
             [appearance configureWithOpaqueBackground];
@@ -120,7 +129,6 @@
 
 - (void)openInBrowser {
     [UIApplication.sharedApplication openURL:_webView.URL];
-
 }
 
 - (void)hide:(BOOL)animated {
@@ -194,19 +202,6 @@
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     self.progressView.hidden = YES;
-}
-
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    NSString *urlString = [[navigationAction.request.mainDocumentURL absoluteString] lowercaseString];
-    NSArray *urlComponents = [urlString componentsSeparatedByString:@":"];
-    if (![urlComponents[0] isEqualToString:@"http"] && ![urlComponents[0] isEqualToString:@"https"]) {
-      if ([[UIApplication sharedApplication] openURL:navigationAction.request.URL]) {
-        decisionHandler(WKNavigationActionPolicyCancel);
-        [self hide:NO];
-        return;
-      }
-    }
-    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 #pragma mark - Key-Value Observing (KVO)

@@ -446,6 +446,7 @@
                     self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
                 }
                 
+                self.showOpenInBrowserButton = (NSNumber*)[payloadDictionary objectForKey: @"showOpenInBrowserButton"];
                 self.position = kInAppNotificationModalPositionCenterKey;
                 self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
                 self.width = kInAppNotificationDefaultWidth;

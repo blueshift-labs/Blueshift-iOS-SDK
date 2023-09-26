@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BlueshiftWebBrowserViewController : BlueShiftNotificationViewController
 
 @property NSURL* url;
+@property BOOL showOpenInBrowserButton;
 
 @end
 

@@ -289,28 +289,32 @@
         if (buttonDetails.buttonIndex) {
             [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
         }
+        //send tracking events and handle special deep links
         [self processInAppActionForDeepLink:buttonDetails.iosLink details:details];
         
+        //handle deep link to share with app or open in browser
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-        
-        [self shareDeepLinkToApp:buttonDetails.iosLink options:inAppOptions];
+        [self handleDeepLink:buttonDetails.iosLink options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
-- (void)shareDeepLinkToApp:(NSString* _Nullable)deepLink options:(NSDictionary*)options {
-    [self hide:YES];
+- (void)handleDeepLink:(NSString*)deepLink options:(NSDictionary*)options {
     NSURL *deepLinkURL = [NSURL URLWithString:deepLink];
+    if ([BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: self.notification.showOpenInBrowserButton] == NO) {
+        [self shareDeepLinkToApp:deepLink options:options];
+    }
+    [self hide:YES];
+}
+
+- (void)shareDeepLinkToApp:(NSString* _Nullable)deepLink options:(NSDictionary*)options {
     if([deepLink isEqualToString:kInAppNotificationDismissDeepLinkURL] ||
        [deepLink isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL] ||
        [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty:deepLink] == NO) {
         // Placeholder
         // Do not send the deep links with type dismiss or ask-pn-permission or nil or empty to openURL:options:
         // This case is already handled in the [self processInAppActionForDeepLink:]
-    } else if ([BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL] == YES) {
-        //TODO: change the condition later
-        //Placeholder to open links in the browser.
     } else if (_notification && _notification.isFromInbox == YES && [self.notification.inboxDelegate respondsToSelector:@selector(isInboxNotificationActionTappedImplementedByHostApp)] && [self.notification.inboxDelegate isInboxNotificationActionTappedImplementedByHostApp] == YES) {
         // Handle the Deep link of in-apps originated from inbox and have implemented the callback method
         // `inboxNotificationActionTappedWithDeepLink:inboxViewController:options:`
