@@ -294,13 +294,13 @@
         
         //handle deep link to share with app or open in browser
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-        [self handleDeepLink:buttonDetails.iosLink options:inAppOptions];
+        [self handleInAppNotificationDeepLink:buttonDetails.iosLink options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
-- (void)handleDeepLink:(NSString*)deepLink options:(NSDictionary*)options {
+- (void)handleInAppNotificationDeepLink:(NSString*)deepLink options:(NSDictionary*)options {
     NSURL *deepLinkURL = [NSURL URLWithString:deepLink];
     if ([BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: self.notification.showOpenInBrowserButton] == NO) {
         [self shareDeepLinkToApp:deepLink options:options];
@@ -453,7 +453,17 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSURL* url = [[NSURL alloc] initWithString: UIApplicationOpenSettingsURLString];
                 if (url && [UIApplication.sharedApplication canOpenURL:url]) {
-                    [UIApplication.sharedApplication openURL:url];
+                    if (@available(iOS 10.0, *)) {
+                        [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {
+                            if (success) {
+                                [BlueshiftLog logInfo:@"Opened url successfully for enable push notifications." withDetails:url methodName:nil];
+                            } else {
+                                [BlueshiftLog logInfo:@"Failed to open url for enable push notifications." withDetails:url methodName:nil];
+                            }
+                        }];
+                    } else {
+                        [UIApplication.sharedApplication openURL:url];
+                    }
                 }
                 // Register for in-apps using cached screen name
                 [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];

@@ -102,7 +102,10 @@
 /// @return returns a dictionary with the values for deep link URL and the clicked button name. Use key `clk_url` to get the deep link URL and use `clk_elmt` to get button name from the dictionary.
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier;
 
+
 /// Call this method to open a web url in the SDKs internal webview browser screen.
+/// @param deepLinkURL url to open in browser
+/// @param showOpenInBrowserButton Bool option to show or hide  open link in external browser button
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton;
 
 // SceneDelegate lifecycle methods

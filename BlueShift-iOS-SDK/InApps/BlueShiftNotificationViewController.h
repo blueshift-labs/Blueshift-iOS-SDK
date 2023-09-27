@@ -82,7 +82,7 @@ typedef enum {
 /// @param notification notification object to perfor the check
 - (BOOL)isBannerImagePresentForNotification:(BlueShiftInAppNotification*)notification;
 
-- (void)handleDeepLink:(NSString*)deepLink options:(NSDictionary*)options;
+- (void)handleInAppNotificationDeepLink:(NSString*)deepLink options:(NSDictionary*)options;
 
 @end
 

@@ -7,6 +7,7 @@
 #import <WebKit/WebKit.h>
 
 #import "BlueshiftWebBrowserViewController.h"
+#import "BlueshiftLog.h"
 
 @interface BlueshiftWebBrowserViewController ()<WKNavigationDelegate>
 @property (nonatomic, strong) WKWebView *webView;
@@ -51,9 +52,9 @@
     UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonTapped)];
     _reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadButtonTapped)];
     if (@available(iOS 13.0, *)) {
-        _openInBrowserButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"safari"] style:UIBarButtonItemStylePlain target:self action:@selector(openInBrowser)];
+        _openInBrowserButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"safari"] style:UIBarButtonItemStylePlain target:self action:@selector(openInExternalBrowser)];
     } else {
-        _openInBrowserButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openInBrowser)];
+        _openInBrowserButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openInExternalBrowser)];
     }
     self.navigationItem.leftBarButtonItem = doneButton;
     if (_showOpenInBrowserButton) {
@@ -127,8 +128,19 @@
     }
 }
 
-- (void)openInBrowser {
-    [UIApplication.sharedApplication openURL:_webView.URL];
+- (void)openInExternalBrowser {
+    if (@available(iOS 10.0, *)) {
+        NSURL *urlToOpen = _webView.URL;
+        [UIApplication.sharedApplication openURL:urlToOpen options:@{} completionHandler:^(BOOL success) {
+            if (success) {
+                [BlueshiftLog logInfo:@"Opened url successfully in external browser." withDetails:urlToOpen methodName:nil];
+            } else {
+                [BlueshiftLog logInfo:@"Failed to open url in external browser." withDetails:urlToOpen methodName:nil];
+            }
+        }];
+    } else {
+        [UIApplication.sharedApplication openURL:_webView.URL];
+    }
 }
 
 - (void)hide:(BOOL)animated {
