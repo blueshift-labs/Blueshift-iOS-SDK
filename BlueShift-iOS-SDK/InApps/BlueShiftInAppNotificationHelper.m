@@ -9,6 +9,7 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueShift.h"
+#import "BlueShiftConstants.h"
 
 static NSDictionary *_inAppTypeDictionay;
 
@@ -241,6 +242,38 @@ static NSDictionary *_inAppTypeDictionay;
             }
         });
     }
+}
+
++ (BOOL)isValidWebURL:(NSURL*)url {
+    NSString* urlScheme = url.scheme.lowercaseString;
+    if (([urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"])) {
+        return YES;
+    }
+    return NO;
+}
+
++ (BOOL)isOpenInWebURL:(NSURL*)url {
+    NSMutableDictionary *queryParams = [BlueshiftEventAnalyticsHelper getQueriesFromURL:url];
+    if ([[queryParams objectForKey:kBSOpenInWebBrowserKey] isEqualToString:kBSOpenInWebBrowserValue]) {
+        return YES;
+    }
+    return NO;
+}
+
++ (NSURL* _Nullable)removeQueryParam:(NSString*)param FromURL:(NSURL*)url {
+    if(param && url) {
+        NSURLComponents *components = [[NSURLComponents alloc] initWithString:url.absoluteString];
+        NSMutableArray *updatedQueryItems = [NSMutableArray arrayWithCapacity:components.queryItems.count];
+        for (NSURLQueryItem *queryItem in components.queryItems) {
+            if (![queryItem.name isEqualToString:param]) {
+                [updatedQueryItems addObject:queryItem];
+            }
+        }
+        
+        components.queryItems = updatedQueryItems;
+        return [components URL];
+    }
+    return nil;
 }
 
 @end

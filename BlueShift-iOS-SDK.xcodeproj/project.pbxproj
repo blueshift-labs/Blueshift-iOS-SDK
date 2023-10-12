@@ -27,6 +27,9 @@
 		915098422923A1F30054CB88 /* BlueshiftInboxViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 915098402923A1F30054CB88 /* BlueshiftInboxViewController.m */; };
 		917582DE29250F0900022F38 /* BlueshiftInboxMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 917582DC29250F0900022F38 /* BlueshiftInboxMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		917582DF29250F0900022F38 /* BlueshiftInboxMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 917582DD29250F0900022F38 /* BlueshiftInboxMessage.m */; };
+		917EAF522AD3E9B40026F790 /* BlueShiftInAppNotificationHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917EAF512AD3E9B40026F790 /* BlueShiftInAppNotificationHelperTests.swift */; };
+		917EAF532AD3E9B40026F790 /* BlueShift_iOS_SDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */; platformFilter = ios; };
+		917EAF5B2AD6BCE10026F790 /* BlueshiftAppdelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917EAF5A2AD6BCE10026F790 /* BlueshiftAppdelegateTests.swift */; };
 		9186B5F3271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5A9271ED9E900D425AF /* NSDate+BlueShiftDateHelpers.m */; };
 		9186B5F4271ED9EF00D425AF /* BlueShiftPushDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5AA271ED9EA00D425AF /* BlueShiftPushDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9186B5F5271ED9EF00D425AF /* BlueShiftUserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9186B5AB271ED9EA00D425AF /* BlueShiftUserInfo.m */; };
@@ -136,6 +139,16 @@
 		91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		917EAF542AD3E9B40026F790 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9186B56E271ED94600D425AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9186B576271ED94600D425AF;
+			remoteInfo = "BlueShift-iOS-SDK";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		910057572949DC0B004D2DCF /* BlueShiftSDKDataModel 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "BlueShiftSDKDataModel 4.xcdatamodel"; sourceTree = "<group>"; };
 		910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxManager.m; sourceTree = "<group>"; };
@@ -158,6 +171,9 @@
 		915098402923A1F30054CB88 /* BlueshiftInboxViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxViewController.m; sourceTree = "<group>"; };
 		917582DC29250F0900022F38 /* BlueshiftInboxMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftInboxMessage.h; sourceTree = "<group>"; };
 		917582DD29250F0900022F38 /* BlueshiftInboxMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxMessage.m; sourceTree = "<group>"; };
+		917EAF4F2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlueShift_iOS_SDK_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		917EAF512AD3E9B40026F790 /* BlueShiftInAppNotificationHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftInAppNotificationHelperTests.swift; sourceTree = "<group>"; };
+		917EAF5A2AD6BCE10026F790 /* BlueshiftAppdelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueshiftAppdelegateTests.swift; sourceTree = "<group>"; };
 		9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlueShift_iOS_SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9186B594271ED96D00D425AF /* BlueShift_iOS_Extension_SDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlueShift_iOS_Extension_SDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9186B5A9271ED9E900D425AF /* NSDate+BlueShiftDateHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+BlueShiftDateHelpers.m"; sourceTree = "<group>"; };
@@ -275,6 +291,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		917EAF4C2AD3E9B40026F790 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				917EAF532AD3E9B40026F790 /* BlueShift_iOS_SDK.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9186B574271ED94600D425AF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -319,11 +343,29 @@
 			path = Inbox;
 			sourceTree = "<group>";
 		};
+		917EAF502AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests */ = {
+			isa = PBXGroup;
+			children = (
+				917EAF592AD3EF8A0026F790 /* Unit Tests */,
+			);
+			path = BlueShift_iOS_SDK_Tests;
+			sourceTree = "<group>";
+		};
+		917EAF592AD3EF8A0026F790 /* Unit Tests */ = {
+			isa = PBXGroup;
+			children = (
+				917EAF512AD3E9B40026F790 /* BlueShiftInAppNotificationHelperTests.swift */,
+				917EAF5A2AD6BCE10026F790 /* BlueshiftAppdelegateTests.swift */,
+			);
+			path = "Unit Tests";
+			sourceTree = "<group>";
+		};
 		9186B56D271ED94600D425AF = {
 			isa = PBXGroup;
 			children = (
 				9186B579271ED94600D425AF /* BlueShift-iOS-SDK */,
 				9186B595271ED96D00D425AF /* BlueShift-iOS-Extension-SDK */,
+				917EAF502AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests */,
 				9186B578271ED94600D425AF /* Products */,
 				9186B6A3271EDD5A00D425AF /* Frameworks */,
 			);
@@ -334,6 +376,7 @@
 			children = (
 				9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */,
 				9186B594271ED96D00D425AF /* BlueShift_iOS_Extension_SDK.framework */,
+				917EAF4F2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -572,6 +615,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		917EAF4E2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 917EAF582AD3E9B40026F790 /* Build configuration list for PBXNativeTarget "BlueShift_iOS_SDK_Tests" */;
+			buildPhases = (
+				917EAF4B2AD3E9B40026F790 /* Sources */,
+				917EAF4C2AD3E9B40026F790 /* Frameworks */,
+				917EAF4D2AD3E9B40026F790 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				917EAF552AD3E9B40026F790 /* PBXTargetDependency */,
+			);
+			name = BlueShift_iOS_SDK_Tests;
+			productName = BlueShift_iOS_SDK_Tests;
+			productReference = 917EAF4F2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		9186B576271ED94600D425AF /* BlueShift-iOS-SDK */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9186B589271ED94600D425AF /* Build configuration list for PBXNativeTarget "BlueShift-iOS-SDK" */;
@@ -615,9 +676,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1300;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1300;
 				TargetAttributes = {
+					917EAF4E2AD3E9B40026F790 = {
+						CreatedOnToolsVersion = 15.0;
+					};
 					9186B576271ED94600D425AF = {
 						CreatedOnToolsVersion = 13.0;
 					};
@@ -641,11 +705,19 @@
 			targets = (
 				9186B576271ED94600D425AF /* BlueShift-iOS-SDK */,
 				9186B593271ED96D00D425AF /* BlueShift-iOS-Extension-SDK */,
+				917EAF4E2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		917EAF4D2AD3E9B40026F790 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9186B575271ED94600D425AF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -664,6 +736,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		917EAF4B2AD3E9B40026F790 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				917EAF522AD3E9B40026F790 /* BlueShiftInAppNotificationHelperTests.swift in Sources */,
+				917EAF5B2AD6BCE10026F790 /* BlueshiftAppdelegateTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9186B573271ED94600D425AF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -732,7 +813,63 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		917EAF552AD3E9B40026F790 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 9186B576271ED94600D425AF /* BlueShift-iOS-SDK */;
+			targetProxy = 917EAF542AD3E9B40026F790 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		917EAF562AD3E9B40026F790 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9YR8UTRCDU;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.blueshift.BlueShift-iOS-SDK-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		917EAF572AD3E9B40026F790 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9YR8UTRCDU;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.blueshift.BlueShift-iOS-SDK-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		9186B587271ED94600D425AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -976,6 +1113,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		917EAF582AD3E9B40026F790 /* Build configuration list for PBXNativeTarget "BlueShift_iOS_SDK_Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				917EAF562AD3E9B40026F790 /* Debug */,
+				917EAF572AD3E9B40026F790 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9186B571271ED94600D425AF /* Build configuration list for PBXProject "BlueShift-iOS-SDK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

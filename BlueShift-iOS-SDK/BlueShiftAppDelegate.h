@@ -103,10 +103,14 @@
 - (NSDictionary* _Nullable)parseCustomActionPushNotification:(NSDictionary *_Nonnull)userInfo forActionIdentifier:(NSString *_Nonnull)identifier;
 
 
-/// Call this method to open a web url in the SDKs internal webview browser screen.
+/// Call this method to open a web url in the SDKs internal webview browser screen. Returns true or false based on success or failure of opening the link in browser.
 /// @param deepLinkURL url to open in browser
 /// @param showOpenInBrowserButton Bool option to show or hide  open link in external browser button
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton;
+
+/// Open custom scheme urls
+/// @param deepLinkURL custom scheme url
+- (BOOL)openCustomSchemeDeepLinks:(NSURL* _Nullable)deepLinkURL;
 
 // SceneDelegate lifecycle methods
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");

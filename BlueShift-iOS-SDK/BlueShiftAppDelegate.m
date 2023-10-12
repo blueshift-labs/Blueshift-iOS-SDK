@@ -494,7 +494,11 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                     deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
                 }
                 //check if deep link url is of open in web, else deliver to app
-                if ([self openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton:[self shouldShowOpenInBrowserButton:userInfo]] == NO) {
+                BOOL success = NO;
+                if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+                    success = [self openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton:[self shouldShowOpenInBrowserButton:userInfo]];
+                }
+                if (!success) {
                     [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];
                 }
             }
@@ -505,7 +509,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (NSNumber* _Nullable)shouldShowOpenInBrowserButton:(NSDictionary*)userInfo {
-    NSNumber *showOpenInBrowserButtonValue = [userInfo valueForKey:@"showOpenInBrowserButton"];
+    NSNumber *showOpenInBrowserButtonValue = [userInfo valueForKey:kBSWebBrowserShowOpenInBrowserButton];
     if (showOpenInBrowserButtonValue) {
         if ([showOpenInBrowserButtonValue intValue] == 1) {
             return @YES;
@@ -528,17 +532,23 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
-    if (deepLinkURL && [self isOpenInWebURL:deepLinkURL]) {
-        NSURL *newURL = [self removeOpenInWebParams:deepLinkURL];
-        if ([self isValidWebURL:newURL]) {
-            BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
-            webBrowser.url = newURL;
-            if (showOpenInBrowserButton) {
-                webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
-            }
-            [webBrowser show:YES];
-            return YES;
-        } else if ([UIApplication.sharedApplication canOpenURL:newURL]) {
+    if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+        NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
+        BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
+        webBrowser.url = newURL;
+        if (showOpenInBrowserButton) {
+            webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
+        }
+        [webBrowser show:YES];
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)openCustomSchemeDeepLinks:(NSURL* _Nullable)deepLinkURL {
+    if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+        NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
+        if ([UIApplication.sharedApplication canOpenURL:newURL]) {
             if (@available(iOS 10.0, *)) {
                 [UIApplication.sharedApplication openURL:newURL options:@{} completionHandler:^(BOOL success) {
                     if (success) {
@@ -550,22 +560,10 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
             } else {
                 [UIApplication.sharedApplication openURL:newURL];
             }
+            return YES;
         }
     }
     return NO;
-}
-
-- (NSURL*)removeOpenInWebParams:(NSURL*)url {
-    NSURLComponents *components = [[NSURLComponents alloc] initWithString:url.absoluteString];
-    NSMutableArray *updatedQueryItems = [NSMutableArray arrayWithCapacity:components.queryItems.count];
-    for (NSURLQueryItem *queryItem in components.queryItems) {
-        if (![queryItem.name isEqualToString:@"openInWeb"]) {
-            [updatedQueryItems addObject:queryItem];
-        }
-    }
-
-    components.queryItems = updatedQueryItems;
-    return [components URL];
 }
 
 - (void)launchWebViewBrowserWithURL:(NSURL*)url showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
@@ -576,23 +574,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
     [webBrowser show:YES];
 }
-
-- (BOOL)isValidWebURL:(NSURL*)url {
-    NSString* urlScheme = url.scheme.lowercaseString;
-    if (([urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"])) {
-        return YES;
-    }
-    return NO;
-}
-
-- (BOOL)isOpenInWebURL:(NSURL*)url {
-    NSMutableDictionary *queryParams = [BlueshiftEventAnalyticsHelper getQueriesFromURL:url];
-    if ([[queryParams objectForKey:@"openInWeb"] isEqualToString:@"true"]) {
-        return YES;
-    }
-    return NO;
-}
-
 
 #pragma mark - Handle Carousel PushNotifications
 - (NSDictionary*)handleCarouselPushNotification:(NSDictionary *) userInfo {
