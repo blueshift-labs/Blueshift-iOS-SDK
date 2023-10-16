@@ -110,7 +110,7 @@
 
 /// Open custom scheme urls
 /// @param deepLinkURL custom scheme url
-- (BOOL)openCustomSchemeDeepLinks:(NSURL* _Nullable)deepLinkURL;
+- (BOOL)openCustomSchemeDeepLink:(NSURL* _Nullable)deepLinkURL;
 
 // SceneDelegate lifecycle methods
 - (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");

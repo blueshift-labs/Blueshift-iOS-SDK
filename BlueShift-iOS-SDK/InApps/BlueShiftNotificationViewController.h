@@ -44,8 +44,8 @@ typedef enum {
 - (void)hide:(BOOL)animated;
 
 - (void)closeButtonDidTapped;
-- (void)createWindowAndPresent;
 - (void)createWindow;
+- (void)createWindowAndPresent;
 - (void)configureBackground;
 - (UIColor *)colorWithHexString:(NSString *)str;
 - (void)loadNotificationView;

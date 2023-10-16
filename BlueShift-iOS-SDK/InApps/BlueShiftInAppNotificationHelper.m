@@ -263,7 +263,7 @@ static NSDictionary *_inAppTypeDictionay;
 + (NSURL* _Nullable)removeQueryParam:(NSString*)param FromURL:(NSURL*)url {
     if(param && url) {
         NSURLComponents *components = [[NSURLComponents alloc] initWithString:url.absoluteString];
-        NSMutableArray *updatedQueryItems = [NSMutableArray arrayWithCapacity:components.queryItems.count];
+        NSMutableArray *updatedQueryItems = [[NSMutableArray alloc] init];
         for (NSURLQueryItem *queryItem in components.queryItems) {
             if (![queryItem.name isEqualToString:param]) {
                 [updatedQueryItems addObject:queryItem];

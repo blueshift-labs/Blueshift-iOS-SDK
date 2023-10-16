@@ -534,21 +534,23 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
     if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
-        BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
-        webBrowser.url = newURL;
-        if (showOpenInBrowserButton) {
-            webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
+        if (newURL) {
+            BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
+            webBrowser.url = newURL;
+            if (showOpenInBrowserButton) {
+                webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
+            }
+            [webBrowser show:YES];
+            return YES;
         }
-        [webBrowser show:YES];
-        return YES;
     }
     return NO;
 }
 
-- (BOOL)openCustomSchemeDeepLinks:(NSURL* _Nullable)deepLinkURL {
-    if (deepLinkURL && ![BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+- (BOOL)openCustomSchemeDeepLink:(NSURL* _Nullable)deepLinkURL {
+    if (deepLinkURL) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
-        if ([UIApplication.sharedApplication canOpenURL:newURL]) {
+        if (newURL && [UIApplication.sharedApplication canOpenURL:newURL]) {
             if (@available(iOS 10.0, *)) {
                 [UIApplication.sharedApplication openURL:newURL options:@{} completionHandler:^(BOOL success) {
                     if (success) {
@@ -564,15 +566,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         }
     }
     return NO;
-}
-
-- (void)launchWebViewBrowserWithURL:(NSURL*)url showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
-    BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
-    webBrowser.url = url;
-    if (showOpenInBrowserButton) {
-        webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
-    }
-    [webBrowser show:YES];
 }
 
 #pragma mark - Handle Carousel PushNotifications

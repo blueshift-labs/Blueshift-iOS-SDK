@@ -124,10 +124,10 @@
             [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];
             return;
         } else if (!notification.notificationPayload) {
+            self.currentNotificationController = nil;
             //If payload is nil, then discard the in-app and delete it from db.
             [InAppNotificationEntity deleteInboxMessageFromDB:[BlueShiftInAppNotificationHelper getMessageUUID:notification.notificationPayload] completionHandler:^(BOOL status) {
             }];
-            self.currentNotificationController = nil;
             return;
         }
         

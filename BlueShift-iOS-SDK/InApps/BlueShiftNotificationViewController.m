@@ -306,7 +306,7 @@
     if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
         success = [BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: self.notification.showOpenInBrowserButton];
     } else {
-        success = [BlueShift.sharedInstance.appDelegate openCustomSchemeDeepLinks:deepLinkURL];
+        success = [BlueShift.sharedInstance.appDelegate openCustomSchemeDeepLink:deepLinkURL];
     }
     if (!success) {
         [self shareDeepLinkToApp:deepLink options:options];

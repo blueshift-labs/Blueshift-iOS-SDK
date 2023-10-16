@@ -335,6 +335,8 @@
             self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
         }
         
+        self.createdAt = [NSNumber numberWithDouble: (double)[[BlueShiftInAppNotificationHelper getUTCDateFromDateString:self.timestamp] timeIntervalSince1970]];
+        
         if ([dictionary objectForKey: kInAppNotificationKey]) {
             dictionary = [dictionary objectForKey: kInAppNotificationKey];
         }
@@ -371,7 +373,6 @@
         
         self.priority = kInAppPriorityMedium;
         self.eventName = kInAppNotificationKey;
-        self.createdAt = [NSNumber numberWithDouble: (double)[[BlueShiftInAppNotificationHelper getUTCDateFromDateString:self.timestamp] timeIntervalSince1970]];
         if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
             self.status = [[payload objectForKey:@"status"] isEqualToString:kBSInboxUnreadStatus] ? kInAppStatusPending : kInAppStatusDisplayed;
             self.availability = [dictionary objectForKey:kBSAvailabilityScope] ? [dictionary objectForKey:kBSAvailabilityScope] : kBSAvailabilityInAppOnly;
