@@ -30,7 +30,7 @@ final class BlueshiftAppdelegateTests: XCTestCase {
         
         url = URL(string: "blueshift://app/home")
         if let url = url {
-            let res = sut.openDeepLink(inWebViewBrowser: url, showOpenInBrowserButton: NSNumber(integerLiteral: 1))
+            let res = sut.openCustomSchemeDeepLinks(url)
             XCTAssertFalse(res, "Failed to open url in browser")
         }
     }

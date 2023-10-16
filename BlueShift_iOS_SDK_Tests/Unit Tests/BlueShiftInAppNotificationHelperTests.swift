@@ -91,8 +91,14 @@ final class BlueShiftInAppNotificationHelperTests: XCTestCase {
         
         url = URL(string: "https://www.blueshift.com?page=home&bsft_tgt=browser")
         if let url = url {
-            let res = BlueShiftInAppNotificationHelper.removeQueryParam("openIn", from: url)
-            XCTAssertEqual(res?.absoluteString, "https://www.blueshift.com?page=home&bsft_tgt=browser", "Successful removal of page param")
+            let res = BlueShiftInAppNotificationHelper.removeQueryParam("bsft_tgt", from: url)
+            XCTAssertEqual(res?.absoluteString, "https://www.blueshift.com?page=home", "Successful removal of page param")
+        }
+        
+        url = URL(string: "https://www.blueshift.com?page=home&bsft_tgt=browser&val1=test")
+        if let url = url {
+            let res = BlueShiftInAppNotificationHelper.removeQueryParam("bsft_tgt", from: url)
+            XCTAssertEqual(res?.absoluteString, "https://www.blueshift.com?page=home&val1=test", "Successful removal of page param")
         }
     }
 
