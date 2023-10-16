@@ -546,7 +546,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (BOOL)openCustomSchemeDeepLinks:(NSURL* _Nullable)deepLinkURL {
-    if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+    if (deepLinkURL && ![BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
         if ([UIApplication.sharedApplication canOpenURL:newURL]) {
             if (@available(iOS 10.0, *)) {
