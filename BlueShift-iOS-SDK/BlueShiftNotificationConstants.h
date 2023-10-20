@@ -12,6 +12,7 @@
 #define kNotificationAlertIdentifierKey                                 @"alert"
 #define kNotificationCategoryIdentifierKey                              @"category"
 #define kNotificationSoundIdentifierKey                                 @"sound"
+#define kNotificationContentAvailableKey                                @"content-available"
 #define kNotificationTypeIdentifierKey                                  @"notification_type"
 #define kNotificationKey                                                @"notification"
 #define kNotificationCarouselElementIdentifierKey                       @"carousel_elements"
@@ -38,9 +39,10 @@
 #define kNotificationActionOpenCartIdentifier                           @"open_cart"
 
 #define kNotificationCategorySilentPushIdentifier                       @"silent push"
-#define kNotificationCategoryOfferIdentifier                            @"promotion"
+#define kNotificationPromotionIdentifier                                @"promotion"
 #define kNotificationProductIDIdenfierKey                               @"product_id"
 #define kNotificationSelectedIndexKey                                   @"selected_index"
+#define kAutoUpdateBadge                                                @"auto_update_badge"
 
 #define kNotificationCarouselIdentifier                                 @"carousel"
 #define kNotificationCarouselAnimationIdentifier                        @"carousel_animation"
@@ -54,6 +56,10 @@
 #define kInAppNotificationModalExperimentIDKey                          @"bsft_experiment_uuid"
 #define kInAppNotificationModalUserIDKey                                @"bsft_user_uuid"
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
+#define kBSAccountAdapterUUID                                           @"account_adapter_uuid"
+#define kBSAdapterUUID                                                  @"adapter_uuid"
+#define kBSTrackingAAID                                                 @"bsft_aaid"
+
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"
@@ -70,7 +76,6 @@
 #define kInAppNotificationModalSilentPushKey                            @"silent_push"
 #define kInAppNotificationBackgroundFetch                               @"in_app_background_fetch"
 #define kInAppNotificationAction                                        @"action"
-#define kInAppNotificationMarkAsOpen                                    @"in_app_mark_as_open"
 #define kInAppNotificationOpenedInAppUUID                               @"opened_in_app_message_uuids"
 #define kInAppNotificationCreatedTimestampKey                           @"created_at"
 #define kPushNotificationDeepLinkURLKey                                 @"deep_link_url"
@@ -82,13 +87,16 @@
 
 #define kInAppTriggerModeNow                                            @"now"
 #define kInAppTriggerModeUpcoming                                       @"upcoming"
-#define kInAppTriggerModeEvent                                          @"event"
-#define kInAppTriggerModeNowAndUpcoming                                 @"NowAndUpComing"
 
 #define kInAppPriorityMedium                                            @"medium"
 #define kInAppId                                                        @"id"
 
 #define kInAppStatus                                                    @"status"
 #define kInAppStatusPending                                             @"pending"
+#define kInAppStatusDisplayed                                           @"displayed"
+
+#define kDefaultDateFormat                                              @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+
+#define kBSMessageUUID                                                  @"message_uuid"
 
 #endif

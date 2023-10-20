@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
-#import "BlueShiftDeepLink.h"
 #import "BlueShiftUserInfo.h"
 #import "BlueShiftPushDelegate.h"
 #import "BlueShiftInAppNotificationDelegate.h"
@@ -17,7 +16,12 @@
 typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
     BlueshiftRegionUS,
     BlueshiftRegionEU
-} ;
+};
+
+typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
+    BlueshiftFilesLocationDocumentDirectory,
+    BlueshiftFilesLocationLibraryDirectory
+};
 
 @class BlueShiftInAppNotificationDelegate;
 
@@ -35,10 +39,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// SDK uses the launchOptions to track if the app is launched from push notification, if yes, then SDK sends the push click event and delivers the associated deep link url to the app.
 /// It is highly recommended to set the launchOptions to the SDK.
 @property NSDictionary * _Nonnull applicationLaunchOptions;
-
-@property NSURL * _Nullable productPageURL DEPRECATED_MSG_ATTRIBUTE("productPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
-@property NSURL * _Nullable cartPageURL DEPRECATED_MSG_ATTRIBUTE("cartPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
-@property NSURL * _Nullable offerPageURL DEPRECATED_MSG_ATTRIBUTE("offerPageURL deeplinking is deprecated and will be removed in future. Use push notification deep links instead.");
 
 /// Set this property to false in order to stop SDK from registering for silent(background) push notifications.
 /// @discussion SDK registers for silent push notifications in order to receive the in-app notifications when user has not asked for push permission
@@ -65,6 +65,8 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// Set `enableInAppNotification` property to true to enable in-app notifications. By default in-app notifications are disabled.
 @property BOOL enableInAppNotification;
 
+@property BOOL enableMobileInbox;
+
 /// Set the `InAppManualTriggerEnabled` property to true, to stop the SDK from displaying in-app messages automatically.
 /// @note You can display the in-app messages manually by calling below SDK method and it will only show one in-app.
 /// @code
@@ -74,7 +76,7 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 
 /// By default `inAppBackgroundFetchEnabled` property is set as true.
 /// When this feature is enabled, the SDK fetches the latest in-app messages in background, stores it locally to display when needed. If you don't want the SDK to fetch in-app automatically, set this property to false.
-@property BOOL inAppBackgroundFetchEnabled;
+@property BOOL inAppBackgroundFetchEnabled DEPRECATED_MSG_ATTRIBUTE("From SDK v2.4.0, SDK will not use this property, SDK will always fetch the inapp and inbox messages automatically and store it at local.");
 
 /// From iOS SDK v2.1.7, it prints the logs when this property is set to true. It is recommended to set this property to true only for debug purpose.
 /// @discussion The SDK logs are divided into 4 categories:
@@ -130,6 +132,13 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
 /// By default, the time-interval between two in-app messages (the interval when a message is dismissed and the next message appears while staying on same screen) is 60 seconds.
 /// Set this property in seconds to modify the time interval.
 @property(nonatomic) double BlueshiftInAppNotificationTimeInterval;
+
+/// SDK creates core data files by default in the app's Document directory. If your app supports sharing the Documents directory or Documents browser, then you can change this location to Library directory, so that the SDK files won't show up in the app's Document directory.
+/// Set this attribute to `.LibraryDirectory` if you dont want to use the Documents directory as SDK core data files location.
+/// @note If you want to stop using the Documents directory, SDK takes care of moving existing core data files(if present) from Documents directory to Library directory.
+/// @warning Shifting from Library directory to Document directory is not a recommended.
+/// If you want to stop using the Library directory and start using the Documents directory, SDK does not take care of moving the files from Library directory to Documents directory.
+@property BlueshiftFilesLocation sdkCoreDataFilesLocation;
 
 /// By default, SDK sets IDFV as the deviceIdSource.
 /// SDK provides IDFV, idfvBundleID, UUID and customDeviceId options as different device id sources.

@@ -30,12 +30,15 @@
         self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
         self.BlueshiftInAppNotificationTimeInterval = kDefaultInAppTimeInterval;
+        self.enableMobileInbox = NO;
         
         // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
         // Default Region US
-        self.region = BlueshiftRegionUS;        
+        self.region = BlueshiftRegionUS;
+        
+        self.sdkCoreDataFilesLocation = BlueshiftFilesLocationDocumentDirectory;
     }
     return self;
 }

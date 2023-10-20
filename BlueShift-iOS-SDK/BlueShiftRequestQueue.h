@@ -23,21 +23,18 @@
 @class BlueShiftRequestOperation;
 @class BlueShiftBatchRequestOperation;
 
-// Defines the maximum number of requests that can be retried ...
 #define kRequestTryMaximumLimit                 3
-
-// Defines the time interval for requests to be retried ...
 #define kRequestRetryMinutesInterval            5
 
 @interface BlueShiftRequestQueue : NSObject
 
-// Method to trigger request executions from the Queue ...
+/// Trigger request executions from the Queue
 + (void)processRequestsInQueue;
 
-// Method to add Request Operation to the Queue ...
+/// Add realttime events to db
 + (void)addRequestOperation:(BlueShiftRequestOperation *)requestOperation;
 
-// Method to add Batch Request Operation to Queue ....
+/// Add batch events to db
 + (void)addBatchRequestOperation:(BlueShiftBatchRequestOperation *)requestOperation;
 
 @end

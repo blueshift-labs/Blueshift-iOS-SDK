@@ -190,7 +190,7 @@
             descriptionLabel = [self createDescriptionLabel:yPadding];
             if (self.notification.templateStyle != nil && self.notification.templateStyle.height > 0) {
                 CGRect newFrame = descriptionLabel.frame;
-                CGFloat newHeight = [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints:self.notification.templateStyle.height forWindow:self.window] - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
+                CGFloat newHeight = notificationView.frame.size.height - [self calculateTotalButtonHeight] - yPadding - messageBottomPadding;
                 newFrame.size.height = newHeight;
                 descriptionLabel.frame = newFrame;
             }
@@ -479,7 +479,7 @@
             // Set max width in points to default height except when width is automatic and height is fixed
             float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
             
-            NSData* imageData = [self loadAndCacheImageForURLString:self.notification.templateStyle.backgroundImage];
+            NSData* imageData = [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:self.notification.templateStyle.backgroundImage];
             UIImage* image = [[UIImage alloc] initWithData:imageData];
             [BlueshiftLog logInfo:@"Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
             

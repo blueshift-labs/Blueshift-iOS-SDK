@@ -1,6 +1,6 @@
 //
 //  BlueShiftNotificationViewController.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 10/07/19.
 //
@@ -13,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef enum {
     BlueshiftInAppClickAction,
-    BlueshiftInAppDismissAction
+    BlueshiftInAppDismissAction,
+    BlueshiftAskPNPermission
 } BlueshiftInAppActions;
 
 @class BlueShiftNotificationViewController;
@@ -54,7 +55,7 @@ typedef enum {
 - (CGFloat)getLabelHeight:(UILabel*)label labelWidth:(CGFloat)width;
 - (UIView *)createNotificationWindow;
 - (void)sendActionEventAnalytics:(NSDictionary *)details forActionType:(BlueshiftInAppActions)action;
-- (void)processInAppActionForDeepLink:(NSString*)deepLink details:(NSDictionary*)details;
+- (void)processInAppActionForDeepLink:(NSString* _Nullable)deepLink details:(NSDictionary*)details;
 - (int)getTextAlignement:(NSString *)alignmentString;
 - (BOOL)isValidString:(NSString *)data;
 - (void)setBackgroundImageFromURL:(UIView *)notificationView;
@@ -68,8 +69,6 @@ typedef enum {
 /// @param inAppbutton nullable in-app notification clicked button object
 - (NSDictionary *)getInAppOpenURLOptions:(BlueShiftInAppNotificationButton * _Nullable)inAppbutton;
 
--(NSData*)loadAndCacheImageForURLString:(NSString*)urlString;
-
 /// Check if the notification has a valid background image present.
 /// @param notification notification object to perfor the check
 - (BOOL)isBackgroundImagePresentForNotification:(BlueShiftInAppNotification*)notification;
@@ -81,6 +80,8 @@ typedef enum {
 /// Check if the notification has a valid banner image present.
 /// @param notification notification object to perfor the check
 - (BOOL)isBannerImagePresentForNotification:(BlueShiftInAppNotification*)notification;
+
+- (void)shareDeepLinkToApp:(NSString* _Nullable)deepLink options:(NSDictionary*)options;
 
 @end
 

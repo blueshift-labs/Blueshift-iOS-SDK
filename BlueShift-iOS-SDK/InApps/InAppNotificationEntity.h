@@ -1,13 +1,12 @@
 //
 //  InAppNotificationEntity.h
-//  BlueShift-iOS-Extension-SDK
+//  BlueShift-iOS-SDK
 //
 //  Created by shahas kp on 12/07/19.
 //
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-#import "BlueShiftInAppTriggerMode.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftInAppNotificationHelper.h"
 
@@ -15,40 +14,76 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface InAppNotificationEntity : NSManagedObject
 
+/// message uuid
 @property (nonatomic, retain) NSString *id;
+
+/// Type of inapp message -slidein/modal/html
 @property (nonatomic, retain) NSString *type;
 
-@property (nonatomic, retain) NSNumber *startTime;
-@property (nonatomic, retain) NSNumber *endTime;
-
-@property (nonatomic, retain) NSData *payload;
-
+/// Priority for the message, default medium.
 @property (nonatomic, retain) NSString *priority;
+
+/// Trigger mode can be now or upcoming based on the `trigger` value
 @property (nonatomic, retain) NSString *triggerMode;
+
+/// Message type, inapp or push
 @property (nonatomic, retain) NSString *eventName;
+
+/// Unread Status - pending/displayed
 @property (nonatomic, retain) NSString *status;
-@property (nonatomic, retain) NSNumber *createdAt;
+
+/// Display on specific screen eg - CartViewController
 @property (nonatomic, retain) NSString *displayOn;
+
+/// Set timestamp from the message payload `timestamp`
 @property (nonatomic, retain) NSString *timestamp;
 
-- (void) insert:(NSDictionary *)dictionary
-usingPrivateContext: (NSManagedObjectContext*)privateContext
- andMainContext: (NSManagedObjectContext*)masterContext
-        handler:(void (^)(BOOL))handler;
+/// Inbox availabilty - inapp/ inbox+inapp/ inbox
+@property (nonatomic, retain) NSString *availability;
 
-+ (void)fetchAll:(BlueShiftInAppTriggerMode)triggerMode forDisplayPage:(NSString *)displayOn context:(NSManagedObjectContext *)masterContext  withHandler:(void (^)(BOOL, NSArray *))handler;
+/// Start time for the message, `trigger` is set as future date.
+@property (nonatomic, retain) NSNumber *startTime;
 
-+ (void)fetchNotificationByID :(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
+/// Expiry date for the message
+@property (nonatomic, retain) NSNumber *endTime;
 
-+ (void)updateInAppNotificationStatus:(NSManagedObjectContext *)context forNotificatioID: (NSString *) notificationID request: (NSFetchRequest*)fetchRequest notificationStatus:(NSString *)status
-                       andAppDelegate:(BlueShiftAppDelegate *)appdelegate handler:(void (^)(BOOL))handler;
+/// Message creation date from the payload
+@property (nonatomic, retain) NSNumber *createdAt;
 
-+ (void)fetchInAppNotificationByStatus :(NSManagedObjectContext *)context forNotificatioID: (NSString *) status request: (NSFetchRequest*)fetchRequest handler:(void (^)(BOOL, NSArray *))handler;
+/// Entire mesasge payload
+@property (nonatomic, retain) NSData *payload;
 
-+ (NSPredicate *)getPredicates:(NSString *)triggerStr andDisplayOn:(NSString *)displayOn;
+
++ (BOOL)insertMesseages:(NSArray<NSDictionary*> *)messagesToInsert;
+
++ (void)fetchAllMessagesWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
+
++ (void)fetchAllMessagesForInboxWithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
+
++ (void)fetchInAppMessageToDisplayOnScreen:(NSString*)displayOn WithHandler:(void (^)(BOOL, NSArray * _Nullable))handler;
+
++ (void)fetchLastReceivedMessageId:(void (^)(BOOL, NSString *, NSString *))handler;
+
++ (void)checkIfMessagesPresentForMessageUUIDs:(NSArray*)messageUUIDs handler:(void (^)(BOOL, NSDictionary *))handler;
 
 /// Erase all the In app notifications records from the SDK database.
 + (void)eraseEntityData;
+
++ (void)markMessageAsRead:(NSString *)messageUUID;
+
++ (void)syncMessageUnreadStatusWithDB:(NSDictionary * _Nullable)messages status:(NSDictionary* _Nullable)statuses;
+
++ (void)syncDeletedMessagesWithDB:(NSArray *)deleteIds;
+
++ (void)deleteInboxMessageFromDB:(NSString *)messageUUID completionHandler:(void (^_Nonnull)(BOOL))handler;
+
++ (NSFetchRequest*)getFetchRequestForPredicate:(NSPredicate* _Nullable)predicate sortDescriptor:(NSArray<NSSortDescriptor*>* _Nullable)sortDescriptor;
+
++ (void)deleteExpiredMessagesFromDB;
+
++ (void)getUnreadMessagesCountFromDB:(void(^)(BOOL, NSUInteger))handler;
+
++ (void)postNotificationInboxUnreadMessageCountDidChange:(BlueshiftInboxChangeType)refreshType;
 
 NS_ASSUME_NONNULL_END
 

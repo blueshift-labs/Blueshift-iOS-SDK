@@ -10,8 +10,8 @@
 @protocol BlueShiftPushParamDelegate <NSObject>
 
 @optional
-- (void)handlePushDictionary:(NSDictionary *)pushDictionary;
-- (void)fetchProductID:(NSString *)productID;
-- (void)handleCarouselPushDictionary:(NSDictionary *)pushDictionary withSelectedIndex:(NSInteger)index;
+- (void)handlePushDictionary:(NSDictionary *)pushDictionary DEPRECATED_MSG_ATTRIBUTE("Use BlueShiftPushDelegate to get the push notification callbacks.");
+- (void)fetchProductID:(NSString *)productID DEPRECATED_MSG_ATTRIBUTE("Use BlueShiftPushDelegate to get the push notification callbacks.");
+- (void)handleCarouselPushDictionary:(NSDictionary *)pushDictionary withSelectedIndex:(NSInteger)index DEPRECATED_MSG_ATTRIBUTE("Use BlueShiftPushDelegate to get the push notification callbacks.");
 
 @end

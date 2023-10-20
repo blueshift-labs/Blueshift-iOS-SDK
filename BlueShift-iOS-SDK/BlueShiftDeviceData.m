@@ -70,9 +70,13 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
 }
 
 - (void)resetDeviceUUID {
-    [BlueshiftLog logInfo:@"Initiating the Device id reset." withDetails:nil methodName:nil];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBlueshiftDeviceIdSourceUUID];
-    [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+    if (_blueshiftDeviceIdSource == BlueshiftDeviceIdSourceUUID) {
+        [BlueshiftLog logInfo:@"Resetting the Device id." withDetails:nil methodName:nil];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBlueshiftDeviceIdSourceUUID];
+        [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
+    } else {
+        [BlueshiftLog logInfo:@"Can not reset the Device id as it is applicable to only BlueshiftDeviceIdSourceUUID type." withDetails:nil methodName:nil];
+    }
 }
 
 - (NSString *)deviceIDFV {
@@ -84,7 +88,7 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return [[UIDevice currentDevice] model];
 }
 
-- (NSString *)networkCarrierName {
+- (NSString *)getNetworkCarrierName {
     // Skip fetching network carrier for simulator
     #if TARGET_OS_SIMULATOR
         return nil;
@@ -136,9 +140,16 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         [deviceMutableDictionary setObject:self.operatingSystem forKey:kOSName];
     }
     
-    NSString *networkCarrier = self.networkCarrierName;
-    if (networkCarrier) {
-        [deviceMutableDictionary setObject: networkCarrier forKey:kNetworkCarrier];
+    if (@available(iOS 16.0, *)) {
+        //Skip adding carrier name to the device info
+    } else {
+        if(!self.networkCarrierName) {
+            self.networkCarrierName = [self getNetworkCarrierName];
+        }
+        // Added check for simulator which returns nil value.
+        if (self.networkCarrierName) {
+            [deviceMutableDictionary setObject: self.networkCarrierName forKey:kNetworkCarrier];
+        }
     }
     
     if (self.currentLocation) {

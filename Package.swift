@@ -28,7 +28,8 @@ let package = Package(
             publicHeadersPath: "include",
             cSettings: [
                 .headerSearchPath("./"),
-                .headerSearchPath("InApps/")
+                .headerSearchPath("InApps/"),
+                .headerSearchPath("Inbox/")
             ],
             linkerSettings: [
                 .linkedFramework("CoreData"),

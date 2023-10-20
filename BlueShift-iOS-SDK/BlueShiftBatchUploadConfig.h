@@ -9,16 +9,14 @@
 
 @interface BlueShiftBatchUploadConfig : NSObject
 
-// Property hold periodic intervell in which batch uploader will envoke(in seconds)
 @property(nonatomic) double batchUploadTimer;
 
-// Create shared instance of BlueShiftBatchUploadConfig
 + (instancetype) sharedInstance;
 
-// Method to set intervell timer (in seconds)
+/// Set Batch upload timer in seconds. The batches will be sent to Blueshift periodically after given time interval.
 - (void)setBatchUploadTimer:(double)batchUploadTimer;
 
-// Method to get intervell timer
+/// Get Batch upload timer in seconds
 - (double)fetchBatchUploadTimer;
 
 @end

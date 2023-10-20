@@ -126,7 +126,7 @@
 
 #define kNotificationClickElementKey                            @"clk_elmt"
 #define kNotificationURLElementKey                              @"clk_url"
-#define kInAppNotificationFontFileDownlaodURL                   @"https://bsftassets.s3-us-west-2.amazonaws.com/inapp/Font+Awesome+5+Free-Solid-900.otf"
+#define kInAppNotificationFontFileDownlaodURL                   @"https://cdn.getblueshift.com/inapp/Font+Awesome+5+Free-Solid-900.otf"
 
 #define kInAppNotificationModalMessagePaddingKey                @"message_padding"
 #define kInAppNotificationModalIconPaddingKey                   @"icon_padding"
@@ -138,5 +138,6 @@
 
 #define kInAppNotificationModalTimestampDateFormat              @"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 #define kInAppNotificationDismissDeepLinkURL                    @"blueshift://dismiss"
+#define kInAppNotificationReqPNPermissionDeepLinkURL            @"blueshift://req-push-permission"
 
 #endif /* BlueShiftInAppNotificationConstant_h */

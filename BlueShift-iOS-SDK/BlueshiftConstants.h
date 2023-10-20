@@ -56,7 +56,7 @@
 #define kBlueshiftEnableTracking                @"BlueshiftEnableTracking"
 #define kBlueshiftEnableInApp                   @"BlueshiftEnableInApp"
 #define ksavedBlueShiftUserInfoDictionary       @"savedBlueShiftUserInfoDictionary"
-
+#define kBSCategoryMigrationForDismissAction    @"BlueshiftCategoryMigrationForDismissAction"
 //Bool
 #define kYES                                    @"YES"
 #define kNO                                     @"NO"
@@ -66,6 +66,7 @@
 #define openURLOptionsBlueshift                 @"Blueshift"
 #define openURLOptionsChannel                   @"channel"
 #define openURLOptionsInApp                     @"inApp"
+#define openURLOptionsInbox                     @"inbox"
 #define openURLOptionsPush                      @"push"
 #define openURLOptionsModal                     @"modal"
 #define openURLOptionsSlideIn                   @"slideInBanner"
@@ -104,6 +105,9 @@
 #define kBSDismiss                              @"dismiss"
 #define kBSAction                               @"a"
 
+//Events
+#define kBSScreenViewed                         @"screen_viewed"
+
 //Serial queue
 #define kBSSerialQueue                          "com.blueshift.coresdk"
 
@@ -112,15 +116,62 @@
 #define kBSSPMResourceBundlePath                @"/BlueShift-iOS-SDK_BlueShift_iOS_SDK.bundle"
 #define kBSCoreDataMOMD                         @"momd"
 #define kBSCoreDataSQLiteFileName               @"BlueShift-iOS-SDK.sqlite"
+#define kBSCoreDataSQLiteLibraryPath            @"Application Support/Blueshift"
 #define kBSFrameWorkPath                        @"Frameworks/BlueShift_iOS_SDK.framework"
 #define kBSCreatedAt                            @"createdAt"
 
 //NSNotificationCenter constant
 #define kBSPushAuthorizationStatusDidChangeNotification @"BlueshiftPushAuthorizationStatusDidChangeNotification"
 #define kBSStatus                               @"status"
+#define kBSInAppNotificationDidAppear           @"BlueshiftInAppNotificationDidAppear"
+#define kBSInboxUnreadMessageCountDidChange     @"BlueshiftInboxUnreadMessageCountDidChange"
 
 //Default time interval for in-app notificaiton
 #define kDefaultInAppTimeInterval               60
 #define kMinimumInAppTimeInterval               5
+
+// Push permission promt Localization keys
+#define kBSGoToSettingTitleLocalizedKey         @"BLUESHIFT_GOTOSETTING_ALERT_TITLE"
+#define kBSGoToSettingTextLocalizedKey          @"BLUESHIFT_GOTOSETTING_ALERT_TEXT"
+#define kBSGoToSettingOkayButtonLocalizedKey    @"BLUESHIFT_GOTOSETTING_ALERT_OKAY_BUTTON"
+#define kBSGoToSettingCancelButtonLocalizedKey  @"BLUESHIFT_GOTOSETTING_ALERT_CANCEL_BUTTON"
+
+// Push permission promt default text
+#define kBSGoToSettingDefaultTitle              @"Enable push notifications"
+#define kBSGoToSettingDefaultText               @"You have disabled Push notifications for your app, please go to settings to enable it."
+#define kBSGoToSettingDefaultOkayButton         @"Settings"
+#define kBSGoToSettingDefaultCancelButton       @"Not Now"
+
+
+//Mobile inbox constants
+#define kBSInboxDefaultCellIdentifier           @"BlueshiftInboxDefaultCell"
+#define kBSMessageUUIDs                         @"message_uuids"
+#define kBSInboxAction                          @"action"
+#define kBSInboxActionDelete                    @"delete"
+#define kBSInboxRefreshType                     @"refreshType"
+
+#define kBSAvailabilityScope                    @"scope"
+#define kBSAvailabilityInboxOnly                @"inbox"
+#define kBSAvailabilityInboxAndInApp            @"inbox+inapp"
+#define kBSAvailabilityInAppOnly                @"inapp"
+
+#define kBSInbox                                @"inbox"
+#define kBSInboxMessageData                     @"data"
+#define kBSInboxMessageTitle                    @"title"
+#define kBSInboxMessageDetails                  @"details"
+#define kBSInboxMessageIcon                     @"icon"
+
+#define kBSTrackingOpenedBy                     @"opened_by"
+#define kBSTrackingOpenedByUser                 @"user"
+#define kBSTrackingOpenedByPrefetch             @"prefetch"
+
+#define kBSInboxUnreadStatus                    @"unread"
+#define kBSInboxReadStatus                      @"read"
+#define kBSInboxStatus                          @"status"
+
+#define kBSDeviceIsOfflineDescriptionLocalizedKey       @"BLUESHIFT_DEVICE_OFFLINE_ALERT_TITLE"
+#define kBSDeviceIsOfflineDescription                   @"Deleting message is not allowed when device is offline!"
+#define kBSAlertOkayButtonLocalizedKey          @"BLUESHIFT_ALERT_OKAY_BUTTON"
+#define kBSDoneButtonLocalizedKey               @"BLUESHIFT_DONE_BUTTON"
 
 #endif /* BlueshiftConstants_h */

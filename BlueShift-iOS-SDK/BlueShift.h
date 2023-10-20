@@ -10,7 +10,6 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftDeepLink.h"
 #import "BlueShiftPushParamDelegate.h"
 #import "BlueShiftNetworkReachabilityManager.h"
 #import "BlueShiftSubscriptionState.h"
@@ -29,6 +28,13 @@
 #import "BlueShiftUserNotificationCenterDelegate.h"
 #import "BlueshiftEventAnalyticsHelper.h"
 #import "BlueShiftLiveContent.h"
+#import "BlueshiftInboxMessage.h"
+#import "BlueshiftInboxViewController.h"
+#import "BlueshiftInboxNavigationViewController.h"
+#import "BlueshiftInboxManager.h"
+#import "BlueshiftInboxAPIManager.h"
+#import "BlueshiftInboxTableViewCell.h"
+#import "BlueshiftInboxViewModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,9 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property BlueShiftAppDelegate * _Nullable appDelegate;
 @property BlueShiftUserNotificationCenterDelegate * _Nullable userNotificationDelegate;
 
-/// Image cache for storing downloaded images from the in-app notifications. The cache will be cleared when in-app gets dismissed.
-@property (nonatomic, strong) NSCache<NSString*, NSData *> *inAppImageDataCache;
-
 + (instancetype _Nullable)sharedInstance;
 
 /// Initialise the SDK using BlueShiftConfig
@@ -56,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void) autoIntegration DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be replaced by the auto-integration using method swizzling. This method will be removed in a future SDK version.");
 
-- (void) setPushDelegate: (id) obj;
+- (void) setPushDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
 - (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
 - (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
@@ -64,6 +67,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns Blueshift serial queue instance for executing tasks on the Blueshift queue.
 - (dispatch_queue_t _Nullable) dispatch_get_blueshift_queue;
+
+- (void)refreshApplicationBadgeWithCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0));
+
+- (BOOL)isAutoUpdateBadgePushNotification:(UNNotificationRequest *)request API_AVAILABLE(ios(10.0));
 
 #pragma mark In App registration methods
 /// Register for in-app notifications in order to show the in-app notifications on the view controller or screen. To register, call this method in the `viewDidAppear` lifecycle method of VC.
@@ -103,8 +110,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Send `pageload` event to track the screen visits.
 /// @param viewController viewController which is visited by the user.
 /// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
-/// @param parameters additional details to send as part of identify event.
+/// @param parameters additional details to send as part of event.
 - (void)trackScreenViewedForViewController:(UIViewController *)viewController withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+
+/// Send `pageload` event to track the screen visits.
+/// @param screenName Name of screen which is visited by the user.
+/// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
+/// @param parameters additional details to send as part of event.
+- (void)trackScreenViewedForScreenName:(NSString*)screenName withParameters:(NSDictionary * _Nullable)parameters canBatchThisEvent:(BOOL)isBatchEvent;
 
 - (void)trackProductViewedWithSKU:(NSString *)sku andCategoryID:(NSInteger)categoryID canBatchThisEvent:(BOOL)isBatchEvent;
 
@@ -187,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackInAppNotificationDismissWithParameter:(NSDictionary *)notificationPayload canBacthThisEvent:(BOOL)isBatchEvent;
 
-- (void)performRequestQueue:(NSMutableDictionary *)parameters canBatchThisEvent:(BOOL)isBatchEvent;
+- (void)addTrackingEventToQueueWithParams:(NSMutableDictionary *)parameters isBatch:(BOOL)isBatchEvent;
 
 #pragma mark In app manual trigger and fetch methods
 /// Calling this method will display single in-app notification if the current screen/VC is registered for displaying in-app notifications.
@@ -213,6 +226,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param response userInfo dictionary from the push notification p ayload.
 /// @returns true or false based on if push notification is of Blueshift custom action type or not.
 - (BOOL)isBlueshiftPushCustomActionResponse:(UNNotificationResponse *)response API_AVAILABLE(ios(10.0));
+
+/// Check if the url received from the `application: open url:, options:` method is from Blueshift.
+/// @param url url to check
+/// @param urlOptions options dictionary
+- (BOOL)isBlueshiftOpenURLData:(NSURL*)url additionalData:(NSDictionary<UIApplicationOpenURLOptionsKey,id> * _Nonnull)urlOptions;
 
 #pragma mark SDK tracking methods
 /// Calling this method with `isEnabled` as `false` will disable the SDK tracking to stop sending data to Blueshift server for custom events, push and in-app metrics.
@@ -241,6 +259,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// This method will to get the required payload data to make an api call to the Blueshift In-app notifications api.
 /// @param completionHandler  The block will be called with params dictionary which is required to make a fetch in-app api call
 - (void)getInAppNotificationAPIPayloadWithCompletionHandler:(void (^)(NSDictionary * _Nullable))completionHandler;
+
+- (BOOL)createInAppNotificationForInboxMessage:(BlueshiftInboxMessage* _Nullable)message inboxInAppDelegate:(id<BlueshiftInboxInAppNotificationDelegate> _Nullable)inboxInAppDelegate;
 
 #pragma mark Push and In App notifications Opt In methods
 /// This utility method can be used to opt-in/opt-out for in-app notifications from Blueshift server.

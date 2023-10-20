@@ -14,7 +14,6 @@
 
 @interface BatchEventEntity : NSManagedObject
 
-// property to hold the parameters array as encrypted NSData.
 @property (nonatomic, retain) NSData *paramsArray;
 
 @property (nonatomic, retain) NSNumber *retryAttemptsCount;
@@ -23,11 +22,13 @@
 
 @property double createdAt;
 
-// Method to insert Entry for a particular request operation in core data.
+/// Insert a record in the BatchEventEntity
 - (void)insertEntryParametersList:(NSArray *)parametersArray andNextRetryTimeStamp:(NSInteger)nextRetryTimeStamp andRetryAttemptsCount:(NSInteger)retryAttemptsCount;
 
-// Method to return the batch records from Core Data ...
-+ (void *)fetchBatchesFromCoreDataWithCompletetionHandler:(void (^)(BOOL, NSArray *))handler;
+/// Fetch batches to send async as part of bulk events
++ (void)fetchBatchesFromCoreDataWithCompletionHandler:(void (^)(BOOL, NSArray *))handler;
+
++ (void)deleteEntryForObjectId:(NSManagedObjectID *)objectId completionHandler:(void (^)(BOOL))handler;
 
 /// Erase all the non synced event batches from the BatchEvent Entity of SDK database
 + (void)eraseEntityData;

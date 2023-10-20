@@ -14,6 +14,7 @@
 @property float price;
 
 - (NSDictionary *)toDictionary;
+
 + (NSMutableArray *)productsDictionaryMutableArrayForProductsArray:(NSArray *)productsArray;
 
 @end

@@ -21,7 +21,7 @@ API_AVAILABLE(ios(10.0))
 /// This variable is deprecated and will  be removed in the future release.
 @property NSString *apiKey DEPRECATED_MSG_ATTRIBUTE("Extension SDK no longer requires the API key and this variable will be removed in the future SDK release.");
 
-/// The SDK will no longer use the app group id for firing the push `delivered` event, so there is no need of setting appGroupId value.
+/// The SDK will no longer use the app group id for firing the push `delivered` event, so there is no need of setting appGroupId value here.
 /// Blueshift will now provide the push delivery stats based on the APNS's response.
 /// This variable is deprecated and will  be removed in the future release.
 @property NSString* appGroupId DEPRECATED_MSG_ATTRIBUTE("This variable is deprecated and will be removed in the future SDK release.");
@@ -40,6 +40,12 @@ API_AVAILABLE(ios(10.0))
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
 
 - (BOOL)hasBlueShiftAttachments;
+
+
+/// Returns the number of pending notifications (including the current notification)  in the notification center.
+/// You should assign this number to badge, so that the iOS will update the badge number on app icon after presenting the notificaiton.
+/// - Parameter request: notification request
+- (NSNumber* _Nullable)getUpdatedBadgeNumberForRequest:(UNNotificationRequest *)request;
 
 /// The Blueshift iOS Extension SDK will no longer send the `delivered` event for push notifications.
 /// Blueshift will now provide the push delivery stats based on the APNS's response.
