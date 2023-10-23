@@ -61,6 +61,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isExpired:(double)expiryTime;
 
+/// Check if a url is valid web url
+/// - Parameter url: url to check
++ (BOOL)isValidWebURL:(NSURL*)url;
+
+/// Check if a url is of open in web browser type
+/// - Parameter url: url to check
++ (BOOL)isOpenInWebURL:(NSURL*)url;
+
+/// Remove url query param from a given url
+/// - Parameters:
+///   - param: param to remove from url
+///   - url: param will be removed from this url
+/// - Returns: param removed url
++ (NSURL* _Nullable)removeQueryParam:(NSString*)param FromURL:(NSURL*)url;
+
+
 @end
 
 NS_ASSUME_NONNULL_END

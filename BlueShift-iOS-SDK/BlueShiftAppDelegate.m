@@ -13,6 +13,7 @@
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
 #import "BlueShiftInAppNotificationHelper.h"
+#import "BlueshiftWebBrowserViewController.h"
 
 static NSManagedObjectContext * _Nullable inboxMOContext;
 static NSManagedObjectContext * _Nullable eventsMOContext;
@@ -492,12 +493,31 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 if (deepLinkURL == nil && [userInfo objectForKey: kPushNotificationDeepLinkURLKey]) {
                     deepLinkURL = [NSURL URLWithString: [userInfo objectForKey: kPushNotificationDeepLinkURLKey]];
                 }
-                [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];
+                //check if deep link url is of open in web, else deliver to app
+                BOOL success = NO;
+                if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+                    success = [self openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton:[self shouldShowOpenInBrowserButton:userInfo]];
+                }
+                if (!success) {
+                    [self shareDeepLinkToApp:deepLinkURL userInfo:userInfo];
+                }
             }
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:nil];
         }
     }
+}
+
+- (NSNumber* _Nullable)shouldShowOpenInBrowserButton:(NSDictionary*)userInfo {
+    NSNumber *showOpenInBrowserButtonValue = [userInfo valueForKey:kBSWebBrowserShowOpenInBrowserButton];
+    if (showOpenInBrowserButtonValue) {
+        if ([showOpenInBrowserButtonValue intValue] == 1) {
+            return @YES;
+        } else if([showOpenInBrowserButtonValue intValue] == 0) {
+            return @NO;
+        }
+    }
+    return nil;
 }
 
 -(void)shareDeepLinkToApp:(NSURL* _Nullable)deepLinkURL userInfo:(NSDictionary* _Nonnull)userInfo {
@@ -509,6 +529,43 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         [self.mainAppDelegate application:[UIApplication sharedApplication] openURL: deepLinkURL options:pushOptions];
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"%@ %@",@"Delivered push notification deeplink to AppDelegate openURL method, Deep link - ", [deepLinkURL absoluteString]] withDetails: pushOptions methodName:nil];
     }
+}
+
+- (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
+    if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+        NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
+        if (newURL) {
+            BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
+            webBrowser.url = newURL;
+            if (showOpenInBrowserButton) {
+                webBrowser.showOpenInBrowserButton = [showOpenInBrowserButton boolValue];
+            }
+            [webBrowser show:YES];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)openCustomSchemeDeepLink:(NSURL* _Nullable)deepLinkURL {
+    if (deepLinkURL) {
+        NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
+        if (newURL && [UIApplication.sharedApplication canOpenURL:newURL]) {
+            if (@available(iOS 10.0, *)) {
+                [UIApplication.sharedApplication openURL:newURL options:@{} completionHandler:^(BOOL success) {
+                    if (success) {
+                        [BlueshiftLog logInfo:@"Opened custom scheme url successfully." withDetails:newURL methodName:nil];
+                    } else {
+                        [BlueshiftLog logInfo:@"Failed to open custom scheme url." withDetails:newURL methodName:nil];
+                    }
+                }];
+            } else {
+                [UIApplication.sharedApplication openURL:newURL];
+            }
+            return YES;
+        }
+    }
+    return NO;
 }
 
 #pragma mark - Handle Carousel PushNotifications

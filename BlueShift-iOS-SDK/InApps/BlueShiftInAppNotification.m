@@ -9,6 +9,7 @@
 #import "BlueShiftInAppNotificationHelper.h"
 #import "BlueShiftInAppNotificationConstant.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @implementation BlueShiftInAppNotificationButton
 
@@ -446,6 +447,7 @@
                     self.templateStyleDark = [[BlueShiftInAppNotificationLayout alloc] initFromDictionary:templateStyleDarkDictionary withType:self.inAppType];
                 }
                 
+                self.showOpenInBrowserButton = (NSNumber*)[payloadDictionary objectForKey: kBSWebBrowserShowOpenInBrowserButton];
                 self.position = kInAppNotificationModalPositionCenterKey;
                 self.dimensionType = kInAppNotificationModalResolutionPercntageKey;
                 self.width = kInAppNotificationDefaultWidth;

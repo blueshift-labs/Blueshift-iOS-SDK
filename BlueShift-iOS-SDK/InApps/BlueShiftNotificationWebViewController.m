@@ -280,12 +280,10 @@ API_AVAILABLE(ios(8.0))
             [self processInAppActionForDeepLink:nil details:details];
         }
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
-        
-        [self shareDeepLinkToApp:url.absoluteString options:inAppOptions];
+        [self handleInAppNotificationDeepLink:url.absoluteString options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-    [self hideFromWindow:YES];
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
@@ -375,7 +373,7 @@ API_AVAILABLE(ios(8.0))
         [[self inAppNotificationDelegate] inAppNotificationWillAppear:self.notification.notificationPayload];
     }
     
-    [self createWindow];
+    [self createWindowAndPresent];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
             [self.delegate inAppDidShow:self.notification.notificationPayload fromViewController:self];

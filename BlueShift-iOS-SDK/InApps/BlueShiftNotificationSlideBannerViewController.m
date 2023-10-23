@@ -101,7 +101,7 @@
         [[self inAppNotificationDelegate] inAppNotificationWillAppear:self.notification.notificationPayload];
     }
     
-    [self createWindow];
+    [self createWindowAndPresent];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
             [self.delegate inAppDidShow:self.notification.notificationPayload fromViewController:self];
