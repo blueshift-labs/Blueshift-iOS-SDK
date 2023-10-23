@@ -47,6 +47,8 @@
 
 /// Set the device Advertising id to SDK
 @property (nonatomic, strong) NSString *deviceIDFA;
+@property (nonatomic, strong) NSString *deviceLanguage;
+@property (nonatomic, strong) NSString *deviceCountry;
 
 /// Set the custom device id to the SDK
 /// when blueshiftDeviceIdSource is set as DeviceIDSourceCUSTOM.
