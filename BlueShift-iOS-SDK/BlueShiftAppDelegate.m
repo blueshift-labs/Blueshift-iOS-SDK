@@ -495,7 +495,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 }
                 //check if deep link url is of open in web, else deliver to app
                 BOOL success = NO;
-                if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+                if ([BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL] && [BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
                     success = [self openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton:[self shouldShowOpenInBrowserButton:userInfo]];
                 }
                 if (!success) {
@@ -532,7 +532,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
-    if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+    if (deepLinkURL) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
         if (newURL) {
             BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];

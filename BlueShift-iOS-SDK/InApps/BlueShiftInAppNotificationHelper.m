@@ -264,13 +264,20 @@ static NSDictionary *_inAppTypeDictionay;
     if(param && url) {
         NSURLComponents *components = [[NSURLComponents alloc] initWithString:url.absoluteString];
         NSMutableArray *updatedQueryItems = [[NSMutableArray alloc] init];
-        for (NSURLQueryItem *queryItem in components.queryItems) {
-            if (![queryItem.name isEqualToString:param]) {
-                [updatedQueryItems addObject:queryItem];
+        if (components.queryItems) {
+            for (NSURLQueryItem *queryItem in components.queryItems) {
+                if (![queryItem.name isEqualToString:param]) {
+                    [updatedQueryItems addObject:queryItem];
+                }
             }
         }
         
-        components.queryItems = updatedQueryItems;
+        if (updatedQueryItems.count > 0) {
+            components.queryItems = updatedQueryItems;
+        } else {
+            components.queryItems = nil;
+        }
+        
         return [components URL];
     }
     return nil;

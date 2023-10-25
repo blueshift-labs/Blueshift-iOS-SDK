@@ -96,9 +96,16 @@
                     if (status) {
                         if ([results count] > 0) {
                             InAppNotificationEntity *inAppEntity = results.firstObject;
-                            BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
-                            [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
-                            [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
+                            if (inAppEntity.payload) {
+                                BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
+                                [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
+                                [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
+                            } else {
+                                //If payload is nil, then discard the in-app and delete it from db.
+                                [InAppNotificationEntity deleteInboxMessageFromDB:inAppEntity.id completionHandler:^(BOOL status) {
+                                }];
+                                return;
+                            }
                         } else {
                             [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                         }
@@ -122,12 +129,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if (notification == nil || self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
             [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];
-            return;
-        } else if (!notification.notificationPayload) {
-            self.currentNotificationController = nil;
-            //If payload is nil, then discard the in-app and delete it from db.
-            [InAppNotificationEntity deleteInboxMessageFromDB:[BlueShiftInAppNotificationHelper getMessageUUID:notification.notificationPayload] completionHandler:^(BOOL status) {
-            }];
             return;
         }
         
