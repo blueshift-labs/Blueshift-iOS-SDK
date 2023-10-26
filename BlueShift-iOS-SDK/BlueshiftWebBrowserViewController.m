@@ -209,7 +209,7 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     self.progressView.hidden = YES;
-    self.navigationItem.title = webView.title;
+    self.navigationItem.title = [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty: webView.title] ? webView.title : webView.URL.absoluteString;
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
