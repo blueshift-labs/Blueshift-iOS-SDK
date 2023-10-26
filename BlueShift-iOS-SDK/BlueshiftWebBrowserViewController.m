@@ -15,6 +15,10 @@
 @property UIBarButtonItem *reloadButton;
 @property UIBarButtonItem *openInBrowserButton;
 @property NSString* registerForInAppScreenName;
+@property UIColor* tintColor;
+@property UIColor* titleColor;
+@property UIColor* navBarColor;
+@property UIColor* progressViewColor;
 @end
 
 @implementation BlueshiftWebBrowserViewController
@@ -24,6 +28,22 @@
     self = [super init];
     if (self) {
         _showOpenInBrowserButton = YES;
+        _titleColor = UIColor.grayColor;
+        BlueShiftConfig *config = BlueShift.sharedInstance.config;
+        if (config.blueShiftPushDelegate) {
+            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTintColor))]) {
+                _tintColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserTintColor;
+            }
+            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTitleColor))]) {
+                _titleColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserTitleColor;
+            }
+            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserNavBarColor))]) {
+                _navBarColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserNavBarColor;
+            }
+            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserProgressViewColor))]) {
+                _progressViewColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserProgressViewColor;
+            }
+        }
     }
     return self;
 }
@@ -55,6 +75,12 @@
     } else {
         _openInBrowserButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openInExternalBrowser)];
     }
+    
+    if (_tintColor) {
+        doneButton.tintColor = _tintColor;
+        _openInBrowserButton.tintColor = _tintColor;
+        _reloadButton.tintColor = _tintColor;
+    }
     self.navigationItem.leftBarButtonItem = doneButton;
     if (_showOpenInBrowserButton) {
         self.navigationItem.rightBarButtonItems = @[_openInBrowserButton, _reloadButton];
@@ -62,17 +88,24 @@
         self.navigationItem.rightBarButtonItem = _reloadButton;
     }
     if (@available(iOS 15, *)){
-            UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-            [appearance configureWithOpaqueBackground];
-            appearance.titleTextAttributes = @{NSForegroundColorAttributeName : UIColor.grayColor};
-            self.navigationController.navigationBar.standardAppearance = appearance;
-            self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        if (_navBarColor) {
+            [appearance setBackgroundColor:_navBarColor];
+        }
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName : _titleColor};
+        self.navigationController.navigationBar.standardAppearance = appearance;
+        self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
     } else {
         NSDictionary *titleTextAttributes = @{
-            NSForegroundColorAttributeName: [UIColor grayColor]
+            NSForegroundColorAttributeName: _titleColor
         };
+        if (_navBarColor) {
+            [self.navigationController.navigationBar setBarTintColor:_navBarColor];
+        }
         [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];
         [self.navigationController.navigationBar setTranslucent:NO];
+        
     }
 }
 
@@ -90,6 +123,9 @@
 - (void)setupProgressView {
     self.progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+    if (_progressViewColor) {
+        self.progressView.tintColor = _progressViewColor;
+    }
     [self.view addSubview:self.progressView];
     [self activateConstraints];
 }
