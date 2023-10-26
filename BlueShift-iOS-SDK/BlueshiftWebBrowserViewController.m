@@ -34,7 +34,6 @@
     [self setupNavigationButtons];
     [self setupWebView];
     [self setupProgressView];
-    [self activateConstraints];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:_url];
     [_webView loadRequest:request];
@@ -81,11 +80,10 @@
     WKWebViewConfiguration *wkConfig = [[WKWebViewConfiguration alloc] init];
     wkConfig.allowsInlineMediaPlayback = YES;
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:wkConfig];
-    _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _webView.navigationDelegate = self;
     _webView.allowsBackForwardNavigationGestures = true;
-    _webView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:_webView];
+    self.view = self.webView;
     [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
 }
 
@@ -93,39 +91,21 @@
     self.progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.progressView];
+    [self activateConstraints];
 }
 
 - (void)activateConstraints {
-    if (@available(iOS 11.0, *)) {
-        [NSLayoutConstraint activateConstraints:@[
-            // WebView constraints
-            [self.webView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-            [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-            
-            // ProgressView constraints
-            [self.progressView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-            [self.progressView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.progressView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.progressView.heightAnchor constraintEqualToConstant:2.0]
-        ]];
-    } else {
-        CGFloat top = [[UIApplication sharedApplication] statusBarFrame].size.height + self.navigationController.navigationBar.frame.size.height;
-        [NSLayoutConstraint activateConstraints:@[
-            // WebView constraints
-            [self.webView.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:top],
-            [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-            
-            // ProgressView constraints
-            [self.progressView.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:top],
-            [self.progressView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.progressView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.progressView.heightAnchor constraintEqualToConstant:2.0]
-        ]];
-    }
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.progressView
+                                                          attribute:NSLayoutAttributeTop
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.topLayoutGuide
+                                                          attribute:NSLayoutAttributeBottom
+                                                         multiplier:1.0
+                                                           constant:0.0]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[progressView]|"
+                                                                      options:NSLayoutFormatDirectionLeadingToTrailing
+                                                                      metrics:nil
+                                                                        views:@{@"progressView" : self.progressView}]];
 }
 
 - (void)openInExternalBrowser {
