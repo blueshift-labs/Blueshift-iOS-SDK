@@ -174,4 +174,7 @@
 #define kBSAlertOkayButtonLocalizedKey          @"BLUESHIFT_ALERT_OKAY_BUTTON"
 #define kBSDoneButtonLocalizedKey               @"BLUESHIFT_DONE_BUTTON"
 
+#define kBSWebBrowserShowOpenInBrowserButton    @"showOpenInBrowserButton"
+#define kBSOpenInWebBrowserKey                  @"bsft_tgt"
+#define kBSOpenInWebBrowserValue                @"browser"
 #endif /* BlueshiftConstants_h */

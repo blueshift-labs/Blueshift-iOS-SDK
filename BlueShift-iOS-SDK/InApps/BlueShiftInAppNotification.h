@@ -139,6 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite, nullable) NSDictionary *notificationPayload;
 
 @property (nonatomic, assign) BOOL isFromInbox;
+@property (nonatomic, assign, nullable) NSNumber* showOpenInBrowserButton;
 
 @property (nonatomic, weak) id<BlueshiftInboxInAppNotificationDelegate> _Nullable inboxDelegate;
 

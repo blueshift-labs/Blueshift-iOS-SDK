@@ -318,6 +318,8 @@
             [payload setValue:self.id forKey:kInAppId];
         }
         
+        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+        
         /* get in-app payload */
         if ([dictionary objectForKey: kSilentNotificationPayloadIdentifierKey]) {
             dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];
@@ -332,6 +334,8 @@
             [dictionary objectForKey: kInAppNotificationModalTimestampKey] != [NSNull null]) {
             self.timestamp = (NSString *) [dictionary objectForKey: kInAppNotificationModalTimestampKey];
         }
+        
+        self.createdAt = [NSNumber numberWithDouble: (double)[[BlueShiftInAppNotificationHelper getUTCDateFromDateString:self.timestamp] timeIntervalSince1970]];
         
         if ([dictionary objectForKey: kInAppNotificationKey]) {
             dictionary = [dictionary objectForKey: kInAppNotificationKey];
@@ -376,8 +380,6 @@
             self.status = kInAppStatusPending;
             self.availability = kBSAvailabilityInAppOnly;
         }
-        self.createdAt = [NSNumber numberWithDouble: (double)[[BlueShiftInAppNotificationHelper getUTCDateFromDateString:self.timestamp] timeIntervalSince1970]];
-        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
