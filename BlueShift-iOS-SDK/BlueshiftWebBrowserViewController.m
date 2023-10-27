@@ -8,6 +8,7 @@
 
 #import "BlueshiftWebBrowserViewController.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueshiftWebBrowserViewController ()<WKNavigationDelegate>
 @property (nonatomic, strong) WKWebView *webView;
@@ -68,7 +69,10 @@
 }
 
 - (void)setupNavigationButtons {
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonTapped)];
+    NSString *doneText = NSLocalizedString(kBSDoneButtonLocalizedKey, @"") ;
+    doneText = [doneText isEqualToString: kBSDoneButtonLocalizedKey] ? @"Done" : doneText;
+    UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:doneText style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
+
     _reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadButtonTapped)];
     if (@available(iOS 13.0, *)) {
         _openInBrowserButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"safari"] style:UIBarButtonItemStylePlain target:self action:@selector(openInExternalBrowser)];
