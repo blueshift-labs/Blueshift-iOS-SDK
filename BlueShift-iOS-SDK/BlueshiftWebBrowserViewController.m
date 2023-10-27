@@ -8,6 +8,7 @@
 
 #import "BlueshiftWebBrowserViewController.h"
 #import "BlueshiftLog.h"
+#import "BlueshiftConstants.h"
 
 @interface BlueshiftWebBrowserViewController ()<WKNavigationDelegate>
 @property (nonatomic, strong) WKWebView *webView;
@@ -15,6 +16,10 @@
 @property UIBarButtonItem *reloadButton;
 @property UIBarButtonItem *openInBrowserButton;
 @property NSString* registerForInAppScreenName;
+@property UIColor* tintColor;
+@property UIColor* titleColor;
+@property UIColor* navBarColor;
+@property UIColor* progressViewColor;
 @end
 
 @implementation BlueshiftWebBrowserViewController
@@ -24,6 +29,22 @@
     self = [super init];
     if (self) {
         _showOpenInBrowserButton = YES;
+        _titleColor = UIColor.grayColor;
+        BlueShiftConfig *config = BlueShift.sharedInstance.config;
+        if (config.blueshiftWebViewBrowserDelegate) {
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTintColor))]) {
+                _tintColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserTintColor;
+            }
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTitleColor))]) {
+                _titleColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserTitleColor;
+            }
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserNavBarColor))]) {
+                _navBarColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserNavBarColor;
+            }
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserProgressViewColor))]) {
+                _progressViewColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserProgressViewColor;
+            }
+        }
     }
     return self;
 }
@@ -34,7 +55,6 @@
     [self setupNavigationButtons];
     [self setupWebView];
     [self setupProgressView];
-    [self activateConstraints];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:_url];
     [_webView loadRequest:request];
@@ -49,12 +69,21 @@
 }
 
 - (void)setupNavigationButtons {
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonTapped)];
+    NSString *doneText = NSLocalizedString(kBSDoneButtonLocalizedKey, @"") ;
+    doneText = [doneText isEqualToString: kBSDoneButtonLocalizedKey] ? @"Done" : doneText;
+    UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:doneText style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonTapped)];
+
     _reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadButtonTapped)];
     if (@available(iOS 13.0, *)) {
         _openInBrowserButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"safari"] style:UIBarButtonItemStylePlain target:self action:@selector(openInExternalBrowser)];
     } else {
         _openInBrowserButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openInExternalBrowser)];
+    }
+    
+    if (_tintColor) {
+        doneButton.tintColor = _tintColor;
+        _openInBrowserButton.tintColor = _tintColor;
+        _reloadButton.tintColor = _tintColor;
     }
     self.navigationItem.leftBarButtonItem = doneButton;
     if (_showOpenInBrowserButton) {
@@ -63,17 +92,24 @@
         self.navigationItem.rightBarButtonItem = _reloadButton;
     }
     if (@available(iOS 15, *)){
-            UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-            [appearance configureWithOpaqueBackground];
-            appearance.titleTextAttributes = @{NSForegroundColorAttributeName : UIColor.grayColor};
-            self.navigationController.navigationBar.standardAppearance = appearance;
-            self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        if (_navBarColor) {
+            [appearance setBackgroundColor:_navBarColor];
+        }
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName : _titleColor};
+        self.navigationController.navigationBar.standardAppearance = appearance;
+        self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
     } else {
         NSDictionary *titleTextAttributes = @{
-            NSForegroundColorAttributeName: [UIColor grayColor]
+            NSForegroundColorAttributeName: _titleColor
         };
+        if (_navBarColor) {
+            [self.navigationController.navigationBar setBarTintColor:_navBarColor];
+        }
         [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];
         [self.navigationController.navigationBar setTranslucent:NO];
+        
     }
 }
 
@@ -81,51 +117,35 @@
     WKWebViewConfiguration *wkConfig = [[WKWebViewConfiguration alloc] init];
     wkConfig.allowsInlineMediaPlayback = YES;
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:wkConfig];
-    _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _webView.navigationDelegate = self;
     _webView.allowsBackForwardNavigationGestures = true;
-    _webView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:_webView];
+    self.view = self.webView;
     [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
 }
 
 - (void)setupProgressView {
     self.progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+    if (_progressViewColor) {
+        self.progressView.tintColor = _progressViewColor;
+    }
     [self.view addSubview:self.progressView];
+    [self activateConstraints];
 }
 
 - (void)activateConstraints {
-    if (@available(iOS 11.0, *)) {
-        [NSLayoutConstraint activateConstraints:@[
-            // WebView constraints
-            [self.webView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-            [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-            
-            // ProgressView constraints
-            [self.progressView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-            [self.progressView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.progressView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.progressView.heightAnchor constraintEqualToConstant:2.0]
-        ]];
-    } else {
-        CGFloat top = [[UIApplication sharedApplication] statusBarFrame].size.height + self.navigationController.navigationBar.frame.size.height;
-        [NSLayoutConstraint activateConstraints:@[
-            // WebView constraints
-            [self.webView.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:top],
-            [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-            
-            // ProgressView constraints
-            [self.progressView.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:top],
-            [self.progressView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.progressView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.progressView.heightAnchor constraintEqualToConstant:2.0]
-        ]];
-    }
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.progressView
+                                                          attribute:NSLayoutAttributeTop
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.topLayoutGuide
+                                                          attribute:NSLayoutAttributeBottom
+                                                         multiplier:1.0
+                                                           constant:0.0]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[progressView]|"
+                                                                      options:NSLayoutFormatDirectionLeadingToTrailing
+                                                                      metrics:nil
+                                                                        views:@{@"progressView" : self.progressView}]];
 }
 
 - (void)openInExternalBrowser {
@@ -209,7 +229,7 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     self.progressView.hidden = YES;
-    self.navigationItem.title = webView.title;
+    self.navigationItem.title = [BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty: webView.title] ? webView.title : webView.URL.absoluteString;
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {

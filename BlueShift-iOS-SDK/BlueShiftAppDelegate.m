@@ -495,7 +495,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 }
                 //check if deep link url is of open in web, else deliver to app
                 BOOL success = NO;
-                if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+                if ([BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL] && [BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
                     success = [self openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton:[self shouldShowOpenInBrowserButton:userInfo]];
                 }
                 if (!success) {
@@ -532,9 +532,10 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (BOOL)openDeepLinkInWebViewBrowser:(NSURL* _Nullable) deepLinkURL showOpenInBrowserButton:(NSNumber* _Nullable)showOpenInBrowserButton {
-    if (deepLinkURL && [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+    if (deepLinkURL) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
         if (newURL) {
+            [BlueshiftLog logInfo:@"Opening web url in web browser" withDetails:deepLinkURL methodName:nil];
             BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
             webBrowser.url = newURL;
             if (showOpenInBrowserButton) {
@@ -551,6 +552,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     if (deepLinkURL) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
         if (newURL && [UIApplication.sharedApplication canOpenURL:newURL]) {
+            [BlueshiftLog logInfo:@"Opening custom scheme url in web browser" withDetails:deepLinkURL methodName:nil];
             if (@available(iOS 10.0, *)) {
                 [UIApplication.sharedApplication openURL:newURL options:@{} completionHandler:^(BOOL success) {
                     if (success) {

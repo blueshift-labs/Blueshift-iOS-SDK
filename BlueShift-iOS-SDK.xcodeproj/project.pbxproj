@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		9100575A2949DCA4004D2DCF /* BlueshiftInboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */; };
 		9100575B2949DCA4004D2DCF /* BlueshiftInboxManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 910057592949DCA4004D2DCF /* BlueshiftInboxManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 910EB34F2A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h */; };
+		910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 910EB34F2A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		910EB3522A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 910EB3502A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m */; };
 		912321AB27285D030057DA7A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AA27285D030057DA7A /* Foundation.framework */; };
 		912321AD27285D090057DA7A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 912321AC27285D090057DA7A /* CoreData.framework */; };
@@ -133,6 +133,7 @@
 		918B835C275F93BB0015ADF9 /* BlueshiftVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 918B835B275F93BB0015ADF9 /* BlueshiftVersion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91E498E22927822A0073B7FB /* BlueshiftInboxViewModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 91E498E02927822A0073B7FB /* BlueshiftInboxViewModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91E498E32927822A0073B7FB /* BlueshiftInboxViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 91E498E12927822A0073B7FB /* BlueshiftInboxViewModel.m */; };
+		91F3EA562AEBAACE0062E3B8 /* BlueshiftWebViewBrowserDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F3EA552AEBA1C40062E3B8 /* BlueshiftWebViewBrowserDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F4704A27282E7B00A0E84C /* BatchEventEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C1271ED9EA00D425AF /* BatchEventEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470622728346F00A0E84C /* BlueShift_iOS_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -284,6 +285,7 @@
 		918B835B275F93BB0015ADF9 /* BlueshiftVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueshiftVersion.h; sourceTree = "<group>"; };
 		91E498E02927822A0073B7FB /* BlueshiftInboxViewModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftInboxViewModel.h; sourceTree = "<group>"; };
 		91E498E12927822A0073B7FB /* BlueshiftInboxViewModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxViewModel.m; sourceTree = "<group>"; };
+		91F3EA552AEBA1C40062E3B8 /* BlueshiftWebViewBrowserDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftWebViewBrowserDelegate.h; sourceTree = "<group>"; };
 		91F4705F2728342400A0E84C /* ios.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = ios.modulemap; sourceTree = "<group>"; };
 		91F470602728342B00A0E84C /* ios.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = ios.modulemap; sourceTree = "<group>"; };
 		91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShift_iOS_SDK.h; sourceTree = "<group>"; };
@@ -458,6 +460,7 @@
 				9186B5EC271ED9EE00D425AF /* NSNumber+BlueShiftHelpers.m */,
 				910EB34F2A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h */,
 				910EB3502A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.m */,
+				91F3EA552AEBA1C40062E3B8 /* BlueshiftWebViewBrowserDelegate.h */,
 			);
 			path = "BlueShift-iOS-SDK";
 			sourceTree = "<group>";
@@ -581,7 +584,6 @@
 				9186B654271ED9FB00D425AF /* BlueShiftInAppNotificationConstant.h in Headers */,
 				915098412923A1F30054CB88 /* BlueshiftInboxViewController.h in Headers */,
 				918B835C275F93BB0015ADF9 /* BlueshiftVersion.h in Headers */,
-				910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */,
 				9186B606271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.h in Headers */,
 				9100575B2949DCA4004D2DCF /* BlueshiftInboxManager.h in Headers */,
 				912A5BDA2923ABEE00096CBF /* BlueshiftInboxTableViewCell.h in Headers */,
@@ -595,6 +597,8 @@
 				912C78FF29EFFB7A0086E641 /* BlueshiftInboxAPIManager.h in Headers */,
 				9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */,
 				9186B65C271ED9FB00D425AF /* BlueShiftNotificationViewController.h in Headers */,
+				91F3EA562AEBAACE0062E3B8 /* BlueshiftWebViewBrowserDelegate.h in Headers */,
+				910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1007,7 +1011,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.4.2;
 				MODULEMAP_FILE = "BlueShift-iOS-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1037,7 +1041,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.4.2;
 				MODULEMAP_FILE = "BlueShift-iOS-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1068,7 +1072,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.4.2;
 				MODULEMAP_FILE = "BlueShift-iOS-Extension-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-Extension-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1099,7 +1103,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.4.2;
 				MODULEMAP_FILE = "BlueShift-iOS-Extension-SDK/ios.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Blueshift.BlueShift-iOS-Extension-SDK";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

@@ -280,7 +280,7 @@ API_AVAILABLE(ios(8.0))
             [self processInAppActionForDeepLink:nil details:details];
         }
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:nil];
-        [self handleInAppNotificationDeepLink:url.absoluteString options:inAppOptions];
+        [self handleDeeplinkForInAppNotification:url.absoluteString options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }

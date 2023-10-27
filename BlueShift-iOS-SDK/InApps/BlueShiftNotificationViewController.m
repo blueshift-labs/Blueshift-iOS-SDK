@@ -294,20 +294,23 @@
         
         //handle deep link to share with app or open in browser
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-        [self handleInAppNotificationDeepLink:buttonDetails.iosLink options:inAppOptions];
+        [self handleDeeplinkForInAppNotification:buttonDetails.iosLink options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
-- (void)handleInAppNotificationDeepLink:(NSString*)deepLink options:(NSDictionary*)options {
+- (void)handleDeeplinkForInAppNotification:(NSString*)deepLink options:(NSDictionary*)options {
     NSURL *deepLinkURL = [NSURL URLWithString:deepLink];
     BOOL success = NO;
-    if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
-        success = [BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: self.notification.showOpenInBrowserButton];
-    } else {
-        success = [BlueShift.sharedInstance.appDelegate openCustomSchemeDeepLink:deepLinkURL];
+    if ([BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+        if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+            success = [BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: self.notification.showOpenInBrowserButton];
+        } else {
+            success = [BlueShift.sharedInstance.appDelegate openCustomSchemeDeepLink:deepLinkURL];
+        }
     }
+        
     if (!success) {
         [self shareDeepLinkToApp:deepLink options:options];
     }
