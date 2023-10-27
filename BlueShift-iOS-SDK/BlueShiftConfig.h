@@ -130,6 +130,9 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// implement the BlueshiftUniversalLinksDelegate protocol and then assign the delegate to this property.
 @property id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
+/// Set this property to customise the color from the Blueshift WebView browser displayed on tapping on `open in web browser` type of push and in-app deep links.
+/// Create a class which implements protocol `BlueshiftWebViewBrowserDelegate` and set the color attributes.
+/// Set the object of the Class as delegate to this property during the SDK initialization.
 @property id<BlueshiftWebViewBrowserDelegate> _Nullable blueshiftWebViewBrowserDelegate;
 
 /// By default, the time-interval between two in-app messages (the interval when a message is dismissed and the next message appears while staying on same screen) is 60 seconds.
