@@ -31,18 +31,18 @@
         _showOpenInBrowserButton = YES;
         _titleColor = UIColor.grayColor;
         BlueShiftConfig *config = BlueShift.sharedInstance.config;
-        if (config.blueShiftPushDelegate) {
-            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTintColor))]) {
-                _tintColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserTintColor;
+        if (config.blueshiftWebViewBrowserDelegate) {
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTintColor))]) {
+                _tintColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserTintColor;
             }
-            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTitleColor))]) {
-                _titleColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserTitleColor;
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserTitleColor))]) {
+                _titleColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserTitleColor;
             }
-            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserNavBarColor))]) {
-                _navBarColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserNavBarColor;
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserNavBarColor))]) {
+                _navBarColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserNavBarColor;
             }
-            if ([config.blueShiftPushDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserProgressViewColor))]) {
-                _progressViewColor = config.blueShiftPushDelegate.blueshiftWebViewBrowserProgressViewColor;
+            if ([config.blueshiftWebViewBrowserDelegate respondsToSelector:(@selector(blueshiftWebViewBrowserProgressViewColor))]) {
+                _progressViewColor = config.blueshiftWebViewBrowserDelegate.blueshiftWebViewBrowserProgressViewColor;
             }
         }
     }

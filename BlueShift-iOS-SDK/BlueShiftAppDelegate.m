@@ -535,6 +535,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     if (deepLinkURL) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
         if (newURL) {
+            [BlueshiftLog logInfo:@"Opening web url in web browser" withDetails:deepLinkURL methodName:nil];
             BlueshiftWebBrowserViewController *webBrowser = [[BlueshiftWebBrowserViewController alloc] init];
             webBrowser.url = newURL;
             if (showOpenInBrowserButton) {
@@ -551,6 +552,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     if (deepLinkURL) {
         NSURL *newURL = [BlueShiftInAppNotificationHelper removeQueryParam:kBSOpenInWebBrowserKey FromURL:deepLinkURL];
         if (newURL && [UIApplication.sharedApplication canOpenURL:newURL]) {
+            [BlueshiftLog logInfo:@"Opening custom scheme url in web browser" withDetails:deepLinkURL methodName:nil];
             if (@available(iOS 10.0, *)) {
                 [UIApplication.sharedApplication openURL:newURL options:@{} completionHandler:^(BOOL success) {
                     if (success) {
