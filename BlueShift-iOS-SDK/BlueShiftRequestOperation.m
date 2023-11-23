@@ -6,6 +6,7 @@
 //
 
 #import "BlueShiftRequestOperation.h"
+#import "BlueshiftLog.h"
 
 @implementation BlueShiftRequestOperation
 
@@ -29,7 +30,15 @@
         self.url = httpRequestionOperationEntity.url;
         self.httpMethod = [httpRequestionOperationEntity httpMethod];
         if (httpRequestionOperationEntity.parameters) {
-            self.parameters = [NSKeyedUnarchiver unarchiveObjectWithData:httpRequestionOperationEntity.parameters];
+            NSError *error;
+            if (@available(iOS 11.0, *)) {
+                self.parameters = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[NSDictionary class], [NSNumber class], [NSArray class], [NSString class], [NSNull class], nil] fromData:httpRequestionOperationEntity.parameters error:&error];
+                if (error) {
+                    [BlueshiftLog logError:error withDescription:@"Failed to unarchive object" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+            } else {
+                self.parameters = [NSKeyedUnarchiver unarchiveObjectWithData:httpRequestionOperationEntity.parameters];
+            }
         }
         self.nextRetryTimeStamp = [httpRequestionOperationEntity.nextRetryTimeStamp integerValue];
         self.retryAttemptsCount = [httpRequestionOperationEntity.retryAttemptsCount integerValue];

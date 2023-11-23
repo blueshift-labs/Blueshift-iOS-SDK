@@ -395,7 +395,16 @@
 - (instancetype)initFromEntity:(InAppNotificationEntity *) appEntity {
     if (self = [super init]) {
         @try {
-            NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
+            NSError *error;
+            NSDictionary *payloadDictionary;
+            if (@available(iOS 11.0, *)) {
+                payloadDictionary = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[NSDictionary class], [NSNumber class], [NSArray class], [NSString class], [NSNull class], nil] fromData:appEntity.payload error:&error];
+                if (error) {
+                    [BlueshiftLog logError:error withDescription:@"Failed to unarchive object" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+            } else {
+                payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:appEntity.payload];
+            }
             return [self setDataUsingPayload:payloadDictionary forType:appEntity.type];
         } @catch (NSException *exception) {
             [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
