@@ -57,6 +57,8 @@
 #define kBlueshiftEnableInApp                   @"BlueshiftEnableInApp"
 #define ksavedBlueShiftUserInfoDictionary       @"savedBlueShiftUserInfoDictionary"
 #define kBSCategoryMigrationForDismissAction    @"BlueshiftCategoryMigrationForDismissAction"
+#define kBSLastOpenedAppVersion                 @"BlueshiftLastOpenedAppVersion"
+
 //Bool
 #define kYES                                    @"YES"
 #define kNO                                     @"NO"
@@ -107,6 +109,8 @@
 
 //Events
 #define kBSScreenViewed                         @"screen_viewed"
+#define kBSAppUpdateEvent                       @"app_update"
+#define kBSAppInstallEvent                      @"app_install"
 
 //Serial queue
 #define kBSSerialQueue                          "com.blueshift.coresdk"

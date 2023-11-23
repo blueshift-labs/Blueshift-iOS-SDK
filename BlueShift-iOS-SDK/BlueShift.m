@@ -124,6 +124,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         // Initialise core data
         [_sharedBlueShiftInstance.appDelegate initializeCoreData];
         
+        [self trackAppInstallOrUpdateEvent];
+        
         // Set up Push notifications and delegates
         BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
         _sharedBlueShiftInstance.userNotificationDelegate = blueShiftUserNotificationCenterDelegate;
@@ -208,20 +210,23 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             }
         }
         
-        [self setupObservers];
-        
         [self logSDKInitializationDetails];
         
-        // Fire app open if device token is already present, else delay it till app receives device token.
-        if ([self getDeviceToken]) {
-            [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];
-        }
+        [self runAfterSDKInitialisation];
         
-        // Send any existing cached non batch/track events to Blueshift irrespecitive of SDK Tracking enabled status
-        [BlueShiftRequestQueue processRequestsInQueue];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to initialise SDK." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+}
+
+- (void)runAfterSDKInitialisation {
+    [self setupObservers];
+    
+    // Fire app open event
+    [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];
+    
+    // Send any existing cached non batch/track events to Blueshift irrespecitive of SDK Tracking enabled status
+    [BlueShiftRequestQueue processRequestsInQueue];
 }
 
 /// Print debug logs on SDK initialization
@@ -988,15 +993,9 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure {
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
-        [BlueshiftInboxAPIManager fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
-            [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    success();
-                });
-            }];
-        } failure:^(NSError * error) {
+        [BlueshiftInboxManager syncInboxMessages:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                failure(error);
+                success();
             });
         }];
     } else {
@@ -1145,6 +1144,25 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
     [BlueshiftLog logInfo:@"Active In-app notification detected or message payload is nil, skipped displaying current inbox message." withDetails:nil methodName:nil];
     return NO;
+}
+
+#pragma mark Auto send app install/app update
+
+/// Automatically detects new App install or App update and sends the app_install or app_update event to Blueshift.
+- (void)trackAppInstallOrUpdateEvent {
+    NSString* savedAppVersion = [[NSUserDefaults standardUserDefaults] valueForKey:kBSLastOpenedAppVersion];
+    NSString* lastModifiedUNAuthorizationStatus = [self.appDelegate getLastModifiedUNAuthorizationStatus];
+    NSString *currentAppVersion =  BlueShiftAppData.currentAppData.appVersion;
+    
+    if (!savedAppVersion && !lastModifiedUNAuthorizationStatus) {
+        [self trackEventForEventName:kBSAppInstallEvent canBatchThisEvent:NO];
+        [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+    } else {
+        if (![savedAppVersion isEqualToString:currentAppVersion]) {
+            [self trackEventForEventName:kBSAppUpdateEvent canBatchThisEvent:NO];
+            [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+        }
+    }
 }
 
 @end
