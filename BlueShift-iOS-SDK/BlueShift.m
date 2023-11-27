@@ -993,9 +993,15 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 - (void)fetchInAppNotificationFromAPI:(void (^_Nonnull)(void))success failure:(void (^)( NSError* _Nullable ))failure {
     if ([[BlueShiftAppData currentAppData] getCurrentInAppNotificationStatus] == YES && _inAppNotificationMananger) {
-        [BlueshiftInboxManager syncInboxMessages:^{
+        [BlueshiftInboxAPIManager fetchInAppNotificationWithSuccess:^(NSDictionary * apiResponse) {
+            [self handleInAppMessageForAPIResponse:apiResponse withCompletionHandler:^(BOOL status) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    success();
+                });
+            }];
+        } failure:^(NSError * error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                success();
+                failure(error);
             });
         }];
     } else {
