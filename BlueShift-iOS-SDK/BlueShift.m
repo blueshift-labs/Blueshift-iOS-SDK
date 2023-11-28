@@ -1156,18 +1156,27 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 
 /// Automatically detects new App install or App update and sends the app_install or app_update event to Blueshift.
 - (void)trackAppInstallOrUpdateEvent {
-    NSString* savedAppVersion = [[NSUserDefaults standardUserDefaults] valueForKey:kBSLastOpenedAppVersion];
-    NSString* lastModifiedUNAuthorizationStatus = [self.appDelegate getLastModifiedUNAuthorizationStatus];
-    NSString *currentAppVersion =  BlueShiftAppData.currentAppData.appVersion;
-    
-    if (!savedAppVersion && !lastModifiedUNAuthorizationStatus) {
-        [self trackEventForEventName:kBSAppInstallEvent canBatchThisEvent:NO];
-        [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
-    } else {
-        if (![savedAppVersion isEqualToString:currentAppVersion]) {
-            [self trackEventForEventName:kBSAppUpdateEvent canBatchThisEvent:NO];
+    @try {
+        NSString* savedAppVersion = [[NSUserDefaults standardUserDefaults] valueForKey:kBSLastOpenedAppVersion];
+        NSDictionary* userInfo = [[NSUserDefaults standardUserDefaults] dictionaryForKey: ksavedBlueShiftUserInfoDictionary];
+        NSString* lastModifiedUNAuthorizationStatus = [self.appDelegate getLastModifiedUNAuthorizationStatus];
+        NSString *currentAppVersion = BlueShiftAppData.currentAppData.appVersion;
+        
+        if (!savedAppVersion && !lastModifiedUNAuthorizationStatus && !userInfo  && currentAppVersion) {
+            //New app install
+            [self trackEventForEventName:kBSAppInstallEvent canBatchThisEvent:NO];
             [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+        } else {
+            if (!savedAppVersion) {
+                //SDK update from old version to app_install supported version
+                [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+            } else if (![savedAppVersion isEqualToString:currentAppVersion] && currentAppVersion) {
+                //App update
+                [self trackEventForEventName:kBSAppUpdateEvent andParameters:@{kBSLastAppVersion: savedAppVersion} canBatchThisEvent:NO];
+                [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+            }
         }
+    } @catch (NSException *exception) {
     }
 }
 
