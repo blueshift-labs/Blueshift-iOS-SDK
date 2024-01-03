@@ -1158,21 +1158,22 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 - (void)trackAppInstallOrUpdateEvent {
     @try {
         NSString* savedAppVersion = [[NSUserDefaults standardUserDefaults] valueForKey:kBSLastOpenedAppVersion];
-        NSDictionary* userInfo = [[NSUserDefaults standardUserDefaults] dictionaryForKey: ksavedBlueShiftUserInfoDictionary];
         NSString* lastModifiedUNAuthorizationStatus = [self.appDelegate getLastModifiedUNAuthorizationStatus];
         NSString *currentAppVersion = BlueShiftAppData.currentAppData.appVersion;
         
-        if (!savedAppVersion && !lastModifiedUNAuthorizationStatus && !userInfo  && currentAppVersion) {
+        if (!savedAppVersion && !lastModifiedUNAuthorizationStatus) {
             //New app install
             [self trackEventForEventName:kBSAppInstallEvent canBatchThisEvent:NO];
             [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
         } else {
             if (!savedAppVersion) {
                 //SDK update from old version to app_install supported version
+                //Send App update
                 [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
-            } else if (![savedAppVersion isEqualToString:currentAppVersion] && currentAppVersion) {
+                [self trackEventForEventName:kBSAppUpdateEvent canBatchThisEvent:NO];
+            } else if (![savedAppVersion isEqualToString:currentAppVersion]) {
                 //App update
-                [self trackEventForEventName:kBSAppUpdateEvent andParameters:@{kBSLastAppVersion: savedAppVersion} canBatchThisEvent:NO];
+                [self trackEventForEventName:kBSAppUpdateEvent andParameters:@{kBSPrevAppVersion: savedAppVersion} canBatchThisEvent:NO];
                 [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
             }
         }

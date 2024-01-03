@@ -35,7 +35,7 @@
 #define kAppVersion                             @"app_version"
 #define kAppName                                @"app_name"
 #define kCFBundleShortVersionString             @"CFBundleShortVersionString"
-#define kBSLastAppVersion                       @"last_app_version"
+#define kBSPrevAppVersion                       @"prev_app_version"
 
 // API params
 #define kEmail                                  @"email"
