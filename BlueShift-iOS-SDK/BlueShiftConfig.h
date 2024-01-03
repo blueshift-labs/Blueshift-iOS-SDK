@@ -56,8 +56,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// @note By default this property is set to true.
 @property BOOL enablePushNotification;
 
-@property BOOL enableLocationAccess DEPRECATED_MSG_ATTRIBUTE("From SDK v2.1.7, SDK has stopped tracking the location automatically. The app needs to set the updated location to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
-
 /// From SDK v2.1.13, the automatic app_open tracking will be disabled by default. In order to track the app_open set this flag to true.
 /// @discussion You can set the time interval for automatic app_open events using config.automaticAppOpenTimeInterval to throttle them. Default value for automaticAppOpenTimeInterval is once in 24 hours.
 /// @note Default value for enableAppOpenTrackEvent is set to false.
@@ -75,10 +73,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// @endcode
 @property BOOL inAppManualTriggerEnabled;
 
-/// By default `inAppBackgroundFetchEnabled` property is set as true.
-/// When this feature is enabled, the SDK fetches the latest in-app messages in background, stores it locally to display when needed. If you don't want the SDK to fetch in-app automatically, set this property to false.
-@property BOOL inAppBackgroundFetchEnabled DEPRECATED_MSG_ATTRIBUTE("From SDK v2.4.0, SDK will not use this property, SDK will always fetch the inapp and inbox messages automatically and store it at local.");
-
 /// From iOS SDK v2.1.7, it prints the logs when this property is set to true. It is recommended to set this property to true only for debug purpose.
 /// @discussion The SDK logs are divided into 4 categories:
 /// Errors, Exceptions, Info, API call info.
@@ -94,15 +88,6 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// It is mandatory to set this property if you are using the Carousel push notifications.
 /// The click tracking and push deep links for the carousel push notification will not work correctly if you do not set it.
 @property NSString * _Nullable appGroupID;
-
-/// Set this propery to true if the app has SceneDelegate configuration enabled.
-/// @note Default value is set to false.
-@property BOOL isSceneDelegateConfiguration API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("From SDK v2.2.5, SDK will not use this property, instead it will check for scene delegate configuration dynamically if needed.");
-
-/// Set this property to false to stop the SDK from collectiong IDFA.
-/// @discussion With enableIDFACollection set as true, SDK will not ask user the device IDFA permission, but if the host app has asked for IDFA permission, and user has accepted it, then SDK collects it and sends to server.
-/// @note Default value is set to true.
-@property BOOL enableIDFACollection DEPRECATED_MSG_ATTRIBUTE("From iOS SDK v2.1.17, SDK has stopped automatic IDFA tracking. The app needs to set the IDFA value to the Blueshift SDK. This property will be removed in upcoming SDK versions.");
 
 /// Custom device id provision for DeviceIDSourceCUSTOM
 @property NSString * _Nullable customDeviceId;

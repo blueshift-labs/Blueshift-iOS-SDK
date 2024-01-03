@@ -22,14 +22,6 @@
 /// @warning Implementing this method will override the default behaviour of delivering deep-link to the OpenUrl method of the appDelegate and instead deep link will be delivered in this method.
 - (void)actionButtonDidTapped:(NSDictionary *)notificationDictionary;
 
-- (void)inAppNotificationWillAppear:(NSDictionary *)notificationDictionary DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
-
-- (void)inAppNotificationDidAppear:(NSDictionary *)notificationDictionary DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
-
-- (void)inAppNotificationWillDisappear:(NSDictionary *)notificationDictionary DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
-
-- (void)inAppNotificationDidDisappear:(NSDictionary *)notificationDictionary DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
-
 /// This is a SDK hook/callback for the in-app notification delivered event. This callback will be called for both regualar in-apps and in-apps triggered from inbox screen.
 /// @param payload in-app notification payload
 /// @discussion SDK invokes this callback method when it receives an in-app notification.
