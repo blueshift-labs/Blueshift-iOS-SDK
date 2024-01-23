@@ -98,13 +98,7 @@
                             InAppNotificationEntity *inAppEntity = results.firstObject;
                             BlueShiftInAppNotification *inAppNotification = [[BlueShiftInAppNotification alloc] initFromEntity:inAppEntity];
                             [BlueshiftLog logInfo:@"Created in-app object from dictionary, message Id: " withDetails:inAppEntity.id methodName:nil];
-                            if (inAppNotification.notificationPayload) {
-                                [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
-                            } else {
-                                NSString* messageUUID = [BlueShiftInAppNotificationHelper getMessageUUID:inAppNotification.notificationPayload];
-                                [InAppNotificationEntity deleteInboxMessageFromDB:messageUUID completionHandler:^(BOOL status) {
-                                }];
-                            }
+                            [self createInAppNotification: inAppNotification displayOnScreen:inAppEntity.displayOn];
                         } else {
                             [BlueshiftLog logInfo:@"Skipping in-app display! Reason: No pending in-apps to display at this moment for current screen." withDetails:[self inAppNotificationDisplayOnPage] methodName:nil];
                         }
@@ -125,6 +119,10 @@
 
 #pragma mark - Display in-app notification
 - (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    if (!notification.notificationPayload) {
+        [BlueshiftLog logInfo:@"In-app payload is missing. Skipping in-app notification display." withDetails:nil methodName:nil];
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         if (notification == nil || self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
             [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];
