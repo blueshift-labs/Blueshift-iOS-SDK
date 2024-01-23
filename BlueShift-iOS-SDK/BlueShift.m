@@ -210,16 +210,15 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             }
         }
         
-        [self logSDKInitializationDetails];
-        
         [self runAfterSDKInitialisation];
-        
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to initialise SDK." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 
 - (void)runAfterSDKInitialisation {
+    [self logSDKInitializationDetails];
+
     [self setupObservers];
     
     // Fire app open event
