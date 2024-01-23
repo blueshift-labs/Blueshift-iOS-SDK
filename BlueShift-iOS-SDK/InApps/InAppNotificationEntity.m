@@ -319,6 +319,8 @@
         }
         self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
         
+        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+        
         /* get in-app payload */
         if ([dictionary objectForKey: kSilentNotificationPayloadIdentifierKey]) {
             dictionary = [dictionary objectForKey: kSilentNotificationPayloadIdentifierKey];

@@ -158,7 +158,7 @@
 + (NSMutableDictionary *)getQueriesFromURL:(NSURL *)URL {
     NSMutableDictionary *queryDictionary = [[NSMutableDictionary alloc] init];
     @try {
-        if (URL !=  nil && [URL absoluteString] != nil && ![URL.absoluteString isEqualToString:@""]) {
+        if (URL) {
             NSURLComponents *URLComponents =[[NSURLComponents alloc] initWithString: URL.absoluteString];
              if (@available(iOS 8.0, *)) {
                  if (URLComponents != nil && [URLComponents queryItems] != nil && [URLComponents.queryItems count] > 0) {

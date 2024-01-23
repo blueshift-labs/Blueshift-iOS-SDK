@@ -35,6 +35,7 @@
 #import "BlueshiftInboxAPIManager.h"
 #import "BlueshiftInboxTableViewCell.h"
 #import "BlueshiftInboxViewModel.h"
+#import "BlueshiftWebViewBrowserDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

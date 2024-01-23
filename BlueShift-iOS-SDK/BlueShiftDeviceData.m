@@ -153,7 +153,18 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
         NSString *IDFAString = [self.deviceIDFA isEqualToString:kIDFADefaultValue] ? @"" : self.deviceIDFA;
         [deviceMutableDictionary setObject:IDFAString forKey:kDeviceIDFA];
     }
+    
+    if (!self.deviceCountry) {
+        self.deviceCountry = (NSString*)[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+    }
+    [deviceMutableDictionary setValue:self.deviceCountry forKey:kCountryCode];
+    
 
+    if (!self.deviceLanguage) {
+        self.deviceLanguage = (NSString*)[[NSLocale currentLocale] objectForKey: NSLocaleLanguageCode];
+    }
+    [deviceMutableDictionary setValue:self.deviceLanguage forKey:kLanguageCode];
+    
     return [deviceMutableDictionary copy];
 }
 

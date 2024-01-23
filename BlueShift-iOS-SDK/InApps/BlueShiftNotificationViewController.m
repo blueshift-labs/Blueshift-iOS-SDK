@@ -13,6 +13,7 @@
 #import "BlueShiftNotificationCloseButton.h"
 #import "BlueshiftLog.h"
 #import "BlueshiftConstants.h"
+#import "BlueshiftWebBrowserViewController.h"
 
 @interface BlueShiftNotificationViewController () {
     BlueShiftNotificationCloseButton *_closeButton;
@@ -90,6 +91,7 @@
     return [BlueShiftInAppNotificationHelper getApplicationKeyWindow];
 }
 
+
 - (void)createWindow {
     self.window = nil;
     Class windowClass = self.canTouchesPassThroughWindow ? BlueShiftNotificationWindow.class : UIWindow.class;
@@ -106,6 +108,10 @@
     self.window.alpha = 0;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.windowLevel = UIWindowLevelNormal;
+}
+
+- (void)createWindowAndPresent {
+    [self createWindow];
     self.window.rootViewController = self;
     [self.window setHidden:NO];
 }
@@ -283,14 +289,32 @@
         if (buttonDetails.buttonIndex) {
             [details setValue:buttonDetails.buttonIndex forKey:kNotificationClickElementKey];
         }
+        //send tracking events and handle special deep links
         [self processInAppActionForDeepLink:buttonDetails.iosLink details:details];
         
+        //handle deep link to share with app or open in browser
         NSDictionary *inAppOptions = [self getInAppOpenURLOptions:buttonDetails];
-        
-        [self shareDeepLinkToApp:buttonDetails.iosLink options:inAppOptions];
+        [self handleDeeplinkForInAppNotification:buttonDetails.iosLink options:inAppOptions];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+}
+
+- (void)handleDeeplinkForInAppNotification:(NSString*)deepLink options:(NSDictionary*)options {
+    NSURL *deepLinkURL = [NSURL URLWithString:deepLink];
+    BOOL success = NO;
+    if ([BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL]) {
+        if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+            success = [BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: self.notification.showOpenInBrowserButton];
+        } else {
+            success = [BlueShift.sharedInstance.appDelegate openCustomSchemeDeepLink:deepLinkURL];
+        }
+    }
+        
+    if (!success) {
+        [self shareDeepLinkToApp:deepLink options:options];
+    }
+    
     [self hide:YES];
 }
 
@@ -439,7 +463,17 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSURL* url = [[NSURL alloc] initWithString: UIApplicationOpenSettingsURLString];
                 if (url && [UIApplication.sharedApplication canOpenURL:url]) {
-                    [UIApplication.sharedApplication openURL:url];
+                    if (@available(iOS 10.0, *)) {
+                        [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {
+                            if (success) {
+                                [BlueshiftLog logInfo:@"Opened url successfully for enable push notifications." withDetails:url methodName:nil];
+                            } else {
+                                [BlueshiftLog logInfo:@"Failed to open url for enable push notifications." withDetails:url methodName:nil];
+                            }
+                        }];
+                    } else {
+                        [UIApplication.sharedApplication openURL:url];
+                    }
                 }
                 // Register for in-apps using cached screen name
                 [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];

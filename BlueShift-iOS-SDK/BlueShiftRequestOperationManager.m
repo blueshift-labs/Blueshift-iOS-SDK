@@ -205,7 +205,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
             __weak __typeof(self)weakSelf = self;
             NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-                if (statusCode == kStatusCodeSuccessfullResponse) {
+                if (statusCode == kStatusCodeSuccessfullResponse && data) {
                     [weakSelf.inboxImageDataCache setObject:data forKey:url.absoluteString];
                     handler(YES,data,nil);
                 } else {

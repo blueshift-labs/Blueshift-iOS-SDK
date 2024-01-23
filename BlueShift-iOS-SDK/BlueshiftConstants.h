@@ -24,6 +24,8 @@
 #define kApple                                  @"apple"
 #define kiOS                                    @"iOS"
 #define kBrowserPlatform                        @"browser_platform"
+#define kCountryCode                            @"country_code"
+#define kLanguageCode                           @"language_code"
 
 //App Data
 #define kEnablePush                             @"enable_push"
@@ -172,4 +174,7 @@
 #define kBSAlertOkayButtonLocalizedKey          @"BLUESHIFT_ALERT_OKAY_BUTTON"
 #define kBSDoneButtonLocalizedKey               @"BLUESHIFT_DONE_BUTTON"
 
+#define kBSWebBrowserShowOpenInBrowserButton    @"showOpenInBrowserButton"
+#define kBSOpenInWebBrowserKey                  @"bsft_tgt"
+#define kBSOpenInWebBrowserValue                @"browser"
 #endif /* BlueshiftConstants_h */

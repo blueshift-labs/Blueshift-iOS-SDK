@@ -12,6 +12,19 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BlueShiftPushDelegate <NSObject>
 
 @optional
+
+/// Set custom tint color for the SDK's webview browser screen. This browser will be opened when open in web links are sent from the push/in-app notifications.
+@property UIColor* blueshiftWebViewBrowserTintColor;
+
+/// Set custom title color for the SDK's webview browser screen. This browser will be opened when open in web links are sent from the push/in-app notifications.
+@property UIColor* blueshiftWebViewBrowserTitleColor;
+
+/// Set custom navigation bar background color for the SDK's webview browser screen. This browser will be opened when open in web links are sent from the push/in-app notifications.
+@property UIColor* blueshiftWebViewBrowserNavBarColor;
+
+/// Set custom progress view color for the SDK's webview browser. This browser will be opened when open in web links are sent from the push/in-app notifications.
+@property UIColor* blueshiftWebViewBrowserProgressViewColor;
+
 /// This is a SDK hook/callback for the click event of carousel push notification. This method will be called when user clicks on any of the carousel push notification images.
 /// This delegate method will not be called for carousel push notification when user clicks on push notification tile before expanding it or clicks on the `go to app` button.
 /// @param categoryName carousel push notification category name, carousel or carousel_animation.
