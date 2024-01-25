@@ -27,6 +27,7 @@
         
         // In-app notifications
         self.enableInAppNotification = NO;
+        self.inAppBackgroundFetchEnabled = YES;
         self.inAppManualTriggerEnabled = NO;
         self.BlueshiftInAppNotificationTimeInterval = kDefaultInAppTimeInterval;
         self.enableMobileInbox = NO;

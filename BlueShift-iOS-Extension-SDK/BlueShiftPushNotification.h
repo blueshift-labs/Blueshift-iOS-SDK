@@ -22,7 +22,7 @@ API_AVAILABLE(ios(10.0))
 /// @param request UNNotificationRequest
 /// @param appGroupID This method no longer uses the appGroupId value, this parameter is marked as deprecated
 /// and will be removed from the method definition in the future SDK release. You may pass `nil` as value for this param.
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString * _Nullable)appGroupID;
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString * _Nullable)appGroupID DEPRECATED_MSG_ATTRIBUTE("This method is deprecated and will be removed in future. Use method `integratePushNotificationWithMediaAttachementsForRequest` instead.");
 
 /// Download the media for rendering the Rich push notificaiton.
 /// @param request UNNotificationRequest
@@ -34,7 +34,6 @@ API_AVAILABLE(ios(10.0))
 - (BOOL)isBlueShiftPushNotification:(UNNotificationRequest *)request;
 
 - (BOOL)hasBlueShiftAttachments;
-
 
 /// Returns the number of pending notifications (including the current notification)  in the notification center.
 /// You should assign this number to badge, so that the iOS will update the badge number on app icon after presenting the notificaiton.
