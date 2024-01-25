@@ -126,6 +126,10 @@
 
 #pragma mark - Display in-app notification
 - (void)createInAppNotification:(BlueShiftInAppNotification*)notification displayOnScreen:(NSString*)displayOnScreen {
+    if (!notification.notificationPayload) {
+            [BlueshiftLog logInfo:@"In-app payload is missing. Skipping in-app notification display." withDetails:nil methodName:nil];
+            return;
+        }
     dispatch_async(dispatch_get_main_queue(), ^{
         if (notification == nil || self.currentNotificationController != nil || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
             [BlueshiftLog logInfo:@"Active In-app notification detected or app is not running in active state, skipped displaying current in-app." withDetails:nil methodName:nil];

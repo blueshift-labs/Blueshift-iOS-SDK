@@ -318,7 +318,16 @@
             [payload setValue:self.id forKey:kInAppId];
         }
         
-        self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+        if (@available(iOS 11.0, *)) {
+            NSError* error;
+            self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload requiringSecureCoding:NO error:&error];
+            if (error) {
+                [BlueshiftLog logError:error withDescription:@"Failed to archive the object" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+            }
+        } else {
+            self.payload = [NSKeyedArchiver archivedDataWithRootObject:payload];
+        }
+
         
         /* get in-app payload */
         if ([dictionary objectForKey: kSilentNotificationPayloadIdentifierKey]) {
