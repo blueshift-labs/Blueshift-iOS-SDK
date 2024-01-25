@@ -290,18 +290,6 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
-- (void) setPushDelegate:(id)delegate {
-    if (_sharedBlueShiftInstance.appDelegate != nil) {
-        _sharedBlueShiftInstance.appDelegate.blueShiftPushDelegate = delegate;
-    }
-}
-
-- (void) setPushParamDelegate:(id)delegate {
-    if (_sharedBlueShiftInstance.appDelegate !=nil) {
-        _sharedBlueShiftInstance.appDelegate.blueShiftPushParamDelegate = delegate;
-    }
-}
-
 /// Returns true if the current thread Queue is Blueshift serial Queue.
 - (BOOL)isBlueshiftQueue {
     @try {

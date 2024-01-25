@@ -32,20 +32,6 @@
     return self;
 }
 
-- (void)viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
-    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidAppear:)]) {
-        [[self inAppNotificationDelegate] inAppNotificationDidAppear:self.notification.notificationPayload];
-    }
-}
-
-- (void)viewDidDisappear:(BOOL)animated{
-    [super viewDidDisappear:animated];
-    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationDidDisappear:)]) {
-        [[self inAppNotificationDelegate] inAppNotificationDidDisappear:self.notification.notificationPayload];
-    }
-}
-
 - (void)setTouchesPassThroughWindow:(BOOL) can {
     self.canTouchesPassThroughWindow = can;
 }

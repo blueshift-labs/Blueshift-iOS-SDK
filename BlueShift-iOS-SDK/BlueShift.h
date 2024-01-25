@@ -10,7 +10,6 @@
 #import "BlueShiftDeviceData.h"
 #import "BlueShiftAppDelegate.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftPushParamDelegate.h"
 #import "BlueShiftNetworkReachabilityManager.h"
 #import "BlueShiftSubscriptionState.h"
 #import "BlueShiftRequestOperation.h"
@@ -60,8 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void) autoIntegration DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be replaced by the auto-integration using method swizzling. This method will be removed in a future SDK version.");
 
-- (void) setPushDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
-- (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
 - (NSString * _Nullable) getDeviceToken;
 - (void) setDeviceToken;
 - (void) handleSilentPushNotification:(NSDictionary *)dictionary forApplicationState:(UIApplicationState)applicationState;
@@ -190,8 +187,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param userInfo push notification payload
 /// @param isBatchEvent send this event in realtime when value is false or in batch when value is true.
 - (void)trackPushClickedWithParameters:(NSDictionary *)userInfo canBatchThisEvent:(BOOL)isBatchEvent;
-
-- (void)trackPushViewedWithParameters:(NSDictionary *)userInfo canBacthThisEvent:(BOOL)isBatchEvent DEPRECATED_MSG_ATTRIBUTE("The push delivered is now calculated using the APNS feedback, and App should not send the push delivered event to Blueshift using this method.");
 
 - (void)trackInAppNotificationDeliveredWithParameter:(NSDictionary *)notification canBacthThisEvent:(BOOL)isBatchEvent;
 
