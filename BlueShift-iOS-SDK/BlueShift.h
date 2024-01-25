@@ -56,9 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Initialise the SDK using BlueShiftConfig
 /// @param config BlueShiftConfig object
-+ (void) initWithConfiguration:(BlueShiftConfig *)config;
++ (void)initWithConfiguration:(BlueShiftConfig *)config;
 
-+ (void) autoIntegration DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be replaced by the auto-integration using method swizzling. This method will be removed in a future SDK version.");
+/// Initialise the SDK automatically using BlueShiftConfig. SDK will take care of handling all the iOS callbacks.
+/// @param config BlueShiftConfig object
+/// @param autoIntegrate BOOL flag to define the automatic integration
++ (void)initWithConfiguration:(BlueShiftConfig *)config autoIntegrate:(BOOL)autoIntegrate;
 
 - (void) setPushDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
 - (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
