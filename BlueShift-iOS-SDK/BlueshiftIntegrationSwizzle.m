@@ -123,7 +123,7 @@
     }
 }
 
-#pragma mark - Remote Notification methods
+#pragma mark - Device token methods
 - (void)blueshift_swizzled_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     NSData* cachedDeviceToken = [deviceToken copy];
     [self blueshift_swizzled_application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
@@ -145,18 +145,19 @@
     [[BlueShift sharedInstance].appDelegate failedToRegisterForRemoteNotificationWithError:error];
 }
 
+#pragma mark - Remote Notification methods
 - (void)blueshift_swizzled_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     NSDictionary *cachedUserInfo = [userInfo copy];
     [self blueshift_swizzled_application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 
     if([[BlueShift sharedInstance]isBlueshiftPushNotification:cachedUserInfo] == YES) {
-        [[BlueShift sharedInstance].appDelegate application:application didReceiveRemoteNotification:cachedUserInfo fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
+        [[BlueShift sharedInstance].appDelegate handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
     }
 }
 
 - (void)blueshift_swizzled_no_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     if([[BlueShift sharedInstance]isBlueshiftPushNotification:userInfo] == YES) {
-        [[BlueShift sharedInstance].appDelegate application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+        [[BlueShift sharedInstance].appDelegate handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:completionHandler];
     }
 }
 
@@ -165,12 +166,12 @@
     [self blueshift_swizzled_application:application didReceiveRemoteNotification:userInfo];
     
     if([[BlueShift sharedInstance]isBlueshiftPushNotification:cachedUserInfo] == YES) {
-        [[BlueShift sharedInstance].appDelegate application:application didReceiveRemoteNotification:cachedUserInfo];
+        [[BlueShift sharedInstance].appDelegate application:application handleRemoteNotification:userInfo];
     }
 }
 
 - (void)blueshift_swizzled_no_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    [[BlueShift sharedInstance].appDelegate application:application didReceiveRemoteNotification:userInfo];
+    [[BlueShift sharedInstance].appDelegate application:application handleRemoteNotification:userInfo];
 }
 
 #pragma mark - User Notification methods
@@ -219,38 +220,5 @@
         [[BlueShift sharedInstance].appDelegate handleBlueshiftUniversalLinksForURL:userActivity.webpageURL];
     }
 }
-
-#pragma mark - Universal link delegate methods
-
-//- (void)blueshift_swizzled_didCompleteLinkProcessing:(NSURL *)url {
-//    if (url) {
-//    }
-//}
-//
-//- (void)blueshift_swizzled_didStartLinkProcessing {
-//    [self fireNotificationWithName:BLUESHIFT_DEEPLINK_REPLAY_START deepLink:nil data:nil];
-//}
-//
-//- (void)blueshift_swizzled_didFailLinkProcessingWithError: (NSError *_Nullable)error url:(NSURL *_Nullable)url {
-//    NSString *errString = @"";
-//    if (error) {
-//        errString = error.debugDescription;
-//    }
-//    [self fireNotificationWithName:BLUESHIFT_DEEPLINK_REPLAY_FAIL deepLink:url data:@{BLUESHIFT_ERROR_ATTRIBUTE: errString}];
-//}
-//
-//
-//- (void)fireNotificationWithName:(NSString*)notificationName deepLink:(NSURL*)deepLinkURL data:(NSDictionary*)data {
-//    if (notificationName) {
-//        NSMutableDictionary* options = [[NSMutableDictionary alloc] init];
-//        if (data) {
-//            [options addEntriesFromDictionary:data];
-//        }
-//        if (deepLinkURL) {
-//            [options setValue:deepLinkURL.absoluteString forKey:BLUESHIFT_DEEPLINK_ATTRIBUTE];
-//        }
-//        [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:nil userInfo:options];
-//    }
-//}
 
 @end

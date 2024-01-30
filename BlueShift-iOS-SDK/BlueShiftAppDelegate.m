@@ -291,6 +291,16 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     completionHandler();
 }
 
+#pragma mark - Auto integration helper methods
+// Handle silent push notifications when id is sent from backend
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
+    [self handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:handler];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+    [self application:application handleRemoteNotification:userInfo];
+}
+
 #pragma mark Schedule notifications
 - (void)validateAndScheduleLocalNotification:(NSDictionary *)userInfo {
     @try {
