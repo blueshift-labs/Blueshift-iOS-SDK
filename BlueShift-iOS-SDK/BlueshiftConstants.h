@@ -113,6 +113,10 @@
 #define kBSAppUpdateEvent                       @"app_update"
 #define kBSAppInstallEvent                      @"app_install"
 
+//Event Attributes
+#define kBSAppInstalledAt                       @"app_installed_at"
+#define kBSAppUpdatedAt                         @"app_updated_at"
+
 //Serial queue
 #define kBSSerialQueue                          "com.blueshift.coresdk"
 
