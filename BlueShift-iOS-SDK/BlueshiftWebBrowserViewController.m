@@ -135,13 +135,23 @@
 }
 
 - (void)activateConstraints {
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.progressView
-                                                          attribute:NSLayoutAttributeTop
-                                                          relatedBy:NSLayoutRelationEqual
-                                                             toItem:self.topLayoutGuide
-                                                          attribute:NSLayoutAttributeBottom
-                                                         multiplier:1.0
-                                                           constant:0.0]];
+    if (@available(iOS 11.0, *)) {
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.progressView
+                                                              attribute:NSLayoutAttributeTop
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.view.safeAreaLayoutGuide
+                                                              attribute:NSLayoutAttributeTop
+                                                             multiplier:1.0
+                                                               constant:0.0]];
+    } else {
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.progressView
+                                                              attribute:NSLayoutAttributeTop
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.topLayoutGuide
+                                                              attribute:NSLayoutAttributeBottom
+                                                             multiplier:1.0
+                                                               constant:0.0]];
+    }
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[progressView]|"
                                                                       options:NSLayoutFormatDirectionLeadingToTrailing
                                                                       metrics:nil

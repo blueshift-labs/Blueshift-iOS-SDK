@@ -226,8 +226,17 @@
     NSMutableArray<BlueshiftInboxMessage*>* inboxMessages = [[NSMutableArray alloc] init];
     if ([results count] > 0) {
         for (InAppNotificationEntity *message in results) {
-            NSDictionary *payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:message.payload];
-            
+            NSError *error;
+            NSDictionary *payloadDictionary;
+            if (@available(iOS 11.0, *)) {
+                payloadDictionary = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[NSDictionary class], [NSNumber class], [NSArray class], [NSString class], [NSNull class], nil] fromData:message.payload error:&error];
+                if (error) {
+                    [BlueshiftLog logError:error withDescription:@"Failed to unarchive object" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+            } else {
+                payloadDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:message.payload];
+            }
+                
             NSDictionary* inboxDict = payloadDictionary[kBSInboxMessageData][kBSInbox];
             NSString* title = [inboxDict valueForKey:kBSInboxMessageTitle];
             NSString* detail = [inboxDict valueForKey:kBSInboxMessageDetails];

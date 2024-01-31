@@ -163,19 +163,9 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (void)autoIdentifyOnDeviceTokenChange {
-    //set fireAppOpen to true on receiving device_token for very first time
-    BOOL fireAppOpen = NO;
-    if(![[BlueShift sharedInstance] getDeviceToken]) {
-        fireAppOpen = YES;
-    }
     [BlueshiftLog logInfo:[NSString stringWithFormat:@"Initiating Auto identify on device token change."] withDetails:nil methodName:nil];
     [[BlueShift sharedInstance] setDeviceToken];
     [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
-    
-    //fire delayed app_open after firing the identify call
-    if(fireAppOpen) {
-        [self trackAppOpenOnAppLaunch:nil];
-    }
 }
 
 #pragma mark - Enable push and auto identify
