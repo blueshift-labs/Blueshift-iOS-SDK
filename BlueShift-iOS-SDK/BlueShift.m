@@ -1162,22 +1162,30 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         
         if (!savedAppVersion && !lastModifiedUNAuthorizationStatus) {
             //New app install
-            [self trackEventForEventName:kBSAppInstallEvent canBatchThisEvent:NO];
-            [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+            [self updateCurrentAppversion:currentAppVersion];
+            NSDictionary * params = @{kBSAppInstalledAt: [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp]};
+            [self trackEventForEventName:kBSAppInstallEvent andParameters:params canBatchThisEvent:NO];
         } else {
             if (!savedAppVersion) {
                 //SDK update from old version to app_install supported version
                 //Send App update
-                [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
-                [self trackEventForEventName:kBSAppUpdateEvent canBatchThisEvent:NO];
+                [self updateCurrentAppversion:currentAppVersion];
+                NSDictionary * params = @{kBSAppUpdatedAt: [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp]};
+                [self trackEventForEventName:kBSAppUpdateEvent andParameters:params canBatchThisEvent:NO];
             } else if (![savedAppVersion isEqualToString:currentAppVersion]) {
                 //App update
-                [self trackEventForEventName:kBSAppUpdateEvent andParameters:@{kBSPrevAppVersion: savedAppVersion} canBatchThisEvent:NO];
-                [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
+                [self updateCurrentAppversion:currentAppVersion];
+                NSDictionary * params = @{kBSPrevAppVersion: savedAppVersion,
+                                          kBSAppUpdatedAt: [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp]};
+                [self trackEventForEventName:kBSAppUpdateEvent andParameters:params canBatchThisEvent:NO];
             }
         }
     } @catch (NSException *exception) {
     }
+}
+
+- (void)updateCurrentAppversion:(NSString*)currentAppVersion {
+    [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
 }
 
 @end
