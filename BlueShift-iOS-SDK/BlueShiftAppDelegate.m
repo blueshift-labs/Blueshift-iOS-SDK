@@ -784,8 +784,27 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 
 - (NSString*)getManagedObjectModelPath {
     @try {
+        NSBundle *bundle = nil;
+        // Path for swift package/static linkage cocoapods bundle
+        NSString* path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
+        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            bundle = [NSBundle bundleWithPath:path];
+        } else {
+            //Path for dynamic linkage cocoapods bundle
+            NSString* bundlePath = [NSString stringWithFormat:@"/%@%@",kBSFrameWorkPath, kBSSPMResourceBundlePath];
+            path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:bundlePath];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                bundle = [NSBundle bundleWithPath:path];
+            }
+        }
+        if (bundle) {
+            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+            if (path != nil) {
+                return path;
+            }
+        }
         // Hardcoded SDK directory path
-        NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
         if (path != nil) {
             return path;
         }
@@ -793,16 +812,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
         if (path != nil) {
             return path;
-        }
-        
-        // Path for swift package bundle
-        path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
-        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            NSBundle *bundle = [NSBundle bundleWithPath:path];
-            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-            if (path != nil) {
-                return path;
-            }
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to get data model path" methodName:nil];
