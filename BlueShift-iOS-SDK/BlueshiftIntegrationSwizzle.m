@@ -90,24 +90,6 @@
             SEL swizzledSelector = @selector(blueshift_swizzled_no_application:continueUserActivity:restorationHandler:);
             [self swizzleMethodWithClass:class originalSelector:originalSelector andSwizzledSelector:swizzledSelector];
         }
-        
-//        if (![uiApplicationDelegate respondsToSelector:@selector(didStartLinkProcessing)]) {
-//            SEL originalSelector = @selector(didStartLinkProcessing);
-//            SEL swizzledSelector = @selector(blueshift_swizzled_didStartLinkProcessing);
-//            [self swizzleMethodWithClass:class originalSelector:originalSelector andSwizzledSelector:swizzledSelector];
-//        }
-//
-//        if (![uiApplicationDelegate respondsToSelector:@selector(didCompleteLinkProcessing:)]) {
-//            SEL originalSelector = @selector(didCompleteLinkProcessing:);
-//            SEL swizzledSelector = @selector(blueshift_swizzled_didCompleteLinkProcessing:);
-//            [self swizzleMethodWithClass:class originalSelector:originalSelector andSwizzledSelector:swizzledSelector];
-//        }
-//
-//        if (![uiApplicationDelegate respondsToSelector:@selector(didFailLinkProcessingWithError:url:)]) {
-//            SEL originalSelector = @selector(didFailLinkProcessingWithError:url:);
-//            SEL swizzledSelector = @selector(blueshift_swizzled_didFailLinkProcessingWithError:url:);
-//            [self swizzleMethodWithClass:class originalSelector:originalSelector andSwizzledSelector:swizzledSelector];
-//        }
     });
 }
 
