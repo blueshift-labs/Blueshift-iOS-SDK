@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target   = "9.0"
   s.ios.source_files        = "BlueShift-iOS-SDK/**/*.{h,m}"
   s.ios.public_header_files = "BlueShift-iOS-SDK/**/*.h"
-  s.ios.resource_bundles    = {"BlueShift-iOS-SDK_BlueShift_iOS_SDK" =>  ["BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png,xib}"] }
+  s.ios.resources           = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png,xib}"
   s.ios.exclude_files       = "BlueShift-iOS-SDK/include/**/*.{h,m}"
   s.ios.framework           = "CoreData"
 end
