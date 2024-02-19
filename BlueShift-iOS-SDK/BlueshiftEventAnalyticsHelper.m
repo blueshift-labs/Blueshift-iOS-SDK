@@ -18,18 +18,19 @@
 + (NSDictionary *)getTrackingParamsForNotification:(NSDictionary *)details {
     NSMutableDictionary *trackingParams = [NSMutableDictionary dictionary];
     if (details) {
-        NSString *bsft_experiment_uuid = [self getValueBykey: details andKey: kInAppNotificationModalExperimentIDKey];
-        NSString *bsft_user_uuid = [self getValueBykey: details andKey: kInAppNotificationModalUserIDKey];
-        NSString *message_uuid = [self getValueBykey: details andKey: kInAppNotificationModalMessageUDIDKey];
-        NSString *transactional_uuid = [self getValueBykey: details andKey: kInAppNotificationModalTransactionIDKey];
+        NSString *bsft_experiment_uuid = [self getValueFrom: details forKey: kInAppNotificationModalExperimentIDKey];
+        NSString *bsft_user_uuid = [self getValueFrom: details forKey: kInAppNotificationModalUserIDKey];
+        NSString *message_uuid = [self getValueFrom: details forKey: kInAppNotificationModalMessageUDIDKey];
+        NSString *transactional_uuid = [self getValueFrom: details forKey: kInAppNotificationModalTransactionIDKey];
         NSString *sdkVersion = [BlueShiftAppData currentAppData].sdkVersion;
-        NSString *clickElement = [self getValueBykey: details andKey: kNotificationClickElementKey];
-        NSString *urlElement = [self getValueBykey: details andKey: kNotificationURLElementKey];
+        NSString *clickElement = [self getValueFrom: details forKey: kNotificationClickElementKey];
+        NSString *urlElement = [self getValueFrom: details forKey: kNotificationURLElementKey];
         NSString *deviceId = [[BlueShiftDeviceData currentDeviceData] deviceUUID];
         NSString *appName = [[BlueShiftAppData currentAppData] bundleIdentifier];
         NSString *timestamp = [self getCurrentUTCTimestamp];
-        NSString* notificationType = [details objectForKey: kNotificationTypeIdentifierKey];
-        NSString* openedBy = [details objectForKey:kBSTrackingOpenedBy];
+        NSString *notificationType = [details objectForKey: kNotificationTypeIdentifierKey];
+        NSString *openedBy = [details objectForKey:kBSTrackingOpenedBy];
+        NSString *execution_key = [self getValueFrom: details forKey:kBSBSFTExecutionKey];
         NSString* adapterId = nil;
         if ([details objectForKey:kBSAdapterUUID]) {
             //Check for adapter uuid in push payload
@@ -40,6 +41,16 @@
         } else {
             //Check for adapter uuid in inapp payload
             adapterId = [details objectForKey:kBSAccountAdapterUUID];
+        }
+        //Check execution_key at root level/in data object
+        if (execution_key) {
+            [trackingParams setObject:execution_key forKey: kBSTrackingEK];
+        } else if ([details objectForKey:kBSExecutionContext]){
+            // if not found for in-app, then check into execution_context
+            execution_key = details[kBSExecutionContext][kBSContext][kBSExecutionKey];
+            if (execution_key) {
+                [trackingParams setObject:execution_key forKey: kBSTrackingEK];
+            }
         }
         
         if (bsft_user_uuid) {
@@ -74,7 +85,7 @@
                 pushDeepLinkURL = urlElement;
             } else {
                 // if clk_url is not present, then get the deep link from pushDetailsDictionary for key deep_link_url
-                pushDeepLinkURL = [self getValueBykey: details andKey: kPushNotificationDeepLinkURLKey];
+                pushDeepLinkURL = [self getValueFrom: details forKey: kPushNotificationDeepLinkURLKey];
             }
             // If not nil, encode and add to track dictionary
             if ([self isNotNilAndNotEmpty:pushDeepLinkURL]) {
@@ -96,11 +107,12 @@
         if (timestamp) {
             [trackingParams setObject:timestamp forKey: kInAppNotificationModalTimestampKey];
         }
+        
     }
     return [trackingParams copy];
 }
 
-+ (NSString * _Nullable)getValueBykey:(NSDictionary *)notificationPayload andKey:(NSString *)key {
++ (NSString * _Nullable)getValueFrom:(NSDictionary *)notificationPayload forKey:(NSString *)key {
     if (notificationPayload && key && ![key isEqualToString:@""]) {
         if ([notificationPayload objectForKey: key]) {
             return (NSString *)[notificationPayload objectForKey: key];
@@ -214,6 +226,6 @@
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:nil methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
-}
+}   
 
 @end
