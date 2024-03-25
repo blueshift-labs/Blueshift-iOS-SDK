@@ -119,8 +119,8 @@
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:wkConfig];
     _webView.navigationDelegate = self;
     _webView.allowsBackForwardNavigationGestures = true;
+    self.webView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:_webView];
-    self.view = self.webView;
     [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
 }
 
@@ -143,6 +143,12 @@
                                                               attribute:NSLayoutAttributeTop
                                                              multiplier:1.0
                                                                constant:0.0]];
+        [NSLayoutConstraint activateConstraints:@[
+               [self.webView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+               [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+               [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+               [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+           ]];
     } else {
         [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.progressView
                                                               attribute:NSLayoutAttributeTop
@@ -151,6 +157,12 @@
                                                               attribute:NSLayoutAttributeBottom
                                                              multiplier:1.0
                                                                constant:0.0]];
+        [NSLayoutConstraint activateConstraints:@[
+               [self.webView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+               [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+               [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+               [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+           ]];
     }
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[progressView]|"
                                                                       options:NSLayoutFormatDirectionLeadingToTrailing
