@@ -58,13 +58,17 @@
 #define kInAppNotificationModalTransactionIDKey                         @"bsft_transaction_uuid"
 #define kBSAccountAdapterUUID                                           @"account_adapter_uuid"
 #define kBSAdapterUUID                                                  @"adapter_uuid"
-#define kBSTrackingAAID                                                 @"bsft_aaid"
+#define kBSExecutionKey                                                 @"execution_key"
+#define kBSBSFTExecutionKey                                             @"bsft_execution_key"
 
 #define kInAppNotificationModalUIDKey                                   @"uid"
 #define kInAppNotificationModalEIDKey                                   @"eid"
 #define kInAppNotificationModalMIDKey                                   @"mid"
 #define kInAppNotificationModalCIDKey                                   @"cid"
 #define kInAppNotificationModalTXNIDKey                                 @"txnid"
+#define kBSTrackingAAID                                                 @"bsft_aaid"
+#define kBSTrackingEK                                                   @"bsft_ek"
+
 #define kInAppNotificationModalSDKVersionKey                            @"bsft_sdk_version"
 #define kInAppNotificationModalTimestampKey                             @"timestamp"
 #define kSilentNotificationPayloadIdentifierKey                         @"data"
@@ -82,6 +86,8 @@
 #define kUniversalLinkRedirectURLKey                                    @"redir"
 #define kUniversalLinkShortURLKey                                       @"/z/"
 #define kUniversalLinkTrackURLKey                                       @"/track"
+#define kBSExecutionContext                                             @"execution_context"
+#define kBSContext                                                      @"context"
 
 #define kBsftEncodedSpace                                               @"%20"
 

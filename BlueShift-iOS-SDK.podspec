@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = "BlueShift-iOS-SDK"
-  s.version                 = "2.4.2"
+  s.version                 = "2.4.3"
   s.summary                 = "iOS SDK for integrating Rich Push & In App Notifications, Universal Links and Analytics"
   s.homepage                = "https://github.com/blueshift-labs/Blueshift-iOS-SDK"
   s.license                 = { :type => "MIT", :file => "LICENSE.md" }
