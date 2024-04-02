@@ -785,12 +785,12 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 - (NSString*)getManagedObjectModelPath {
     @try {
         NSBundle *bundle = nil;
-        // Path for swift package/static linkage cocoapods bundle
+        // Path for swift package manager
         NSString* path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
         if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
             bundle = [NSBundle bundleWithPath:path];
         } else {
-            //Path for dynamic linkage cocoapods bundle
+            //Path for cocoapods
             NSString* bundlePath = [NSString stringWithFormat:@"/%@%@",kBSFrameWorkPath, kBSSPMResourceBundlePath];
             path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:bundlePath];
             if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -803,13 +803,15 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
                 return path;
             }
         }
-        // Hardcoded SDK directory path
-        path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        
+        //Path for carthage
+        path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
         if (path != nil) {
             return path;
         }
-        // path for the cocoa pod framework
-        path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+        
+        //Hardcoded SDK directory path
+        path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
         if (path != nil) {
             return path;
         }
