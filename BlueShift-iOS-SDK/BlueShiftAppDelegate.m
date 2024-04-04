@@ -774,25 +774,36 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 
 - (NSString*)getManagedObjectModelPath {
     @try {
-        // Hardcoded SDK directory path
-        NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
-        if (path != nil) {
-            return path;
+        NSBundle *bundle = nil;
+        // Path for swift package manager
+        NSString* path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
+        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            bundle = [NSBundle bundleWithPath:path];
+        } else {
+            //Path for cocoapods
+            NSString* bundlePath = [NSString stringWithFormat:@"/%@%@",kBSFrameWorkPath, kBSSPMResourceBundlePath];
+            path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:bundlePath];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                bundle = [NSBundle bundleWithPath:path];
+            }
         }
-        // path for the cocoa pod framework
+        if (bundle) {
+            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+            if (path != nil) {
+                return path;
+            }
+        }
+        
+        //Path for carthage
         path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
         if (path != nil) {
             return path;
         }
         
-        // Path for swift package bundle
-        path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
-        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            NSBundle *bundle = [NSBundle bundleWithPath:path];
-            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-            if (path != nil) {
-                return path;
-            }
+        //Hardcoded SDK directory path
+        path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        if (path != nil) {
+            return path;
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to get data model path" methodName:nil];
