@@ -130,7 +130,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     } @catch (NSException *exception) {}
 }
 
-- (void) registerForRemoteNotification:(NSData *)deviceToken {
+- (void)registerForRemoteNotification:(NSData *)deviceToken {
     if (deviceToken) {
         NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
         deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -247,28 +247,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
 }
 
-#pragma mark - Legacy Auto integration methods
-- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
-    [self registerForRemoteNotification:deviceToken];
-}
-
-- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error {
-    [self failedToRegisterForRemoteNotificationWithError:error];
-}
-
-// Handle silent push notifications when id is sent from backend
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
-    [self handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:handler];
-}
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
-    [self application:application handleRemoteNotification:userInfo];
-}
-
-- (void)application:(UIApplication *) application handleActionWithIdentifier: (NSString *) identifier forRemoteNotification: (NSDictionary *) notification completionHandler: (void (^)(void)) completionHandler {
-    [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
-}
-
 #pragma mark - Handle Push notification external methods
 - (void)application:(UIApplication *)application handleRemoteNotification:(NSDictionary *)userInfo {
     [self processSilentPushAndClicksForNotification:userInfo applicationState:application.applicationState];
@@ -301,6 +279,16 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 - (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
     [self processPushClickForNotification:notification actionIdentifer:[identifier copy]];
     completionHandler();
+}
+
+#pragma mark - Auto integration helper methods
+// Handle silent push notifications when id is sent from backend
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
+    [self handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:handler];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+    [self application:application handleRemoteNotification:userInfo];
 }
 
 #pragma mark Schedule notifications
@@ -675,8 +663,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         [self.blueShiftPushDelegate pushNotificationDidClick:[userInfo copy] forActionIdentifier:identifier];
     }
 }
-
-
 
 #pragma mark - Application lifecyle events
 - (void)appDidBecomeActive:(UIApplication *)application {

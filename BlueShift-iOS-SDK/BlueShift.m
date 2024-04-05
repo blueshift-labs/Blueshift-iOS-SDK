@@ -17,6 +17,7 @@
 #import "BlueshiftInboxMessage.h"
 #import "InAppNotificationEntity.h"
 #import "BlueshiftInboxManager.h"
+#import "BlueshiftIntegrationSwizzle.h"
 
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
@@ -38,7 +39,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 #pragma mark SDK initialisation
-+ (void) initWithConfiguration:(BlueShiftConfig *)config {
++ (void)initWithConfiguration:(BlueShiftConfig *)config {
     if([NSThread isMainThread] == YES) {
         [[BlueShift sharedInstance] setupWithConfiguration:config];
     } else {
@@ -48,14 +49,20 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
-+ (void) autoIntegration {
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [[BlueShift sharedInstance] setAppDelegate];
-    });
-}
-
-- (void)setAppDelegate {
-    [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
++ (void)initWithConfigurationAndAutoIntegrate:(BlueShiftConfig*)config {
+    void (^completionBlock)(void) = ^ {
+        Class appDelegateClass = [[UIApplication sharedApplication].delegate class];
+        [appDelegateClass swizzleHostAppDelegate];
+        
+        [[BlueShift sharedInstance] setupWithConfiguration:config];
+    };
+    if([NSThread isMainThread] == YES) {
+        completionBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock();
+        });
+    }
 }
 
 - (void)resetSDKConfig {
