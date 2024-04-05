@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSURLSessionConfiguration* _Nullable sessionConfiguraion;
 @property NSURLSession* _Nullable replayURLSesion;
 
-/// Image cache for storing downloaded images from the inbox and in-app notifications.
+/// Cache for storing downloaded files data for the SDK.
 @property (nonatomic, strong) NSCache<NSString*, NSData *> *sdkCachedData;
 
 /// Get the shared instance for BlueShiftOperationManager
