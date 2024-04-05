@@ -479,7 +479,7 @@
             // Set max width in points to default height except when width is automatic and height is fixed
             float maxHeightInPoints = (isAutoWidth == YES && templateHeightInPoints > 0) ? templateHeightInPoints : [BlueShiftInAppNotificationHelper convertPercentageHeightToPoints: kInAppNotificationDefaultHeight forWindow:self.window];
             
-            NSData* imageData = [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:self.notification.templateStyle.backgroundImage];
+            NSData* imageData = [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedDataForURL:self.notification.templateStyle.backgroundImage];
             UIImage* image = [[UIImage alloc] initWithData:imageData];
             [BlueshiftLog logInfo:@"Image size is" withDetails:[NSString stringWithFormat:@"H:%f, W:%f",image.size.height,image.size.width] methodName:nil];
             
