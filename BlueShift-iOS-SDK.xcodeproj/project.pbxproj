@@ -133,7 +133,7 @@
 		918B835C275F93BB0015ADF9 /* BlueshiftVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 918B835B275F93BB0015ADF9 /* BlueshiftVersion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91E498E22927822A0073B7FB /* BlueshiftInboxViewModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 91E498E02927822A0073B7FB /* BlueshiftInboxViewModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91E498E32927822A0073B7FB /* BlueshiftInboxViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 91E498E12927822A0073B7FB /* BlueshiftInboxViewModel.m */; };
-		91F36A7F2B6235DC00CB5341 /* BlueshiftIntegrationSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F36A7E2B6235DC00CB5341 /* BlueshiftIntegrationSwizzle.h */; };
+		91F36A7F2B6235DC00CB5341 /* BlueshiftIntegrationSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F36A7E2B6235DC00CB5341 /* BlueshiftIntegrationSwizzle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F36A812B6235E500CB5341 /* BlueshiftIntegrationSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F36A802B6235E500CB5341 /* BlueshiftIntegrationSwizzle.m */; };
 		91F3EA562AEBAACE0062E3B8 /* BlueshiftWebViewBrowserDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F3EA552AEBA1C40062E3B8 /* BlueshiftWebViewBrowserDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F4704A27282E7B00A0E84C /* BatchEventEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B5C1271ED9EA00D425AF /* BatchEventEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -563,7 +563,6 @@
 				9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */,
 				9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */,
 				9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */,
-				91F36A7F2B6235DC00CB5341 /* BlueshiftIntegrationSwizzle.h in Headers */,
 				9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */,
 				9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */,
 				9186B604271ED9EF00D425AF /* BlueShiftPushParamDelegate.h in Headers */,
@@ -604,6 +603,7 @@
 				912C78FF29EFFB7A0086E641 /* BlueshiftInboxAPIManager.h in Headers */,
 				9186B66E271ED9FB00D425AF /* BlueShiftNotificationModalViewController.h in Headers */,
 				9186B65C271ED9FB00D425AF /* BlueShiftNotificationViewController.h in Headers */,
+				91F36A7F2B6235DC00CB5341 /* BlueshiftIntegrationSwizzle.h in Headers */,
 				91F3EA562AEBAACE0062E3B8 /* BlueshiftWebViewBrowserDelegate.h in Headers */,
 				910EB3512A9C7E2E00989E87 /* BlueshiftWebBrowserViewController.h in Headers */,
 			);
