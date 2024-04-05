@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSURLSession* _Nullable replayURLSesion;
 
 /// Image cache for storing downloaded images from the inbox and in-app notifications.
-@property (nonatomic, strong) NSCache<NSString*, NSData *> *SDKCachedData;
+@property (nonatomic, strong) NSCache<NSString*, NSData *> *sdkCachedData;
 
 /// Get the shared instance for BlueShiftOperationManager
 + (BlueShiftRequestOperationManager *)sharedRequestOperationManager;
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Reset URL config to re-initialize the SDK
 - (void)resetURLSessionConfig;
 
-- (void)downloadDataForURL:(NSURL*)url cache:(BOOL)isCache handler:(void (^)(BOOL, NSData * _Nullable, NSError * _Nullable))handler;
+- (void)downloadDataForURL:(NSURL*)url shouldCache:(BOOL)shouldCache handler:(void (^)(BOOL, NSData * _Nullable, NSError * _Nullable))handler;
 
 - (NSData* _Nullable)getCachedDataForURL:(NSString*)url;
 

@@ -231,7 +231,7 @@ static NSDictionary *_inAppTypeDictionay;
     NSString *fontFileName = [self createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
     if (![self hasFileExist: fontFileName]) {
             NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-        [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadDataForURL:url cache:NO handler:^(BOOL status, NSData * _Nullable data, NSError * _Nullable err) {
+        [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadDataForURL:url shouldCache:NO handler:^(BOOL status, NSData * _Nullable data, NSError * _Nullable err) {
             if (status && data) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSString *fontFilePath = [self getLocalDirectory: fontFileName];

@@ -20,7 +20,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _sharedRequestOperationManager = [[BlueShiftRequestOperationManager alloc]init];
-        _sharedRequestOperationManager.SDKCachedData = [[NSCache alloc] init];
+        _sharedRequestOperationManager.sdkCachedData = [[NSCache alloc] init];
     });
     return _sharedRequestOperationManager;
 }
@@ -28,7 +28,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)resetURLSessionConfig {
     self.sessionConfiguraion = nil;
     self.mainURLSession = nil;
-    [self.SDKCachedData removeAllObjects];
+    [self.sdkCachedData removeAllObjects];
 }
 
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
@@ -195,38 +195,38 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     completionHandler(nil);
 }
 
-#pragma mark - Handle downloading of images
--(void)downloadDataForURL:(NSURL*)url cache:(BOOL)isCache handler:(void (^)(BOOL, NSData *, NSError *))handler {
+#pragma mark - Handle downloading of files
+-(void)downloadDataForURL:(NSURL*)url shouldCache:(BOOL)shouldCache handler:(void (^)(BOOL, NSData *, NSError *))handler {
     if (url) {
-        NSData* imageData = nil;
-        if (isCache) {
-            imageData = [self getCachedDataForURL:url.absoluteString];
+        NSData* data = nil;
+        if (shouldCache) {
+            data = [self getCachedDataForURL:url.absoluteString];
         }
-        if (imageData) {
-            handler(YES,imageData, nil);
+        if (data) {
+            handler(YES,data, nil);
         } else {
             __weak __typeof(self)weakSelf = self;
             NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                 if (statusCode == kStatusCodeSuccessfullResponse && data) {
-                    if (isCache) {
-                        [weakSelf.SDKCachedData setObject:data forKey:url.absoluteString];
+                    if (shouldCache) {
+                        [weakSelf.sdkCachedData setObject:data forKey:url.absoluteString];
                     }
                     handler(YES,data,nil);
                 } else {
-                    handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:statusCode userInfo:nil]);
+                    handler(NO,nil,[NSError errorWithDomain:@"Failed to download data" code:statusCode userInfo:nil]);
                 }
             }];
             [dataTask resume];
         }
     } else {
-        handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:NSNotFound userInfo:nil]);
+        handler(NO,nil,[NSError errorWithDomain:@"Failed to download data" code:NSNotFound userInfo:nil]);
     }
 }
 
 - (NSData* _Nullable)getCachedDataForURL:(NSString*)url {
     if (url) {
-        return [_SDKCachedData objectForKey:url];
+        return [_sdkCachedData objectForKey:url];
     }
     return nil;
 }

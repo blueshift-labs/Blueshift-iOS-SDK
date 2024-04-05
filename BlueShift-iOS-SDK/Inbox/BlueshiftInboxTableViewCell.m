@@ -49,7 +49,7 @@
             NSURL *url = [NSURL URLWithString:imageURL];
             __weak __typeof(self)weakSelf = self;
             // Download image
-            [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadDataForURL:url cache:YES handler:^(BOOL status, NSData * _Nonnull thumbnailData, NSError * _Nonnull err) {
+            [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadDataForURL:url shouldCache:YES handler:^(BOOL status, NSData * _Nonnull thumbnailData, NSError * _Nonnull err) {
                 // Assign thumbnail image if the url matches
                 if (thumbnailData && [imageURL isEqualToString:weakSelf.thumbnailURL]) {
                     dispatch_async(dispatch_get_main_queue(), ^{
