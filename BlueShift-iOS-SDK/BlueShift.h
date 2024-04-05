@@ -54,17 +54,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype _Nullable)sharedInstance;
 
-/// Integrate the SDK manually using BlueShiftConfig. You will need to call SDK functions in the callbacks provided by iOS.
+/// Initialise the SDK manually using `BlueShiftConfig`. You will need to call SDK functions in the callbacks provided by iOS.
 /// @param config BlueShiftConfig object
 /// Refer to https://developer.blueshift.com/docs/include-configure-initialize-the-ios-sdk-in-the-app#initialize-the-sdk for more information.
 + (void)initWithConfiguration:(BlueShiftConfig *)config;
 
-/// Initialise the SDK automatically using `BlueShiftConfig` by sending the `autoIntegrate` as true. SDK will take care of handling all the iOS callbacks when integrated with autoIntegrate.
-/// Initialise the SDK manually using `BlueShiftConfig` by sending the `autoIntegrate` as false. You will need to call SDK functions in iOS callbacks.
+/// Initialise the SDK automatically with `BlueShiftConfig`. SDK will take care of handling all the iOS callbacks with the help of automatic integration.
 /// @param config BlueShiftConfig object
-/// @param autoIntegrate BOOL flag to define the automatic integration.
 /// Refer to https://developer.blueshift.com/docs/include-configure-initialize-the-ios-sdk-in-the-app#initialize-the-sdk for more information.
-+ (void)initWithConfiguration:(BlueShiftConfig *)config autoIntegrate:(BOOL)autoIntegrate;
++ (void)initWithConfigurationAndAutoIntegrate:(BlueShiftConfig*)config;
 
 - (void) setPushDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");
 - (void) setPushParamDelegate: (id) obj DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, and will be removed in a future SDK version.");

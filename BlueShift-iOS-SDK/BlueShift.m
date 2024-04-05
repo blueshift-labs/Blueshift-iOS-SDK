@@ -39,7 +39,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 #pragma mark SDK initialisation
-+ (void) initWithConfiguration:(BlueShiftConfig *)config {
++ (void)initWithConfiguration:(BlueShiftConfig *)config {
     if([NSThread isMainThread] == YES) {
         [[BlueShift sharedInstance] setupWithConfiguration:config];
     } else {
@@ -49,13 +49,12 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
-+ (void)initWithConfiguration:(BlueShiftConfig *)config autoIntegrate:(BOOL)autoIntegrate {
++ (void)initWithConfigurationAndAutoIntegrate:(BlueShiftConfig*)config {
     void (^completionBlock)(void) = ^ {
-        if (autoIntegrate) {
-            Class appDelegateClass = [[UIApplication sharedApplication].delegate class];
-            [appDelegateClass swizzleHostAppDelegate];
-        }
-        [BlueShift initWithConfiguration:config];
+        Class appDelegateClass = [[UIApplication sharedApplication].delegate class];
+        [appDelegateClass swizzleHostAppDelegate];
+        
+        [[BlueShift sharedInstance] setupWithConfiguration:config];
     };
     if([NSThread isMainThread] == YES) {
         completionBlock();
