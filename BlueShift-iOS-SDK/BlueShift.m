@@ -17,6 +17,7 @@
 #import "BlueshiftInboxMessage.h"
 #import "InAppNotificationEntity.h"
 #import "BlueshiftInboxManager.h"
+#import "BlueshiftIntegrationSwizzle.h"
 
 BlueShiftInAppNotificationManager *_inAppNotificationMananger;
 static BlueShift *_sharedBlueShiftInstance = nil;
@@ -38,7 +39,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
 }
 
 #pragma mark SDK initialisation
-+ (void) initWithConfiguration:(BlueShiftConfig *)config {
++ (void)initWithConfiguration:(BlueShiftConfig *)config {
     if([NSThread isMainThread] == YES) {
         [[BlueShift sharedInstance] setupWithConfiguration:config];
     } else {
@@ -48,14 +49,20 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
 }
 
-+ (void) autoIntegration {
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [[BlueShift sharedInstance] setAppDelegate];
-    });
-}
-
-- (void)setAppDelegate {
-    [UIApplication sharedApplication].delegate = [BlueShift sharedInstance].appDelegate;
++ (void)initWithConfigurationAndAutoIntegrate:(BlueShiftConfig*)config {
+    void (^completionBlock)(void) = ^ {
+        Class appDelegateClass = [[UIApplication sharedApplication].delegate class];
+        [appDelegateClass swizzleHostAppDelegate];
+        
+        [[BlueShift sharedInstance] setupWithConfiguration:config];
+    };
+    if([NSThread isMainThread] == YES) {
+        completionBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock();
+        });
+    }
 }
 
 - (void)resetSDKConfig {
@@ -123,6 +130,8 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         
         // Initialise core data
         [_sharedBlueShiftInstance.appDelegate initializeCoreData];
+        
+        [self trackAppInstallOrUpdateEvent];
         
         // Set up Push notifications and delegates
         BlueShiftUserNotificationCenterDelegate *blueShiftUserNotificationCenterDelegate = [[BlueShiftUserNotificationCenterDelegate alloc] init];
@@ -208,20 +217,22 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
             }
         }
         
-        [self setupObservers];
-        
-        [self logSDKInitializationDetails];
-        
-        // Fire app open if device token is already present, else delay it till app receives device token.
-        if ([self getDeviceToken]) {
-            [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];
-        }
-        
-        // Send any existing cached non batch/track events to Blueshift irrespecitive of SDK Tracking enabled status
-        [BlueShiftRequestQueue processRequestsInQueue];
+        [self runAfterSDKInitialisation];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to initialise SDK." methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
+}
+
+- (void)runAfterSDKInitialisation {
+    [self logSDKInitializationDetails];
+
+    [self setupObservers];
+    
+    // Fire app open event
+    [_sharedBlueShiftInstance.appDelegate trackAppOpenOnAppLaunch:nil];
+    
+    // Send any existing cached non batch/track events to Blueshift irrespecitive of SDK Tracking enabled status
+    [BlueShiftRequestQueue processRequestsInQueue];
 }
 
 /// Print debug logs on SDK initialization
@@ -1145,6 +1156,43 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     }
     [BlueshiftLog logInfo:@"Active In-app notification detected or message payload is nil, skipped displaying current inbox message." withDetails:nil methodName:nil];
     return NO;
+}
+
+#pragma mark Auto send app install/app update
+
+/// Automatically detects new App install or App update and sends the app_install or app_update event to Blueshift.
+- (void)trackAppInstallOrUpdateEvent {
+    @try {
+        NSString* savedAppVersion = [[NSUserDefaults standardUserDefaults] valueForKey:kBSLastOpenedAppVersion];
+        NSString* lastModifiedUNAuthorizationStatus = [self.appDelegate getLastModifiedUNAuthorizationStatus];
+        NSString *currentAppVersion = BlueShiftAppData.currentAppData.appVersion;
+        
+        if (!savedAppVersion && !lastModifiedUNAuthorizationStatus) {
+            //New app install
+            [self updateCurrentAppversion:currentAppVersion];
+            NSDictionary * params = @{kBSAppInstalledAt: [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp]};
+            [self trackEventForEventName:kBSAppInstallEvent andParameters:params canBatchThisEvent:NO];
+        } else {
+            if (!savedAppVersion) {
+                //SDK update from old version to app_install supported version
+                //Send App update
+                [self updateCurrentAppversion:currentAppVersion];
+                NSDictionary * params = @{kBSAppUpdatedAt: [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp]};
+                [self trackEventForEventName:kBSAppUpdateEvent andParameters:params canBatchThisEvent:NO];
+            } else if (![savedAppVersion isEqualToString:currentAppVersion]) {
+                //App update
+                [self updateCurrentAppversion:currentAppVersion];
+                NSDictionary * params = @{kBSPrevAppVersion: savedAppVersion,
+                                          kBSAppUpdatedAt: [BlueshiftEventAnalyticsHelper getCurrentUTCTimestamp]};
+                [self trackEventForEventName:kBSAppUpdateEvent andParameters:params canBatchThisEvent:NO];
+            }
+        }
+    } @catch (NSException *exception) {
+    }
+}
+
+- (void)updateCurrentAppversion:(NSString*)currentAppVersion {
+    [[NSUserDefaults standardUserDefaults] setValue:currentAppVersion forKey:kBSLastOpenedAppVersion];
 }
 
 @end

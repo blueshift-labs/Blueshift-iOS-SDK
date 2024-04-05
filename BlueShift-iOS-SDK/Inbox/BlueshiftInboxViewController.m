@@ -112,7 +112,7 @@
 
 - (void)dealloc {
     [_viewModel.sectionInboxMessages removeAllObjects];
-    [BlueShiftRequestOperationManager.sharedRequestOperationManager.inboxImageDataCache removeAllObjects];
+    [BlueShiftRequestOperationManager.sharedRequestOperationManager.sdkCachedData removeAllObjects];
 }
 
 #pragma mark Inbox Setup

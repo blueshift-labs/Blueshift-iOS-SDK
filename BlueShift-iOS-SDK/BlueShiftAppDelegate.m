@@ -130,7 +130,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     } @catch (NSException *exception) {}
 }
 
-- (void) registerForRemoteNotification:(NSData *)deviceToken {
+- (void)registerForRemoteNotification:(NSData *)deviceToken {
     if (deviceToken) {
         NSString *deviceTokenString = [self hexadecimalStringFromData: deviceToken];
         deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -163,19 +163,9 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 - (void)autoIdentifyOnDeviceTokenChange {
-    //set fireAppOpen to true on receiving device_token for very first time
-    BOOL fireAppOpen = NO;
-    if(![[BlueShift sharedInstance] getDeviceToken]) {
-        fireAppOpen = YES;
-    }
     [BlueshiftLog logInfo:[NSString stringWithFormat:@"Initiating Auto identify on device token change."] withDetails:nil methodName:nil];
     [[BlueShift sharedInstance] setDeviceToken];
     [[BlueShift sharedInstance] identifyUserWithDetails:nil canBatchThisEvent:NO];
-    
-    //fire delayed app_open after firing the identify call
-    if(fireAppOpen) {
-        [self trackAppOpenOnAppLaunch:nil];
-    }
 }
 
 #pragma mark - Enable push and auto identify
@@ -257,28 +247,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
 }
 
-#pragma mark - Legacy Auto integration methods
-- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
-    [self registerForRemoteNotification:deviceToken];
-}
-
-- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error {
-    [self failedToRegisterForRemoteNotificationWithError:error];
-}
-
-// Handle silent push notifications when id is sent from backend
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
-    [self handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:handler];
-}
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
-    [self application:application handleRemoteNotification:userInfo];
-}
-
-- (void)application:(UIApplication *) application handleActionWithIdentifier: (NSString *) identifier forRemoteNotification: (NSDictionary *) notification completionHandler: (void (^)(void)) completionHandler {
-    [self handleActionWithIdentifier:identifier forRemoteNotification:notification completionHandler:completionHandler];
-}
-
 #pragma mark - Handle Push notification external methods
 - (void)application:(UIApplication *)application handleRemoteNotification:(NSDictionary *)userInfo {
     [self processSilentPushAndClicksForNotification:userInfo applicationState:application.applicationState];
@@ -311,6 +279,16 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 - (void)handleActionWithIdentifier: (NSString *)identifier forRemoteNotification:(NSDictionary *)notification completionHandler: (void (^)(void)) completionHandler {
     [self processPushClickForNotification:notification actionIdentifer:[identifier copy]];
     completionHandler();
+}
+
+#pragma mark - Auto integration helper methods
+// Handle silent push notifications when id is sent from backend
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
+    [self handleRemoteNotification:userInfo forApplication:application fetchCompletionHandler:handler];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+    [self application:application handleRemoteNotification:userInfo];
 }
 
 #pragma mark Schedule notifications
@@ -686,8 +664,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
 }
 
-
-
 #pragma mark - Application lifecyle events
 - (void)appDidBecomeActive:(UIApplication *)application {
     // Moved the code to the observer
@@ -784,25 +760,36 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 
 - (NSString*)getManagedObjectModelPath {
     @try {
-        // Hardcoded SDK directory path
-        NSString* path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
-        if (path != nil) {
-            return path;
+        NSBundle *bundle = nil;
+        // Path for swift package manager
+        NSString* path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
+        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            bundle = [NSBundle bundleWithPath:path];
+        } else {
+            //Path for cocoapods
+            NSString* bundlePath = [NSString stringWithFormat:@"/%@%@",kBSFrameWorkPath, kBSSPMResourceBundlePath];
+            path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:bundlePath];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                bundle = [NSBundle bundleWithPath:path];
+            }
         }
-        // path for the cocoa pod framework
+        if (bundle) {
+            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
+            if (path != nil) {
+                return path;
+            }
+        }
+        
+        //Path for carthage
         path = [[NSBundle bundleForClass:self.class] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
         if (path != nil) {
             return path;
         }
         
-        // Path for swift package bundle
-        path = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:kBSSPMResourceBundlePath];
-        if (path != nil && [[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            NSBundle *bundle = [NSBundle bundleWithPath:path];
-            path = [bundle pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD];
-            if (path != nil) {
-                return path;
-            }
+        //Hardcoded SDK directory path
+        path = [[NSBundle mainBundle] pathForResource:kBSCoreDataDataModel ofType:kBSCoreDataMOMD inDirectory:kBSFrameWorkPath];
+        if (path != nil) {
+            return path;
         }
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception withDescription:@"Failed to get data model path" methodName:nil];

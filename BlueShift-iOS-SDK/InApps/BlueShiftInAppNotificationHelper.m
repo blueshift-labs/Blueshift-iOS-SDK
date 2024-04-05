@@ -230,17 +230,16 @@ static NSDictionary *_inAppTypeDictionay;
 + (void)downloadFontAwesomeFile:(void(^)(void))completionHandler {
     NSString *fontFileName = [self createFileNameFromURL: kInAppNotificationFontFileDownlaodURL];
     if (![self hasFileExist: fontFileName]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSURL  *url = [NSURL URLWithString: kInAppNotificationFontFileDownlaodURL];
-            NSData *urlData = [NSData dataWithContentsOfURL:url];
-            if (urlData) {
+        [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadDataForURL:url shouldCache:NO handler:^(BOOL status, NSData * _Nullable data, NSError * _Nullable err) {
+            if (status && data) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSString *fontFilePath = [self getLocalDirectory: fontFileName];
-                    [urlData writeToFile: fontFilePath atomically:YES];
+                    [data writeToFile: fontFilePath atomically:YES];
                     completionHandler();
                 });
             }
-        });
+        }];
     }
 }
 

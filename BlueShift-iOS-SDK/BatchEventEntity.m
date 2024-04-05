@@ -21,7 +21,15 @@
     if (context) {
         @try {
             if (parametersArray) {
-                self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
+                if (@available(iOS 11.0, *)) {
+                    NSError* error;
+                    self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray requiringSecureCoding:NO error:&error];
+                    if (error) {
+                        [BlueshiftLog logError:error withDescription:@"Failed to archive the object" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                    }
+                } else {
+                    self.paramsArray = [NSKeyedArchiver archivedDataWithRootObject:parametersArray];
+                }
             }
             self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];
             self.retryAttemptsCount = [NSNumber numberWithInteger:retryAttemptsCount];

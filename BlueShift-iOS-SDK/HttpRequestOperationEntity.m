@@ -24,7 +24,15 @@
     if (context) {
         self.httpMethodNumber = [NSNumber numberWithBlueShiftHTTPMethod:httpMethod];
         if (parameters) {
-            self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
+            if (@available(iOS 11.0, *)) {
+                NSError* error;
+                self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters requiringSecureCoding:NO error:&error];
+                if (error) {
+                    [BlueshiftLog logError:error withDescription:@"Failed to archive the object" methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
+                }
+            } else {
+                self.parameters = [NSKeyedArchiver archivedDataWithRootObject:parameters];
+            }
         }
         self.url = url;
         self.nextRetryTimeStamp = [NSNumber numberWithDouble:nextRetryTimeStamp];

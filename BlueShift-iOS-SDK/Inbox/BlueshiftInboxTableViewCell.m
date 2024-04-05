@@ -42,14 +42,14 @@
 - (void)setIconImageURL:(NSString *)imageURL {
     if (imageURL) {
         self.thumbnailURL = imageURL;
-        NSData *thumbnailData = [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:imageURL];
+        NSData *thumbnailData = [BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedDataForURL:imageURL];
         if (thumbnailData) {
             self.iconImageView.image = [UIImage imageWithData:thumbnailData];
         } else if ([BlueshiftEventAnalyticsHelper isNotNilAndNotEmpty: imageURL]) {
             NSURL *url = [NSURL URLWithString:imageURL];
             __weak __typeof(self)weakSelf = self;
             // Download image
-            [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadImageForURL:url handler:^(BOOL status, NSData * _Nonnull thumbnailData, NSError * _Nonnull err) {
+            [BlueShiftRequestOperationManager.sharedRequestOperationManager downloadDataForURL:url shouldCache:YES handler:^(BOOL status, NSData * _Nonnull thumbnailData, NSError * _Nonnull err) {
                 // Assign thumbnail image if the url matches
                 if (thumbnailData && [imageURL isEqualToString:weakSelf.thumbnailURL]) {
                     dispatch_async(dispatch_get_main_queue(), ^{

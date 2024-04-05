@@ -147,14 +147,14 @@
 /// @param imageURL Image url to download the image
 /// @param imageView  assign the downloaded image to imageView
 - (void)loadImageFromURL:(NSString *)imageURL forImageView:(UIImageView *)imageView {
-    UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:imageURL]];
+    UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedDataForURL:imageURL]];
     imageView.image = image;
 }
 
 - (void)setBackgroundImageFromURL:(UIView *)notificationView {
     if (notificationView && [self isBackgroundImagePresentForNotification:self.notification]) {
         NSString *backgroundImageURL = self.notification.templateStyle.backgroundImage;
-        UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedImageDataForURL:backgroundImageURL]];
+        UIImage *image = [[UIImage alloc] initWithData:[BlueShiftRequestOperationManager.sharedRequestOperationManager getCachedDataForURL:backgroundImageURL]];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.frame = notificationView.bounds;
         imageView.contentMode = UIViewContentModeScaleAspectFill;

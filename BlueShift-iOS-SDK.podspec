@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = "BlueShift-iOS-SDK"
-  s.version                 = "2.4.3"
+  s.version                 = "2.5.0"
   s.summary                 = "iOS SDK for integrating Rich Push & In App Notifications, Universal Links and Analytics"
   s.homepage                = "https://github.com/blueshift-labs/Blueshift-iOS-SDK"
   s.license                 = { :type => "MIT", :file => "LICENSE.md" }
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target   = "9.0"
   s.ios.source_files        = "BlueShift-iOS-SDK/**/*.{h,m}"
   s.ios.public_header_files = "BlueShift-iOS-SDK/**/*.h"
-  s.ios.resources           = "BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png,xib}"
+  s.ios.resource_bundles    = {"BlueShift-iOS-SDK_BlueShift_iOS_SDK" =>  ["BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png,xib}"] }
   s.ios.exclude_files       = "BlueShift-iOS-SDK/include/**/*.{h,m}"
   s.ios.framework           = "CoreData"
 end

@@ -77,3 +77,4 @@ FOUNDATION_EXPORT const unsigned char BlueShift_iOS_SDKVersionString[];
 #import "BlueshiftInboxViewModel.h"
 #import "BlueshiftWebBrowserViewController.h"
 #import "BlueshiftWebViewBrowserDelegate.h"
+#import "BlueshiftIntegrationSwizzle.h"
