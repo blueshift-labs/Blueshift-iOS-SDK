@@ -186,12 +186,12 @@
         dispatch_group_t serviceGroup = dispatch_group_create();
         dispatch_group_async(serviceGroup,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
             dispatch_group_enter(serviceGroup);
-            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:iconImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadDataForURL:iconImageURL cache:YES handler:^(BOOL status, NSData *data, NSError *error) {
                 dispatch_group_leave(serviceGroup);
             }];
             
             dispatch_group_enter(serviceGroup);
-            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:backgroundImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadDataForURL:backgroundImageURL cache:YES handler:^(BOOL status, NSData *data, NSError *error) {
                 dispatch_group_leave(serviceGroup);
             }];
             
@@ -218,12 +218,12 @@
         dispatch_group_t serviceGroup = dispatch_group_create();
         dispatch_group_async(serviceGroup,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
             dispatch_group_enter(serviceGroup);
-            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:backgroundImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadDataForURL:backgroundImageURL cache:YES handler:^(BOOL status, NSData *data, NSError *error) {
                 dispatch_group_leave(serviceGroup);
             }];
 
             dispatch_group_enter(serviceGroup);
-            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadImageForURL:bannerImageURL handler:^(BOOL status, NSData *data, NSError *error) {
+            [[BlueShiftRequestOperationManager sharedRequestOperationManager] downloadDataForURL:bannerImageURL cache:YES handler:^(BOOL status, NSData *data, NSError *error) {
                 dispatch_group_leave(serviceGroup);
             }];
             

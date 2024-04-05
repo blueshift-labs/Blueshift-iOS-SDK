@@ -20,7 +20,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _sharedRequestOperationManager = [[BlueShiftRequestOperationManager alloc]init];
-        _sharedRequestOperationManager.inboxImageDataCache = [[NSCache alloc] init];
+        _sharedRequestOperationManager.SDKCachedData = [[NSCache alloc] init];
     });
     return _sharedRequestOperationManager;
 }
@@ -28,7 +28,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 - (void)resetURLSessionConfig {
     self.sessionConfiguraion = nil;
     self.mainURLSession = nil;
-    [self.inboxImageDataCache removeAllObjects];
+    [self.SDKCachedData removeAllObjects];
 }
 
 - (void)addBasicAuthenticationRequestHeaderForUsername:(NSString *)username andPassword:(NSString *)password {
@@ -196,9 +196,12 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
 }
 
 #pragma mark - Handle downloading of images
--(void)downloadImageForURL:(NSURL*)url handler:(void (^)(BOOL, NSData *, NSError *))handler {
+-(void)downloadDataForURL:(NSURL*)url cache:(BOOL)isCache handler:(void (^)(BOOL, NSData *, NSError *))handler {
     if (url) {
-        NSData* imageData = [self getCachedImageDataForURL:url.absoluteString];
+        NSData* imageData = nil;
+        if (isCache) {
+            imageData = [self getCachedDataForURL:url.absoluteString];
+        }
         if (imageData) {
             handler(YES,imageData, nil);
         } else {
@@ -206,7 +209,9 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
             NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                 if (statusCode == kStatusCodeSuccessfullResponse && data) {
-                    [weakSelf.inboxImageDataCache setObject:data forKey:url.absoluteString];
+                    if (isCache) {
+                        [weakSelf.SDKCachedData setObject:data forKey:url.absoluteString];
+                    }
                     handler(YES,data,nil);
                 } else {
                     handler(NO,nil,[NSError errorWithDomain:@"Failed to download image" code:statusCode userInfo:nil]);
@@ -219,9 +224,9 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     }
 }
 
-- (NSData* _Nullable)getCachedImageDataForURL:(NSString*)url {
+- (NSData* _Nullable)getCachedDataForURL:(NSString*)url {
     if (url) {
-        return [_inboxImageDataCache objectForKey:url];
+        return [_SDKCachedData objectForKey:url];
     }
     return nil;
 }
