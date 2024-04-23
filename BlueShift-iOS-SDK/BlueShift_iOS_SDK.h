@@ -36,7 +36,6 @@ FOUNDATION_EXPORT const unsigned char BlueShift_iOS_SDKVersionString[];
 #import "BlueShiftProduct.h"
 #import "BlueShiftPushDelegate.h"
 #import "BlueShiftPushNotificationSettings.h"
-#import "BlueShiftPushParamDelegate.h"
 #import "BlueShiftRequestOperation.h"
 #import "BlueShiftRequestOperationManager.h"
 #import "BlueShiftRequestQueue.h"

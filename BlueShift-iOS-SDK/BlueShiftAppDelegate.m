@@ -257,10 +257,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     handler(UIBackgroundFetchResultNewData);
 }
 
-- (void)application:(UIApplication *)application handleLocalNotification:(nonnull UNNotificationRequest *)notification {
-    [self processPushClickForNotification:notification.content.userInfo actionIdentifer:nil];
-}
-
 - (BOOL)handleRemoteNotificationOnLaunchWithLaunchOptions:(NSDictionary *)launchOptions {
     if (launchOptions) {
         NSDictionary *userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
@@ -665,22 +661,6 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 }
 
 #pragma mark - Application lifecyle events
-- (void)appDidBecomeActive:(UIApplication *)application {
-    // Moved the code to the observer
-}
-
-- (void)appDidEnterBackground:(UIApplication *)application {
-    // Moved the code to the observer
-}
-
-- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
-    // Moved the code to the observer,
-}
-
-- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) {
-    // Moved the code to the observer
-}
-
 - (void)applicationWillResignActive:(UIApplication *)application {
     if (self.mainAppDelegate && [self.mainAppDelegate respondsToSelector:@selector(applicationWillResignActive:)]) {
         [self.mainAppDelegate applicationWillResignActive:application];

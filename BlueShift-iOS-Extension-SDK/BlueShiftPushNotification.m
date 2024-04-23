@@ -38,7 +38,7 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString * _Nullable)appGroupID {
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request {
     if ([request.content.categoryIdentifier isEqualToString: kNotificationCarouselIdentifier] || [request.content.categoryIdentifier isEqualToString: kNotificationCarouselAnimationIdentifier]) {
         return [self carouselAttachmentsDownload:request];
     } else {
@@ -47,7 +47,8 @@ static BlueShiftPushNotification *_sharedInstance = nil;
     }
 }
 
-- (void)trackPushViewedWithRequest:(UNNotificationRequest *)request {
+- (NSArray *)integratePushNotificationWithMediaAttachementsForRequest:(UNNotificationRequest *)request andAppGroupID:(NSString * _Nullable)appGroupID {
+    return [self integratePushNotificationWithMediaAttachementsForRequest:request];
 }
 
 - (NSArray *)carouselAttachmentsDownload:(UNNotificationRequest *)request {
