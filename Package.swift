@@ -23,8 +23,8 @@ let package = Package(
             dependencies: [],
             path: "BlueShift-iOS-SDK",
             resources: [
-                .process("BlueShiftSDKDataModel.xcdatamodeld")
-            ],  
+                .process("Resources"),
+            ],
             publicHeadersPath: "include",
             cSettings: [
                 .headerSearchPath("./"),
