@@ -1186,7 +1186,7 @@
 			);
 			currentVersion = 9130BB4B2BF616B900C4BD90 /* BlueShiftSDKDataModel 4.xcdatamodel */;
 			name = BlueShiftSDKDataModel.xcdatamodeld;
-			path = "/Users/ketanshikhare/Documents/Blueshift-Repository/Blueshift-iOS-SDK/BlueShift-iOS-SDK/Resources/BlueShiftSDKDataModel.xcdatamodeld";
+			path = BlueShiftSDKDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
