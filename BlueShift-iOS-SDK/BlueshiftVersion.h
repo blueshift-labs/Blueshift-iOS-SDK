@@ -8,6 +8,6 @@
 #ifndef BlueShift_iOS_SDK_BlueshiftVersion_h
 #define BlueShift_iOS_SDK_BlueshiftVersion_h
 
-#define kBlueshiftSDKVersion             @"2.5.0"
+#define kBlueshiftSDKVersion             @"2.5.1"
 
 #endif
