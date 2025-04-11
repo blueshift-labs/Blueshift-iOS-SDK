@@ -50,7 +50,7 @@
         if(apiPayload) {
             NSMutableDictionary* payload = [apiPayload mutableCopy];
             NSString *url = nil;
-            if (BlueShift.sharedInstance.config.enableMobileInbox == YES) {
+            if (BlueShift.sharedInstance.config.enableMobileInbox == YES && messageIds) {
                 url = [BlueshiftRoutes getInboxMessagesURL];
                 if (messageIds) {
                     [payload setValue:messageIds forKey:kBSMessageUUIDs];
