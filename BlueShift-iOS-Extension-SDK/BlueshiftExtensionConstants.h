@@ -47,6 +47,6 @@
 
 #define kAutoUpdateBadge                                                @"auto_update_badge"
 
-#define kBlueshiftExtensionSDKVersion                                   @"2.5.1"
+#define kBlueshiftExtensionSDKVersion                                   @"2.6.0"
 
 #endif
