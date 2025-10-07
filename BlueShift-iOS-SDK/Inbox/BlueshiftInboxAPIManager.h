@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// - Parameters:
 ///   - success: success callback
 ///   - failure: failure callback
-+ (void) fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure;
++ (void) fetchInAppNotificationWithSuccess:(void (^)(NSDictionary*))success failure:(void (^)(NSError*))failure DEPRECATED_MSG_ATTRIBUTE("This method is deprecated, use `BlueshiftInboxManager.syncInboxMessages` instead");
 
 
 /// API call to get the unread status infomration for Inbox messages. The response will be an array of objects consisting the message ids, read status, and other info.
