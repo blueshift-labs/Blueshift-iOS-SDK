@@ -136,6 +136,15 @@
             return;
         }
         
+        // NEW: Check if SwiftUI rendering is enabled
+        if (@available(iOS 13.0, *)) {
+            if ([BlueShift sharedInstance].config.useSwiftUIForInApp) {
+                [self renderWithSwiftUI:notification displayOnScreen:displayOnScreen];
+                return;
+            }
+        }
+        
+        // EXISTING: UIKit rendering
         switch (notification.inAppType) {
             case BlueShiftInAppTypeHTML:
                 [self processHTMLNotification:notification displayOnScreen:displayOnScreen];
@@ -164,6 +173,80 @@
             break;
         }
     });
+}
+
+// NEW: SwiftUI rendering method
+- (void)renderWithSwiftUI:(BlueShiftInAppNotification*)notification
+          displayOnScreen:(NSString*)displayOnScreen API_AVAILABLE(ios(13.0)) {
+    
+    // Try multiple module name variations for the Swift class
+    Class bridgeClass = NSClassFromString(@"BlueShiftSwiftUIBridge");
+    if (!bridgeClass) {
+        bridgeClass = NSClassFromString(@"BlueShift_iOS_SDK.BlueShiftSwiftUIBridge");
+    }
+    if (!bridgeClass) {
+        bridgeClass = NSClassFromString(@"BlueShift_iOS_SDK_BlueShift_iOS_SDK.BlueShiftSwiftUIBridge");
+    }
+    
+    if (bridgeClass) {
+        [BlueshiftLog logInfo:@"Found SwiftUI bridge class" withDetails:[NSString stringWithFormat:@"%@", bridgeClass] methodName:nil];
+        SEL sharedSelector = NSSelectorFromString(@"shared");
+        if ([bridgeClass respondsToSelector:sharedSelector]) {
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            id bridge = [bridgeClass performSelector:sharedSelector];
+            #pragma clang diagnostic pop
+            
+            __weak typeof(self) weakSelf = self;
+            
+            // Create blocks for callbacks
+            void (^dismissBlock)(void) = ^{
+                [weakSelf updateInAppNotificationAsDisplayed:notification.notificationPayload];
+                weakSelf.currentNotificationController = nil;
+                if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+                    [weakSelf startInAppMessageFetchTimer];
+                }
+            };
+            
+            void (^actionBlock)(NSString *) = ^(NSString *actionURL) {
+                // Just dismiss for now - deep link handling can be added later
+                [BlueshiftLog logInfo:@"In-app action tapped" withDetails:actionURL methodName:nil];
+            };
+            
+            // Call the Swift bridge method using performSelector
+            SEL renderSelector = NSSelectorFromString(@"renderInAppWithNotification:onDismiss:onAction:");
+            if ([bridge respondsToSelector:renderSelector]) {
+                NSMethodSignature *signature = [bridge methodSignatureForSelector:renderSelector];
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                [invocation setTarget:bridge];
+                [invocation setSelector:renderSelector];
+                [invocation setArgument:&notification atIndex:2];
+                [invocation setArgument:&dismissBlock atIndex:3];
+                [invocation setArgument:&actionBlock atIndex:4];
+                [invocation invoke];
+                
+                [BlueshiftLog logInfo:@"Displaying in-app notification using SwiftUI" withDetails:notification.notificationPayload[@"bsft_message_uuid"] methodName:nil];
+            } else {
+                [BlueshiftLog logError:nil withDescription:@"SwiftUI bridge render method not found" methodName:nil];
+            }
+        }
+    } else {
+        [BlueshiftLog logError:nil withDescription:@"SwiftUI bridge not available. Install SwiftUI subspec or set useSwiftUIForInApp to NO." methodName:nil];
+        // Fallback to UIKit
+        switch (notification.inAppType) {
+            case BlueShiftInAppTypeHTML:
+                [self processHTMLNotification:notification displayOnScreen:displayOnScreen];
+                break;
+            case BlueShiftInAppTypeModal:
+                [self processModalNotification:notification displayOnScreen:displayOnScreen];
+                break;
+            case BlueShiftNotificationSlideBanner:
+                [self processSlideInBannerNotification:notification displayOnScreen:displayOnScreen];
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 - (void)displayReviewController {
