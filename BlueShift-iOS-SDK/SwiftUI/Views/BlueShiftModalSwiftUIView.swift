@@ -16,6 +16,11 @@ struct BlueShiftModalSwiftUIView: View {
     @State private var opacity: Double = 0.0
     @State private var fontLoaded: Bool = false
     
+    // Style provider handles all styling logic
+    private var styleProvider: BlueShiftModalStyleProvider {
+        BlueShiftModalStyleProvider(viewModel: viewModel)
+    }
+    
     var body: some View {
         ZStack {
             // Background dim
@@ -26,57 +31,86 @@ struct BlueShiftModalSwiftUIView: View {
                     dismissModal()
                 }
             
-            // Modal content
-            VStack(spacing: 16) {
-                
-                // Close button - only show if enabled in response
-                if shouldShowCloseButton {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            dismissModal()
-                        }) {
-                            Text(closeButtonText)
-                                .font(.custom("FontAwesome5Free-Solid", size: closeButtonFontSize))
-                                .foregroundColor(closeButtonTextColor)
-                                .frame(width: 44, height: 44)
-                                .background(closeButtonBackgroundColor)
-                                .clipShape(Circle())
-                        }
+            // Modal content with close button overlay
+            ZStack(alignment: .topTrailing) {
+                VStack(spacing: 0) {
+                    
+                    // Title
+                    if let title = viewModel.notification.notificationContent.title,
+                       !title.isEmpty {
+                        Text(title)
+                            .font(styleProvider.titleFont)
+                            .foregroundColor(styleProvider.titleColor)
+                            .multilineTextAlignment(styleProvider.titleAlignment)
+                            .frame(maxWidth: .infinity, alignment: styleProvider.titleFrameAlignment)
+                            .background(styleProvider.titleBackgroundColor)
+                            .padding(.top, styleProvider.titlePaddingTop)
+                            .padding(.bottom, styleProvider.titlePaddingBottom)
+                            .padding(.leading, styleProvider.titlePaddingLeft)
+                            .padding(.trailing, styleProvider.titlePaddingRight)
                     }
-                }
+                    
+                    // Subtitle (if provided)
+                    if let subtitle = viewModel.notification.notificationContent.subTitle,
+                       !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.custom("HelveticaNeue-Medium", size: 16))
+                            .foregroundColor(styleProvider.titleColor)
+                            .multilineTextAlignment(styleProvider.titleAlignment)
+                            .frame(maxWidth: .infinity, alignment: styleProvider.titleFrameAlignment)
+                            .background(styleProvider.titleBackgroundColor)
+                            .padding(.top, styleProvider.subTitlePaddingTop)
+                            .padding(.bottom, styleProvider.subTitlePaddingBottom)
+                            .padding(.leading, styleProvider.subTitlePaddingLeft)
+                            .padding(.trailing, styleProvider.subTitlePaddingRight)
+                    }
+                    
+                    // Message
+                    if let message = viewModel.notification.notificationContent.message,
+                       !message.isEmpty {
+                        Text(message)
+                            .font(styleProvider.messageFont)
+                            .foregroundColor(styleProvider.messageColor)
+                            .multilineTextAlignment(styleProvider.messageAlignment)
+                            .frame(maxWidth: .infinity, alignment: styleProvider.messageFrameAlignment)
+                            .background(styleProvider.messageBackgroundColor)
+                            .padding(.top, styleProvider.messagePaddingTop)
+                            .padding(.bottom, styleProvider.messagePaddingBottom)
+                            .padding(.leading, styleProvider.messagePaddingLeft)
+                            .padding(.trailing, styleProvider.messagePaddingRight)
+                    }
+                    
+                    // Action Buttons
+                    if styleProvider.hasActionButtons {
+                        actionButtonsView
+                            .padding(.top, styleProvider.actionsPaddingTop)
+                            .padding(.bottom, styleProvider.actionsPaddingBottom)
+                            .padding(.leading, styleProvider.actionsPaddingLeft)
+                            .padding(.trailing, styleProvider.actionsPaddingRight)
+                    }
 
-                // Title
-                if let title = viewModel.notification.notificationContent.title,
-                   !title.isEmpty {
-                    Text(title)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.center)
                 }
+                .frame(maxWidth: 340)
+                .background(styleProvider.modalBackgroundColor)
+                .cornerRadius(styleProvider.modalCornerRadius)
+                .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 10)
                 
-                // Message
-                if let message = viewModel.notification.notificationContent.message,
-                   !message.isEmpty {
-                    Text(message)
-                        .font(.system(size: 16))
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.center)
+                // Close button - overlay in top-right corner
+                if styleProvider.shouldShowCloseButton {
+                    Button(action: {
+                        dismissModal()
+                    }) {
+                        Text(styleProvider.closeButtonText)
+                            .font(.custom("FontAwesome5Free-Solid", size: styleProvider.closeButtonFontSize))
+                            .foregroundColor(styleProvider.closeButtonTextColor)
+                            .frame(width: 36, height: 36)
+                            .background(styleProvider.closeButtonBackgroundColor)
+                            .cornerRadius(styleProvider.closeButtonCornerRadius)
+                    }
+                    .padding(8)
                 }
-                
-                // Action Buttons
-                if hasActionButtons {
-                    actionButtonsView
-                        .padding(.top, 8)
-                }
-
             }
-            .padding(24)
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(radius: 10)
-            .frame(maxWidth: 300)
-            .padding(.horizontal, 32)
+            .padding(.horizontal, 20)
             .scaleEffect(scale)
             .opacity(opacity)
         }
@@ -93,100 +127,42 @@ struct BlueShiftModalSwiftUIView: View {
         }
     }
     
-    // MARK: - Close Button Properties
-    
-    /// Check if close button should be shown based on response
-    private var shouldShowCloseButton: Bool {
-        guard let enableCloseButton = viewModel.notification.templateStyle.enableCloseButton else {
-            return true // Default to showing close button if not specified
-        }
-        return enableCloseButton.boolValue
-    }
-    
-    /// Get close button text from response or use default
-    private var closeButtonText: String {
-        let closeButton = viewModel.notification.templateStyle.closeButton
-        if let text = closeButton.text, !text.isEmpty {
-            return text
-        }
-        return "\u{f00d}" // Default Font Awesome close icon
-    }
-    
-    /// Get close button text color from response or use default
-    private var closeButtonTextColor: Color {
-        let closeButton = viewModel.notification.templateStyle.closeButton
-        if let textColor = closeButton.textColor {
-            return Color(hex: textColor) ?? .white
-        }
-        return .white // Default text color
-    }
-    
-    /// Get close button background color from response or use default
-    private var closeButtonBackgroundColor: Color {
-        let closeButton = viewModel.notification.templateStyle.closeButton
-        if let backgroundColor = closeButton.backgroundColor {
-            return Color(hex: backgroundColor) ?? .black
-        }
-        return .black // Default background color
-    }
-    
-    /// Get close button font size from response or use default
-    private var closeButtonFontSize: CGFloat {
-        let closeButton = viewModel.notification.templateStyle.closeButton
-        if let textSize = closeButton.textSize {
-            return CGFloat(textSize.floatValue)
-        }
-        return 22 // Default font size
-    }
-    
-    // MARK: - Action Buttons
-    
-    /// Check if there are action buttons to display
-    private var hasActionButtons: Bool {
-        return viewModel.notification.notificationContent.actions.count > 0
-    }
-    
-    /// Determine if buttons should be vertical or horizontal
-    private var isVerticalLayout: Bool {
-        guard let orientation = viewModel.notification.contentStyle.actionsOrientation else {
-            return false // Default to horizontal
-        }
-        return orientation.intValue > 0
-    }
+    // MARK: - Action Buttons View
     
     /// Action buttons view with proper alignment
     @ViewBuilder
     private var actionButtonsView: some View {
-        if isVerticalLayout {
+        if styleProvider.isVerticalLayout {
             // Vertical layout - buttons stacked
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 ForEach(Array(viewModel.notification.notificationContent.actions.enumerated()), id: \.offset) { index, action in
                     actionButton(for: action as! BlueShiftInAppNotificationButton, at: index)
                 }
             }
+            .padding(.horizontal, 0)
         } else {
             // Horizontal layout - buttons side by side
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 ForEach(Array(viewModel.notification.notificationContent.actions.enumerated()), id: \.offset) { index, action in
                     actionButton(for: action as! BlueShiftInAppNotificationButton, at: index)
                 }
             }
+            .padding(.horizontal, 0)
         }
     }
     
-    /// Create individual action button
+    /// Create individual action button matching the UI design
     private func actionButton(for action: BlueShiftInAppNotificationButton, at index: Int) -> some View {
         Button(action: {
             handleActionButtonTap(action: action, at: index)
         }) {
             Text(action.text ?? "")
-                .font(.system(size: CGFloat(action.textSize?.floatValue ?? 16)))
+                .font(.system(size: CGFloat(action.textSize?.floatValue ?? 18), weight: .medium))
                 .foregroundColor(action.buttonTextColor)
-                .frame(maxWidth: isVerticalLayout ? .infinity : nil)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
                 .background(action.buttonBackgroundColor)
-                .cornerRadius(action.cornerRadius)
+                .cornerRadius(CGFloat(action.backgroundRadius?.floatValue ?? 8))
         }
     }
     

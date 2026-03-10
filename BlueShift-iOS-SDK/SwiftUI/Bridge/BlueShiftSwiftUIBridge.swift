@@ -14,10 +14,11 @@ import SwiftUI
 @available(iOS 13.0, *)
 @objc(BlueShiftSwiftUIBridge)
 @objcMembers
+@MainActor
 public class BlueShiftSwiftUIBridge: NSObject {
     
     /// Shared singleton instance
-    @MainActor @objc public static let shared = BlueShiftSwiftUIBridge()
+    @objc public static let shared = BlueShiftSwiftUIBridge()
     
     /// Reference to the currently presented hosting controller
     private weak var currentHostingController: UIHostingController<AnyView>?
@@ -31,20 +32,16 @@ public class BlueShiftSwiftUIBridge: NSObject {
     ///   - notification: The notification to render
     ///   - onDismiss: Callback when notification is dismissed
     ///   - onAction: Callback when an action is triggered
-    @objc public func renderInApp(notification: BlueShiftInAppNotification,
+    @MainActor @objc public func renderInApp(notification: BlueShiftInAppNotification,
                                   onDismiss: @escaping () -> Void,
                                   onAction: @escaping (String?) -> Void) {
-        
-        // Ensure we're on the main thread
-        DispatchQueue.main.async { [weak self] in
-            self?.presentSwiftUIView(notification: notification,
-                                    onDismiss: onDismiss,
-                                    onAction: onAction)
-        }
+        presentSwiftUIView(notification: notification,
+                           onDismiss: onDismiss,
+                           onAction: onAction)
     }
     
     /// Present the SwiftUI view in a hosting controller
-    private func presentSwiftUIView(notification: BlueShiftInAppNotification,
+    @MainActor private func presentSwiftUIView(notification: BlueShiftInAppNotification,
                                     onDismiss: @escaping () -> Void,
                                     onAction: @escaping (String?) -> Void) {
         
@@ -102,3 +99,4 @@ public class BlueShiftSwiftUIBridge: NSObject {
         presenter.present(hostingController, animated: true, completion: nil)
     }
 }
+

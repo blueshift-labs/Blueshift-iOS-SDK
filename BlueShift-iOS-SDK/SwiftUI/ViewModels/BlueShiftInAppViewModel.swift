@@ -11,6 +11,7 @@ import Combine
 
 /// ViewModel for in-app notifications (banner only)
 @available(iOS 13.0, *)
+@MainActor
 public class BlueShiftInAppViewModel: ObservableObject {
     
     // MARK: - Published Properties
@@ -43,18 +44,20 @@ public class BlueShiftInAppViewModel: ObservableObject {
     
     /// Dismiss the notification
     public func dismiss() {
+        let onDismiss = self.onDismiss
         withAnimation {
             isPresented = false
         }
         
         // Delay callback to allow animation to complete
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.onDismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            onDismiss()
         }
     }
     
     /// Handle action button tap
     public func handleAction(url: String?) {
+        let onAction = self.onAction
         onAction(url)
         dismiss()
     }
@@ -98,3 +101,4 @@ public class BlueShiftInAppViewModel: ObservableObject {
         return URL(string: iconImageString)
     }
 }
+
