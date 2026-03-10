@@ -84,9 +84,9 @@ class ImageLoader: ObservableObject {
     @Published var isLoading = false
     
     private var cancellable: AnyCancellable?
-    private static let cache = NSCache<NSURL, UIImage>()
+    @MainActor private static let cache = NSCache<NSURL, UIImage>()
     
-    func load(url: URL) {
+    @MainActor func load(url: URL) {
         // Check cache first
         if let cachedImage = Self.cache.object(forKey: url as NSURL) {
             self.image = cachedImage

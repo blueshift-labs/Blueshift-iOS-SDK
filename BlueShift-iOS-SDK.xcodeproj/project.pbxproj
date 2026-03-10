@@ -141,6 +141,16 @@
 		91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470622728346F00A0E84C /* BlueShift_iOS_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE8608662F5EA29700E02013 /* BlueShiftSwiftUI.h in Headers */ = {isa = PBXBuildFile; fileRef = CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */; };
+		CE8608672F5EA29700E02013 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = CE8608642F5EA29700E02013 /* README.md */; };
+		CE8608682F5EA29700E02013 /* RemoteImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608612F5EA29700E02013 /* RemoteImageView.swift */; };
+		CE8608692F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */; };
+		CE86086A2F5EA29700E02013 /* BlueShiftInAppRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */; };
+		CE86086B2F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */; };
+		CE86086C2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085F2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift */; };
+		CE86086D2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085E2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift */; };
+		CE86086E2F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */; };
+		CE86086F2F5EA29700E02013 /* BlueShiftInAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085C2F5EA29700E02013 /* BlueShiftInAppViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -296,6 +306,16 @@
 		91F470602728342B00A0E84C /* ios.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = ios.modulemap; sourceTree = "<group>"; };
 		91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShift_iOS_SDK.h; sourceTree = "<group>"; };
 		91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShift_iOS_Extension_SDK.h; sourceTree = "<group>"; };
+		CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlueShiftInAppNotification+SwiftUI.swift"; sourceTree = "<group>"; };
+		CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftInAppRenderer.swift; sourceTree = "<group>"; };
+		CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftSwiftUIBridge.swift; sourceTree = "<group>"; };
+		CE86085C2F5EA29700E02013 /* BlueShiftInAppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftInAppViewModel.swift; sourceTree = "<group>"; };
+		CE86085E2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftInAppSwiftUIView.swift; sourceTree = "<group>"; };
+		CE86085F2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftModalSwiftUIView.swift; sourceTree = "<group>"; };
+		CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftSlideBannerSwiftUIView.swift; sourceTree = "<group>"; };
+		CE8608612F5EA29700E02013 /* RemoteImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImageView.swift; sourceTree = "<group>"; };
+		CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueShiftSwiftUI.h; sourceTree = "<group>"; };
+		CE8608642F5EA29700E02013 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -405,6 +425,7 @@
 				9150983A2923A1B20054CB88 /* Inbox */,
 				91F470602728342B00A0E84C /* ios.modulemap */,
 				91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */,
+				CE8608652F5EA29700E02013 /* SwiftUI */,
 				9186B5E8271ED9EE00D425AF /* InApps */,
 				9186B5C1271ED9EA00D425AF /* BatchEventEntity.h */,
 				9186B5D5271ED9EB00D425AF /* BatchEventEntity.m */,
@@ -546,6 +567,47 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CE86085B2F5EA29700E02013 /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */,
+				CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */,
+				CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */,
+			);
+			path = Bridge;
+			sourceTree = "<group>";
+		};
+		CE86085D2F5EA29700E02013 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				CE86085C2F5EA29700E02013 /* BlueShiftInAppViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		CE8608622F5EA29700E02013 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CE86085E2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift */,
+				CE86085F2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift */,
+				CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */,
+				CE8608612F5EA29700E02013 /* RemoteImageView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CE8608652F5EA29700E02013 /* SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				CE86085B2F5EA29700E02013 /* Bridge */,
+				CE86085D2F5EA29700E02013 /* ViewModels */,
+				CE8608622F5EA29700E02013 /* Views */,
+				CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */,
+				CE8608642F5EA29700E02013 /* README.md */,
+			);
+			path = SwiftUI;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -574,6 +636,7 @@
 				9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */,
 				9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */,
 				9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */,
+				CE8608662F5EA29700E02013 /* BlueShiftSwiftUI.h in Headers */,
 				9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */,
 				9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */,
 				9186B604271ED9EF00D425AF /* BlueShiftPushParamDelegate.h in Headers */,
@@ -746,6 +809,7 @@
 			files = (
 				9130BB4E2BF616C100C4BD90 /* BlueShiftSDKDataModel.xcdatamodeld in Resources */,
 				9130BB452BF6146800C4BD90 /* PrivacyInfo.xcprivacy in Resources */,
+				CE8608672F5EA29700E02013 /* README.md in Resources */,
 				9130BB442BF6146800C4BD90 /* BlueshiftInboxTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -788,6 +852,14 @@
 				9186B61B271ED9EF00D425AF /* BlueShiftProduct.m in Sources */,
 				9186B629271ED9EF00D425AF /* BlueshiftRoutes.m in Sources */,
 				9186B60E271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.m in Sources */,
+				CE8608682F5EA29700E02013 /* RemoteImageView.swift in Sources */,
+				CE8608692F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift in Sources */,
+				CE86086A2F5EA29700E02013 /* BlueShiftInAppRenderer.swift in Sources */,
+				CE86086B2F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift in Sources */,
+				CE86086C2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift in Sources */,
+				CE86086D2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift in Sources */,
+				CE86086E2F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */,
+				CE86086F2F5EA29700E02013 /* BlueShiftInAppViewModel.swift in Sources */,
 				912A5BDB2923ABEE00096CBF /* BlueshiftInboxTableViewCell.m in Sources */,
 				917582DF29250F0900022F38 /* BlueshiftInboxMessage.m in Sources */,
 				91E498E32927822A0073B7FB /* BlueshiftInboxViewModel.m in Sources */,
@@ -1038,6 +1110,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1068,6 +1141,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

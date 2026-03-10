@@ -2,20 +2,35 @@
 //  BlueShiftInAppSwiftUIView.swift
 //  BlueShift-iOS-SDK
 //
-//  Simple banner view for all notification types
+//  Main SwiftUI view that routes to appropriate notification type
 //
 
 import SwiftUI
 
-/// Main SwiftUI view - displays all notifications as banners
+/// Main SwiftUI view - routes to appropriate notification view based on type
 @available(iOS 13.0, *)
 public struct BlueShiftInAppSwiftUIView: View {
     
     @ObservedObject var viewModel: BlueShiftInAppViewModel
     
     public var body: some View {
-        // Simple: Always show as banner, regardless of type
-        BlueShiftSlideBannerSwiftUIView(viewModel: viewModel)
+        Group {
+            // Use raw values from BlueShiftInAppType enum
+            // BlueShiftInAppTypeModal = 1, BlueShiftNotificationSlideBanner = 2
+            switch viewModel.notification.inAppType.rawValue {
+            case 1: // BlueShiftInAppTypeModal
+                // Show modal view
+                BlueShiftModalSwiftUIView(viewModel: viewModel)
+                
+            case 2: // BlueShiftNotificationSlideBanner
+                // Show slide banner view
+                BlueShiftSlideBannerSwiftUIView(viewModel: viewModel)
+                
+            default:
+                // Default to slide banner for other types
+                BlueShiftSlideBannerSwiftUIView(viewModel: viewModel)
+            }
+        }
     }
 }
 

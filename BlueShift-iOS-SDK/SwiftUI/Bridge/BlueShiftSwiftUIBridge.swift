@@ -17,7 +17,7 @@ import SwiftUI
 public class BlueShiftSwiftUIBridge: NSObject {
     
     /// Shared singleton instance
-    @objc public static let shared = BlueShiftSwiftUIBridge()
+    @MainActor @objc public static let shared = BlueShiftSwiftUIBridge()
     
     /// Reference to the currently presented hosting controller
     private weak var currentHostingController: UIHostingController<AnyView>?
