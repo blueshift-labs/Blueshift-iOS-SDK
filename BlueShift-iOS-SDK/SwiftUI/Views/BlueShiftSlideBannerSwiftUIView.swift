@@ -57,14 +57,23 @@ struct BlueShiftSlideBannerSwiftUIView: View {
     private var bannerContent: some View {
         HStack(spacing: 12) {
             // Icon - matches UIKit logic (lines 220-227)
-            iconView
+            VStack{
+                iconView
+            }
+            .frame(height: bannerMinHeight, alignment: .center)
+            .background(Color(hex: iconBackgroundColor) ?? Color.black)
             
-            // Message
+            // Message with padding
             if let message = viewModel.notification.notificationContent.message {
                 Text(message)
                     .font(.system(size: CGFloat(messageSize)))
                     .foregroundColor(Color(hex: messageColor) ?? Color.black)
-                    .lineLimit(3)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, CGFloat(messagePaddingTop))
+                    .padding(.bottom, CGFloat(messagePaddingBottom))
+                    .padding(.leading, CGFloat(messagePaddingLeft))
+                    .padding(.trailing, CGFloat(messagePaddingRight))
                 
                 Spacer()
             }
@@ -76,32 +85,45 @@ struct BlueShiftSlideBannerSwiftUIView: View {
             //         .padding(8)
             // }
         }
-        // .padding()
+        .frame(minHeight: bannerMinHeight)
         .background(Color(hex: backgroundColor) ?? Color.white)
         .cornerRadius(CGFloat(backgroundRadius))
         .shadow(radius: 5)
-        // .padding(.horizontal)
     }
     
     // MARK: - Icon View (Matches UIKit logic exactly)
     
     @ViewBuilder
     private var iconView: some View {
-        // Check icon field first (FontAwesome), then iconImage field (URL)
-        if let icon = viewModel.notification.notificationContent.icon,
-           !icon.isEmpty {
+        if let icon = viewModel.notification.notificationContent.icon, !icon.isEmpty {
             // Show FontAwesome icon (matches UIKit createIconLabel)
-            Text(icon)
-                .font(.custom("FontAwesome5Free-Solid", size: iconFontSize))
-                .foregroundColor(Color(hex: iconColor) ?? Color.white)
-                .frame(width: 50, height: 50)
-                .background(Color(hex: iconBackgroundColor) ?? Color.black)
-                .cornerRadius(iconBackgroundRadius)
-        } else if let iconImageURL = viewModel.iconImageURL {
-            // Show image from URL (matches UIKit createIconViewWithHeight)
-            RemoteImageView(url: iconImageURL, width: 50, height: 50) {
-                AnyView(defaultIcon)
+            // Container fills full height, icon centered inside
+            ZStack {
+                Color(hex: iconBackgroundColor) ?? Color.black
+                
+                Text(icon)
+                    .font(.custom("FontAwesome5Free-Solid", size: iconFontSize))
+                    .foregroundColor(Color(hex: iconColor) ?? Color.white)
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(iconBackgroundRadius)
             }
+            .frame(width: 50 + CGFloat(iconPaddingLeft) + CGFloat(iconPaddingRight))
+            .padding(.leading, CGFloat(iconPaddingLeft))
+            .padding(.trailing, CGFloat(iconPaddingRight))
+        } else if let iconImage = viewModel.notification.notificationContent.iconImage, !iconImage.isEmpty, let iconImageURL = viewModel.iconImageURL {
+            // Show image from URL (matches UIKit createIconViewWithHeight)
+            // Image is pre-downloaded and cached by BlueShiftSwiftUIBridge.renderInApp
+            // before this view is presented. RemoteImageView reads from cache synchronously.
+            ZStack {
+                Color(hex: iconBackgroundColor) ?? Color.black
+                
+                RemoteImageView(url: iconImageURL, width: 50, height: 50) {
+                    AnyView(defaultIcon)
+                }
+            }
+            .frame(width: 50 + CGFloat(iconPaddingLeft) + CGFloat(iconPaddingRight))
+            .padding(.leading, CGFloat(iconPaddingLeft))
+            .padding(.trailing, CGFloat(iconPaddingRight))
         } else {
             // Default bell icon
             defaultIcon
@@ -173,6 +195,75 @@ struct BlueShiftSlideBannerSwiftUIView: View {
             return CGFloat(radius.floatValue)
         }
         return 0.0
+    }
+    
+    // MARK: - Dynamic Height Calculation
+    
+    /// Calculate banner minimum height
+    /// Matches UIKit logic from BlueShiftNotificationSlideBannerViewController.m lines 192-218
+    private var bannerMinHeight: CGFloat {
+        // If templateStyle.height is explicitly set and > 0, use it as fixed height
+        if viewModel.notification.templateStyle.height > 0 {
+            return CGFloat(viewModel.notification.templateStyle.height)
+        }
+        
+        // Otherwise, use minimum height
+        // Minimum height constant from UIKit: kSlideInInAppNotificationMinimumHeight = 50.0
+        let minimumHeight: CGFloat = 50.0
+        let iconHeight: CGFloat = 50.0 // kInAppNotificationModalIconHeight
+        
+        // Check if we have an icon (FontAwesome or image)
+        let hasIcon = (viewModel.notification.notificationContent.icon != nil &&
+                      !viewModel.notification.notificationContent.icon!.isEmpty) ||
+                     viewModel.iconImageURL != nil
+        
+        if hasIcon {
+            return max(iconHeight + CGFloat(iconPaddingTop) + CGFloat(iconPaddingBottom), minimumHeight)
+        } else {
+            return minimumHeight
+        }
+    }
+    
+    // MARK: - Padding Properties
+    
+    /// Icon padding - top
+    private var iconPaddingTop: Float {
+        viewModel.notification.contentStyle.iconPadding.top
+    }
+    
+    /// Icon padding - bottom
+    private var iconPaddingBottom: Float {
+        viewModel.notification.contentStyle.iconPadding.bottom
+    }
+    
+    /// Icon padding - left
+    private var iconPaddingLeft: Float {
+        viewModel.notification.contentStyle.iconPadding.left
+    }
+    
+    /// Icon padding - right
+    private var iconPaddingRight: Float {
+        viewModel.notification.contentStyle.iconPadding.right
+    }
+    
+    /// Message padding - top
+    private var messagePaddingTop: Float {
+        viewModel.notification.contentStyle.messagePadding.top
+    }
+    
+    /// Message padding - bottom
+    private var messagePaddingBottom: Float {
+        viewModel.notification.contentStyle.messagePadding.bottom
+    }
+    
+    /// Message padding - left
+    private var messagePaddingLeft: Float {
+        viewModel.notification.contentStyle.messagePadding.left
+    }
+    
+    /// Message padding - right
+    private var messagePaddingRight: Float {
+        viewModel.notification.contentStyle.messagePadding.right
     }
     
     // MARK: - Swipe Gesture

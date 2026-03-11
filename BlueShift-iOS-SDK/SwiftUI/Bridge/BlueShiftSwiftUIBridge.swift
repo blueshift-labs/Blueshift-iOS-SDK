@@ -28,6 +28,17 @@ public class BlueShiftSwiftUIBridge: NSObject {
     }
     
     /// Render an in-app notification using SwiftUI
+    ///
+    /// **Image pre-download flow (matches UIKit):**
+    /// Before presenting the SwiftUI view, this method downloads all required images
+    /// into `BlueShiftRequestOperationManager.sdkCachedData` (NSCache).
+    /// This mirrors the UIKit flow in `BlueShiftInAppNotificationManager.m`:
+    /// - `processSlideInBannerNotification:` (lines 258-288)
+    /// - `processModalNotification:` (lines 290-319)
+    ///
+    /// Once cached, `RemoteImageView` reads from cache synchronously via
+    /// `getCachedDataForURL:`, matching UIKit's `loadImageFromURL:forImageView:`.
+    ///
     /// - Parameters:
     ///   - notification: The notification to render
     ///   - onDismiss: Callback when notification is dismissed
@@ -35,9 +46,59 @@ public class BlueShiftSwiftUIBridge: NSObject {
     @MainActor @objc public func renderInApp(notification: BlueShiftInAppNotification,
                                   onDismiss: @escaping () -> Void,
                                   onAction: @escaping (String?) -> Void) {
-        presentSwiftUIView(notification: notification,
-                           onDismiss: onDismiss,
-                           onAction: onAction)
+        // Pre-download images before presenting (matches UIKit implementation)
+        // See BlueShiftInAppNotificationManager.m lines 264-287
+        let hasIconImage = notification.notificationContent.iconImage != nil &&
+                          !notification.notificationContent.iconImage!.isEmpty
+        let hasBackgroundImage = notification.templateStyle.backgroundImage != nil &&
+                                !notification.templateStyle.backgroundImage!.isEmpty
+        let hasBannerImage = notification.notificationContent.banner != nil &&
+                            !notification.notificationContent.banner!.isEmpty
+        
+        let manager = BlueShiftRequestOperationManager.shared()
+        
+        if hasIconImage || hasBackgroundImage || hasBannerImage {
+            let group = DispatchGroup()
+            
+            // Download icon image if present (slide-in banner)
+            if hasIconImage, let iconURLString = notification.notificationContent.iconImage,
+               let iconURL = URL(string: iconURLString) {
+                group.enter()
+                manager.downloadData(for: iconURL, shouldCache: true) { success, data, error in
+                    group.leave()
+                }
+            }
+            
+            // Download background image if present
+            if hasBackgroundImage, let bgURLString = notification.templateStyle.backgroundImage,
+               let bgURL = URL(string: bgURLString) {
+                group.enter()
+                manager.downloadData(for: bgURL, shouldCache: true) { success, data, error in
+                    group.leave()
+                }
+            }
+            
+            // Download banner image if present (modal)
+            if hasBannerImage, let bannerURLString = notification.notificationContent.banner,
+               let bannerURL = URL(string: bannerURLString) {
+                group.enter()
+                manager.downloadData(for: bannerURL, shouldCache: true) { success, data, error in
+                    group.leave()
+                }
+            }
+            
+            // Present after all downloads complete
+            group.notify(queue: .main) { [weak self] in
+                self?.presentSwiftUIView(notification: notification,
+                                        onDismiss: onDismiss,
+                                        onAction: onAction)
+            }
+        } else {
+            // No images to download, present immediately
+            presentSwiftUIView(notification: notification,
+                              onDismiss: onDismiss,
+                              onAction: onAction)
+        }
     }
     
     /// Present the SwiftUI view in a hosting controller
@@ -99,4 +160,3 @@ public class BlueShiftSwiftUIBridge: NSObject {
         presenter.present(hostingController, animated: true, completion: nil)
     }
 }
-
