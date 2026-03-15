@@ -13,7 +13,6 @@
 #import <UIKit/UIKit.h>
 #import "BlueShift.h"
 #import "BlueShiftPushDelegate.h"
-#import "BlueShiftPushParamDelegate.h"
 #import <CoreData/CoreData.h>
 #import "BlueShiftTrackEvents.h"
 #import "BlueshiftEventAnalyticsHelper.h"
@@ -21,12 +20,9 @@
 
 @interface BlueShiftAppDelegate : NSObject<UIApplicationDelegate>
 
-@property NSDictionary * _Nullable userInfo DEPRECATED_MSG_ATTRIBUTE("This property will be removed in upcoming releases");
-@property NSDictionary * _Nullable pushAlertDictionary DEPRECATED_MSG_ATTRIBUTE("This property will be removed in upcoming releases");
 @property NSObject<UIApplicationDelegate> * _Nonnull mainAppDelegate;
 @property NSObject<UNUserNotificationCenterDelegate> * _Nonnull userNotificationDelegate API_AVAILABLE(ios(10.0));
 @property (nonatomic, weak) id<BlueShiftPushDelegate> _Nullable blueShiftPushDelegate;
-@property (nonatomic, weak) id<BlueShiftPushParamDelegate> _Nullable blueShiftPushParamDelegate DEPRECATED_MSG_ATTRIBUTE("Use BlueShiftPushDelegate to get the push notification callbacks.");
 @property (nonatomic, weak) id<BlueshiftUniversalLinksDelegate> _Nullable blueshiftUniversalLinksDelegate;
 
 - (NSURL *_Nullable)applicationDocumentsDirectory;
@@ -56,8 +52,6 @@
 /// Call this method inside `application: didReceiveRemoteNotification:` method of appDelegate. SDK will process the received push notification
 /// to perform required tasks.
 - (void)application:(UIApplication *_Nonnull)application handleRemoteNotification:(NSDictionary *_Nonnull)userInfo;
-
-- (void)application:(UIApplication *_Nonnull)application handleLocalNotification:(nonnull UNNotificationRequest *)notification API_AVAILABLE(ios(10.0)) DEPRECATED_MSG_ATTRIBUTE("Handle the notifications using the UNUserNotificationCenter.");
 
 /// Call this method inside `application:didReceiveRemoteNotification:fetchCompletionHandler` method of appDelegate. SDK will process the received push notification
 /// to perform required tasks.
@@ -111,12 +105,6 @@
 /// Open custom scheme urls
 /// @param deepLinkURL custom scheme url
 - (BOOL)openCustomSchemeDeepLink:(NSURL* _Nullable)deepLinkURL;
-
-// SceneDelegate lifecycle methods
-- (void)sceneWillEnterForeground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters foreground, this method will be removed in upcoming releases.");
-- (void)sceneDidEnterBackground:(UIScene* _Nullable)scene API_AVAILABLE(ios(13.0)) DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
-- (void)appDidEnterBackground:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app enters background, this method will be removed in upcoming releases.");
-- (void)appDidBecomeActive:(UIApplication *_Nonnull)application DEPRECATED_MSG_ATTRIBUTE("SDK now automatically detects if app becomes active, this method will be removed in upcoming releases.");
 
 @end
 #endif

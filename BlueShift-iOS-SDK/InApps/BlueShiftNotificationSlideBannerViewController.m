@@ -97,10 +97,6 @@
 
 - (void)showFromWindow:(BOOL)animated {
     if (!self.notification) return;
-    if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillAppear:)]) {
-        [[self inAppNotificationDelegate] inAppNotificationWillAppear:self.notification.notificationPayload];
-    }
-    
     [self createWindowAndPresent];
     void (^completionBlock)(void) = ^ {
         if (self.delegate && [self.delegate respondsToSelector:@selector(inAppDidShow:fromViewController:)]) {
@@ -118,10 +114,6 @@
 
 - (void)hideFromWindow:(BOOL)animated withDirection:(UISwipeGestureRecognizerDirection) direction {
     void (^completionBlock)(void) = ^ {
-        if (self.inAppNotificationDelegate && [self.inAppNotificationDelegate respondsToSelector:@selector(inAppNotificationWillDisappear:)]) {
-            [[self inAppNotificationDelegate] inAppNotificationWillDisappear : self.notification.notificationPayload];
-        }
-        
         [self.window setHidden:YES];
         [self.window removeFromSuperview];
         self.window = nil;
