@@ -152,6 +152,8 @@
 		CE86086E2F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */; };
 		CE86086F2F5EA29700E02013 /* BlueShiftInAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085C2F5EA29700E02013 /* BlueShiftInAppViewModel.swift */; };
 		CE8608822F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */; };
+		CE920D5B2F68015F001E5D02 /* BlueShiftHTMLWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */; };
+		CE920D5D2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -318,6 +320,8 @@
 		CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueShiftSwiftUI.h; sourceTree = "<group>"; };
 		CE8608642F5EA29700E02013 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftModalStyleProvider.swift; sourceTree = "<group>"; };
+		CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLWebView.swift; sourceTree = "<group>"; };
+		CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLSwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -595,6 +599,8 @@
 				CE86085F2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift */,
 				CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */,
 				CE8608612F5EA29700E02013 /* RemoteImageView.swift */,
+				CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */,
+				CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -886,11 +892,13 @@
 				9186B660271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.m in Sources */,
 				9186B630271ED9EF00D425AF /* BlueShift.m in Sources */,
 				9186B5F5271ED9EF00D425AF /* BlueShiftUserInfo.m in Sources */,
+				CE920D5B2F68015F001E5D02 /* BlueShiftHTMLWebView.swift in Sources */,
 				9186B669271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m in Sources */,
 				9186B666271ED9FB00D425AF /* BlueShiftInAppNotification.m in Sources */,
 				9186B61A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.m in Sources */,
 				CE8608822F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift in Sources */,
 				9186B5FC271ED9EF00D425AF /* BlueShiftRequestOperation.m in Sources */,
+				CE920D5D2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */,
 				91F36A812B6235E500CB5341 /* BlueshiftIntegrationSwizzle.m in Sources */,
 				9186B619271ED9EF00D425AF /* BlueShiftConfig.m in Sources */,
 				9186B609271ED9EF00D425AF /* BlueShiftDeviceData.m in Sources */,

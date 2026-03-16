@@ -36,6 +36,11 @@ public class BlueShiftSwiftUIBridge: NSObject {
     /// - `processSlideInBannerNotification:` (lines 258-288)
     /// - `processModalNotification:` (lines 290-319)
     ///
+    /// **HTML type exception:**
+    /// For HTML in-app notifications (BlueShiftInAppTypeHTML, rawValue 0),
+    /// image pre-download is skipped — matching UIKit's `processHTMLNotification:`
+    /// which does NOT pre-download images. The WKWebView handles its own resource loading.
+    ///
     /// Once cached, `RemoteImageView` reads from cache synchronously via
     /// `getCachedDataForURL:`, matching UIKit's `loadImageFromURL:forImageView:`.
     ///
@@ -46,6 +51,17 @@ public class BlueShiftSwiftUIBridge: NSObject {
     @MainActor @objc public func renderInApp(notification: BlueShiftInAppNotification,
                                   onDismiss: @escaping () -> Void,
                                   onAction: @escaping (String?) -> Void) {
+        
+        // For HTML type (rawValue 0), skip image pre-download and present immediately
+        // This matches UIKit's processHTMLNotification: which does NOT pre-download images
+        // The WKWebView handles its own resource loading internally
+        if notification.inAppType.rawValue == 0 { // BlueShiftInAppTypeHTML
+            presentSwiftUIView(notification: notification,
+                              onDismiss: onDismiss,
+                              onAction: onAction)
+            return
+        }
+        
         // Pre-download images before presenting (matches UIKit implementation)
         // See BlueShiftInAppNotificationManager.m lines 264-287
         let hasIconImage = notification.notificationContent.iconImage != nil &&

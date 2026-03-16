@@ -2,14 +2,14 @@
 //  BlueShiftInAppViewModel.swift
 //  BlueShift-iOS-SDK
 //
-//  Simple view model for banner notifications
+//  Simple view model for in-app notifications
 //
 
 import Foundation
 import SwiftUI
 import Combine
 
-/// ViewModel for in-app notifications (banner only)
+/// ViewModel for in-app notifications (banner, modal, and HTML)
 @available(iOS 13.0, *)
 @MainActor
 public class BlueShiftInAppViewModel: ObservableObject {
@@ -100,5 +100,33 @@ public class BlueShiftInAppViewModel: ObservableObject {
         }
         return URL(string: iconImageString)
     }
+    
+    // MARK: - HTML In-App Properties
+    
+    /// Whether this is an HTML type notification
+    /// Matches UIKit's BlueShiftInAppTypeHTML (rawValue 0)
+    public var isHTMLType: Bool {
+        return notification.inAppType.rawValue == 0 // BlueShiftInAppTypeHTML
+    }
+    
+    /// Get the raw HTML content string
+    /// Used by BlueShiftHTMLSwiftUIView to load HTML content
+    /// Matches UIKit's notification.notificationContent.content
+    public var htmlContent: String? {
+        return notification.notificationContent.content
+    }
+    
+    /// Get the URL string for URL-based HTML notifications
+    /// Used by BlueShiftHTMLSwiftUIView to load URL content
+    /// Matches UIKit's notification.notificationContent.url
+    public var htmlURL: String? {
+        return notification.notificationContent.url
+    }
+    
+    /// Whether the HTML notification has valid content to display
+    /// Matches UIKit's check in `show:` method:
+    /// `if (!self.notification.notificationContent.content) return;`
+    public var hasHTMLContent: Bool {
+        return (htmlContent != nil && !htmlContent!.isEmpty) || (htmlURL != nil && !htmlURL!.isEmpty)
+    }
 }
-

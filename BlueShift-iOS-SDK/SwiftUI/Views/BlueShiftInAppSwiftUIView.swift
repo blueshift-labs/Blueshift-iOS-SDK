@@ -16,8 +16,12 @@ public struct BlueShiftInAppSwiftUIView: View {
     public var body: some View {
         Group {
             // Use raw values from BlueShiftInAppType enum
-            // BlueShiftInAppTypeModal = 1, BlueShiftNotificationSlideBanner = 2
+            // BlueShiftInAppTypeHTML = 0, BlueShiftInAppTypeModal = 1, BlueShiftNotificationSlideBanner = 2
             switch viewModel.notification.inAppType.rawValue {
+            case 0: // BlueShiftInAppTypeHTML
+                // Show HTML web view notification
+                BlueShiftHTMLSwiftUIView(viewModel: viewModel)
+                
             case 1: // BlueShiftInAppTypeModal
                 // Show modal view
                 BlueShiftModalSwiftUIView(viewModel: viewModel)
