@@ -115,12 +115,10 @@ struct BlueShiftModalSwiftUIView: View {
             .opacity(opacity)
         }
         .onAppear {
-            // Trigger Font Awesome download using Objective-C helper
+            // Load and register Font Awesome with Core Text if needed
             if UIFont(name: "FontAwesome5Free-Solid", size: 20) == nil {
-                BlueShiftInAppNotificationHelper.downloadFontAwesomeFile {
-                    DispatchQueue.main.async {
-                        self.fontLoaded = true
-                    }
+                BlueShiftFontAwesomeHelper.loadFontAwesome { success in
+                    self.fontLoaded = success
                 }
             }
             animateIn()

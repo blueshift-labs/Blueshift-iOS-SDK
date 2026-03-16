@@ -135,6 +135,11 @@ public class BlueShiftSwiftUIBridge: NSObject {
             existing.dismiss(animated: false, completion: nil)
         }
         
+        // Eagerly register Font Awesome with Core Text before presenting
+        // This ensures the font is available for close buttons and icons in all view types
+        // Mirrors UIKit's createFontFile: in BlueShiftNotificationViewController.m
+        BlueShiftFontAwesomeHelper.loadFontAwesome { _ in }
+        
         // Create view model
         let viewModel = BlueShiftInAppViewModel(
             notification: notification,

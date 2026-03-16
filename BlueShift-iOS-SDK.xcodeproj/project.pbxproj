@@ -154,6 +154,7 @@
 		CE8608822F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */; };
 		CE920D5B2F68015F001E5D02 /* BlueShiftHTMLWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */; };
 		CE920D5D2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */; };
+		CE920D5F2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5E2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -322,6 +323,7 @@
 		CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftModalStyleProvider.swift; sourceTree = "<group>"; };
 		CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLWebView.swift; sourceTree = "<group>"; };
 		CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLSwiftUIView.swift; sourceTree = "<group>"; };
+		CE920D5E2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftFontAwesomeHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -579,6 +581,7 @@
 				CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */,
 				CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */,
 				CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */,
+				CE920D5E2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift */,
 			);
 			path = Bridge;
 			sourceTree = "<group>";
@@ -878,6 +881,7 @@
 				9186B658271ED9FB00D425AF /* BlueShiftNotificationCloseButton.m in Sources */,
 				9186B638271ED9EF00D425AF /* HttpRequestOperationEntity.m in Sources */,
 				9186B634271ED9EF00D425AF /* BlueShiftBatchRequestOperation.m in Sources */,
+				CE920D5F2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift in Sources */,
 				9186B65D271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.m in Sources */,
 				9186B663271ED9FB00D425AF /* BlueShiftNotificationViewController.m in Sources */,
 				9186B611271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.m in Sources */,
