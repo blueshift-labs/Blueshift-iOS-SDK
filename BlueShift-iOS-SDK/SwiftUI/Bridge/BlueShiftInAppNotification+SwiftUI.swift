@@ -7,6 +7,9 @@
 
 import Foundation
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 // Simple extensions without enum references
 @available(iOS 13.0, *)

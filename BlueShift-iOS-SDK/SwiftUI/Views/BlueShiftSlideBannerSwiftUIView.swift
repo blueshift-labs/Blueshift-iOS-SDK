@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Slide-in banner view for in-app notifications
 @available(iOS 13.0, *)

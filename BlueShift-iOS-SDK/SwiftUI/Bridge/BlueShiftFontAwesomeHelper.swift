@@ -9,6 +9,9 @@ import Foundation
 import UIKit
 import SwiftUI
 import CoreText
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Helper class to manage Font Awesome font loading for SwiftUI views
 @available(iOS 13.0, *)

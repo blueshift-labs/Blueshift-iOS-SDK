@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Simple modal view for in-app notifications - shows title and message
 @available(iOS 13.0, *)

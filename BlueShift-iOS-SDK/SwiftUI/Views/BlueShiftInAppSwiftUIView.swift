@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Main SwiftUI view - routes to appropriate notification view based on type
 @available(iOS 13.0, *)

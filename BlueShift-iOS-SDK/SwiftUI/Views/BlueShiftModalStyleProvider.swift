@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Provides styling and configuration properties for modal in-app notifications
 /// Follows Single Responsibility Principle - handles only styling logic

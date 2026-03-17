@@ -8,6 +8,9 @@
 
 import SwiftUI
 import UIKit
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Remote image view that loads images from SDK cache (iOS 13+).
 ///

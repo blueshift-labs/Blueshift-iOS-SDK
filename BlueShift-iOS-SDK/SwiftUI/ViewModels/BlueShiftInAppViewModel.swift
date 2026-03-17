@@ -8,6 +8,9 @@
 import Foundation
 import SwiftUI
 import Combine
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// ViewModel for in-app notifications (banner, modal, and HTML)
 @available(iOS 13.0, *)

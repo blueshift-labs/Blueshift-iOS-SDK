@@ -8,6 +8,9 @@
 
 import SwiftUI
 import WebKit
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// UIViewRepresentable wrapper around WKWebView for HTML in-app notifications.
 ///

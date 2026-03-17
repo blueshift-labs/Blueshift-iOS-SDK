@@ -8,6 +8,9 @@
 
 import Foundation
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Bridge class that connects Objective-C SDK to SwiftUI rendering
 /// This class is the main entry point for SwiftUI-based in-app notifications

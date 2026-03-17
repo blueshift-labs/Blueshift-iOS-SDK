@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// Protocol that defines the interface for rendering in-app notifications
 /// Both UIKit and SwiftUI renderers conform to this protocol

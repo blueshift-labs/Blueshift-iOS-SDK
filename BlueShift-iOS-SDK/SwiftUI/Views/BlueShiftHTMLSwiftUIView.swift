@@ -17,6 +17,9 @@
 //
 
 import SwiftUI
+#if canImport(BlueShift_iOS_SDK)
+import BlueShift_iOS_SDK
+#endif
 
 /// SwiftUI view for HTML in-app notifications
 ///
