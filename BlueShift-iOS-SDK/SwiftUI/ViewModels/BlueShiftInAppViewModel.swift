@@ -27,8 +27,12 @@ public class BlueShiftInAppViewModel: ObservableObject {
     
     // MARK: - Callbacks
     
+    /// Callback when notification is shown — matches UIKit's inAppDidShow: delegate
+    let onShow: () -> Void
+    
     /// Callback when notification is dismissed
-    let onDismiss: () -> Void
+    /// The String? parameter carries the dismiss key: "swipe", "tap_outside", or nil for close button
+    let onDismiss: (String?) -> Void
     
     /// Callback when an action is triggered
     let onAction: (String?) -> Void
@@ -36,17 +40,28 @@ public class BlueShiftInAppViewModel: ObservableObject {
     // MARK: - Initialization
     
     public init(notification: BlueShiftInAppNotification,
-                onDismiss: @escaping () -> Void,
+                onShow: @escaping () -> Void,
+                onDismiss: @escaping (String?) -> Void,
                 onAction: @escaping (String?) -> Void) {
         self.notification = notification
+        self.onShow = onShow
         self.onDismiss = onDismiss
         self.onAction = onAction
     }
     
     // MARK: - Actions
     
+    /// Notify that the notification has been shown.
+    /// Call from each view's .onAppear — matches UIKit's inAppDidShow: delegate which fires
+    /// trackInAppNotificationShowingWithParameter: (a=open) and updateInAppNotificationAsDisplayed:
+    public func notifyDidShow() {
+        onShow()
+    }
+    
     /// Dismiss the notification
-    public func dismiss() {
+    /// - Parameter key: The dismiss reason key — "swipe", "tap_outside", or nil for close button.
+    ///   Matches UIKit's kNotificationClickElementKey values used in sendActionEventAnalytics:
+    public func dismiss(key: String? = nil) {
         let onDismiss = self.onDismiss
         withAnimation {
             isPresented = false
@@ -54,15 +69,26 @@ public class BlueShiftInAppViewModel: ObservableObject {
         
         // Delay callback to allow animation to complete
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            onDismiss()
+            onDismiss(key)
         }
     }
     
     /// Handle action button tap
+    /// Passes the URL to the actionBlock in the manager which handles:
+    /// - a=click tracking (real URL) or a=dismiss tracking (nil/empty/dismiss URL)
+    /// - URL opening
+    /// - dismiss housekeeping (currentNotificationController = nil, timer restart)
+    /// Does NOT call dismiss() to avoid double-firing dismissBlock (a=dismiss)
     public func handleAction(url: String?) {
         let onAction = self.onAction
-        onAction(url)
-        dismiss()
+        // Animate out the view
+        withAnimation {
+            isPresented = false
+        }
+        // Delay to allow animation, then fire actionBlock which handles everything
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            onAction(url)
+        }
     }
     
     // MARK: - Computed Properties

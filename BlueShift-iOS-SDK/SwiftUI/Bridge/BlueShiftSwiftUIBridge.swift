@@ -49,10 +49,12 @@ public class BlueShiftSwiftUIBridge: NSObject {
     ///
     /// - Parameters:
     ///   - notification: The notification to render
+    ///   - onShow: Callback when notification is shown — matches UIKit's inAppDidShow: delegate
     ///   - onDismiss: Callback when notification is dismissed
     ///   - onAction: Callback when an action is triggered
     @MainActor @objc public func renderInApp(notification: BlueShiftInAppNotification,
-                                  onDismiss: @escaping () -> Void,
+                                  onShow: @escaping () -> Void,
+                                  onDismiss: @escaping (String?) -> Void,
                                   onAction: @escaping (String?) -> Void) {
         
         // For HTML type (rawValue 0), skip image pre-download and present immediately
@@ -60,8 +62,9 @@ public class BlueShiftSwiftUIBridge: NSObject {
         // The WKWebView handles its own resource loading internally
         if notification.inAppType.rawValue == 0 { // BlueShiftInAppTypeHTML
             presentSwiftUIView(notification: notification,
-                              onDismiss: onDismiss,
-                              onAction: onAction)
+                               onShow: onShow,
+                               onDismiss: onDismiss,
+                               onAction: onAction)
             return
         }
         
@@ -109,20 +112,23 @@ public class BlueShiftSwiftUIBridge: NSObject {
             // Present after all downloads complete
             group.notify(queue: .main) { [weak self] in
                 self?.presentSwiftUIView(notification: notification,
+                                        onShow: onShow,
                                         onDismiss: onDismiss,
                                         onAction: onAction)
             }
         } else {
             // No images to download, present immediately
             presentSwiftUIView(notification: notification,
-                              onDismiss: onDismiss,
-                              onAction: onAction)
+                               onShow: onShow,
+                               onDismiss: onDismiss,
+                               onAction: onAction)
         }
     }
     
     /// Present the SwiftUI view in a hosting controller
     @MainActor private func presentSwiftUIView(notification: BlueShiftInAppNotification,
-                                    onDismiss: @escaping () -> Void,
+                                    onShow: @escaping () -> Void,
+                                    onDismiss: @escaping (String?) -> Void,
                                     onAction: @escaping (String?) -> Void) {
         
         // Get the key window
@@ -146,9 +152,10 @@ public class BlueShiftSwiftUIBridge: NSObject {
         // Create view model
         let viewModel = BlueShiftInAppViewModel(
             notification: notification,
-            onDismiss: { [weak self] in
+            onShow: onShow,
+            onDismiss: { [weak self] key in
                 self?.currentHostingController?.dismiss(animated: true) {
-                    onDismiss()
+                    onDismiss(key)
                 }
                 self?.currentHostingController = nil
             },

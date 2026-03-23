@@ -180,11 +180,18 @@
           displayOnScreen:(NSString*)displayOnScreen API_AVAILABLE(ios(13.0)) {
     
     // Try multiple module name variations for the Swift class
+    // 1. CocoaPods (same module as core SDK, no module prefix needed)
     Class bridgeClass = NSClassFromString(@"BlueShiftSwiftUIBridge");
     if (!bridgeClass) {
+        // 2. SPM / Carthage (separate BlueShift_iOS_SDK_SwiftUI module)
+        bridgeClass = NSClassFromString(@"BlueShift_iOS_SDK_SwiftUI.BlueShiftSwiftUIBridge");
+    }
+    if (!bridgeClass) {
+        // 3. Legacy SPM (when Swift was in core module)
         bridgeClass = NSClassFromString(@"BlueShift_iOS_SDK.BlueShiftSwiftUIBridge");
     }
     if (!bridgeClass) {
+        // 4. Edge case fallback
         bridgeClass = NSClassFromString(@"BlueShift_iOS_SDK_BlueShift_iOS_SDK.BlueShiftSwiftUIBridge");
     }
     
@@ -200,8 +207,35 @@
             __weak typeof(self) weakSelf = self;
             
             // Create blocks for callbacks
-            void (^dismissBlock)(void) = ^{
+            
+            // showBlock — matches UIKit's inAppDidShow: delegate
+            // Fires a=open tracking and marks in-app as displayed (on show, not on dismiss)
+            void (^showBlock)(void) = ^{
+                NSMutableDictionary *mutablePayload = [notification.notificationPayload mutableCopy];
+                // Set opened_by attribute — matches UIKit's inAppDidShow: lines 435-438
+                if (notification.isFromInbox) {
+                    mutablePayload[kBSTrackingOpenedBy] = kBSTrackingOpenedByUser;
+                } else {
+                    mutablePayload[kBSTrackingOpenedBy] = kBSTrackingOpenedByPrefetch;
+                }
+                // Track open event — matches UIKit's trackInAppNotificationShowingWithParameter:
+                [[BlueShift sharedInstance] trackInAppNotificationShowingWithParameter:mutablePayload
+                                                                    canBacthThisEvent:NO];
+                // Mark as displayed on show — matches UIKit's inAppDidShow: line 441
                 [weakSelf updateInAppNotificationAsDisplayed:notification.notificationPayload];
+            };
+            
+            // dismissKey matches UIKit's kNotificationClickElementKey values: "swipe", "tap_outside", or nil for close button
+            void (^dismissBlock)(NSString *) = ^(NSString *dismissKey) {
+                // Build payload with dismiss key — matches UIKit's sendActionEventAnalytics:forActionType:
+                NSMutableDictionary *payload = [notification.notificationPayload mutableCopy];
+                if (dismissKey) {
+                    payload[kNotificationClickElementKey] = dismissKey;
+                }
+                // Track dismiss event — matches UIKit's trackInAppNotificationDismissWithParameter:
+                [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:payload
+                                                                    canBacthThisEvent:NO];
+                // updateInAppNotificationAsDisplayed: moved to showBlock (called on show, not dismiss)
                 weakSelf.currentNotificationController = nil;
                 if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
                     [weakSelf startInAppMessageFetchTimer];
@@ -209,20 +243,72 @@
             };
             
             void (^actionBlock)(NSString *) = ^(NSString *actionURL) {
-                // Just dismiss for now - deep link handling can be added later
+                NSMutableDictionary *payload = [notification.notificationPayload mutableCopy];
+                BOOL isDismissURL = (actionURL == nil || actionURL.length == 0 ||
+                                     [actionURL isEqualToString:kInAppNotificationDismissDeepLinkURL]);
+                
+                // Check for push permission request URL — matches UIKit's processInAppActionForDeepLink:
+                if ([actionURL isEqualToString:kInAppNotificationReqPNPermissionDeepLinkURL]) {
+                    // Handle push permission request — matches UIKit's handleRequestPushPermissionDeepLink
+                    if (@available(iOS 10.0, *)) {
+                        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+                            if ([settings authorizationStatus] == UNAuthorizationStatusDenied) {
+                                // User has denied permission - show alert to go to Settings
+                                // Note: For full parity, implement showEnablePushFromSettingsAlert logic here
+                                // For now, just log
+                                [BlueshiftLog logInfo:@"Push permission denied. User needs to enable from Settings." withDetails:nil methodName:nil];
+                            } else if ([settings authorizationStatus] == UNAuthorizationStatusNotDetermined) {
+                                // Permission not asked yet - show permission dialog
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    [[BlueShift sharedInstance].appDelegate registerForNotification];
+                                });
+                            }
+                        }];
+                    }
+                    // Track the push permission request action
+                    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:payload
+                                                                                 canBacthThisEvent:NO];
+                }
+                else if (isDismissURL) {
+                    // nil/empty/blueshift://dismiss → a=dismiss (matches UIKit's BlueshiftInAppDismissAction)
+                    [[BlueShift sharedInstance] trackInAppNotificationDismissWithParameter:payload
+                                                                        canBacthThisEvent:NO];
+                } else {
+                    // Real URL → a=click (matches UIKit's BlueshiftInAppClickAction)
+                    NSString *encodedURL = [actionURL stringByAddingPercentEncodingWithAllowedCharacters:
+                                            [NSCharacterSet URLQueryAllowedCharacterSet]];
+                    if (encodedURL) {
+                        payload[kNotificationURLElementKey] = encodedURL;
+                    }
+                    [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:payload
+                                                                             canBacthThisEvent:NO];
+                    // Open the URL — matches UIKit's handleDeeplinkForInAppNotification:
+                    NSURL *url = [NSURL URLWithString:actionURL];
+                    if (url) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+                        });
+                    }
+                }
+                // Dismiss housekeeping — matches UIKit's inAppDidDismiss:
+                weakSelf.currentNotificationController = nil;
+                if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
+                    [weakSelf startInAppMessageFetchTimer];
+                }
                 [BlueshiftLog logInfo:@"In-app action tapped" withDetails:actionURL methodName:nil];
             };
             
             // Call the Swift bridge method using performSelector
-            SEL renderSelector = NSSelectorFromString(@"renderInAppWithNotification:onDismiss:onAction:");
+            SEL renderSelector = NSSelectorFromString(@"renderInAppWithNotification:onShow:onDismiss:onAction:");
             if ([bridge respondsToSelector:renderSelector]) {
                 NSMethodSignature *signature = [bridge methodSignatureForSelector:renderSelector];
                 NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
                 [invocation setTarget:bridge];
                 [invocation setSelector:renderSelector];
                 [invocation setArgument:&notification atIndex:2];
-                [invocation setArgument:&dismissBlock atIndex:3];
-                [invocation setArgument:&actionBlock atIndex:4];
+                [invocation setArgument:&showBlock    atIndex:3];
+                [invocation setArgument:&dismissBlock atIndex:4];
+                [invocation setArgument:&actionBlock  atIndex:5];
                 [invocation invoke];
                 
                 [BlueshiftLog logInfo:@"Displaying in-app notification using SwiftUI" withDetails:notification.notificationPayload[@"bsft_message_uuid"] methodName:nil];

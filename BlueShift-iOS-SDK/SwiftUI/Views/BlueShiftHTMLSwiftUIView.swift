@@ -89,6 +89,8 @@ struct BlueShiftHTMLSwiftUIView: View {
                 isContentLoaded = true
                 animateIn()
             }
+            // Notify shown — matches UIKit's inAppDidShow: → trackInAppNotificationShowingWithParameter: (a=open)
+            viewModel.notifyDidShow()
         }
     }
     

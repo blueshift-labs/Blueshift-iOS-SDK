@@ -25,7 +25,7 @@ struct BlueShiftSlideBannerSwiftUIView: View {
                 .edgesIgnoringSafeArea(.all)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    dismissBanner()
+                    dismissBanner(key: "tap_outside")
                 }
             
             // Position banner based on templateStyle.position
@@ -52,6 +52,8 @@ struct BlueShiftSlideBannerSwiftUIView: View {
         }
         .onAppear {
             animateIn()
+            // Notify shown — matches UIKit's inAppDidShow: → trackInAppNotificationShowingWithParameter: (a=open)
+            viewModel.notifyDidShow()
         }
     }
     
@@ -282,9 +284,9 @@ struct BlueShiftSlideBannerSwiftUIView: View {
                 
                 if abs(value.translation.width) > swipeThreshold || abs(velocity) > 50 {
                     if value.translation.width < 0 {
-                        dismissBanner(direction: .left)
+                        dismissBanner(direction: .left, key: "swipe")
                     } else {
-                        dismissBanner(direction: .right)
+                        dismissBanner(direction: .right, key: "swipe")
                     }
                 } else {
                     withAnimation(.spring()) {
@@ -306,7 +308,7 @@ struct BlueShiftSlideBannerSwiftUIView: View {
         case left, right
     }
     
-    private func dismissBanner(direction: SwipeDirection = .left) {
+    private func dismissBanner(direction: SwipeDirection = .left, key: String? = nil) {
         let targetOffset: CGFloat
         
         switch direction {
@@ -322,7 +324,7 @@ struct BlueShiftSlideBannerSwiftUIView: View {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            viewModel.dismiss()
+            viewModel.dismiss(key: key)
         }
     }
 }

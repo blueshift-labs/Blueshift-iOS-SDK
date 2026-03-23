@@ -48,7 +48,8 @@ struct BlueShiftInAppSwiftUIView_Previews: PreviewProvider {
         let notification = BlueShiftInAppNotification()
         let viewModel = BlueShiftInAppViewModel(
             notification: notification,
-            onDismiss: {},
+            onShow: {},
+            onDismiss: { _ in },
             onAction: { _ in }
         )
         

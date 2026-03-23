@@ -141,20 +141,24 @@
 		91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470622728346F00A0E84C /* BlueShift_iOS_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		CE8608662F5EA29700E02013 /* BlueShiftSwiftUI.h in Headers */ = {isa = PBXBuildFile; fileRef = CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */; };
 		CE8608672F5EA29700E02013 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = CE8608642F5EA29700E02013 /* README.md */; };
-		CE8608682F5EA29700E02013 /* RemoteImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608612F5EA29700E02013 /* RemoteImageView.swift */; };
-		CE8608692F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */; };
-		CE86086A2F5EA29700E02013 /* BlueShiftInAppRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */; };
-		CE86086B2F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */; };
-		CE86086C2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085F2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift */; };
-		CE86086D2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085E2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift */; };
-		CE86086E2F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */; };
-		CE86086F2F5EA29700E02013 /* BlueShiftInAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085C2F5EA29700E02013 /* BlueShiftInAppViewModel.swift */; };
-		CE8608822F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */; };
-		CE920D5B2F68015F001E5D02 /* BlueShiftHTMLWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */; };
-		CE920D5D2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */; };
-		CE920D5F2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5E2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift */; };
+		CE920DBE2F696AD2001E5D02 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */; };
+		CE920DBF2F696AD9001E5D02 /* BlueShiftInAppRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */; };
+		CE920DC02F696ADE001E5D02 /* BlueShiftSwiftUIBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */; };
+		CE920DC12F696AE6001E5D02 /* BlueShiftFontAwesomeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5E2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift */; };
+		CE920DC22F696AED001E5D02 /* BlueShiftInAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085C2F5EA29700E02013 /* BlueShiftInAppViewModel.swift */; };
+		CE920DC32F696AF3001E5D02 /* BlueShiftModalStyleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */; };
+		CE920DC42F696AFA001E5D02 /* BlueShiftInAppSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085E2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift */; };
+		CE920DC52F696B00001E5D02 /* BlueShiftModalSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085F2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift */; };
+		CE920DC62F696B06001E5D02 /* BlueShiftSlideBannerSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */; };
+		CE920DC72F696B0C001E5D02 /* RemoteImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608612F5EA29700E02013 /* RemoteImageView.swift */; };
+		CE920DC82F696B11001E5D02 /* BlueShiftHTMLWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */; };
+		CE920DC92F696B17001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */; };
+		CE920DCA2F696B25001E5D02 /* BlueShiftSwiftUI.h in Headers */ = {isa = PBXBuildFile; fileRef = CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE920DCB2F696B89001E5D02 /* BlueShift_iOS_SDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */; platformFilter = ios; };
+		CE920DCC2F696B89001E5D02 /* BlueShift_iOS_SDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CE920DD12F696BC6001E5D02 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE920DD02F696BC6001E5D02 /* SwiftUI.framework */; };
+		CE920DD32F696BCC001E5D02 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE920DD22F696BCC001E5D02 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -165,7 +169,28 @@
 			remoteGlobalIDString = 9186B576271ED94600D425AF;
 			remoteInfo = "BlueShift-iOS-SDK";
 		};
+		CE920DCD2F696B89001E5D02 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9186B56E271ED94600D425AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9186B576271ED94600D425AF;
+			remoteInfo = "BlueShift-iOS-SDK";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CE920DCF2F696B89001E5D02 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CE920DCC2F696B89001E5D02 /* BlueShift_iOS_SDK.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		910057582949DCA4004D2DCF /* BlueshiftInboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueshiftInboxManager.m; sourceTree = "<group>"; };
@@ -324,6 +349,9 @@
 		CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLWebView.swift; sourceTree = "<group>"; };
 		CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLSwiftUIView.swift; sourceTree = "<group>"; };
 		CE920D5E2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftFontAwesomeHelper.swift; sourceTree = "<group>"; };
+		CE920DB52F696A94001E5D02 /* BlueShift_iOS_SDK_SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlueShift_iOS_SDK_SwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE920DD02F696BC6001E5D02 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/iOSSupport/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		CE920DD22F696BCC001E5D02 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/iOSSupport/System/Library/PrivateFrameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -351,6 +379,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE920DB22F696A94001E5D02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE920DD12F696BC6001E5D02 /* SwiftUI.framework in Frameworks */,
+				CE920DCB2F696B89001E5D02 /* BlueShift_iOS_SDK.framework in Frameworks */,
+				CE920DD32F696BCC001E5D02 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +460,7 @@
 				9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */,
 				9186B594271ED96D00D425AF /* BlueShift_iOS_Extension_SDK.framework */,
 				917EAF4F2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests.xctest */,
+				CE920DB52F696A94001E5D02 /* BlueShift_iOS_SDK_SwiftUI.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -566,6 +605,8 @@
 		9186B6A3271EDD5A00D425AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CE920DD22F696BCC001E5D02 /* WebKit.framework */,
+				CE920DD02F696BC6001E5D02 /* SwiftUI.framework */,
 				912321B227285D7B0057DA7A /* WebKit.framework */,
 				912321B027285D630057DA7A /* UserNotifications.framework */,
 				912321AE27285D0D0057DA7A /* CoreTelephony.framework */,
@@ -648,7 +689,6 @@
 				9186B622271ED9EF00D425AF /* BlueShiftSubscription.h in Headers */,
 				9186B62A271ED9EF00D425AF /* BlueShiftSubscriptionState.h in Headers */,
 				9186B626271ED9EF00D425AF /* BlueShiftTrackEvents.h in Headers */,
-				CE8608662F5EA29700E02013 /* BlueShiftSwiftUI.h in Headers */,
 				9186B613271ED9EF00D425AF /* BlueshiftUniversalLinksDelegate.h in Headers */,
 				9186B614271ED9EF00D425AF /* BlueShiftUserInfo.h in Headers */,
 				9186B604271ED9EF00D425AF /* BlueShiftPushParamDelegate.h in Headers */,
@@ -709,6 +749,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE920DB02F696A94001E5D02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE920DCA2F696B25001E5D02 /* BlueShiftSwiftUI.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -766,6 +814,28 @@
 			productReference = 9186B594271ED96D00D425AF /* BlueShift_iOS_Extension_SDK.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		CE920DB42F696A94001E5D02 /* BlueShift-iOS-SDK-SwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE920DBB2F696A94001E5D02 /* Build configuration list for PBXNativeTarget "BlueShift-iOS-SDK-SwiftUI" */;
+			buildPhases = (
+				CE920DB02F696A94001E5D02 /* Headers */,
+				CE920DB12F696A94001E5D02 /* Sources */,
+				CE920DB22F696A94001E5D02 /* Frameworks */,
+				CE920DB32F696A94001E5D02 /* Resources */,
+				CE920DCF2F696B89001E5D02 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CE920DCE2F696B89001E5D02 /* PBXTargetDependency */,
+			);
+			name = "BlueShift-iOS-SDK-SwiftUI";
+			packageProductDependencies = (
+			);
+			productName = "BlueShift-iOS-SDK-SwiftUI";
+			productReference = CE920DB52F696A94001E5D02 /* BlueShift_iOS_SDK_SwiftUI.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -773,7 +843,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1300;
 				TargetAttributes = {
 					917EAF4E2AD3E9B40026F790 = {
@@ -784,6 +854,9 @@
 					};
 					9186B593271ED96D00D425AF = {
 						CreatedOnToolsVersion = 13.0;
+					};
+					CE920DB42F696A94001E5D02 = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -803,6 +876,7 @@
 				9186B576271ED94600D425AF /* BlueShift-iOS-SDK */,
 				9186B593271ED96D00D425AF /* BlueShift-iOS-Extension-SDK */,
 				917EAF4E2AD3E9B40026F790 /* BlueShift_iOS_SDK_Tests */,
+				CE920DB42F696A94001E5D02 /* BlueShift-iOS-SDK-SwiftUI */,
 			);
 		};
 /* End PBXProject section */
@@ -827,6 +901,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9186B592271ED96D00D425AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE920DB32F696A94001E5D02 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -864,14 +945,6 @@
 				9186B61B271ED9EF00D425AF /* BlueShiftProduct.m in Sources */,
 				9186B629271ED9EF00D425AF /* BlueshiftRoutes.m in Sources */,
 				9186B60E271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.m in Sources */,
-				CE8608682F5EA29700E02013 /* RemoteImageView.swift in Sources */,
-				CE8608692F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift in Sources */,
-				CE86086A2F5EA29700E02013 /* BlueShiftInAppRenderer.swift in Sources */,
-				CE86086B2F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift in Sources */,
-				CE86086C2F5EA29700E02013 /* BlueShiftModalSwiftUIView.swift in Sources */,
-				CE86086D2F5EA29700E02013 /* BlueShiftInAppSwiftUIView.swift in Sources */,
-				CE86086E2F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */,
-				CE86086F2F5EA29700E02013 /* BlueShiftInAppViewModel.swift in Sources */,
 				912A5BDB2923ABEE00096CBF /* BlueshiftInboxTableViewCell.m in Sources */,
 				917582DF29250F0900022F38 /* BlueshiftInboxMessage.m in Sources */,
 				91E498E32927822A0073B7FB /* BlueshiftInboxViewModel.m in Sources */,
@@ -881,7 +954,6 @@
 				9186B658271ED9FB00D425AF /* BlueShiftNotificationCloseButton.m in Sources */,
 				9186B638271ED9EF00D425AF /* HttpRequestOperationEntity.m in Sources */,
 				9186B634271ED9EF00D425AF /* BlueShiftBatchRequestOperation.m in Sources */,
-				CE920D5F2F680D8D001E5D02 /* BlueShiftFontAwesomeHelper.swift in Sources */,
 				9186B65D271ED9FB00D425AF /* BlueShiftInAppNotificationHelper.m in Sources */,
 				9186B663271ED9FB00D425AF /* BlueShiftNotificationViewController.m in Sources */,
 				9186B611271ED9EF00D425AF /* BlueShiftHttpRequestBatchUpload.m in Sources */,
@@ -896,13 +968,10 @@
 				9186B660271ED9FB00D425AF /* BlueShiftNotificationSlideBannerViewController.m in Sources */,
 				9186B630271ED9EF00D425AF /* BlueShift.m in Sources */,
 				9186B5F5271ED9EF00D425AF /* BlueShiftUserInfo.m in Sources */,
-				CE920D5B2F68015F001E5D02 /* BlueShiftHTMLWebView.swift in Sources */,
 				9186B669271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m in Sources */,
 				9186B666271ED9FB00D425AF /* BlueShiftInAppNotification.m in Sources */,
 				9186B61A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.m in Sources */,
-				CE8608822F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift in Sources */,
 				9186B5FC271ED9EF00D425AF /* BlueShiftRequestOperation.m in Sources */,
-				CE920D5D2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */,
 				91F36A812B6235E500CB5341 /* BlueshiftIntegrationSwizzle.m in Sources */,
 				9186B619271ED9EF00D425AF /* BlueShiftConfig.m in Sources */,
 				9186B609271ED9EF00D425AF /* BlueShiftDeviceData.m in Sources */,
@@ -923,6 +992,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE920DB12F696A94001E5D02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE920DBF2F696AD9001E5D02 /* BlueShiftInAppRenderer.swift in Sources */,
+				CE920DC42F696AFA001E5D02 /* BlueShiftInAppSwiftUIView.swift in Sources */,
+				CE920DC92F696B17001E5D02 /* BlueShiftHTMLSwiftUIView.swift in Sources */,
+				CE920DC32F696AF3001E5D02 /* BlueShiftModalStyleProvider.swift in Sources */,
+				CE920DC22F696AED001E5D02 /* BlueShiftInAppViewModel.swift in Sources */,
+				CE920DC82F696B11001E5D02 /* BlueShiftHTMLWebView.swift in Sources */,
+				CE920DBE2F696AD2001E5D02 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */,
+				CE920DC62F696B06001E5D02 /* BlueShiftSlideBannerSwiftUIView.swift in Sources */,
+				CE920DC02F696ADE001E5D02 /* BlueShiftSwiftUIBridge.swift in Sources */,
+				CE920DC52F696B00001E5D02 /* BlueShiftModalSwiftUIView.swift in Sources */,
+				CE920DC12F696AE6001E5D02 /* BlueShiftFontAwesomeHelper.swift in Sources */,
+				CE920DC72F696B0C001E5D02 /* RemoteImageView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -931,6 +1019,12 @@
 			platformFilter = ios;
 			target = 9186B576271ED94600D425AF /* BlueShift-iOS-SDK */;
 			targetProxy = 917EAF542AD3E9B40026F790 /* PBXContainerItemProxy */;
+		};
+		CE920DCE2F696B89001E5D02 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 9186B576271ED94600D425AF /* BlueShift-iOS-SDK */;
+			targetProxy = CE920DCD2F696B89001E5D02 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1224,6 +1318,95 @@
 			};
 			name = Release;
 		};
+		CE920DBC2F696A94001E5D02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 9YR8UTRCDU;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = "iOS 13.0";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.blueshift.BlueShift-iOS-SDK-SwiftUI";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CE920DBD2F696A94001E5D02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 9YR8UTRCDU;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = "iOS 13.0";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.blueshift.BlueShift-iOS-SDK-SwiftUI";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1259,6 +1442,15 @@
 			buildConfigurations = (
 				9186B5A4271ED96D00D425AF /* Debug */,
 				9186B5A5271ED96D00D425AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE920DBB2F696A94001E5D02 /* Build configuration list for PBXNativeTarget "BlueShift-iOS-SDK-SwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE920DBC2F696A94001E5D02 /* Debug */,
+				CE920DBD2F696A94001E5D02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
