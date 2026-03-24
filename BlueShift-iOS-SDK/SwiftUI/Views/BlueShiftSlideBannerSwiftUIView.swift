@@ -18,42 +18,76 @@ struct BlueShiftSlideBannerSwiftUIView: View {
     @State private var offsetX: CGFloat = -UIScreen.main.bounds.width
     @State private var dragOffset: CGFloat = 0
     
+    /// Whether this is an unobtrusive banner (touches pass through to app)
+    private var isUnobtrusive: Bool {
+        viewModel.notification.templateStyle.enableBackgroundAction
+    }
+    
     var body: some View {
-        ZStack {
-            // Tap outside to dismiss
-            Color.clear
-                .edgesIgnoringSafeArea(.all)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    dismissBanner(key: "tap_outside")
+        if isUnobtrusive {
+            // Unobtrusive: NO full-screen overlay, NO Spacer filling the screen.
+            // The hosting view is pinned to top/bottom edge by the bridge (Auto Layout),
+            // so we only render the banner content with its natural height.
+            // Combined with BlueShiftPassThroughWindow + BlueShiftPassThroughView,
+            // touches outside the banner pass through to the app.
+            // Matches UIKit: loadView (line 32-36) uses BlueShiftNotificationView (pass-through)
+            // and does NOT add tap gesture (line 40-42).
+            bannerContent
+                .padding(.top, position == "top" ? marginTop : 0)
+                .padding(.bottom, position == "bottom" ? marginBottom : 0)
+                .padding(.leading, marginLeft)
+                .padding(.trailing, marginRight)
+                .offset(x: offsetX + dragOffset)
+                .gesture(swipeGesture)
+                .onAppear {
+                    animateIn()
+                    viewModel.notifyDidShow()
                 }
-            
-            // Position banner based on templateStyle.position
-            if position == "top" {
-                VStack {
+        } else {
+            // Obtrusive: full-screen overlay catches taps to dismiss.
+            // Matches UIKit: loadView (line 34-41) uses super.loadView + setTapGestureForView
+            ZStack {
+                Color.clear
+                    .edgesIgnoringSafeArea(.all)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        dismissBanner(key: "tap_outside")
+                    }
+                
+                // Position banner based on templateStyle.position
+                if position == "top" {
+                    VStack {
+                        bannerContent
+                            .padding(.top, marginTop)
+                            .padding(.leading, marginLeft)
+                            .padding(.trailing, marginRight)
+                            .offset(x: offsetX + dragOffset)
+                            .gesture(swipeGesture)
+                        Spacer()
+                    }
+                } else if position == "bottom" {
+                    VStack {
+                        Spacer()
+                        bannerContent
+                            .padding(.bottom, marginBottom)
+                            .padding(.leading, marginLeft)
+                            .padding(.trailing, marginRight)
+                            .offset(x: offsetX + dragOffset)
+                            .gesture(swipeGesture)
+                    }
+                } else {
+                    // center
                     bannerContent
+                        .padding(.leading, marginLeft)
+                        .padding(.trailing, marginRight)
                         .offset(x: offsetX + dragOffset)
                         .gesture(swipeGesture)
-                    Spacer()
                 }
-            } else if position == "bottom" {
-                VStack {
-                    Spacer()
-                    bannerContent
-                        .offset(x: offsetX + dragOffset)
-                        .gesture(swipeGesture)
-                }
-            } else {
-                // center
-                bannerContent
-                    .offset(x: offsetX + dragOffset)
-                    .gesture(swipeGesture)
             }
-        }
-        .onAppear {
-            animateIn()
-            // Notify shown — matches UIKit's inAppDidShow: → trackInAppNotificationShowingWithParameter: (a=open)
-            viewModel.notifyDidShow()
+            .onAppear {
+                animateIn()
+                viewModel.notifyDidShow()
+            }
         }
     }
     
@@ -62,11 +96,14 @@ struct BlueShiftSlideBannerSwiftUIView: View {
     private var bannerContent: some View {
         HStack(spacing: 12) {
             // Icon - matches UIKit logic (lines 220-227)
+            // Background color is handled inside iconView per icon type:
+            // - FontAwesome icon: uses iconBackgroundColor (contentStyle.iconBackgroundColor)
+            // - Icon image: uses iconImageBackgroundColor (contentStyle.iconImageBackgroundColor)
+            // - Default: no background
             VStack{
                 iconView
             }
             .frame(height: bannerMinHeight, alignment: .center)
-            .background(Color(hex: iconBackgroundColor) ?? Color.black)
             
             // Message with padding
             if let message = viewModel.notification.notificationContent.message {
@@ -94,6 +131,9 @@ struct BlueShiftSlideBannerSwiftUIView: View {
         .background(Color(hex: backgroundColor) ?? Color.white)
         .cornerRadius(CGFloat(backgroundRadius))
         .shadow(radius: 5)
+        .onTapGesture {
+            handleBannerTap()
+        }
     }
     
     // MARK: - Icon View (Matches UIKit logic exactly)
@@ -104,7 +144,7 @@ struct BlueShiftSlideBannerSwiftUIView: View {
             // Show FontAwesome icon (matches UIKit createIconLabel)
             // Container fills full height, icon centered inside
             ZStack {
-                Color(hex: iconBackgroundColor) ?? Color.black
+                Color(hex: iconBackgroundColor) ?? Color.clear
                 
                 Text(icon)
                     .font(.custom("FontAwesome5Free-Solid", size: iconFontSize))
@@ -116,22 +156,30 @@ struct BlueShiftSlideBannerSwiftUIView: View {
             .padding(.leading, CGFloat(iconPaddingLeft))
             .padding(.trailing, CGFloat(iconPaddingRight))
         } else if let iconImage = viewModel.notification.notificationContent.iconImage, !iconImage.isEmpty, let iconImageURL = viewModel.iconImageURL {
-            // Show image from URL (matches UIKit createIconViewWithHeight)
+            // Show image from URL (matches UIKit createIconViewWithHeight lines 236-275)
             // Image is pre-downloaded and cached by BlueShiftSwiftUIBridge.renderInApp
             // before this view is presented. RemoteImageView reads from cache synchronously.
+            // Image size = 50 - padding (UIKit lines 243-244)
+            let imgWidth: CGFloat = 50 - CGFloat(iconImagePaddingLeft) - CGFloat(iconImagePaddingRight)
+            let imgHeight: CGFloat = 50 - CGFloat(iconImagePaddingTop) - CGFloat(iconImagePaddingBottom)
             ZStack {
-                Color(hex: iconBackgroundColor) ?? Color.black
+                // Container background color (UIKit lines 267-270: only set if not null/empty, else clear)
+                Color(hex: iconImageBackgroundColor) ?? Color.clear
                 
-                RemoteImageView(url: iconImageURL, width: 50, height: 50) {
+                // Image centered in container (UIKit line 257: imageView.center = iconView.center)
+                RemoteImageView(url: iconImageURL, width: imgWidth, height: imgHeight) {
                     AnyView(defaultIcon)
                 }
+                // Corner radius on image (UIKit line 261-262: iconImageBackgroundRadius)
+                // clipsToBounds = YES (UIKit line 263)
+                .clipShape(RoundedRectangle(cornerRadius: iconImageBackgroundRadius))
             }
-            .frame(width: 50 + CGFloat(iconPaddingLeft) + CGFloat(iconPaddingRight))
-            .padding(.leading, CGFloat(iconPaddingLeft))
-            .padding(.trailing, CGFloat(iconPaddingRight))
+            // Container is always 50pt wide (UIKit line 248: kInAppNotificationModalIconWidth)
+            .frame(width: 50)
         } else {
-            // Default bell icon
-            defaultIcon
+            // No icon — matches UIKit which only adds icon if icon/iconImage is valid string
+            // (initializeNotificationView lines 155-165)
+            EmptyView()
         }
     }
     
@@ -190,8 +238,10 @@ struct BlueShiftSlideBannerSwiftUIView: View {
     }
     
     /// Icon background color
+    /// UIKit default: clear/transparent (UILabel default nil background)
+    /// Background is only applied if iconBackgroundColor is non-null and non-empty
     private var iconBackgroundColor: String {
-        viewModel.notification.contentStyle.iconBackgroundColor ?? "#000000"
+        viewModel.notification.contentStyle.iconBackgroundColor ?? ""
     }
     
     /// Icon background radius
@@ -200,6 +250,43 @@ struct BlueShiftSlideBannerSwiftUIView: View {
             return CGFloat(radius.floatValue)
         }
         return 0.0
+    }
+    
+    // MARK: - Icon Image Properties (for URL-based icon, separate from FontAwesome icon)
+    // Matches UIKit's createIconViewWithHeight: (BlueShiftNotificationSlideBannerViewController.m lines 236-275)
+    
+    /// Icon image background color (contentStyle.iconImageBackgroundColor, UIKit line 267-270)
+    /// UIKit only sets background if not null/empty, otherwise container stays clear
+    private var iconImageBackgroundColor: String {
+        viewModel.notification.contentStyle.iconImageBackgroundColor ?? ""
+    }
+    
+    /// Icon image background radius applied to the image (contentStyle.iconImageBackgroundRadius, UIKit line 261)
+    private var iconImageBackgroundRadius: CGFloat {
+        if let radius = viewModel.notification.contentStyle.iconImageBackgroundRadius {
+            return CGFloat(radius.floatValue)
+        }
+        return 0.0
+    }
+    
+    /// Icon image padding - top (contentStyle.iconImagePadding.top, UIKit line 239)
+    private var iconImagePaddingTop: Float {
+        viewModel.notification.contentStyle.iconImagePadding.top
+    }
+    
+    /// Icon image padding - bottom (contentStyle.iconImagePadding.bottom, UIKit line 241)
+    private var iconImagePaddingBottom: Float {
+        viewModel.notification.contentStyle.iconImagePadding.bottom
+    }
+    
+    /// Icon image padding - left (contentStyle.iconImagePadding.left, UIKit line 238)
+    private var iconImagePaddingLeft: Float {
+        viewModel.notification.contentStyle.iconImagePadding.left
+    }
+    
+    /// Icon image padding - right (contentStyle.iconImagePadding.right, UIKit line 240)
+    private var iconImagePaddingRight: Float {
+        viewModel.notification.contentStyle.iconImagePadding.right
     }
     
     // MARK: - Dynamic Height Calculation
@@ -271,6 +358,33 @@ struct BlueShiftSlideBannerSwiftUIView: View {
         viewModel.notification.contentStyle.messagePadding.right
     }
     
+    // MARK: - Margin Properties (from templateStyle.margin)
+    // Matches UIKit's positionNotificationView (BlueShiftNotificationSlideBannerViewController.m lines 442-455)
+    
+    /// Top margin from templateStyle.margin
+    private var marginTop: CGFloat {
+        let top = viewModel.notification.templateStyle.margin.top
+        return top > 0 ? CGFloat(top) : 0
+    }
+    
+    /// Bottom margin from templateStyle.margin
+    private var marginBottom: CGFloat {
+        let bottom = viewModel.notification.templateStyle.margin.bottom
+        return bottom > 0 ? CGFloat(bottom) : 0
+    }
+    
+    /// Left margin from templateStyle.margin
+    private var marginLeft: CGFloat {
+        let left = viewModel.notification.templateStyle.margin.left
+        return left > 0 ? CGFloat(left) : 0
+    }
+    
+    /// Right margin from templateStyle.margin
+    private var marginRight: CGFloat {
+        let right = viewModel.notification.templateStyle.margin.right
+        return right > 0 ? CGFloat(right) : 0
+    }
+    
     // MARK: - Swipe Gesture
     
     private var swipeGesture: some Gesture {
@@ -327,4 +441,33 @@ struct BlueShiftSlideBannerSwiftUIView: View {
             viewModel.dismiss(key: key)
         }
     }
+    
+    /// Handle tap on banner content
+    /// Matches UIKit's handleSlideInTap (BlueShiftNotificationSlideBannerViewController.m line 404)
+    /// - If action exists: triggers the action (fires click/dismiss event based on URL, opens URL)
+    /// - If no action: just dismisses the banner
+    private func handleBannerTap() {
+        // Check if first action exists (matches UIKit lines 405-407)
+        // In Obj-C bridge, `actions` may be bridged as NSMutableArray, which can be non-optional.
+        // Avoid optional binding on non-optional types; instead, check count and then safely read first element.
+        let actionsAny = viewModel.notification.notificationContent.actions
+
+        // Handle both optional and non-optional arrays defensively
+        if let optionalActions = actionsAny as AnyObject?,
+           let array = optionalActions as? NSArray,
+           array.count > 0,
+           let first = array[0] as? BlueShiftInAppNotificationButton {
+            // Has action → trigger it via handleAction
+            viewModel.handleAction(url: first.iosLink)
+        } else if let array = actionsAny as? NSArray,
+                  array.count > 0,
+                  let first = array[0] as? BlueShiftInAppNotificationButton {
+            // Bridged path where actions is already an NSArray
+            viewModel.handleAction(url: first.iosLink)
+        } else {
+            // No action → just dismiss (matches UIKit's hideAnimated line 410)
+            viewModel.dismiss(key: nil)
+        }
+    }
 }
+

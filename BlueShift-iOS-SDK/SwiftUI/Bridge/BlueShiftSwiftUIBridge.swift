@@ -26,6 +26,10 @@ public class BlueShiftSwiftUIBridge: NSObject {
     /// Reference to the currently presented hosting controller
     private weak var currentHostingController: UIHostingController<AnyView>?
     
+    /// Reference to the pass-through window used for unobtrusive slide-in banners
+    /// Matches UIKit's BlueShiftNotificationWindow which passes touches through to the app
+    private var passThroughWindow: UIWindow?
+    
     private override init() {
         super.init()
     }
@@ -140,30 +144,31 @@ public class BlueShiftSwiftUIBridge: NSObject {
         }
         
         // Dismiss any existing notification
-        if let existing = currentHostingController {
-            existing.dismiss(animated: false, completion: nil)
-        }
+        dismissCurrentNotification()
         
         // Eagerly register Font Awesome with Core Text before presenting
         // This ensures the font is available for close buttons and icons in all view types
         // Mirrors UIKit's createFontFile: in BlueShiftNotificationViewController.m
         BlueShiftFontAwesomeHelper.loadFontAwesome { _ in }
         
-        // Create view model
+        // Check if this is an unobtrusive slide-in banner
+        // Matches UIKit's createWindow (line 97): uses BlueShiftNotificationWindow for pass-through
+        let isUnobtrusive = notification.templateStyle.enableBackgroundAction &&
+                            notification.inAppType.rawValue == 2 // BlueShiftNotificationSlideBanner
+        
+        // Create view model with appropriate dismiss/action handlers
         let viewModel = BlueShiftInAppViewModel(
             notification: notification,
             onShow: onShow,
             onDismiss: { [weak self] key in
-                self?.currentHostingController?.dismiss(animated: true) {
+                self?.dismissCurrentNotification {
                     onDismiss(key)
                 }
-                self?.currentHostingController = nil
             },
             onAction: { [weak self] url in
-                self?.currentHostingController?.dismiss(animated: true) {
+                self?.dismissCurrentNotification {
                     onAction(url)
                 }
-                self?.currentHostingController = nil
             }
         )
         
@@ -176,18 +181,122 @@ public class BlueShiftSwiftUIBridge: NSObject {
         // Create hosting controller
         let hostingController = UIHostingController(rootView: anyView)
         hostingController.view.backgroundColor = .clear
-        hostingController.modalPresentationStyle = .overFullScreen
-        hostingController.modalTransitionStyle = .crossDissolve
         
         // Store reference
         currentHostingController = hostingController
         
-        // Present
-        var presenter = rootViewController
-        while let presented = presenter.presentedViewController {
-            presenter = presented
+        if isUnobtrusive {
+            // Unobtrusive: present via pass-through window so touches pass through to app
+            // Matches UIKit's createWindow (line 97) + BlueShiftNotificationWindow.hitTest
+            // + BlueShiftNotificationView.hitTest (loadNotificationView uses pass-through view)
+            let notificationWindow = BlueShiftPassThroughWindow()
+            notificationWindow.windowScene = windowScene
+            notificationWindow.frame = window.frame
+            notificationWindow.backgroundColor = .clear
+            notificationWindow.windowLevel = .normal
+            
+            // Use a pass-through view as the container (matches BlueShiftNotificationView)
+            let passThroughView = BlueShiftPassThroughView(frame: window.frame)
+            passThroughView.backgroundColor = .clear
+            
+            // Add hosting controller's view with Auto Layout constraints
+            // Pin to top or bottom edge only (not full screen) so the hosting view
+            // only covers the banner area. This ensures hitTest returns nil for
+            // areas outside the banner, allowing touches to pass through.
+            let hostingView = hostingController.view!
+            hostingView.backgroundColor = .clear
+            hostingView.translatesAutoresizingMaskIntoConstraints = false
+            passThroughView.addSubview(hostingView)
+            
+            // Determine position for constraints
+            let bannerPosition = notification.templateStyle.position ?? "top"
+            
+            NSLayoutConstraint.activate([
+                hostingView.leadingAnchor.constraint(equalTo: passThroughView.leadingAnchor),
+                hostingView.trailingAnchor.constraint(equalTo: passThroughView.trailingAnchor),
+            ])
+            
+            if bannerPosition == "bottom" {
+                NSLayoutConstraint.activate([
+                    hostingView.bottomAnchor.constraint(equalTo: passThroughView.bottomAnchor),
+                ])
+            } else {
+                // top or center — pin to top
+                NSLayoutConstraint.activate([
+                    hostingView.topAnchor.constraint(equalTo: passThroughView.topAnchor),
+                ])
+            }
+            
+            let containerVC = UIViewController()
+            containerVC.view = passThroughView
+            containerVC.addChild(hostingController)
+            hostingController.didMove(toParent: containerVC)
+            
+            notificationWindow.rootViewController = containerVC
+            notificationWindow.isHidden = false
+            
+            self.passThroughWindow = notificationWindow
+        } else {
+            // Obtrusive: present modally (covers full screen, blocks touches)
+            hostingController.modalPresentationStyle = .overFullScreen
+            hostingController.modalTransitionStyle = .crossDissolve
+            
+            var presenter = rootViewController
+            while let presented = presenter.presentedViewController {
+                presenter = presented
+            }
+            
+            presenter.present(hostingController, animated: true, completion: nil)
         }
-        
-        presenter.present(hostingController, animated: true, completion: nil)
+    }
+    
+    /// Dismiss the currently presented notification (handles both modal and window-based presentation)
+    @MainActor private func dismissCurrentNotification(completion: (() -> Void)? = nil) {
+        if let window = passThroughWindow {
+            // Window-based (unobtrusive) — hide and remove
+            window.isHidden = true
+            window.rootViewController = nil
+            passThroughWindow = nil
+            currentHostingController = nil
+            completion?()
+        } else if let hosting = currentHostingController {
+            // Modal-based (obtrusive) — dismiss
+            hosting.dismiss(animated: true) {
+                completion?()
+            }
+            currentHostingController = nil
+        } else {
+            completion?()
+        }
     }
 }
+
+// MARK: - Pass-Through Window for Unobtrusive Banners
+
+/// A UIWindow subclass that passes touches through to the app when the touch
+/// doesn't hit any subview. Mirrors the Objective-C BlueShiftNotificationWindow
+/// (BlueShiftNotificationWindow.m) which is not exposed in public headers.
+@available(iOS 13.0, *)
+private class BlueShiftPassThroughWindow: UIWindow {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let view = super.hitTest(point, with: event)
+        // If the touch hits the window itself (not a subview), return nil
+        // so the touch passes through to the app underneath
+        return view === self ? nil : view
+    }
+}
+
+// MARK: - Pass-Through View for Unobtrusive Banners
+
+/// A UIView subclass that passes touches through to the app when the touch
+/// doesn't hit any subview. Mirrors the Objective-C BlueShiftNotificationView
+/// (BlueShiftNotificationView.m) which overrides hitTest the same way.
+/// Used as the container view for the hosting controller in unobtrusive mode.
+@available(iOS 13.0, *)
+private class BlueShiftPassThroughView: UIView {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let view = super.hitTest(point, with: event)
+        return view === self ? nil : view
+    }
+}
+

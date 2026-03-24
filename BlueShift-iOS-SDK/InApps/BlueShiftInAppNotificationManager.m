@@ -253,10 +253,8 @@
                     if (@available(iOS 10.0, *)) {
                         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
                             if ([settings authorizationStatus] == UNAuthorizationStatusDenied) {
-                                // User has denied permission - show alert to go to Settings
-                                // Note: For full parity, implement showEnablePushFromSettingsAlert logic here
-                                // For now, just log
-                                [BlueshiftLog logInfo:@"Push permission denied. User needs to enable from Settings." withDetails:nil methodName:nil];
+                                // Show alert to go to Settings (matches UIKit's showEnablePushFromSettingsAlert)
+                                [weakSelf showEnablePushFromSettingsAlertForSwiftUI];
                             } else if ([settings authorizationStatus] == UNAuthorizationStatusNotDetermined) {
                                 // Permission not asked yet - show permission dialog
                                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -282,13 +280,8 @@
                     }
                     [[BlueShift sharedInstance] trackInAppNotificationButtonTappedWithParameter:payload
                                                                              canBacthThisEvent:NO];
-                    // Open the URL — matches UIKit's handleDeeplinkForInAppNotification:
-                    NSURL *url = [NSURL URLWithString:actionURL];
-                    if (url) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-                        });
-                    }
+                    // Handle deeplink using the same logic as UIKit
+                    [weakSelf handleDeeplinkForSwiftUI:actionURL notification:notification];
                 }
                 // Dismiss housekeeping — matches UIKit's inAppDidDismiss:
                 weakSelf.currentNotificationController = nil;
@@ -520,6 +513,148 @@
 
     if ([[[BlueShift sharedInstance] config] inAppManualTriggerEnabled] == NO) {
         [self stopInAppMessageFetchTimer];
+    }
+}
+
+// MARK: - SwiftUI Helper Methods
+
+/// Show alert to enable push notifications from Settings (for SwiftUI in-apps)
+/// Matches UIKit's showEnablePushFromSettingsAlert in BlueShiftNotificationViewController.m
+- (void)showEnablePushFromSettingsAlertForSwiftUI {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        UIWindow * __block window = nil;
+        // Cache the registered in-app screen name, and unregister screen to not show any in-apps
+        // till enable push alert is displayed.
+        NSString * inAppScreenName = [BlueShift.sharedInstance getRegisteredForInAppScreenName];
+        [BlueShift.sharedInstance unregisterForInAppMessage];
+        if (@available(iOS 13.0, *)) {
+            window = [[UIWindow alloc] initWithWindowScene:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].windowScene];
+        } else {
+            window = [[UIWindow alloc] initWithFrame:[BlueShiftInAppNotificationHelper getApplicationKeyWindow].bounds];
+        }
+        
+        window.rootViewController = [UIViewController new];
+        window.windowLevel = UIWindowLevelAlert;
+        // Get localized strings if available
+        NSString *title = NSLocalizedString(kBSGoToSettingTitleLocalizedKey, @"");
+        NSString *text = NSLocalizedString(kBSGoToSettingTextLocalizedKey, @"");
+        NSString *okayLabel = NSLocalizedString(kBSGoToSettingOkayButtonLocalizedKey, @"");
+        NSString *cancelLabel = NSLocalizedString(kBSGoToSettingCancelButtonLocalizedKey, @"");
+
+        // If Localized strings are not set, use SDK default text
+        title = [title isEqualToString: kBSGoToSettingTitleLocalizedKey] ? kBSGoToSettingDefaultTitle : title;
+        text = [text isEqualToString: kBSGoToSettingTextLocalizedKey] ? kBSGoToSettingDefaultText : text;
+        okayLabel = [okayLabel isEqualToString: kBSGoToSettingOkayButtonLocalizedKey] ? kBSGoToSettingDefaultOkayButton : okayLabel;
+        cancelLabel = [cancelLabel isEqualToString:kBSGoToSettingCancelButtonLocalizedKey] ? kBSGoToSettingDefaultCancelButton : cancelLabel;
+        
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:title message:text preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:okayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSURL* url = [[NSURL alloc] initWithString: UIApplicationOpenSettingsURLString];
+                if (url && [UIApplication.sharedApplication canOpenURL:url]) {
+                    if (@available(iOS 10.0, *)) {
+                        [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {
+                            if (success) {
+                                [BlueshiftLog logInfo:@"Opened url successfully for enable push notifications." withDetails:url methodName:nil];
+                            } else {
+                                [BlueshiftLog logInfo:@"Failed to open url for enable push notifications." withDetails:url methodName:nil];
+                            }
+                        }];
+                    } else {
+                        [UIApplication.sharedApplication openURL:url];
+                    }
+                }
+                // Register for in-apps using cached screen name
+                [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];
+            });
+            window.hidden = YES;
+            window = nil;
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:cancelLabel style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            window.hidden = YES;
+            window = nil;
+            // Register for in-apps using cached screen name
+            [BlueShift.sharedInstance registerForInAppMessage:inAppScreenName];
+        }]];
+        
+        [window makeKeyAndVisible];
+        [window.rootViewController presentViewController:alert animated:YES completion:nil];
+    });
+}
+
+/// Handle deeplink for SwiftUI in-apps
+/// Matches UIKit's handleDeeplinkForInAppNotification:options: and shareDeepLinkToApp:options:
+- (void)handleDeeplinkForSwiftUI:(NSString*)deepLink notification:(BlueShiftInAppNotification*)notification {
+    [BlueshiftLog logInfo:@"[SwiftUI] handleDeeplinkForSwiftUI called" withDetails:deepLink methodName:nil];
+    
+    if (!deepLink || deepLink.length == 0) {
+        [BlueshiftLog logInfo:@"[SwiftUI] Deeplink is nil or empty, returning" withDetails:nil methodName:nil];
+        return;
+    }
+    
+    NSURL *deepLinkURL = [NSURL URLWithString:deepLink];
+    if (!deepLinkURL) {
+        [BlueshiftLog logError:nil withDescription:[NSString stringWithFormat:@"[SwiftUI] Failed to create URL from deeplink: %@", deepLink] methodName:nil];
+        return;
+    }
+    
+    BOOL success = NO;
+    
+    // Check if it should be opened in web view (matches UIKit's handleDeeplinkForInAppNotification)
+    BOOL shouldOpenInWeb = [BlueShiftInAppNotificationHelper isOpenInWebURL:deepLinkURL];
+    [BlueshiftLog logInfo:[NSString stringWithFormat:@"[SwiftUI] isOpenInWebURL: %@", shouldOpenInWeb ? @"YES" : @"NO"] withDetails:deepLink methodName:nil];
+    
+    if (shouldOpenInWeb) {
+        if ([BlueShiftInAppNotificationHelper isValidWebURL:deepLinkURL]) {
+            [BlueshiftLog logInfo:@"[SwiftUI] Opening in web view browser" withDetails:deepLink methodName:nil];
+            success = [BlueShift.sharedInstance.appDelegate openDeepLinkInWebViewBrowser:deepLinkURL showOpenInBrowserButton: notification.showOpenInBrowserButton];
+        } else {
+            [BlueshiftLog logInfo:@"[SwiftUI] Opening custom scheme deeplink" withDetails:deepLink methodName:nil];
+            success = [BlueShift.sharedInstance.appDelegate openCustomSchemeDeepLink:deepLinkURL];
+        }
+    }
+    
+    // If not handled by web view, share to app (matches UIKit's shareDeepLinkToApp)
+    if (!success) {
+        [BlueshiftLog logInfo:@"[SwiftUI] Web view did not handle URL, passing to app delegates" withDetails:deepLink methodName:nil];
+        // Use the same constants as UIKit to ensure isBlueshiftOpenURLData returns true
+        NSDictionary *options = @{
+            openURLOptionsSource: openURLOptionsBlueshift,  // "source": "Blueshift" (capital B)
+            openURLOptionsChannel: notification.isFromInbox ? openURLOptionsInbox : openURLOptionsInApp  // "channel": "inbox" or "inApp"
+        };
+        
+        // Check if inbox delegate should handle it
+        if (notification && notification.isFromInbox == YES &&
+            [notification.inboxDelegate respondsToSelector:@selector(isInboxNotificationActionTappedImplementedByHostApp)] &&
+            [notification.inboxDelegate isInboxNotificationActionTappedImplementedByHostApp] == YES) {
+            [BlueshiftLog logInfo:@"[SwiftUI] Calling inbox delegate" withDetails:deepLink methodName:nil];
+            [notification.inboxDelegate inboxInAppNotificationActionTappedWithDeepLink:deepLink options:options];
+        }
+        // Check if in-app delegate should handle it
+        else if (notification && notification.isFromInbox == NO &&
+                 self.inAppNotificationDelegate &&
+                 [self.inAppNotificationDelegate respondsToSelector:@selector(actionButtonDidTapped:)]) {
+            NSMutableDictionary *actionPayload = [[NSMutableDictionary alloc] initWithDictionary:options];
+            [actionPayload setObject:deepLink forKey:kInAppNotificationModalPageKey];
+            [actionPayload setObject:kInAppNotificationButtonTypeOpenKey forKey:kInAppNotificationButtonTypeKey];
+            [BlueshiftLog logInfo:@"[SwiftUI] Calling actionButtonDidTapped delegate" withDetails:actionPayload methodName:nil];
+            [self.inAppNotificationDelegate actionButtonDidTapped:actionPayload];
+        }
+        // Default fallback: use AppDelegate's openURL method
+        else if ([BlueShift sharedInstance].appDelegate.mainAppDelegate &&
+                 [[BlueShift sharedInstance].appDelegate.mainAppDelegate respondsToSelector:@selector(application:openURL:options:)]) {
+            if (@available(iOS 9.0, *)) {
+                if (deepLinkURL) {
+                    [BlueshiftLog logInfo:@"[SwiftUI] Calling AppDelegate application:openURL:options:" withDetails:deepLink methodName:nil];
+                    [[BlueShift sharedInstance].appDelegate.mainAppDelegate application:[UIApplication sharedApplication] openURL:deepLinkURL options:options];
+                }
+            }
+        } else {
+            [BlueshiftLog logInfo:@"[SwiftUI] No delegate methods available to handle deeplink" withDetails:deepLink methodName:nil];
+        }
+    } else {
+        [BlueshiftLog logInfo:@"[SwiftUI] Deeplink handled successfully by web view" withDetails:deepLink methodName:nil];
     }
 }
 
