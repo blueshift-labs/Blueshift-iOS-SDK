@@ -17,6 +17,7 @@ Carthage/Build/
 
 #Swift package
 .swiftpm
+.build
 /coverage
 
 .DS_Store

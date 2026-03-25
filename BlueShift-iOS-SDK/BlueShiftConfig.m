@@ -32,6 +32,11 @@
         self.BlueshiftInAppNotificationTimeInterval = kDefaultInAppTimeInterval;
         self.enableMobileInbox = NO;
         
+        // SwiftUI for in-app (iOS 13+)
+        if (@available(iOS 13.0, *)) {
+            self.useSwiftUIForInApp = NO;  // Default to UIKit
+        }
+        
         // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
