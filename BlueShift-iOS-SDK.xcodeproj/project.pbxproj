@@ -141,7 +141,6 @@
 		91F4704B27282F4200A0E84C /* BlueShiftiCarousel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9186B679271EDA0C00D425AF /* BlueShiftiCarousel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470622728346F00A0E84C /* BlueShift_iOS_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470612728346F00A0E84C /* BlueShift_iOS_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		CE8608672F5EA29700E02013 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = CE8608642F5EA29700E02013 /* README.md */; };
 		CE920DBE2F696AD2001E5D02 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */; };
 		CE920DBF2F696AD9001E5D02 /* BlueShiftInAppRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */; };
 		CE920DC02F696ADE001E5D02 /* BlueShiftSwiftUIBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */; };
@@ -344,7 +343,6 @@
 		CE8608602F5EA29700E02013 /* BlueShiftSlideBannerSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftSlideBannerSwiftUIView.swift; sourceTree = "<group>"; };
 		CE8608612F5EA29700E02013 /* RemoteImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImageView.swift; sourceTree = "<group>"; };
 		CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueShiftSwiftUI.h; sourceTree = "<group>"; };
-		CE8608642F5EA29700E02013 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CE8608812F5FFBEF00E02013 /* BlueShiftModalStyleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftModalStyleProvider.swift; sourceTree = "<group>"; };
 		CE920D5A2F68015F001E5D02 /* BlueShiftHTMLWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLWebView.swift; sourceTree = "<group>"; };
 		CE920D5C2F680180001E5D02 /* BlueShiftHTMLSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftHTMLSwiftUIView.swift; sourceTree = "<group>"; };
@@ -656,7 +654,6 @@
 				CE86085D2F5EA29700E02013 /* ViewModels */,
 				CE8608622F5EA29700E02013 /* Views */,
 				CE8608632F5EA29700E02013 /* BlueShiftSwiftUI.h */,
-				CE8608642F5EA29700E02013 /* README.md */,
 			);
 			path = SwiftUI;
 			sourceTree = "<group>";
@@ -895,7 +892,6 @@
 			files = (
 				9130BB4E2BF616C100C4BD90 /* BlueShiftSDKDataModel.xcdatamodeld in Resources */,
 				9130BB452BF6146800C4BD90 /* PrivacyInfo.xcprivacy in Resources */,
-				CE8608672F5EA29700E02013 /* README.md in Resources */,
 				9130BB442BF6146800C4BD90 /* BlueshiftInboxTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
