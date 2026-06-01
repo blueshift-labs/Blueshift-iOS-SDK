@@ -104,6 +104,10 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// @note Default value is false (uses UIKit views)
 @property BOOL useSwiftUIForInApp API_AVAILABLE(ios(13.0));
 
+/// Set this property to true to be able to send live activity.
+///  @note Requies iOS 17.2+ to use this feature and it is false by Default.
+@property BOOL enableLiveActivity API_AVAILABLE(ios(17.2));
+
 /// Set this property to false to stop the SDK from collectiong IDFA.
 /// @discussion With enableIDFACollection set as true, SDK will not ask user the device IDFA permission, but if the host app has asked for IDFA permission, and user has accepted it, then SDK collects it and sends to server.
 /// @note Default value is set to true.

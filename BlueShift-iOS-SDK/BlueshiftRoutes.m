@@ -74,4 +74,19 @@
     return URLString;
 }
 
++ (NSString*)getLiveActivityPushToStartURL {
+    NSString *baseURL = [self getBaseURLString];
+    return [NSString stringWithFormat:@"%@%@", baseURL, kBSLiveActivityPushToStartPath];
+}
+
++ (NSString*)getLiveActivityInstanceTokenURL {
+    NSString *baseURL = [self getBaseURLString];
+    return [NSString stringWithFormat:@"%@%@", baseURL, kBSLiveActivityInstanceTokenPath];
+}
+
++ (NSString*)getLiveActivityActionURL {
+    NSString *baseURL = [self getBaseURLString];
+    return [NSString stringWithFormat:@"%@%@", baseURL, kBSLiveActivityActionPath];
+}
+
 @end

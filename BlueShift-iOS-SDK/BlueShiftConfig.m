@@ -37,6 +37,11 @@
             self.useSwiftUIForInApp = NO;  // Default to UIKit
         }
         
+        // Live Activity
+        if (@available (iOS 17.2, *)){
+            self.enableLiveActivity = NO;
+        }
+        
         // Default BlueshiftDeviceIdSource
         self.blueshiftDeviceIdSource = BlueshiftDeviceIdSourceIDFV;
         
