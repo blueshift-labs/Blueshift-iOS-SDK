@@ -10,18 +10,33 @@ import Foundation
 
 /// Manages Blueshift Live Activity token registration and lifecycle actions.
 @available(iOS 16.1, *)
-@objc public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
+@objc(BlueshiftLiveActivityManager)
+public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     // MARK: - Shared Instance
     
     /// Exposed to Objective-C cleanly without forcing global MainActor compliance on the whole class
     @objc public static let shared = BlueshiftLiveActivityManager()
 
+    /// Returns true if Live Activity is enabled in SDK config AND enabled in device Settings.
+    /// Exposed to Objective-C via @objc so BlueShiftAppData can call it via ObjC runtime without
+    /// a compile-time dependency on ActivityKit in the Core SDK.
+    @objc public static func getLiveActivityStatus() -> Bool {
+        guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else {
+            return false
+        }
+        return ActivityAuthorizationInfo().areActivitiesEnabled
+    }
+
     // MARK: - Private State Tracking Trees
     
     private let pushToStartTasks = ThreadSafeStorage<Task<Void, Never>>()
     private let lifecycleTasks = ThreadSafeStorage<Task<Void, Never>>()
     private let enablementTask = ThreadSafeStorage<Task<Void, Never>>()
+    private let lastPushToStartTokens = ThreadSafeStorage<String>()
+    
+    // Tracks the structural types the developer registered, allowing automatic recovery
+    private let registeredTypes = ThreadSafeStorage<@Sendable () -> Void>()
 
     private override init() { super.init() }
 
@@ -58,13 +73,19 @@ import Foundation
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 guard !Task.isCancelled else { break }
                 let token = tokenData.map { String(format: "%02x", $0) }.joined()
-                
+
+                // Only log if token is new or changed — skip duplicate emissions
+                let lastToken = await BlueshiftLiveActivityManager.shared.lastPushToStartTokens.get(forKey: activityTypeName)
+                guard token != lastToken else { continue }
+                await BlueshiftLiveActivityManager.shared.lastPushToStartTokens.set(token, forKey: activityTypeName)
+
                 var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                 payload["activity_attributes_type"] = activityTypeName
                 payload["push_to_start_token"] = token
                 BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityPushToStartURL())
             }
         }
+
         
         // FIX 1: Wrap actor mutations inside a task block to safely await across threads
         Task {
@@ -139,8 +160,9 @@ import Foundation
                     case .active:
                         break
                     case .stale:
+                        break                  
+                    case .pending:
                         break
-                    
                     @unknown default:
                         break
                     }
@@ -154,26 +176,38 @@ import Foundation
     // MARK: - Private: Enablement Observer
 
     private func startEnablementObserver() {
-        if #available(iOS 16.2, *) {
-            Task {
-                // Safely await reading from the concurrent storage actor context
-                if await enablementTask.get(forKey: "global") != nil { return }
-                
-                let task = Task.detached { @Sendable in
-                    for await enabled in ActivityAuthorizationInfo().activityEnablementUpdates {
-                        guard !Task.isCancelled else { break }
-                        if !enabled {
-                            var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
-                            payload["action"] = "disabled"
-                            BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityActionURL())
-                            BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings.", withDetails: nil, methodName: nil)
+            if #available(iOS 16.2, *) {
+                Task {
+                    if await enablementTask.get(forKey: "global") != nil { return }
+                    
+                    let task = Task.detached { @Sendable in
+                        for await enabled in ActivityAuthorizationInfo().activityEnablementUpdates {
+                            guard !Task.isCancelled else { break }
+                            
+                            if !enabled {
+                                // Case 1: User toggled LA off
+                                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                                payload["action"] = "disabled"
+                                BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityActionURL())
+                                BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings.", withDetails: nil, methodName: nil)
+                            } else {
+                                // Case 2 (Scenario A Fix!): User toggled LA back ON while app was running
+                                BlueshiftLog.logInfo("Blueshift Live Activity: Enabled/Re-enabled in device Settings. Re-triggering PTS token loops.", withDetails: nil, methodName: nil)
+                                
+                                // Ask our safe actor for all saved registrations and run them
+                                Task {
+                                    let blocks = await BlueshiftLiveActivityManager.shared.registeredTypes.getAllValues()
+                                    for executeRegistrationBlock in blocks {
+                                        executeRegistrationBlock()
+                                    }
+                                }
+                            }
                         }
                     }
+                    await enablementTask.set(task, forKey: "global")
                 }
-                await enablementTask.set(task, forKey: "global")
             }
         }
-    }
 
     // MARK: - Private: Payload Helpers
 
@@ -223,4 +257,8 @@ fileprivate actor ThreadSafeStorage<Element: Sendable> {
     func remove(forKey key: String) {
         storage.removeValue(forKey: key)
     }
+    
+    func getAllValues() -> [Element] {
+            return Array(storage.values)
+        }
 }

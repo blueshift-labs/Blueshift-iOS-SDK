@@ -38,7 +38,7 @@
         }
         
         // Live Activity
-        if (@available (iOS 17.2, *)){
+        if (@available(iOS 16.1, *)) {
             self.enableLiveActivity = NO;
         }
         
