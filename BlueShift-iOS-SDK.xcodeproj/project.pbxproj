@@ -143,6 +143,7 @@
 		91F470642728365500A0E84C /* BlueShift_iOS_Extension_SDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CE1FBDE52FC99EEF00FFC6DB /* BlueshiftLiveActivityConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1FBDE42FC99EEF00FFC6DB /* BlueshiftLiveActivityConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CE1FBDE92FC99FE100FFC6DB /* BlueshiftLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FBDE82FC99FE100FFC6DB /* BlueshiftLiveActivityManager.swift */; };
+		CE1FBE8F2FD8182D00FFC6DB /* BlueshiftLiveActivityAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FBE8E2FD8182D00FFC6DB /* BlueshiftLiveActivityAPIManager.swift */; };
 		CE920DBE2F696AD2001E5D02 /* BlueShiftInAppNotification+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */; };
 		CE920DBF2F696AD9001E5D02 /* BlueShiftInAppRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */; };
 		CE920DC02F696ADE001E5D02 /* BlueShiftSwiftUIBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */; };
@@ -338,6 +339,7 @@
 		91F470632728365500A0E84C /* BlueShift_iOS_Extension_SDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueShift_iOS_Extension_SDK.h; sourceTree = "<group>"; };
 		CE1FBDE42FC99EEF00FFC6DB /* BlueshiftLiveActivityConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueshiftLiveActivityConstants.h; sourceTree = "<group>"; };
 		CE1FBDE82FC99FE100FFC6DB /* BlueshiftLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueshiftLiveActivityManager.swift; sourceTree = "<group>"; };
+		CE1FBE8E2FD8182D00FFC6DB /* BlueshiftLiveActivityAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueshiftLiveActivityAPIManager.swift; sourceTree = "<group>"; };
 		CE8608582F5EA29700E02013 /* BlueShiftInAppNotification+SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlueShiftInAppNotification+SwiftUI.swift"; sourceTree = "<group>"; };
 		CE8608592F5EA29700E02013 /* BlueShiftInAppRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftInAppRenderer.swift; sourceTree = "<group>"; };
 		CE86085A2F5EA29700E02013 /* BlueShiftSwiftUIBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueShiftSwiftUIBridge.swift; sourceTree = "<group>"; };
@@ -624,6 +626,7 @@
 			isa = PBXGroup;
 			children = (
 				CE1FBDE82FC99FE100FFC6DB /* BlueshiftLiveActivityManager.swift */,
+				CE1FBE8E2FD8182D00FFC6DB /* BlueshiftLiveActivityAPIManager.swift */,
 			);
 			path = "Live Activity";
 			sourceTree = "<group>";
@@ -982,6 +985,7 @@
 				9186B5F5271ED9EF00D425AF /* BlueShiftUserInfo.m in Sources */,
 				9186B669271ED9FB00D425AF /* BlueShiftInAppNotificationManager.m in Sources */,
 				CE1FBDE92FC99FE100FFC6DB /* BlueshiftLiveActivityManager.swift in Sources */,
+				CE1FBE8F2FD8182D00FFC6DB /* BlueshiftLiveActivityAPIManager.swift in Sources */,
 				9186B666271ED9FB00D425AF /* BlueShiftInAppNotification.m in Sources */,
 				9186B61A271ED9EF00D425AF /* BlueshiftEventAnalyticsHelper.m in Sources */,
 				9186B5FC271ED9EF00D425AF /* BlueShiftRequestOperation.m in Sources */,

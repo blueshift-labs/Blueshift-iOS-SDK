@@ -58,9 +58,9 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
             BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings. Sending disabled action.", withDetails: nil, methodName: nil)
             
             // Fixed payload routing via MainActor context
-            Task { @MainActor in
-                Self.logPayload(Self.shared.buildActionPayload("disabled"), url: BlueshiftRoutes.getLiveActivityActionURL())
-            }
+//            Task { @MainActor in
+//                Self.logPayload(Self.shared.buildActionPayload("disabled"), url: BlueshiftRoutes.getLiveActivityActionURL())
+//            }
             return
         }
 
@@ -82,7 +82,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                 var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                 payload["activity_attributes_type"] = activityTypeName
                 payload["push_to_start_token"] = token
-                BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityPushToStartURL())
+                BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
             }
         }
 
@@ -126,7 +126,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                 payload["activity_attributes_type"] = capturedActivityType
                 payload["activity_id"] = capturedActivityId
                 payload["instance_token"] = token
-                BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityInstanceTokenURL())
+                BlueshiftLiveActivityAPIManager.registerInstanceToken(payload)
             }
 
             async let watchTokens: Void = {
@@ -136,7 +136,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                     payload["activity_attributes_type"] = capturedActivityType
                     payload["activity_id"] = capturedActivityId
                     payload["instance_token"] = token
-                    BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityInstanceTokenURL())
+                    BlueshiftLiveActivityAPIManager.registerInstanceToken(payload)
                 }
             }()
 
@@ -147,15 +147,15 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                         var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                         payload["activity_attributes_type"] = capturedActivityType
                         payload["activity_id"] = capturedActivityId
-                        payload["action"] = "dismiss"
-                        BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityActionURL())
+                        payload["activity_action"] = "dismiss"
+                        BlueshiftLiveActivityAPIManager.sendAction(payload)
                         return
                     case .ended:
                         var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                         payload["activity_attributes_type"] = capturedActivityType
                         payload["activity_id"] = capturedActivityId
-                        payload["action"] = "ended"
-                        BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityActionURL())
+                        payload["activity_action"] = "ended"
+                        BlueshiftLiveActivityAPIManager.sendAction(payload)
                         return
                     case .active:
                         break
@@ -186,10 +186,14 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                             
                             if !enabled {
                                 // Case 1: User toggled LA off
-                                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
-                                payload["action"] = "disabled"
-                                BlueshiftLiveActivityManager.logPayload(payload, url: BlueshiftRoutes.getLiveActivityActionURL())
-                                BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings.", withDetails: nil, methodName: nil)
+                                // Use high-priority task to ensure the log/API call completes
+                                // before iOS suspends the background thread.
+                                // var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                                // payload["activity_action"] = "disabled"
+                                // Task(priority: .high) {
+                                //     BlueshiftLiveActivityAPIManager.sendAction(payload)
+                                //     BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings.", withDetails: nil, methodName: nil)
+                                // }
                             } else {
                                 // Case 2 (Scenario A Fix!): User toggled LA back ON while app was running
                                 BlueshiftLog.logInfo("Blueshift Live Activity: Enabled/Re-enabled in device Settings. Re-triggering PTS token loops.", withDetails: nil, methodName: nil)
@@ -213,8 +217,8 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     private static func buildBasePayloadStatic() -> [String: String] {
         var payload: [String: String] = [:]
-        if let apiKey = BlueShift.sharedInstance()?.config?.apiKey {
-            payload["api_key"] = apiKey
+        if let email = BlueShiftUserInfo.sharedInstance()?.email {
+            payload["email"] = email
         }
         if let deviceId = BlueShiftDeviceData.current()?.deviceUUID {
             payload["device_id"] = deviceId
@@ -225,19 +229,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         return payload
     }
 
-    private func buildActionPayload(_ action: String) -> [String: String] {
-        var payload = Self.buildBasePayloadStatic()
-        payload["action"] = action
-        return payload
-    }
-
-    private static func logPayload(_ payload: [String: String], url: String) {
-        BlueshiftLog.logAPICallInfo(
-            "Blueshift Live Activity — Would POST to: \(url)",
-            withDetails: payload as [AnyHashable: Any],
-            statusCode: 0
-        )
-    }
 }
 
 // MARK: - Thread-Safe Storage Companion Actor
@@ -259,6 +250,6 @@ fileprivate actor ThreadSafeStorage<Element: Sendable> {
     }
     
     func getAllValues() -> [Element] {
-            return Array(storage.values)
-        }
+        return Array(storage.values)
+    }
 }

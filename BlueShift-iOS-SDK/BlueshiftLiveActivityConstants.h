@@ -19,6 +19,7 @@
 // ─── Action Values ────────────────────────────────────────────────────────────
 
 #define kBSLiveActivityActionStart          @"start"
+#define kBSLiveActivityActionEnded          @"ended"
 #define kBSLiveActivityActionDismiss        @"dismiss"
 #define kBSLiveActivityActionDisabled       @"disabled"
 
