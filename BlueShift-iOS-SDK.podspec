@@ -35,9 +35,8 @@ Pod::Spec.new do |s|
   # LiveActivity subspec - Optional Live Activity support (iOS 16.1+)
   # Usage: pod 'BlueShift-iOS-SDK/LiveActivity'
   s.subspec "LiveActivity" do |la|
-    la.ios.deployment_target  = "16.1"
     la.dependency "BlueShift-iOS-SDK/Core"
     la.ios.source_files       = "BlueShift-iOS-SDK/Live Activity/**/*.swift"
-    la.ios.framework          = "ActivityKit"
+    la.ios.weak_frameworks    = "ActivityKit"
   end
 end
