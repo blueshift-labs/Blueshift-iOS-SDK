@@ -113,9 +113,13 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         _ activity: Activity<T>,
         activityType: String
     ) {
-        let activityId = activity.id
+//        let activityId = activity.id
         let capturedActivityType = activityType
-        let capturedActivityId = activityId
+//        let capturedActivityId = activityId
+        
+        let resolvedActivityId: String = (activity.attributes as? any BlueshiftActivityAttributes)?
+            .blueshiftActivityId ?? activity.id
+        let capturedActivityId = resolvedActivityId
 
         Task { [capturedActivityType, capturedActivityId, weak activity] in
             guard let activity = activity else { return }

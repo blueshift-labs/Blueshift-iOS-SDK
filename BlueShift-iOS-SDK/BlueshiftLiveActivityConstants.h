@@ -14,6 +14,7 @@
 #define kBSLiveActivityPushToStartToken     @"push_to_start_token"
 #define kBSLiveActivityInstanceToken        @"instance_token"
 #define kBSLiveActivityId                   @"activity_id"
+#define kBSLiveActivityBlueshiftActivityId  @"blueshift_activity_id"
 #define kBSLiveActivityAction               @"action"
 
 // ─── Action Values ────────────────────────────────────────────────────────────

@@ -161,6 +161,7 @@
 		CE920DCC2F696B89001E5D02 /* BlueShift_iOS_SDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9186B577271ED94600D425AF /* BlueShift_iOS_SDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CE920DD12F696BC6001E5D02 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE920DD02F696BC6001E5D02 /* SwiftUI.framework */; };
 		CE920DD32F696BCC001E5D02 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE920DD22F696BCC001E5D02 /* WebKit.framework */; };
+		CED8BFF22FF3B1810087B969 /* BlueshiftActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED8BFF12FF3B1810087B969 /* BlueshiftActivityAttributes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -356,6 +357,7 @@
 		CE920DB52F696A94001E5D02 /* BlueShift_iOS_SDK_SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlueShift_iOS_SDK_SwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE920DD02F696BC6001E5D02 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/iOSSupport/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		CE920DD22F696BCC001E5D02 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/iOSSupport/System/Library/PrivateFrameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		CED8BFF12FF3B1810087B969 /* BlueshiftActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueshiftActivityAttributes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -627,6 +629,7 @@
 			children = (
 				CE1FBDE82FC99FE100FFC6DB /* BlueshiftLiveActivityManager.swift */,
 				CE1FBE8E2FD8182D00FFC6DB /* BlueshiftLiveActivityAPIManager.swift */,
+				CED8BFF12FF3B1810087B969 /* BlueshiftActivityAttributes.swift */,
 			);
 			path = "Live Activity";
 			sourceTree = "<group>";
@@ -957,6 +960,7 @@
 				9186B655271ED9FB00D425AF /* BlueShiftNotificationWebViewController.m in Sources */,
 				9186B5F3271ED9EF00D425AF /* NSDate+BlueShiftDateHelpers.m in Sources */,
 				912C78FE29EFFB7A0086E641 /* BlueshiftInboxAPIManager.m in Sources */,
+				CED8BFF22FF3B1810087B969 /* BlueshiftActivityAttributes.swift in Sources */,
 				9186B61B271ED9EF00D425AF /* BlueShiftProduct.m in Sources */,
 				9186B629271ED9EF00D425AF /* BlueshiftRoutes.m in Sources */,
 				9186B60E271ED9EF00D425AF /* BlueShiftUserNotificationCenterDelegate.m in Sources */,
