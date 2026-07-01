@@ -50,6 +50,17 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     self.sessionConfiguraion = defaultConfigObject;
 }
 
+/// Adds a Basic Auth `Authorization` header to the given request using the SDK API key.
+/// Extracted to eliminate the identical auth block duplicated in getRequestWithURL and postRequestWithURL.
+- (void)addAuthorizationHeaderToRequest:(NSMutableURLRequest *)urlRequest {
+    NSString *apiKey = [BlueShift sharedInstance].config.apiKey;
+    if (apiKey) {
+        NSString *credentials = [NSString stringWithFormat:@"%@:", apiKey];
+        NSString *base64 = [[credentials dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
+        [urlRequest setValue:[NSString stringWithFormat:@"Basic %@", base64] forHTTPHeaderField:kBSAuthorization];
+    }
+}
+
 - (NSString*)getRequestParamStringForDictionary:(NSDictionary*)params {
     //add below params to the end of get url
     NSArray *keysAddedInEnd = [NSArray arrayWithObjects:kDeviceID, kAppName, kNotificationClickElementKey,kNotificationURLElementKey,nil];
@@ -92,14 +103,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSURL *url = [NSURL URLWithString:encodedString];
     NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:url];
     [urlRequest setHTTPMethod:kBSGETMethod];
-    // Set Authorization header directly on the request to guarantee it is always sent,
-    // regardless of whether the shared NSURLSession was already created with a prior config.
-    NSString *getApiKey = [BlueShift sharedInstance].config.apiKey;
-    if (getApiKey) {
-        NSString *getCredentials = [NSString stringWithFormat:@"%@:", getApiKey];
-        NSString *getBase64 = [[getCredentials dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
-        [urlRequest setValue:[NSString stringWithFormat:@"Basic %@", getBase64] forHTTPHeaderField:kBSAuthorization];
-    }
+    [self addAuthorizationHeaderToRequest:urlRequest];
     
     NSURLSessionDataTask * dataTask = [_mainURLSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
@@ -140,14 +144,7 @@ static BlueShiftRequestOperationManager *_sharedRequestOperationManager = nil;
     NSData *JSONData = [NSJSONSerialization dataWithJSONObject:params options:0 error:nil];
     [urlRequest setHTTPBody:JSONData];
     [urlRequest setValue:kBSApplicationJSON forHTTPHeaderField:kBSContentType];
-    // Set Authorization header directly on the request to guarantee it is always sent,
-    // regardless of whether the shared NSURLSession was already created with a prior config.
-    NSString *postApiKey = [BlueShift sharedInstance].config.apiKey;
-    if (postApiKey) {
-        NSString *postCredentials = [NSString stringWithFormat:@"%@:", postApiKey];
-        NSString *postBase64 = [[postCredentials dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
-        [urlRequest setValue:[NSString stringWithFormat:@"Basic %@", postBase64] forHTTPHeaderField:kBSAuthorization];
-    }
+    [self addAuthorizationHeaderToRequest:urlRequest];
     [BlueshiftLog logAPICallInfo:[NSString stringWithFormat:@"Initiated POST %@",urlString] withDetails:params statusCode:0];
 
     NSURLSessionDataTask * dataTask = [_mainURLSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
