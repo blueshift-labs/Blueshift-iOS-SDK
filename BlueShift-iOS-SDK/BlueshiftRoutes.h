@@ -23,7 +23,7 @@
 // Live Activity API endpoint paths
 #define kBSLiveActivityPushToStartPath   @"api/v1/live_activity/push_to_start_token"
 #define kBSLiveActivityInstanceTokenPath @"api/v1/live_activity/instance_token"
-#define kBSLiveActivityActionPath        @"api/v1/live_activity/action"
+#define kBSLiveActivityActionPath        @"api/v1/live_activity/close"
 
 @interface BlueshiftRoutes : NSObject
 

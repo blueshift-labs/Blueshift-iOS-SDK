@@ -28,7 +28,7 @@ public protocol BlueshiftActivityAttributes: ActivityAttributes {
     /// Optional Blueshift campaign/activity identifier set by the client.
     /// When present, the SDK sends this as `activity_id` in all
     /// instance token and lifecycle action API calls.
-    var blueshiftActivityId: String? { get }
+    var bsftActivityId: String? { get }
 }
 
 #endif

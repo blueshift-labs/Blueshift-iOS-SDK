@@ -118,7 +118,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 //        let capturedActivityId = activityId
         
         let resolvedActivityId: String = (activity.attributes as? any BlueshiftActivityAttributes)?
-            .blueshiftActivityId ?? activity.id
+            .bsftActivityId ?? activity.id
         let capturedActivityId = resolvedActivityId
 
         Task { [capturedActivityType, capturedActivityId, weak activity] in
@@ -128,7 +128,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                 let token = tokenData.map { String(format: "%02x", $0) }.joined()
                 var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                 payload["activity_attributes_type"] = capturedActivityType
-                payload["activity_id"] = capturedActivityId
+                payload["bsft_activity_id"] = capturedActivityId
                 payload["instance_token"] = token
                 BlueshiftLiveActivityAPIManager.registerInstanceToken(payload)
             }
@@ -138,7 +138,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                     let token = tokenData.map { String(format: "%02x", $0) }.joined()
                     var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                     payload["activity_attributes_type"] = capturedActivityType
-                    payload["activity_id"] = capturedActivityId
+                    payload["bsft_activity_id"] = capturedActivityId
                     payload["instance_token"] = token
                     BlueshiftLiveActivityAPIManager.registerInstanceToken(payload)
                 }
@@ -150,14 +150,14 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                     case .dismissed:
                         var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                         payload["activity_attributes_type"] = capturedActivityType
-                        payload["activity_id"] = capturedActivityId
+                        payload["bsft_activity_id"] = capturedActivityId
                         payload["activity_action"] = "dismiss"
                         BlueshiftLiveActivityAPIManager.sendAction(payload)
                         return
                     case .ended:
                         var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
                         payload["activity_attributes_type"] = capturedActivityType
-                        payload["activity_id"] = capturedActivityId
+                        payload["bsft_activity_id"] = capturedActivityId
                         payload["activity_action"] = "ended"
                         BlueshiftLiveActivityAPIManager.sendAction(payload)
                         return
