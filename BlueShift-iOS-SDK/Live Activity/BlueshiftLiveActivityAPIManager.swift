@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BlueShift_iOS_SDK
 
 /// Networking layer for all three Live Activity API endpoints.
 ///

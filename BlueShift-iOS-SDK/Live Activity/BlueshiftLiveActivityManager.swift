@@ -7,6 +7,7 @@
 
 import Foundation
 @preconcurrency import ActivityKit
+import BlueShift_iOS_SDK
 
 /// Manages Blueshift Live Activity token registration and lifecycle actions.
 @available(iOS 16.1, *)
