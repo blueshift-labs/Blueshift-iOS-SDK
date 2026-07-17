@@ -44,7 +44,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     // MARK: - Public API
 
     @available(iOS 17.2, *)
-    public func registerPushToStart<T: ActivityAttributes>(
+    public func registerPushToStart<T: BlueshiftActivityAttributes>(
         forType type: Activity<T>.Type,
         name: String
     ) {
@@ -110,17 +110,14 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     // MARK: - Private: Observe Running Activity
 
     @available(iOS 17.2, *)
-    private func observeRunningActivity<T: ActivityAttributes>(
+    private func observeRunningActivity<T: BlueshiftActivityAttributes>(
         _ activity: Activity<T>,
         activityType: String
     ) {
-//        let activityId = activity.id
+
         let capturedActivityType = activityType
-//        let capturedActivityId = activityId
         
-        let resolvedActivityId: String = (activity.attributes as? any BlueshiftActivityAttributes)?
-            .bsftActivityId ?? activity.id
-        let capturedActivityId = resolvedActivityId
+        let capturedActivityId: String = activity.attributes.bsftActivityId ?? activity.id
 
         Task { [capturedActivityType, capturedActivityId, weak activity] in
             guard let activity = activity else { return }

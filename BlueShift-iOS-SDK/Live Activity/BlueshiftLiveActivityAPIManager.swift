@@ -87,10 +87,10 @@ final class BlueshiftLiveActivityAPIManager {
             andIsBatchEvent: false
         ) else { return }
         BlueShiftRequestQueue.add(operation)
-        BlueshiftLog.logAPICallInfo(
-            "Live Activity [\(label)] - Enqueued POST → \(url)",
-            withDetails: payload as [AnyHashable: Any],
-            statusCode: 0
-        )
+//        BlueshiftLog.logAPICallInfo(
+//            "Live Activity [\(label)] - Enqueued POST → \(url)",
+//            withDetails: payload as [AnyHashable: Any],
+//            statusCode: 0
+//        )
     }
 }
