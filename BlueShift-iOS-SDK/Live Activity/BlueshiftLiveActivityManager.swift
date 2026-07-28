@@ -1,0 +1,257 @@
+//
+//  BlueshiftLiveActivityManager.swift
+//  BlueShift-iOS-SDK
+//
+//  Created by Vedant Patle on 29/05/26.
+//
+
+import Foundation
+@preconcurrency import ActivityKit
+import BlueShift_iOS_SDK
+
+/// Manages Blueshift Live Activity token registration and lifecycle actions.
+@available(iOS 16.1, *)
+@objc(BlueshiftLiveActivityManager)
+public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
+
+    // MARK: - Shared Instance
+    
+    /// Exposed to Objective-C cleanly without forcing global MainActor compliance on the whole class
+    @objc public static let shared = BlueshiftLiveActivityManager()
+
+    /// Returns true if Live Activity is enabled in SDK config AND enabled in device Settings.
+    /// Exposed to Objective-C via @objc so BlueShiftAppData can call it via ObjC runtime without
+    /// a compile-time dependency on ActivityKit in the Core SDK.
+    @objc public static func getLiveActivityStatus() -> Bool {
+        guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else {
+            return false
+        }
+        return ActivityAuthorizationInfo().areActivitiesEnabled
+    }
+
+    // MARK: - Private State Tracking Trees
+    
+    private let pushToStartTasks = ThreadSafeStorage<Task<Void, Never>>()
+    private let lifecycleTasks = ThreadSafeStorage<Task<Void, Never>>()
+    private let enablementTask = ThreadSafeStorage<Task<Void, Never>>()
+    private let lastPushToStartTokens = ThreadSafeStorage<String>()
+    
+    // Tracks the structural types the developer registered, allowing automatic recovery
+    private let registeredTypes = ThreadSafeStorage<@Sendable () -> Void>()
+
+    private override init() { super.init() }
+
+    // MARK: - Public API
+
+    @available(iOS 17.2, *)
+    public func registerPushToStart<T: BlueshiftActivityAttributes>(
+        forType type: Activity<T>.Type,
+        name: String
+    ) {
+        // Guard: SDK configuration verification
+        guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else {
+            BlueshiftLog.logInfo("Blueshift Live Activity: disabled in config. Skipping configuration for '\(name)'.", withDetails: nil, methodName: nil)
+            return
+        }
+
+        // Guard: Local Device Settings check
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings. Sending disabled action.", withDetails: nil, methodName: nil)
+            
+            // Fixed payload routing via MainActor context
+//            Task { @MainActor in
+//                Self.logPayload(Self.shared.buildActionPayload("disabled"), url: BlueshiftRoutes.getLiveActivityActionURL())
+//            }
+            return
+        }
+
+        startEnablementObserver()
+
+        let activityTypeName = name
+
+        // 1. Safe Tracking Loop for Push-to-Start (PTS) Token Rotations
+        let ptsTask = Task { [activityTypeName] in
+            for await tokenData in Activity<T>.pushToStartTokenUpdates {
+                guard !Task.isCancelled else { break }
+                let token = tokenData.map { String(format: "%02x", $0) }.joined()
+
+                // Only log if token is new or changed — skip duplicate emissions
+                let lastToken = await BlueshiftLiveActivityManager.shared.lastPushToStartTokens.get(forKey: activityTypeName)
+                guard token != lastToken else { continue }
+                await BlueshiftLiveActivityManager.shared.lastPushToStartTokens.set(token, forKey: activityTypeName)
+
+                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                payload["activity_attributes_type"] = activityTypeName
+                payload["push_to_start_token"] = token
+                BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
+            }
+        }
+
+        
+        // FIX 1: Wrap actor mutations inside a task block to safely await across threads
+        Task {
+            await pushToStartTasks.set(ptsTask, forKey: name)
+        }
+
+        // 2. Continuous Tracking Loop: Detects both launch activities AND background push-to-start activities
+        let monitoringTask = Task { [activityTypeName] in
+            for await activity in Activity<T>.activityUpdates {
+                guard !Task.isCancelled else { break }
+                // FIX 2: Safely read the non-isolated manager instance without crossing MainActor walls
+                BlueshiftLiveActivityManager.shared.observeRunningActivity(activity, activityType: activityTypeName)
+            }
+        }
+        
+        Task {
+            await lifecycleTasks.set(monitoringTask, forKey: name)
+        }
+    }
+
+    // MARK: - Private: Observe Running Activity
+
+    @available(iOS 17.2, *)
+    private func observeRunningActivity<T: BlueshiftActivityAttributes>(
+        _ activity: Activity<T>,
+        activityType: String
+    ) {
+
+        let capturedActivityType = activityType
+        
+        let capturedActivityId: String = activity.attributes.bsftActivityId ?? activity.id
+
+        Task { [capturedActivityType, capturedActivityId, weak activity] in
+            guard let activity = activity else { return }
+
+            if let tokenData = activity.pushToken {
+                let token = tokenData.map { String(format: "%02x", $0) }.joined()
+                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                payload["activity_attributes_type"] = capturedActivityType
+                payload["bsft_activity_id"] = capturedActivityId
+                payload["instance_token"] = token
+                BlueshiftLiveActivityAPIManager.registerInstanceToken(payload)
+            }
+
+            async let watchTokens: Void = {
+                for await tokenData in activity.pushTokenUpdates {
+                    let token = tokenData.map { String(format: "%02x", $0) }.joined()
+                    var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                    payload["activity_attributes_type"] = capturedActivityType
+                    payload["bsft_activity_id"] = capturedActivityId
+                    payload["instance_token"] = token
+                    BlueshiftLiveActivityAPIManager.registerInstanceToken(payload)
+                }
+            }()
+
+            async let watchStates: Void = {
+                for await state in activity.activityStateUpdates {
+                    switch state {
+                    case .dismissed:
+                        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                        payload["activity_attributes_type"] = capturedActivityType
+                        payload["bsft_activity_id"] = capturedActivityId
+                        payload["activity_action"] = "dismiss"
+                        BlueshiftLiveActivityAPIManager.sendAction(payload)
+                        return
+                    case .ended:
+                        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                        payload["activity_attributes_type"] = capturedActivityType
+                        payload["bsft_activity_id"] = capturedActivityId
+                        payload["activity_action"] = "ended"
+                        BlueshiftLiveActivityAPIManager.sendAction(payload)
+                        return
+                    case .active:
+                        break
+                    case .stale:
+                        break                  
+                    case .pending:
+                        break
+                    @unknown default:
+                        break
+                    }
+                }
+            }()
+
+            _ = await [watchTokens, watchStates]
+        }
+    }
+    
+    // MARK: - Private: Enablement Observer
+
+    private func startEnablementObserver() {
+            if #available(iOS 16.2, *) {
+                Task {
+                    if await enablementTask.get(forKey: "global") != nil { return }
+                    
+                    let task = Task.detached { @Sendable in
+                        for await enabled in ActivityAuthorizationInfo().activityEnablementUpdates {
+                            guard !Task.isCancelled else { break }
+                            
+                            if !enabled {
+                                // Case 1: User toggled LA off
+                                // Use high-priority task to ensure the log/API call completes
+                                // before iOS suspends the background thread.
+                                // var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                                // payload["activity_action"] = "disabled"
+                                // Task(priority: .high) {
+                                //     BlueshiftLiveActivityAPIManager.sendAction(payload)
+                                //     BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings.", withDetails: nil, methodName: nil)
+                                // }
+                            } else {
+                                // Case 2 (Scenario A Fix!): User toggled LA back ON while app was running
+                                BlueshiftLog.logInfo("Blueshift Live Activity: Enabled/Re-enabled in device Settings. Re-triggering PTS token loops.", withDetails: nil, methodName: nil)
+                                
+                                // Ask our safe actor for all saved registrations and run them
+                                Task {
+                                    let blocks = await BlueshiftLiveActivityManager.shared.registeredTypes.getAllValues()
+                                    for executeRegistrationBlock in blocks {
+                                        executeRegistrationBlock()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    await enablementTask.set(task, forKey: "global")
+                }
+            }
+        }
+
+    // MARK: - Private: Payload Helpers
+
+    private static func buildBasePayloadStatic() -> [String: String] {
+        var payload: [String: String] = [:]
+        if let email = BlueShiftUserInfo.sharedInstance()?.email {
+            payload["email"] = email
+        }
+        if let deviceId = BlueShiftDeviceData.current()?.deviceUUID {
+            payload["device_id"] = deviceId
+        }
+        if let customerId = BlueShiftUserInfo.sharedInstance()?.retailerCustomerID {
+            payload["customer_id"] = customerId
+        }
+        return payload
+    }
+
+}
+
+// MARK: - Thread-Safe Storage Companion Actor
+// FIX 3: Explicit iOS 13 availability guard applied to the underlying Actor structure itself
+@available(iOS 13.0.0, *)
+fileprivate actor ThreadSafeStorage<Element: Sendable> {
+    private var storage: [String: Element] = [:]
+    
+    func set(_ value: Element, forKey key: String) {
+        storage[key] = value
+    }
+    
+    func get(forKey key: String) -> Element? {
+        return storage[key]
+    }
+    
+    func remove(forKey key: String) {
+        storage.removeValue(forKey: key)
+    }
+    
+    func getAllValues() -> [Element] {
+        return Array(storage.values)
+    }
+}

@@ -17,6 +17,10 @@ let package = Package(
         .library(
             name: "BlueShift_iOS_SDK_SwiftUI",
             targets: ["BlueShift_iOS_SDK_SwiftUI"]),
+        // Optional Live Activity support (iOS 16.1+)
+        .library(
+            name: "BlueShift_iOS_SDK_LiveActivity",
+            targets: ["BlueShift_iOS_SDK_LiveActivity"]),
         .library(
             name: "BlueShift_iOS_Extension_SDK",
             targets: ["BlueShift_iOS_Extension_SDK"]),
@@ -28,7 +32,7 @@ let package = Package(
             name: "BlueShift_iOS_SDK",
             dependencies: [],
             path: "BlueShift-iOS-SDK",
-            exclude: ["SwiftUI"],
+            exclude: ["SwiftUI", "Live Activity"],
             resources: [
                 .process("Resources"),
             ],
@@ -53,6 +57,15 @@ let package = Package(
             linkerSettings: [
                 .linkedFramework("SwiftUI", .when(platforms: [.iOS])),
                 .linkedFramework("WebKit", .when(platforms: [.iOS]))
+            ]
+        ),
+        // Live Activity target - optional add-on for Live Activity support (iOS 16.1+)
+        .target(
+            name: "BlueShift_iOS_SDK_LiveActivity",
+            dependencies: ["BlueShift_iOS_SDK"],
+            path: "BlueShift-iOS-SDK/Live Activity",
+            linkerSettings: [
+                .linkedFramework("ActivityKit", .when(platforms: [.iOS]))
             ]
         ),
         .target(

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = "BlueShift-iOS-SDK"
-  s.version                 = "2.7.0"
+  s.version                 = "2.8.0"
   s.summary                 = "iOS SDK for integrating Rich Push & In App Notifications, Universal Links and Analytics"
   s.homepage                = "https://github.com/blueshift-labs/Blueshift-iOS-SDK"
   s.license                 = { :type => "MIT", :file => "LICENSE.md" }
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
     core.ios.source_files        = "BlueShift-iOS-SDK/**/*.{h,m}"
     core.ios.public_header_files = "BlueShift-iOS-SDK/**/*.h"
     core.ios.resource_bundles    = {"BlueShift-iOS-SDK_BlueShift_iOS_SDK" =>  ["BlueShift-iOS-SDK/**/*.{xcdatamodeld,xcdatamodel,png,xib,xcprivacy}"] }
-    core.ios.exclude_files       = "BlueShift-iOS-SDK/include/**/*.{h,m}", "BlueShift-iOS-SDK/SwiftUI/**/*"
+    core.ios.exclude_files       = "BlueShift-iOS-SDK/include/**/*.{h,m}", "BlueShift-iOS-SDK/SwiftUI/**/*", "BlueShift-iOS-SDK/Live Activity/**/*"
     core.ios.framework           = "CoreData"
   end
   
@@ -30,5 +30,13 @@ Pod::Spec.new do |s|
     swiftui.ios.source_files      = "BlueShift-iOS-SDK/SwiftUI/**/*.{swift,h}"
     swiftui.ios.public_header_files = "BlueShift-iOS-SDK/SwiftUI/**/*.h"
     swiftui.ios.framework         = "SwiftUI", "WebKit"
+  end
+
+  # LiveActivity subspec - Optional Live Activity support (iOS 16.1+)
+  # Usage: pod 'BlueShift-iOS-SDK/LiveActivity'
+  s.subspec "LiveActivity" do |la|
+    la.dependency "BlueShift-iOS-SDK/Core"
+    la.ios.source_files       = "BlueShift-iOS-SDK/Live Activity/**/*.swift"
+    la.ios.weak_frameworks    = "ActivityKit"
   end
 end

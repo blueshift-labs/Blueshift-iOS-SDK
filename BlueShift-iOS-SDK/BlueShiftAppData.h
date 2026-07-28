@@ -31,6 +31,13 @@
 /// This value will be sent to Blueshift server under key `enable_inapp` as part of every event and also it will be checked before displaying in-app notifications.
 - (BOOL)getCurrentInAppNotificationStatus;
 
+/// Returns BOOL indicating whether Live Activity is currently enabled — checks both `config.enableLiveActivity`
+/// and the device-level Live Activity authorization status. This value will be sent to Blueshift server under
+/// key `enable_live_activity` as part of every event and status API call.
+/// The actual authorization check is delegated to BlueshiftLiveActivityManager (LiveActivity subspec) via
+/// ObjC runtime to avoid a compile-time dependency on ActivityKit in the Core SDK.
+- (BOOL)getCurrentLiveActivityStatus API_AVAILABLE(ios(16.1));
+
 + (instancetype) currentAppData;
 
 - (NSDictionary *)toDictionary;

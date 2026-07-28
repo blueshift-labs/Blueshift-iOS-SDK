@@ -121,6 +121,17 @@ static BlueShiftAppData *_currentAppData = nil;
     return NO;
 }
 
+- (BOOL)getCurrentLiveActivityStatus API_AVAILABLE(ios(16.1)) {
+    Class liveActivityManagerClass = NSClassFromString(@"BlueshiftLiveActivityManager");
+    if (liveActivityManagerClass) {
+        SEL selector = NSSelectorFromString(@"getLiveActivityStatus");
+        if ([liveActivityManagerClass respondsToSelector:selector]) {
+            return ((BOOL(*)(id, SEL))[liveActivityManagerClass methodForSelector:selector])(liveActivityManagerClass, selector);
+        }
+    }
+    return NO;
+}
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *appMutableDictionary = [NSMutableDictionary dictionary];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kAppName value:self.bundleIdentifier];
@@ -129,6 +140,9 @@ static BlueShiftAppData *_currentAppData = nil;
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kBundleIdentifier value:self.bundleIdentifier];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnablePush value:[NSNumber numberWithBool: [self getCurrentPushNotificationStatus]]];
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableInApp value:[NSNumber numberWithBool: [self getCurrentInAppNotificationStatus]]];
+    if (@available(iOS 16.1, *)) {
+        [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kEnableLiveActivity value:[NSNumber numberWithBool:[self getCurrentLiveActivityStatus]]];
+    }
     [BlueshiftEventAnalyticsHelper addToDictionary:appMutableDictionary key:kInAppNotificationModalSDKVersionKey value:self.sdkVersion];
     return [appMutableDictionary copy];
 }

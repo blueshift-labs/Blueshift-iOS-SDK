@@ -30,6 +30,7 @@
 //App Data
 #define kEnablePush                             @"enable_push"
 #define kEnableInApp                            @"enable_inapp"
+#define kEnableLiveActivity                     @"enable_live_activity"
 #define kBundleIdentifier                       @"bundle_identifier"
 #define kBuildNumber                            @"build_number"
 #define kAppVersion                             @"app_version"

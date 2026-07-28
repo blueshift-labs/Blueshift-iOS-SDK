@@ -20,6 +20,11 @@
 #define kBSInboxStatusPath         @"inbox/api/v1/status"
 #define kBSInboxUpdatePath         @"inbox/api/v1/update"
 
+// Live Activity API endpoint paths
+#define kBSLiveActivityPushToStartPath   @"api/v1/live_activity/push_to_start_token"
+#define kBSLiveActivityInstanceTokenPath @"api/v1/live_activity/instance_token"
+#define kBSLiveActivityActionPath        @"api/v1/live_activity/close"
+
 @interface BlueshiftRoutes : NSObject
 
 + (NSString*)getBaseURLString;
@@ -31,6 +36,11 @@
 + (NSString*)getInboxMessagesURL;
 + (NSString*)getInboxStatusURL;
 + (NSString*)getInboxUpdateURL;
+
+// Live Activity URL getters
++ (NSString*)getLiveActivityPushToStartURL;
++ (NSString*)getLiveActivityInstanceTokenURL;
++ (NSString*)getLiveActivityActionURL;
 
 @end
 
