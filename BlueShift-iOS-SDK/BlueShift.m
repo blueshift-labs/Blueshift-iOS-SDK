@@ -101,13 +101,12 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         
         // Set config
         _sharedBlueShiftInstance.config = config;
+
+        // Resolve the APNs gateway environment immediately at SDK init time.
+        NSString *resolvedAPNsEnv = [BlueShiftDeviceData resolveAPNsEnvironmentForConfig:config];
+        [BlueShiftDeviceData currentDeviceData].apnsEnvironment = resolvedAPNsEnv;
+        [BlueshiftLog logInfo:@"APNs environment resolved at SDK init:" withDetails:resolvedAPNsEnv methodName:nil];
         
-        // Restore persisted APNs environment from the previous session so that events
-        NSString *persistedAPNsEnv = [[NSUserDefaults standardUserDefaults]
-            objectForKey:kBlueshiftAPNsEnvironment];
-        if (persistedAPNsEnv) {
-            [BlueShiftDeviceData currentDeviceData].apnsEnvironment = persistedAPNsEnv;
-        }
         
         // Set up device id
         if (config.blueshiftDeviceIdSource) {

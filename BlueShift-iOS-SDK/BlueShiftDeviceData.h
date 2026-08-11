@@ -63,6 +63,8 @@
 
 + (NSString *)detectAPNsEnvironment;
 
++ (NSString *)resolveAPNsEnvironmentForConfig:(id)config;
+
 - (NSDictionary *)toDictionary;
 
 /// This method will only work if the device id type is set as UUID. It will not work for device id types IDFV or IDFV:BundleId.

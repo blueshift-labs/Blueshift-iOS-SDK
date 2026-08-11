@@ -137,10 +137,10 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"Successfully registered for remote notifications. Device token: "] withDetails:deviceTokenString methodName:nil];
         
-        // Resolve and persist the APNs gateway environment for this token.
+        // Re-resolve the APNs gateway environment on each token registration.
         // This must happen before autoIdentifyOnDeviceTokenChange so the identify
         // event payload already contains the correct apns_environment value.
-        [self resolveAndPersistAPNsEnvironment];
+        [self resolveAPNsEnvironment];
         
         NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
         // Send identify event after receiveing the device token for the first time & when device token changes
@@ -154,34 +154,19 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
     }
 }
 
-/// Resolves the APNs gateway environment for the current device token and persists it
-/// to NSUserDefaults so it survives cold starts before the token callback fires.
+/// Resolves the APNs gateway environment for the current device token by reading
+/// embedded.mobileprovision (or applying the explicit config override).
 ///
 /// Resolution order:
 ///   1. config.apnsEnvironment == BlueshiftAPNsEnvironmentSandbox    → "development"
 ///   2. config.apnsEnvironment == BlueshiftAPNsEnvironmentProduction → "production"
 ///   3. config.apnsEnvironment == BlueshiftAPNsEnvironmentAuto       → detectAPNsEnvironment
 ///      (reads embedded.mobileprovision; defaults to "production" when absent)
-- (void)resolveAndPersistAPNsEnvironment {
+- (void)resolveAPNsEnvironment {
     @try {
-        NSString *resolved = nil;
-        BlueshiftAPNsEnvironment configEnv = [BlueShift sharedInstance].config.apnsEnvironment;
-        switch (configEnv) {
-            case BlueshiftAPNsEnvironmentSandbox:
-                resolved = kAPNsEnvironmentDevelopment;
-                break;
-            case BlueshiftAPNsEnvironmentProduction:
-                resolved = kAPNsEnvironmentProduction;
-                break;
-            case BlueshiftAPNsEnvironmentAuto:
-            default:
-                resolved = [BlueShiftDeviceData detectAPNsEnvironment];
-                break;
-        }
+        NSString *resolved = [BlueShiftDeviceData resolveAPNsEnvironmentForConfig:[BlueShift sharedInstance].config];
         [BlueShiftDeviceData currentDeviceData].apnsEnvironment = resolved;
-        [[NSUserDefaults standardUserDefaults] setObject:resolved forKey:kBlueshiftAPNsEnvironment];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        [BlueshiftLog logInfo:@"Resolved APNs environment:" withDetails:resolved methodName:nil];
+        [BlueshiftLog logInfo:@"Resolved APNs environment at token registration:" withDetails:resolved methodName:nil];
     } @catch (NSException *exception) {
         [BlueshiftLog logException:exception
                    withDescription:@"Failed to resolve APNs environment"

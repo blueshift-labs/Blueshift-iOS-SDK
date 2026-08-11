@@ -70,6 +70,18 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     }
 }
 
++ (NSString *)resolveAPNsEnvironmentForConfig:(BlueShiftConfig *)config {
+    switch (config.apnsEnvironment) {
+        case BlueshiftAPNsEnvironmentSandbox:
+            return kAPNsEnvironmentDevelopment;
+        case BlueshiftAPNsEnvironmentProduction:
+            return kAPNsEnvironmentProduction;
+        case BlueshiftAPNsEnvironmentAuto:
+        default:
+            return [self detectAPNsEnvironment];
+    }
+}
+
 #pragma mark - Device UUID
 
 - (NSString *)deviceUUID {
