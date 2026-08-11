@@ -48,6 +48,9 @@
         // Default Region US
         self.region = BlueshiftRegionUS;
         
+        // Default APNs environment — auto-detect from embedded.mobileprovision
+        self.apnsEnvironment = BlueshiftAPNsEnvironmentAuto;
+        
         self.sdkCoreDataFilesLocation = BlueshiftFilesLocationDocumentDirectory;
     }
     return self;

@@ -102,6 +102,13 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
         // Set config
         _sharedBlueShiftInstance.config = config;
         
+        // Restore persisted APNs environment from the previous session so that events
+        NSString *persistedAPNsEnv = [[NSUserDefaults standardUserDefaults]
+            objectForKey:kBlueshiftAPNsEnvironment];
+        if (persistedAPNsEnv) {
+            [BlueShiftDeviceData currentDeviceData].apnsEnvironment = persistedAPNsEnv;
+        }
+        
         // Set up device id
         if (config.blueshiftDeviceIdSource) {
             [[BlueShiftDeviceData currentDeviceData] setBlueshiftDeviceIdSource:config.blueshiftDeviceIdSource];
