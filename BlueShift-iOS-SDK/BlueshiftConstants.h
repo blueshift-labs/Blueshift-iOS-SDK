@@ -171,6 +171,8 @@
 #define kBSInboxMessageDetails                  @"details"
 #define kBSInboxMessageIcon                     @"icon"
 
+#define kBSMetadataKey                           @"metadata"
+
 #define kBSTrackingOpenedBy                     @"opened_by"
 #define kBSTrackingOpenedByUser                 @"user"
 #define kBSTrackingOpenedByPrefetch             @"prefetch"
