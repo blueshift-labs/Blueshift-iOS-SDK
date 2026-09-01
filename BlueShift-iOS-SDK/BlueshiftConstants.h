@@ -190,7 +190,7 @@
 
 // APNs environment — per-token gateway routing
 #define kAPNsEnvironment                        @"apns_environment"
-#define kAPNsEnvironmentDevelopment             @"development"
+#define kAPNsEnvironmentDevelopment             @"sandbox"
 #define kAPNsEnvironmentProduction              @"production"
 
 #endif /* BlueshiftConstants_h */

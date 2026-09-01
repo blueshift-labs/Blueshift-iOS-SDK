@@ -158,7 +158,7 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
 /// embedded.mobileprovision (or applying the explicit config override).
 ///
 /// Resolution order:
-///   1. config.apnsEnvironment == BlueshiftAPNsEnvironmentSandbox    → "development"
+///   1. config.apnsEnvironment == BlueshiftAPNsEnvironmentSandbox    → "sandbox"
 ///   2. config.apnsEnvironment == BlueshiftAPNsEnvironmentProduction → "production"
 ///   3. config.apnsEnvironment == BlueshiftAPNsEnvironmentAuto       → detectAPNsEnvironment
 ///      (reads embedded.mobileprovision; defaults to "production" when absent)
