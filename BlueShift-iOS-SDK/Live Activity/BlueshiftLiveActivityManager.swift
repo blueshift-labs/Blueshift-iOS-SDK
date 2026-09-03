@@ -138,24 +138,70 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         }
     }
 
-    /// Called by `BlueShiftUserInfo`'s `+removeCurrentUserInfo`, before it clears any local
-    /// state. Temporarily flips the Live Activity config flag off and fires a real identify call
-    /// while the outgoing customer's email/customer_id (on BlueShiftUserInfo) and device_id (on
-    /// BlueShiftDeviceData) are all still live - so the resulting event correctly carries
-    /// `enable_live_activity: false` scoped to the customer actually signing out, then flips the
-    /// flag back so nothing else about identify behaves differently afterward.
+    // MARK: - Public API - Explicit Associate/Dissociate
+
+    /// Re-sends the last known push-to-start token for every activity type that has ever
+    /// registered one in this session, under whichever customer is currently on
+    /// `BlueShiftUserInfo`/`BlueShiftDeviceData` right now.
     ///
-    /// Deliberately synchronous rather than `Task { ... }`: this must complete, with the payload
-    /// already captured, before `removeCurrentUserInfo` (and whatever the app calls right after
-    /// it, e.g. `resetDeviceUUID`) mutates the very state this call depends on.
+    /// This is for "in-between" cases that aren't a sign-in or sign-out - e.g. an in-session
+    /// identity or eligibility change that doesn't go through a full identify call. Sign-in
+    /// itself doesn't need this: `identifyUser(...)` already resends automatically via
+    /// `handleIdentityChange` above.
+    ///
+    /// No-op if Live Activity is disabled in config, or if nothing has registered a
+    /// push-to-start token yet (there's nothing cached to resend).
+    @objc public static func associateAllPushToStartTokens() {
+        guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
+
+        let currentEmail = BlueShiftUserInfo.sharedInstance()?.email
+        let currentCustomerId = BlueShiftUserInfo.sharedInstance()?.retailerCustomerID
+        let currentDeviceId = BlueShiftDeviceData.current()?.deviceUUID
+
+        for (activityType, association) in shared.registeredAssociations.allEntries() {
+            var payload: [String: String] = [
+                "activity_attributes_type": activityType,
+                "push_to_start_token": association.token
+            ]
+            if let currentDeviceId = currentDeviceId { payload["device_id"] = currentDeviceId }
+            if let currentEmail = currentEmail { payload["email"] = currentEmail }
+            if let currentCustomerId = currentCustomerId { payload["customer_id"] = currentCustomerId }
+            BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
+
+            shared.registeredAssociations.set(
+                RegisteredAssociation(token: association.token, deviceId: currentDeviceId, customerId: currentCustomerId, email: currentEmail),
+                forKey: activityType
+            )
+        }
+    }
+
+    /// Tells the server to stop delivering Live Activity start pushes for whichever
+    /// customer/device is currently identified, across every activity type this device has ever
+    /// registered a push-to-start token for.
+    ///
+    /// Called directly via the ObjC runtime by `BlueShiftUserInfo`'s `+removeCurrentUserInfo`,
+    /// before it clears any local state - this is what makes automatic sign-out cleanup work.
+    /// Also safe to call explicitly at any other point in the session (the "in-between" case),
+    /// not only at sign-out.
+    ///
+    /// Device-wide, not per activity type: the backend clears `enable_live_activity` at the
+    /// device level, so there is no supported way today to dissociate a single activity type
+    /// while leaving others registered on the same device.
+    ///
+    /// Deliberately synchronous: this must complete, with the payload already captured, before
+    /// whatever runs right after it (e.g. `removeCurrentUserInfo` clearing identity, or
+    /// `resetDeviceUUID` changing the device id) mutates the very state this call depends on -
+    /// so it must always be called BEFORE that identity/device id is cleared, never after.
     ///
     /// Clears only the *identity* half of each cached association afterward (keeps the token) -
-    /// so the very next identify, even if it's the same customer signing back in, is treated as a
+    /// so the very next identify, even for the same customer signing back in, is treated as a
     /// change and re-sent, instead of being silently skipped as "no change" against a customer
     /// the server no longer has on file.
-    @objc public static func handleUserLogout() {
+    @objc public static func dissociateAllPushToStartTokens() {
         guard let config = BlueShift.sharedInstance()?.config, config.enableLiveActivity else { return }
         guard !shared.registeredAssociations.allEntries().isEmpty else { return }
+
+        BlueshiftLog.logInfo("Blueshift Live Activity: dissociating push-to-start token(s) for the currently identified customer/device.", withDetails: nil, methodName: nil)
 
         config.enableLiveActivity = false
         BlueShift.sharedInstance()?.identifyUser(withDetails: nil, canBatchThisEvent: false)

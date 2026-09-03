@@ -103,7 +103,7 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
     // Activity subspec isn't linked, or nothing was ever registered.
     if (@available(iOS 16.1, *)) {
         Class liveActivityManagerClass = NSClassFromString(@"BlueshiftLiveActivityManager");
-        SEL selector = NSSelectorFromString(@"handleUserLogout");
+        SEL selector = NSSelectorFromString(@"dissociateAllPushToStartTokens");
         if (liveActivityManagerClass && [liveActivityManagerClass respondsToSelector:selector]) {
             ((void (*)(id, SEL))[liveActivityManagerClass methodForSelector:selector])(liveActivityManagerClass, selector);
         }
