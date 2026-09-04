@@ -20,8 +20,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     @objc public static let shared = BlueshiftLiveActivityManager()
 
     /// Returns true if Live Activity is enabled in SDK config AND enabled in device Settings.
-    /// Exposed to Objective-C via @objc so BlueShiftAppData can call it via ObjC runtime without
-    /// a compile-time dependency on ActivityKit in the Core SDK.
     @objc public static func getLiveActivityStatus() -> Bool {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else {
             return false
@@ -35,10 +33,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     private let lifecycleTasks = ThreadSafeStorage<Task<Void, Never>>()
     private let enablementTask = ThreadSafeStorage<Task<Void, Never>>()
 
-    // What we last actually told the server for each activity type: the token itself, plus
-    // the device/customer identity it was registered under. Deliberately a synchronous,
-    // lock-protected cache (not the actor-based ThreadSafeStorage used above) - see
-    // AssociationCache's doc comment for why.
     private let registeredAssociations = AssociationCache()
 
     // Tracks the structural types the developer registered, allowing automatic recovery
@@ -63,10 +57,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings. Sending disabled action.", withDetails: nil, methodName: nil)
 
-            // Fixed payload routing via MainActor context
-//            Task { @MainActor in
-//                Self.logPayload(Self.shared.buildActionPayload("disabled"), url: BlueshiftRoutes.getLiveActivityActionURL())
-//            }
             return
         }
 
@@ -105,15 +95,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     // MARK: - Identity Lifecycle Hooks (called via ObjC runtime from Core SDK)
 
-    /// Called by `BlueShift`'s `identifyUserWithEmail:andDetails:canBatchThisEvent:` after every
-    /// identify call. If the identified customer differs from whoever we last actually
-    /// registered a push-to-start token for, resend that cached token under the new identity
-    /// right now - we don't wait for ActivityKit to rotate the token (it usually won't, across a
-    /// sign-out/sign-in with no app relaunch) or for the app to relaunch.
-    ///
-    /// Synchronous and cheap: at most one POST enqueue per registered activity type, and a plain
-    /// dictionary comparison otherwise. Safe to call on every identify, including ones that
-    /// don't touch Live Activity at all.
     @objc(handleIdentityChangeWithEmail:customerId:)
     public static func handleIdentityChange(email: String?, customerId: String?) {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
@@ -140,17 +121,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     // MARK: - Public API - Explicit Associate/Dissociate
 
-    /// Re-sends the last known push-to-start token for every activity type that has ever
-    /// registered one in this session, under whichever customer is currently on
-    /// `BlueShiftUserInfo`/`BlueShiftDeviceData` right now.
-    ///
-    /// This is for "in-between" cases that aren't a sign-in or sign-out - e.g. an in-session
-    /// identity or eligibility change that doesn't go through a full identify call. Sign-in
-    /// itself doesn't need this: `identifyUser(...)` already resends automatically via
-    /// `handleIdentityChange` above.
-    ///
-    /// No-op if Live Activity is disabled in config, or if nothing has registered a
-    /// push-to-start token yet (there's nothing cached to resend).
     @objc public static func associateAllPushToStartTokens() {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
 
@@ -175,28 +145,6 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         }
     }
 
-    /// Tells the server to stop delivering Live Activity start pushes for whichever
-    /// customer/device is currently identified, across every activity type this device has ever
-    /// registered a push-to-start token for.
-    ///
-    /// Called directly via the ObjC runtime by `BlueShiftUserInfo`'s `+removeCurrentUserInfo`,
-    /// before it clears any local state - this is what makes automatic sign-out cleanup work.
-    /// Also safe to call explicitly at any other point in the session (the "in-between" case),
-    /// not only at sign-out.
-    ///
-    /// Device-wide, not per activity type: the backend clears `enable_live_activity` at the
-    /// device level, so there is no supported way today to dissociate a single activity type
-    /// while leaving others registered on the same device.
-    ///
-    /// Deliberately synchronous: this must complete, with the payload already captured, before
-    /// whatever runs right after it (e.g. `removeCurrentUserInfo` clearing identity, or
-    /// `resetDeviceUUID` changing the device id) mutates the very state this call depends on -
-    /// so it must always be called BEFORE that identity/device id is cleared, never after.
-    ///
-    /// Clears only the *identity* half of each cached association afterward (keeps the token) -
-    /// so the very next identify, even for the same customer signing back in, is treated as a
-    /// change and re-sent, instead of being silently skipped as "no change" against a customer
-    /// the server no longer has on file.
     @objc public static func dissociateAllPushToStartTokens() {
         guard let config = BlueShift.sharedInstance()?.config, config.enableLiveActivity else { return }
         guard !shared.registeredAssociations.allEntries().isEmpty else { return }
@@ -376,14 +324,6 @@ private struct RegisteredAssociation {
 }
 
 /// Synchronous, lock-protected cache of the last registered association per activity type.
-///
-/// Deliberately NOT the actor-based `ThreadSafeStorage` used elsewhere in this file.
-/// `handleIdentityChange` and `handleUserLogout` above are invoked via the ObjC runtime from
-/// `BlueShift.m` and `BlueShiftUserInfo.m` in the middle of a synchronous call (an identify, or
-/// the start of `removeCurrentUserInfo`) and must read/update this cache and enqueue a network
-/// call *before returning*, so the caller's very next line (which may clear the identity or
-/// device id this cache just depended on) cannot run first. A `Task { await ... }` indirection
-/// here would race exactly the state it's trying to read.
 private final class AssociationCache: @unchecked Sendable {
     private var storage: [String: RegisteredAssociation] = [:]
     private let lock = NSLock()
