@@ -95,8 +95,8 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     // MARK: - Identity Lifecycle Hooks (called via ObjC runtime from Core SDK)
 
-    @objc(handleIdentityChangeWithEmail:customerId:)
-    public static func handleIdentityChange(email: String?, customerId: String?) {
+    @objc(syncPushToStartTokensWithEmail:customerId:)
+    public static func syncPushToStartTokens(email: String?, customerId: String?) {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
 
         for (activityType, association) in shared.registeredAssociations.allEntries() {

@@ -383,7 +383,7 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     // getCurrentLiveActivityStatus, so Core carries no compile-time dependency on ActivityKit.
     if (@available(iOS 16.1, *)) {
         Class liveActivityManagerClass = NSClassFromString(@"BlueshiftLiveActivityManager");
-        SEL selector = NSSelectorFromString(@"handleIdentityChangeWithEmail:customerId:");
+        SEL selector = NSSelectorFromString(@"syncPushToStartTokensWithEmail:customerId:");
         if (liveActivityManagerClass && [liveActivityManagerClass respondsToSelector:selector]) {
             NSString *customerId = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
             ((void (*)(id, SEL, NSString *, NSString *))[liveActivityManagerClass methodForSelector:selector])(liveActivityManagerClass, selector, email, customerId);
