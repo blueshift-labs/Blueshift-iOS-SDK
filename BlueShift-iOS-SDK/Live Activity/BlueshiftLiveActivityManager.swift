@@ -99,23 +99,10 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     public static func syncPushToStartTokens(email: String?, customerId: String?) {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
 
+        let deviceId = BlueShiftDeviceData.current()?.deviceUUID
         for (activityType, association) in shared.registeredAssociations.allEntries() {
             guard association.email != email || association.customerId != customerId else { continue }
-
-            let deviceId = BlueShiftDeviceData.current()?.deviceUUID
-            var payload: [String: String] = [
-                "activity_attributes_type": activityType,
-                "push_to_start_token": association.token
-            ]
-            if let deviceId = deviceId { payload["device_id"] = deviceId }
-            if let email = email { payload["email"] = email }
-            if let customerId = customerId { payload["customer_id"] = customerId }
-            BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
-
-            shared.registeredAssociations.set(
-                RegisteredAssociation(token: association.token, deviceId: deviceId, customerId: customerId, email: email),
-                forKey: activityType
-            )
+            resendToken(association, forActivityType: activityType, email: email, customerId: customerId, deviceId: deviceId)
         }
     }
 
@@ -129,19 +116,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         let currentDeviceId = BlueShiftDeviceData.current()?.deviceUUID
 
         for (activityType, association) in shared.registeredAssociations.allEntries() {
-            var payload: [String: String] = [
-                "activity_attributes_type": activityType,
-                "push_to_start_token": association.token
-            ]
-            if let currentDeviceId = currentDeviceId { payload["device_id"] = currentDeviceId }
-            if let currentEmail = currentEmail { payload["email"] = currentEmail }
-            if let currentCustomerId = currentCustomerId { payload["customer_id"] = currentCustomerId }
-            BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
-
-            shared.registeredAssociations.set(
-                RegisteredAssociation(token: association.token, deviceId: currentDeviceId, customerId: currentCustomerId, email: currentEmail),
-                forKey: activityType
-            )
+            resendToken(association, forActivityType: activityType, email: currentEmail, customerId: currentCustomerId, deviceId: currentDeviceId)
         }
     }
 
@@ -156,6 +131,24 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         config.enableLiveActivity = true
 
         shared.registeredAssociations.clearIdentity()
+    }
+
+    // Shared by associateAllPushToStartTokens() and syncPushToStartTokens(): sends one
+    // activity type's cached token under the given identity and updates the cache to match.
+    private static func resendToken(_ association: RegisteredAssociation, forActivityType activityType: String, email: String?, customerId: String?, deviceId: String?) {
+        var payload: [String: String] = [
+            "activity_attributes_type": activityType,
+            "push_to_start_token": association.token
+        ]
+        if let deviceId = deviceId { payload["device_id"] = deviceId }
+        if let email = email { payload["email"] = email }
+        if let customerId = customerId { payload["customer_id"] = customerId }
+        BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
+
+        shared.registeredAssociations.set(
+            RegisteredAssociation(token: association.token, deviceId: deviceId, customerId: customerId, email: email),
+            forKey: activityType
+        )
     }
 
     // MARK: - Private: Push-to-Start Registration
