@@ -33,7 +33,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     private let lifecycleTasks = ThreadSafeStorage<Task<Void, Never>>()
     private let enablementTask = ThreadSafeStorage<Task<Void, Never>>()
 
-    private let registeredAssociations = AssociationCache()
+    private let registeredTokens = TokenCache()
 
     // Tracks the structural types the developer registered, allowing automatic recovery
     private let registeredTypes = ThreadSafeStorage<@Sendable () -> Void>()
@@ -96,13 +96,12 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     // MARK: - Identity Lifecycle Hooks (called via ObjC runtime from Core SDK)
 
     @objc(syncPushToStartTokensWithEmail:customerId:)
-    public static func syncPushToStartTokens(email: String?, customerId: String?) {
+    static func syncPushToStartTokens(email: String?, customerId: String?) {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
 
         let deviceId = BlueShiftDeviceData.current()?.deviceUUID
-        for (activityType, association) in shared.registeredAssociations.allEntries() {
-            guard association.email != email || association.customerId != customerId else { continue }
-            resendToken(association, forActivityType: activityType, email: email, customerId: customerId, deviceId: deviceId)
+        for (activityType, registeredToken) in shared.registeredTokens.allEntries() {
+            resendToken(registeredToken, forActivityType: activityType, email: email, customerId: customerId, deviceId: deviceId)
         }
     }
 
@@ -115,14 +114,14 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         let currentCustomerId = BlueShiftUserInfo.sharedInstance()?.retailerCustomerID
         let currentDeviceId = BlueShiftDeviceData.current()?.deviceUUID
 
-        for (activityType, association) in shared.registeredAssociations.allEntries() {
-            resendToken(association, forActivityType: activityType, email: currentEmail, customerId: currentCustomerId, deviceId: currentDeviceId)
+        for (activityType, registeredToken) in shared.registeredTokens.allEntries() {
+            resendToken(registeredToken, forActivityType: activityType, email: currentEmail, customerId: currentCustomerId, deviceId: currentDeviceId)
         }
     }
 
     @objc public static func dissociateAllPushToStartTokens() {
         guard let config = BlueShift.sharedInstance()?.config, config.enableLiveActivity else { return }
-        guard !shared.registeredAssociations.allEntries().isEmpty else { return }
+        guard !shared.registeredTokens.allEntries().isEmpty else { return }
 
         BlueshiftLog.logInfo("Blueshift Live Activity: dissociating push-to-start token(s) for the currently identified customer/device.", withDetails: nil, methodName: nil)
 
@@ -130,23 +129,23 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         BlueShift.sharedInstance()?.identifyUser(withDetails: nil, canBatchThisEvent: false)
         config.enableLiveActivity = true
 
-        shared.registeredAssociations.clearIdentity()
+//        shared.registeredTokens.clear()
     }
 
     // Shared by associateAllPushToStartTokens() and syncPushToStartTokens(): sends one
     // activity type's cached token under the given identity and updates the cache to match.
-    private static func resendToken(_ association: RegisteredAssociation, forActivityType activityType: String, email: String?, customerId: String?, deviceId: String?) {
+    private static func resendToken(_ registeredToken: RegisteredToken, forActivityType activityType: String, email: String?, customerId: String?, deviceId: String?) {
         var payload: [String: String] = [
             "activity_attributes_type": activityType,
-            "push_to_start_token": association.token
+            "push_to_start_token": registeredToken.token
         ]
         if let deviceId = deviceId { payload["device_id"] = deviceId }
         if let email = email { payload["email"] = email }
         if let customerId = customerId { payload["customer_id"] = customerId }
         BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
 
-        shared.registeredAssociations.set(
-            RegisteredAssociation(token: association.token, deviceId: deviceId, customerId: customerId, email: email),
+        shared.registeredTokens.set(
+            RegisteredToken(token: registeredToken.token),
             forKey: activityType
         )
     }
@@ -155,17 +154,10 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     @available(iOS 17.2, *)
     private func registerPushToStartTokenIfNeeded(_ token: String, activityTypeName: String) {
-        let currentEmail = BlueShiftUserInfo.sharedInstance()?.email
-        let currentCustomerId = BlueShiftUserInfo.sharedInstance()?.retailerCustomerID
-        let currentDeviceId = BlueShiftDeviceData.current()?.deviceUUID
-
-        // Skip only if this is a true duplicate: same token AND same identity we already sent it
-        // under. A genuine OS token rotation, or an identity change picked up here because this
-        // loop happened to fire around the same time as one, must still go out - this is why the
-        // check compares the full (token, email, customerId) triple rather than just the token,
-        // unlike the single-token dedupe this replaced.
-        if let last = registeredAssociations.get(forKey: activityTypeName),
-           last.token == token, last.email == currentEmail, last.customerId == currentCustomerId {
+        // Skip only if this exact token is already what we last registered for this activity
+        // type - a genuine OS token rotation will differ and still go out.
+        if let last = registeredTokens.get(forKey: activityTypeName),
+           last.token == token {
             return
         }
 
@@ -174,8 +166,8 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         payload["push_to_start_token"] = token
         BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
 
-        registeredAssociations.set(
-            RegisteredAssociation(token: token, deviceId: currentDeviceId, customerId: currentCustomerId, email: currentEmail),
+        registeredTokens.set(
+            RegisteredToken(token: token),
             forKey: activityTypeName
         )
     }
@@ -306,44 +298,38 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
 }
 
-// MARK: - Registered Association Tracking
+// MARK: - Registered Token Tracking
 
 /// What we last actually told the server for one activity type's push-to-start token.
-private struct RegisteredAssociation {
+private struct RegisteredToken {
     let token: String
-    let deviceId: String?
-    let customerId: String?
-    let email: String?
 }
 
-/// Synchronous, lock-protected cache of the last registered association per activity type.
-private final class AssociationCache: @unchecked Sendable {
-    private var storage: [String: RegisteredAssociation] = [:]
+/// Synchronous, lock-protected cache of the last registered token per activity type.
+private final class TokenCache: @unchecked Sendable {
+    private var storage: [String: RegisteredToken] = [:]
     private let lock = NSLock()
 
-    func set(_ value: RegisteredAssociation, forKey key: String) {
+    func set(_ value: RegisteredToken, forKey key: String) {
         lock.lock(); defer { lock.unlock() }
         storage[key] = value
     }
 
-    func get(forKey key: String) -> RegisteredAssociation? {
+    func get(forKey key: String) -> RegisteredToken? {
         lock.lock(); defer { lock.unlock() }
         return storage[key]
     }
 
-    func allEntries() -> [(activityType: String, association: RegisteredAssociation)] {
+    func allEntries() -> [(activityType: String, token: RegisteredToken)] {
         lock.lock(); defer { lock.unlock() }
         return storage.map { ($0.key, $0.value) }
     }
 
-    /// Keeps each cached token/deviceId, but blanks the customer/email half - so the very next
-    /// identify (even for the same customer signing back in) is treated as a change instead of
-    /// matching a customer the server no longer has this token registered under.
-    func clearIdentity() {
+    /// Removes every cached token entry - called on dissociate so a signed-out device
+    /// has nothing cached locally until the next registration or identify.
+    func clear() {
         lock.lock(); defer { lock.unlock() }
-        for (key, existing) in storage {
-            storage[key] = RegisteredAssociation(token: existing.token, deviceId: existing.deviceId, customerId: nil, email: nil)
-        }
+        storage.removeAll()
     }
 }
 
