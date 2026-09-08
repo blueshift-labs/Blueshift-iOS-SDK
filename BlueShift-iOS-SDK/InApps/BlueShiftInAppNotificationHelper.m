@@ -221,6 +221,19 @@ static NSDictionary *_inAppTypeDictionay;
     return nil;
 }
 
++ (NSDictionary * _Nullable)getMetadata:(NSDictionary *)payload {
+    @try {
+        NSDictionary *dataDictionary = [payload objectForKey: kInAppNotificationDataKey];
+        id metadataValue = [dataDictionary objectForKey: kBSMetadataKey];
+        if (metadataValue && metadataValue != (id)[NSNull null] && [metadataValue isKindOfClass:[NSDictionary class]]) {
+            return (NSDictionary *)metadataValue;
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"[BlueShift] Exception in %s: %@ - %@", __PRETTY_FUNCTION__, exception.name, exception.reason);
+    }
+    return nil;
+}
+
 + (BOOL)isExpired:(double)expiryTime {
     double currentTime =  [[NSDate date] timeIntervalSince1970];
     return currentTime > expiryTime;
@@ -283,3 +296,4 @@ static NSDictionary *_inAppTypeDictionay;
 }
 
 @end
+

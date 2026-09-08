@@ -59,6 +59,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString * _Nullable)getMessageUUID:(NSDictionary *)notificationPayload;
 
+/// Returns just the custom marketer-defined metadata dictionary (`data.metadata`) from a raw in-app or
+/// inbox message payload. This is the one supported way for a client app to read that data - the rest
+/// of the payload's internal shape is not meant to be relied on.
+/// @param payload The raw payload dictionary - e.g. the dictionary received in a BlueShiftInAppNotificationDelegate
+/// callback, or a BlueshiftInboxMessage's `messagePayload`.
++ (NSDictionary * _Nullable)getMetadata:(NSDictionary *)payload;
+
 + (BOOL)isExpired:(double)expiryTime;
 
 /// Check if a url is valid web url
