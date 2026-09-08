@@ -15,13 +15,11 @@ import BlueShift_iOS_SDK
 public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     // MARK: - Shared Instance
-    
+
     /// Exposed to Objective-C cleanly without forcing global MainActor compliance on the whole class
     @objc public static let shared = BlueshiftLiveActivityManager()
 
     /// Returns true if Live Activity is enabled in SDK config AND enabled in device Settings.
-    /// Exposed to Objective-C via @objc so BlueShiftAppData can call it via ObjC runtime without
-    /// a compile-time dependency on ActivityKit in the Core SDK.
     @objc public static func getLiveActivityStatus() -> Bool {
         guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else {
             return false
@@ -30,12 +28,13 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     }
 
     // MARK: - Private State Tracking Trees
-    
+
     private let pushToStartTasks = ThreadSafeStorage<Task<Void, Never>>()
     private let lifecycleTasks = ThreadSafeStorage<Task<Void, Never>>()
     private let enablementTask = ThreadSafeStorage<Task<Void, Never>>()
-    private let lastPushToStartTokens = ThreadSafeStorage<String>()
-    
+
+    private let registeredTokens = TokenCache()
+
     // Tracks the structural types the developer registered, allowing automatic recovery
     private let registeredTypes = ThreadSafeStorage<@Sendable () -> Void>()
 
@@ -57,11 +56,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
         // Guard: Local Device Settings check
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             BlueshiftLog.logInfo("Blueshift Live Activity: disabled in device Settings. Sending disabled action.", withDetails: nil, methodName: nil)
-            
-            // Fixed payload routing via MainActor context
-//            Task { @MainActor in
-//                Self.logPayload(Self.shared.buildActionPayload("disabled"), url: BlueshiftRoutes.getLiveActivityActionURL())
-//            }
+
             return
         }
 
@@ -74,20 +69,11 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
             for await tokenData in Activity<T>.pushToStartTokenUpdates {
                 guard !Task.isCancelled else { break }
                 let token = tokenData.map { String(format: "%02x", $0) }.joined()
-
-                // Only log if token is new or changed — skip duplicate emissions
-                let lastToken = await BlueshiftLiveActivityManager.shared.lastPushToStartTokens.get(forKey: activityTypeName)
-                guard token != lastToken else { continue }
-                await BlueshiftLiveActivityManager.shared.lastPushToStartTokens.set(token, forKey: activityTypeName)
-
-                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
-                payload["activity_attributes_type"] = activityTypeName
-                payload["push_to_start_token"] = token
-                BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
+                BlueshiftLiveActivityManager.shared.registerPushToStartTokenIfNeeded(token, activityTypeName: activityTypeName)
             }
         }
 
-        
+
         // FIX 1: Wrap actor mutations inside a task block to safely await across threads
         Task {
             await pushToStartTasks.set(ptsTask, forKey: name)
@@ -101,10 +87,89 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                 BlueshiftLiveActivityManager.shared.observeRunningActivity(activity, activityType: activityTypeName)
             }
         }
-        
+
         Task {
             await lifecycleTasks.set(monitoringTask, forKey: name)
         }
+    }
+
+    // MARK: - Identity Lifecycle Hooks (called via ObjC runtime from Core SDK)
+
+    @objc(syncPushToStartTokensWithEmail:customerId:)
+    static func syncPushToStartTokens(email: String?, customerId: String?) {
+        guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
+
+        let deviceId = BlueShiftDeviceData.current()?.deviceUUID
+        for (activityType, registeredToken) in shared.registeredTokens.allEntries() {
+            resendToken(registeredToken, forActivityType: activityType, email: email, customerId: customerId, deviceId: deviceId)
+        }
+    }
+
+    // MARK: - Public API - Explicit Associate/Dissociate
+
+    @objc public static func associateAllPushToStartTokens() {
+        guard BlueShift.sharedInstance()?.config?.enableLiveActivity == true else { return }
+
+        let currentEmail = BlueShiftUserInfo.sharedInstance()?.email
+        let currentCustomerId = BlueShiftUserInfo.sharedInstance()?.retailerCustomerID
+        let currentDeviceId = BlueShiftDeviceData.current()?.deviceUUID
+
+        for (activityType, registeredToken) in shared.registeredTokens.allEntries() {
+            resendToken(registeredToken, forActivityType: activityType, email: currentEmail, customerId: currentCustomerId, deviceId: currentDeviceId)
+        }
+    }
+
+    @objc public static func dissociateAllPushToStartTokens() {
+        guard let config = BlueShift.sharedInstance()?.config, config.enableLiveActivity else { return }
+        guard !shared.registeredTokens.allEntries().isEmpty else { return }
+
+        BlueshiftLog.logInfo("Blueshift Live Activity: dissociating push-to-start token(s) for the currently identified customer/device.", withDetails: nil, methodName: nil)
+
+        config.enableLiveActivity = false
+        BlueShift.sharedInstance()?.identifyUser(withDetails: nil, canBatchThisEvent: false)
+        config.enableLiveActivity = true
+
+//        shared.registeredTokens.clear()
+    }
+
+    // Shared by associateAllPushToStartTokens() and syncPushToStartTokens(): sends one
+    // activity type's cached token under the given identity and updates the cache to match.
+    private static func resendToken(_ registeredToken: RegisteredToken, forActivityType activityType: String, email: String?, customerId: String?, deviceId: String?) {
+        var payload: [String: String] = [
+            "activity_attributes_type": activityType,
+            "push_to_start_token": registeredToken.token
+        ]
+        if let deviceId = deviceId { payload["device_id"] = deviceId }
+        if let email = email { payload["email"] = email }
+        if let customerId = customerId { payload["customer_id"] = customerId }
+        BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
+
+        shared.registeredTokens.set(
+            RegisteredToken(token: registeredToken.token),
+            forKey: activityType
+        )
+    }
+
+    // MARK: - Private: Push-to-Start Registration
+
+    @available(iOS 17.2, *)
+    private func registerPushToStartTokenIfNeeded(_ token: String, activityTypeName: String) {
+        // Skip only if this exact token is already what we last registered for this activity
+        // type - a genuine OS token rotation will differ and still go out.
+        if let last = registeredTokens.get(forKey: activityTypeName),
+           last.token == token {
+            return
+        }
+
+        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+        payload["activity_attributes_type"] = activityTypeName
+        payload["push_to_start_token"] = token
+        BlueshiftLiveActivityAPIManager.registerPushToStartToken(payload)
+
+        registeredTokens.set(
+            RegisteredToken(token: token),
+            forKey: activityTypeName
+        )
     }
 
     // MARK: - Private: Observe Running Activity
@@ -116,7 +181,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
     ) {
 
         let capturedActivityType = activityType
-        
+
         let capturedActivityId: String = activity.attributes.bsftActivityId ?? activity.id
 
         Task { [capturedActivityType, capturedActivityId, weak activity] in
@@ -162,7 +227,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                     case .active:
                         break
                     case .stale:
-                        break                  
+                        break
                     case .pending:
                         break
                     @unknown default:
@@ -174,18 +239,18 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
             _ = await [watchTokens, watchStates]
         }
     }
-    
+
     // MARK: - Private: Enablement Observer
 
     private func startEnablementObserver() {
             if #available(iOS 16.2, *) {
                 Task {
                     if await enablementTask.get(forKey: "global") != nil { return }
-                    
+
                     let task = Task.detached { @Sendable in
                         for await enabled in ActivityAuthorizationInfo().activityEnablementUpdates {
                             guard !Task.isCancelled else { break }
-                            
+
                             if !enabled {
                                 // Case 1: User toggled LA off
                                 // Use high-priority task to ensure the log/API call completes
@@ -199,7 +264,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                             } else {
                                 // Case 2 (Scenario A Fix!): User toggled LA back ON while app was running
                                 BlueshiftLog.logInfo("Blueshift Live Activity: Enabled/Re-enabled in device Settings. Re-triggering PTS token loops.", withDetails: nil, methodName: nil)
-                                
+
                                 // Ask our safe actor for all saved registrations and run them
                                 Task {
                                     let blocks = await BlueshiftLiveActivityManager.shared.registeredTypes.getAllValues()
@@ -233,24 +298,59 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
 }
 
+// MARK: - Registered Token Tracking
+
+/// What we last actually told the server for one activity type's push-to-start token.
+private struct RegisteredToken {
+    let token: String
+}
+
+/// Synchronous, lock-protected cache of the last registered token per activity type.
+private final class TokenCache: @unchecked Sendable {
+    private var storage: [String: RegisteredToken] = [:]
+    private let lock = NSLock()
+
+    func set(_ value: RegisteredToken, forKey key: String) {
+        lock.lock(); defer { lock.unlock() }
+        storage[key] = value
+    }
+
+    func get(forKey key: String) -> RegisteredToken? {
+        lock.lock(); defer { lock.unlock() }
+        return storage[key]
+    }
+
+    func allEntries() -> [(activityType: String, token: RegisteredToken)] {
+        lock.lock(); defer { lock.unlock() }
+        return storage.map { ($0.key, $0.value) }
+    }
+
+    /// Removes every cached token entry - called on dissociate so a signed-out device
+    /// has nothing cached locally until the next registration or identify.
+    func clear() {
+        lock.lock(); defer { lock.unlock() }
+        storage.removeAll()
+    }
+}
+
 // MARK: - Thread-Safe Storage Companion Actor
 // FIX 3: Explicit iOS 13 availability guard applied to the underlying Actor structure itself
 @available(iOS 13.0.0, *)
 fileprivate actor ThreadSafeStorage<Element: Sendable> {
     private var storage: [String: Element] = [:]
-    
+
     func set(_ value: Element, forKey key: String) {
         storage[key] = value
     }
-    
+
     func get(forKey key: String) -> Element? {
         return storage[key]
     }
-    
+
     func remove(forKey key: String) {
         storage.removeValue(forKey: key)
     }
-    
+
     func getAllValues() -> [Element] {
         return Array(storage.values)
     }

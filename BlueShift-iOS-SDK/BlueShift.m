@@ -370,11 +370,25 @@ static const void *const kBlueshiftQueue = &kBlueshiftQueue;
     if (email) {
         [parameterMutableDictionary setObject:email forKey:kEmail];
     }
-    
+
     if (details) {
         [parameterMutableDictionary addEntriesFromDictionary:details];
     }
     [self trackEventForEventName:kEventIdentify andParameters:parameterMutableDictionary canBatchThisEvent:isBatchEvent];
+
+    // Notify the Live Activity subspec (if linked) that the identified customer may have
+    // changed, so it can resend a cached push-to-start token registration under the new
+    // customer_id/email without waiting for ActivityKit to rotate the token or the app to
+    // relaunch. Dispatched via the ObjC runtime, same pattern as BlueShiftAppData's
+    // getCurrentLiveActivityStatus, so Core carries no compile-time dependency on ActivityKit.
+    if (@available(iOS 16.1, *)) {
+        Class liveActivityManagerClass = NSClassFromString(@"BlueshiftLiveActivityManager");
+        SEL selector = NSSelectorFromString(@"syncPushToStartTokensWithEmail:customerId:");
+        if (liveActivityManagerClass && [liveActivityManagerClass respondsToSelector:selector]) {
+            NSString *customerId = [BlueShiftUserInfo sharedInstance].retailerCustomerID;
+            ((void (*)(id, SEL, NSString *, NSString *))[liveActivityManagerClass methodForSelector:selector])(liveActivityManagerClass, selector, email, customerId);
+        }
+    }
 }
 
 #pragma mark Track events

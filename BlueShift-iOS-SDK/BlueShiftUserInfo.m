@@ -97,6 +97,18 @@ static BlueShiftUserInfo *_sharedUserInfo = nil;
 }
 
 + (void)removeCurrentUserInfo {
+    // Give the Live Activity subspec (if linked) a chance to tell the server this customer's
+    // push-to-start token association should be cleared, while its email/customer_id/device_id
+    // are still live here - this must run before anything below wipes them. No-op if the Live
+    // Activity subspec isn't linked, or nothing was ever registered.
+    if (@available(iOS 16.1, *)) {
+        Class liveActivityManagerClass = NSClassFromString(@"BlueshiftLiveActivityManager");
+        SEL selector = NSSelectorFromString(@"dissociateAllPushToStartTokens");
+        if (liveActivityManagerClass && [liveActivityManagerClass respondsToSelector:selector]) {
+            ((void (*)(id, SEL))[liveActivityManagerClass methodForSelector:selector])(liveActivityManagerClass, selector);
+        }
+    }
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if ([BlueShiftUserInfo isCurrentUserInfoSavedInUserDefaults]==YES) {
         [defaults removeObjectForKey:ksavedBlueShiftUserInfoDictionary];
