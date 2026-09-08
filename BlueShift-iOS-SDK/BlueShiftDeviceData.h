@@ -54,7 +54,16 @@
 /// when blueshiftDeviceIdSource is set as DeviceIDSourceCUSTOM.
 @property (nonatomic, strong) NSString * customDeviceID;
 
+/// Value is @"development" or @"production". Set automatically at token-registration time
+/// by reading the app's embedded provisioning profile. Do not set this directly;
+/// use BlueShiftConfig.apnsEnvironment to override if needed.
+@property (nonatomic, strong) NSString *apnsEnvironment;
+
 + (instancetype) currentDeviceData;
+
++ (NSString *)detectAPNsEnvironment;
+
++ (NSString *)resolveAPNsEnvironmentForConfig:(id)config;
 
 - (NSDictionary *)toDictionary;
 

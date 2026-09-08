@@ -187,4 +187,10 @@
 #define kBSWebBrowserShowOpenInBrowserButton    @"showOpenInBrowserButton"
 #define kBSOpenInWebBrowserKey                  @"bsft_tgt"
 #define kBSOpenInWebBrowserValue                @"browser"
+
+// APNs environment — per-token gateway routing
+#define kAPNsEnvironment                        @"apns_environment"
+#define kAPNsEnvironmentDevelopment             @"sandbox"
+#define kAPNsEnvironmentProduction              @"production"
+
 #endif /* BlueshiftConstants_h */

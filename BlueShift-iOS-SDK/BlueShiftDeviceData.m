@@ -22,6 +22,68 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     return _currentDeviceData;
 }
 
+#pragma mark - APNs environment detection
+
++ (NSString *)detectAPNsEnvironment {
+    @try {
+#if TARGET_OS_SIMULATOR
+        return kAPNsEnvironmentDevelopment;
+#else
+        NSString *provisionPath = [[NSBundle mainBundle]
+            pathForResource:@"embedded" ofType:@"mobileprovision"];
+        if (!provisionPath) {
+            [BlueshiftLog logInfo:@"APNs environment: embedded.mobileprovision not found, defaulting to production (App Store install)" withDetails:nil methodName:nil];
+            return kAPNsEnvironmentProduction;
+        }
+        NSData *data = [NSData dataWithContentsOfFile:provisionPath];
+        if (!data) {
+            [BlueshiftLog logInfo:@"APNs environment: could not read embedded.mobileprovision, defaulting to production" withDetails:nil methodName:nil];
+            return kAPNsEnvironmentProduction;
+        }
+        NSString *raw = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
+        NSRange keyRange = [raw rangeOfString:@"<key>aps-environment</key>"];
+        if (keyRange.location == NSNotFound) {
+            [BlueshiftLog logInfo:@"APNs environment: aps-environment key not found in provisioning profile, defaulting to production" withDetails:nil methodName:nil];
+            return kAPNsEnvironmentProduction;
+        }
+        NSUInteger searchStart = keyRange.location + keyRange.length;
+        NSUInteger searchLen   = MIN(200, raw.length - searchStart);
+        NSRange searchRange    = NSMakeRange(searchStart, searchLen);
+        NSRange vs = [raw rangeOfString:@"<string>" options:0 range:searchRange];
+        NSRange ve = [raw rangeOfString:@"</string>" options:0 range:searchRange];
+        if (vs.location == NSNotFound || ve.location == NSNotFound) {
+            [BlueshiftLog logInfo:@"APNs environment: could not parse aps-environment value, defaulting to production" withDetails:nil methodName:nil];
+            return kAPNsEnvironmentProduction;
+        }
+        NSUInteger start = vs.location + vs.length;
+        NSString *value = [raw substringWithRange:NSMakeRange(start, ve.location - start)];
+        if ([value isEqualToString:@"development"]) {
+            return kAPNsEnvironmentDevelopment;
+        }
+        return kAPNsEnvironmentProduction;
+#endif
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception
+                   withDescription:@"Failed to detect APNs environment, defaulting to production"
+                        methodName:nil];
+        return kAPNsEnvironmentProduction;
+    }
+}
+
++ (NSString *)resolveAPNsEnvironmentForConfig:(BlueShiftConfig *)config {
+    switch (config.apnsEnvironment) {
+        case BlueshiftAPNsEnvironmentSandbox:
+            return kAPNsEnvironmentDevelopment;
+        case BlueshiftAPNsEnvironmentProduction:
+            return kAPNsEnvironmentProduction;
+        case BlueshiftAPNsEnvironmentAuto:
+        default:
+            return [self detectAPNsEnvironment];
+    }
+}
+
+#pragma mark - Device UUID
+
 - (NSString *)deviceUUID {
     NSString *deviceUUID = @"";
     switch (_blueshiftDeviceIdSource) {
@@ -159,11 +221,16 @@ static BlueShiftDeviceData *_currentDeviceData = nil;
     }
     [deviceMutableDictionary setValue:self.deviceCountry forKey:kCountryCode];
     
-
     if (!self.deviceLanguage) {
         self.deviceLanguage = (NSString*)[[NSLocale currentLocale] objectForKey: NSLocaleLanguageCode];
     }
     [deviceMutableDictionary setValue:self.deviceLanguage forKey:kLanguageCode];
+    
+    // Include the resolved APNs gateway environment so the Blueshift backend can route
+    // each push notification through the correct APNs gateway for this specific token.
+    if (self.apnsEnvironment) {
+        [deviceMutableDictionary setObject:self.apnsEnvironment forKey:kAPNsEnvironment];
+    }
     
     return [deviceMutableDictionary copy];
 }
