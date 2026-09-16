@@ -19,6 +19,14 @@ typedef NS_ENUM (NSUInteger,BlueshiftRegion) {
     BlueshiftRegionEU
 };
 
+/// Controls how the SDK determines the APNs gateway environment for each device token.
+/// - `BlueshiftAPNsEnvironmentAuto` (default): SDK reads the `aps-environment` entitlement
+typedef NS_ENUM(NSUInteger, BlueshiftAPNsEnvironment) {
+    BlueshiftAPNsEnvironmentAuto,
+    BlueshiftAPNsEnvironmentSandbox,
+    BlueshiftAPNsEnvironmentProduction
+};
+
 typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
     BlueshiftFilesLocationDocumentDirectory,
     BlueshiftFilesLocationLibraryDirectory
@@ -160,6 +168,11 @@ typedef NS_ENUM (NSUInteger,BlueshiftFilesLocation) {
 /// SDK provides IDFV, idfvBundleID, UUID and customDeviceId options as different device id sources.
 /// @note If you have multiple apps under one Blueshift account, then we recommend setting it to the idfvBundleID or UUID option.
 @property (nonatomic, assign) BlueshiftDeviceIdSource blueshiftDeviceIdSource;
+
+/// Controls how the SDK determines the APNs gateway environment for each device token.
+/// This is correct for all standard build types: Simulator, local debug, TestFlight, and App Store.
+/// Only set this explicitly if your CI/CD pipeline strips `embedded.mobileprovision`.
+@property (nonatomic, assign) BlueshiftAPNsEnvironment apnsEnvironment;
 
 - (BOOL)validateConfigDetails;
 

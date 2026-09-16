@@ -136,6 +136,12 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         deviceTokenString = [deviceTokenString stringByReplacingOccurrencesOfString:@" " withString:@""];
         [BlueShiftDeviceData currentDeviceData].deviceToken = deviceTokenString;
         [BlueshiftLog logInfo:[NSString stringWithFormat:@"Successfully registered for remote notifications. Device token: "] withDetails:deviceTokenString methodName:nil];
+        
+        // Re-resolve the APNs gateway environment on each token registration.
+        // This must happen before autoIdentifyOnDeviceTokenChange so the identify
+        // event payload already contains the correct apns_environment value.
+        [self resolveAPNsEnvironment];
+        
         NSString *previousDeviceToken = [[BlueShift sharedInstance] getDeviceToken];
         // Send identify event after receiveing the device token for the first time & when device token changes
         if (previousDeviceToken && deviceTokenString) {
@@ -145,6 +151,26 @@ static NSManagedObjectContext * _Nullable eventsMOContext;
         } else if (deviceTokenString) {
             [self autoIdentifyOnDeviceTokenChange];
         }
+    }
+}
+
+/// Resolves the APNs gateway environment for the current device token by reading
+/// embedded.mobileprovision (or applying the explicit config override).
+///
+/// Resolution order:
+///   1. config.apnsEnvironment == BlueshiftAPNsEnvironmentSandbox    → "sandbox"
+///   2. config.apnsEnvironment == BlueshiftAPNsEnvironmentProduction → "production"
+///   3. config.apnsEnvironment == BlueshiftAPNsEnvironmentAuto       → detectAPNsEnvironment
+///      (reads embedded.mobileprovision; defaults to "production" when absent)
+- (void)resolveAPNsEnvironment {
+    @try {
+        NSString *resolved = [BlueShiftDeviceData resolveAPNsEnvironmentForConfig:[BlueShift sharedInstance].config];
+        [BlueShiftDeviceData currentDeviceData].apnsEnvironment = resolved;
+        [BlueshiftLog logInfo:@"Resolved APNs environment at token registration:" withDetails:resolved methodName:nil];
+    } @catch (NSException *exception) {
+        [BlueshiftLog logException:exception
+                   withDescription:@"Failed to resolve APNs environment"
+                        methodName:[NSString stringWithUTF8String:__PRETTY_FUNCTION__]];
     }
 }
 

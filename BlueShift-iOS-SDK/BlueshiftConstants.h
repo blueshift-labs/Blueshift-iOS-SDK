@@ -171,6 +171,8 @@
 #define kBSInboxMessageDetails                  @"details"
 #define kBSInboxMessageIcon                     @"icon"
 
+#define kBSMetadataKey                           @"metadata"
+
 #define kBSTrackingOpenedBy                     @"opened_by"
 #define kBSTrackingOpenedByUser                 @"user"
 #define kBSTrackingOpenedByPrefetch             @"prefetch"
@@ -187,4 +189,10 @@
 #define kBSWebBrowserShowOpenInBrowserButton    @"showOpenInBrowserButton"
 #define kBSOpenInWebBrowserKey                  @"bsft_tgt"
 #define kBSOpenInWebBrowserValue                @"browser"
+
+// APNs environment — per-token gateway routing
+#define kAPNsEnvironment                        @"apns_environment"
+#define kAPNsEnvironmentDevelopment             @"sandbox"
+#define kAPNsEnvironmentProduction              @"production"
+
 #endif /* BlueshiftConstants_h */
