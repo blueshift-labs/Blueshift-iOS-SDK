@@ -18,10 +18,10 @@ public protocol BlueshiftActivityAttributes: ActivityAttributes {
     var bsftEmail: String? { get }
 }
 
-// @available(iOS 16.1, *)
-// public extension BlueshiftActivityAttributes {
-//     var bsftCustomerId: String? { nil }
-//     var bsftEmail: String? { nil }
-// }
+ @available(iOS 16.1, *)
+ public extension BlueshiftActivityAttributes {
+     var bsftCustomerId: String? { nil }
+     var bsftEmail: String? { nil }
+ }
 
 #endif
