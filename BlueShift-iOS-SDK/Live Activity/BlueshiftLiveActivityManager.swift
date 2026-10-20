@@ -184,12 +184,18 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
         let capturedActivityId: String = activity.attributes.bsftActivityId ?? activity.id
 
-        Task { [capturedActivityType, capturedActivityId, weak activity] in
+        let pinnedCustomerId = activity.attributes.bsftCustomerId
+        let pinnedEmail = activity.attributes.bsftEmail
+        let pinnedIdentity: PinnedActivityIdentity? = (pinnedCustomerId != nil || pinnedEmail != nil)
+            ? PinnedActivityIdentity(customerId: pinnedCustomerId, email: pinnedEmail)
+            : nil
+
+        Task { [capturedActivityType, capturedActivityId, pinnedIdentity, weak activity] in
             guard let activity = activity else { return }
 
             if let tokenData = activity.pushToken {
                 let token = tokenData.map { String(format: "%02x", $0) }.joined()
-                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic(pinnedIdentity: pinnedIdentity)
                 payload["activity_attributes_type"] = capturedActivityType
                 payload["bsft_activity_id"] = capturedActivityId
                 payload["instance_token"] = token
@@ -199,7 +205,7 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
             async let watchTokens: Void = {
                 for await tokenData in activity.pushTokenUpdates {
                     let token = tokenData.map { String(format: "%02x", $0) }.joined()
-                    var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                    var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic(pinnedIdentity: pinnedIdentity)
                     payload["activity_attributes_type"] = capturedActivityType
                     payload["bsft_activity_id"] = capturedActivityId
                     payload["instance_token"] = token
@@ -211,14 +217,14 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
                 for await state in activity.activityStateUpdates {
                     switch state {
                     case .dismissed:
-                        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic(pinnedIdentity: pinnedIdentity)
                         payload["activity_attributes_type"] = capturedActivityType
                         payload["bsft_activity_id"] = capturedActivityId
                         payload["activity_action"] = "dismiss"
                         BlueshiftLiveActivityAPIManager.sendAction(payload)
                         return
                     case .ended:
-                        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic()
+                        var payload = BlueshiftLiveActivityManager.buildBasePayloadStatic(pinnedIdentity: pinnedIdentity)
                         payload["activity_attributes_type"] = capturedActivityType
                         payload["bsft_activity_id"] = capturedActivityId
                         payload["activity_action"] = "ended"
@@ -282,20 +288,30 @@ public class BlueshiftLiveActivityManager: NSObject, @unchecked Sendable {
 
     // MARK: - Private: Payload Helpers
 
-    private static func buildBasePayloadStatic() -> [String: String] {
+    private static func buildBasePayloadStatic(pinnedIdentity: PinnedActivityIdentity? = nil) -> [String: String] {
         var payload: [String: String] = [:]
-        if let email = BlueShiftUserInfo.sharedInstance()?.email {
+
+        let email = pinnedIdentity != nil ? pinnedIdentity?.email : BlueShiftUserInfo.sharedInstance()?.email
+        if let email = email {
             payload["email"] = email
         }
         if let deviceId = BlueShiftDeviceData.current()?.deviceUUID {
             payload["device_id"] = deviceId
         }
-        if let customerId = BlueShiftUserInfo.sharedInstance()?.retailerCustomerID {
+        let customerId = pinnedIdentity != nil ? pinnedIdentity?.customerId : BlueShiftUserInfo.sharedInstance()?.retailerCustomerID
+        if let customerId = customerId {
             payload["customer_id"] = customerId
         }
         return payload
     }
 
+}
+
+// MARK: - Pinned Activity Identity
+
+private struct PinnedActivityIdentity: Sendable {
+    let customerId: String?
+    let email: String?
 }
 
 // MARK: - Registered Token Tracking

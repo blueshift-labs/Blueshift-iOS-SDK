@@ -12,9 +12,16 @@ import ActivityKit
 
 @available(iOS 16.1, *)
 public protocol BlueshiftActivityAttributes: ActivityAttributes {
-    /// Optional Blueshift campaign/activity identifier set by the client.
-    /// When present, the SDK sends this as `activity_id` in all
+
     var bsftActivityId: String? { get }
+    var bsftCustomerId: String? { get }
+    var bsftEmail: String? { get }
 }
+
+ @available(iOS 16.1, *)
+ public extension BlueshiftActivityAttributes {
+     var bsftCustomerId: String? { nil }
+     var bsftEmail: String? { nil }
+ }
 
 #endif
